@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 
 from backend.services.enhanced_ev_engine import enhanced_ev_engine, FeatureFlag, EVDistribution
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger(__name__)
 
@@ -78,9 +79,7 @@ async def calculate_enhanced_ev(request: EnhancedEVRequest):
         
     except Exception as e:
         logger.error(f"Enhanced EV calculation error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"EV calculation failed: {str(e)}"
+        raise BusinessLogicException(f"EV calculation failed: {str(e, status_code=500)}"
         )
 
 
@@ -96,7 +95,7 @@ async def batch_calculate_ev(request: BatchEVRequest):
         - Comprehensive metrics collection
     """
     if not request.opportunities:
-        raise HTTPException(status_code=400, detail="No opportunities provided")
+        raise BusinessLogicException("No opportunities provided", status_code=400)
     
     try:
         
@@ -128,9 +127,7 @@ async def batch_calculate_ev(request: BatchEVRequest):
             
     except Exception as e:
         logger.error(f"Batch EV calculation error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Batch EV calculation failed: {str(e)}"
+        raise BusinessLogicException(f"Batch EV calculation failed: {str(e, status_code=500)}"
         )
 
 
@@ -156,9 +153,7 @@ async def get_ev_metrics():
         
     except Exception as e:
         logger.error(f"Metrics retrieval error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve metrics: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve metrics: {str(e, status_code=500)}"
         )
 
 
@@ -196,9 +191,7 @@ async def get_rolling_metrics(window_minutes: int = Query(15, ge=1, le=60, descr
         
     except Exception as e:
         logger.error(f"Rolling metrics retrieval error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve rolling metrics: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve rolling metrics: {str(e, status_code=500)}"
         )
 
 
@@ -246,15 +239,11 @@ async def get_ev_distribution():
         
     except ValueError as e:
         logger.warning(f"Distribution analysis error: {e}")
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
+        raise BusinessLogicException(str(e, status_code=400)
         )
     except Exception as e:
         logger.error(f"Distribution analysis error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to analyze distribution: {str(e)}"
+        raise BusinessLogicException(f"Failed to analyze distribution: {str(e, status_code=500)}"
         )
 
 
@@ -284,10 +273,7 @@ async def manage_feature_flag(request: FeatureFlagRequest):
         
         if request.flag not in flag_map:
             available_flags = list(flag_map.keys())
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid flag '{request.flag}'. Available flags: {available_flags}"
-            )
+            raise BusinessLogicException(f"Invalid flag '{request.flag}'. Available flags: {available_flags}", status_code=400)
         
         # Update feature flag
         flag_enum = flag_map[request.flag]
@@ -313,9 +299,7 @@ async def manage_feature_flag(request: FeatureFlagRequest):
         raise
     except Exception as e:
         logger.error(f"Feature flag management error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to manage feature flag: {str(e)}"
+        raise BusinessLogicException(f"Failed to manage feature flag: {str(e, status_code=500)}"
         )
 
 
@@ -346,9 +330,7 @@ async def get_feature_flags():
         
     except Exception as e:
         logger.error(f"Feature flags retrieval error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve feature flags: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve feature flags: {str(e, status_code=500)}"
         )
 
 
@@ -378,9 +360,7 @@ async def invalidate_cache(
         
     except Exception as e:
         logger.error(f"Cache invalidation error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to invalidate cache: {str(e)}"
+        raise BusinessLogicException(f"Failed to invalidate cache: {str(e, status_code=500)}"
         )
 
 
@@ -405,9 +385,7 @@ async def reset_metrics():
         
     except Exception as e:
         logger.error(f"Metrics reset error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to reset metrics: {str(e)}"
+        raise BusinessLogicException(f"Failed to reset metrics: {str(e, status_code=500)}"
         )
 
 

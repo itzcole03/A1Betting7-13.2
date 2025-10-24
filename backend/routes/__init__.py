@@ -23,13 +23,54 @@ def __getattr__(name: str) -> Any:
     full_name = f"{__name__}.{name}"
     try:
         module = import_module(full_name)
+        # Avoid pytest treating route modules as test modules by marking
+        # them as not testable. Some route modules include helper functions
+        # or top-level callables that pytest can accidentally collect.
+        try:
+            setattr(module, "__test__", False)
+        except Exception:
+            pass
         globals()[name] = module
         return module
     except Exception:
         logging.getLogger(__name__).warning(
             "Failed to import backend.routes.%s, creating test placeholder", name
         )
+        # Some names pytest or test helpers expect to be functions or lists
+        # (for example, `setUpModule` should be a callable). Provide
+        # appropriately-typed placeholders instead of a ModuleType so test
+        # collection/fixtures don't fail when importing backend.routes.*.
+        if name in ("setUpModule", "setup_module"):
+            def _noop_setup_module():
+                return None
+
+            globals()[name] = _noop_setup_module
+            return _noop_setup_module
+
+        # Provide a callable teardown placeholder for pytest to call during
+        # module teardown. Some test harnesses expect `tearDownModule` to be a
+        # function (not a module) so return a simple callable when that name is
+        # requested.
+        if name in ("tearDownModule", "teardown_module", "tear_down_module"):
+            def _noop_teardown_module(arg=None):
+                # Accept an optional argument to be compatible with callers
+                # that pass the module object during teardown.
+                return None
+
+            globals()[name] = _noop_teardown_module
+            return _noop_teardown_module
+
+        if name == "pytest_plugins":
+            # Return empty list to indicate no plugins by default
+            globals()[name] = []
+            return []
+
         placeholder = ModuleType(full_name)
+        # Prevent pytest from collecting this placeholder as a test module
+        try:
+            setattr(placeholder, "__test__", False)
+        except Exception:
+            pass
 
         # Provide safe, minimal placeholders for commonly patched attributes
         async def _async_noop(*args, **kwargs):

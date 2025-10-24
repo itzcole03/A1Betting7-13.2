@@ -64,22 +64,20 @@ jest.mock("./frontend/src/onboarding/OnboardingFlow", () => ({
 jest.mock("./frontend/src/update/UpdateModal", () => ({
   UpdateModal: () => null,
 }));
-jest.mock("./frontend/src/contexts/AuthContext", () => {
-  const actual = jest.requireActual("./frontend/src/contexts/AuthContext");
-  return {
-    __esModule: true,
-    _AuthProvider: actual._AuthProvider,
-    useAuth: () => ({
-      user: { id: "1", email: "user@example.com", role: "user" },
-      isAdmin: false,
-      isAuthenticated: true,
-      requiresPasswordChange: false,
-      changePassword: jest.fn(),
-      loading: false,
-      error: undefined,
-    }),
-  };
-});
+// Simple AuthContext mock: avoid importing the real module (it may reference React hooks at module eval time)
+jest.mock("./frontend/src/contexts/AuthContext", () => ({
+  __esModule: true,
+  useAuth: () => ({
+    user: { id: "1", email: "user@example.com", role: "user" },
+    isAdmin: false,
+    isAuthenticated: true,
+    requiresPasswordChange: false,
+    changePassword: jest.fn(),
+    loading: false,
+    error: undefined,
+  }),
+  _AuthProvider: ({ children }) => children || null,
+}));
 jest.mock("./frontend/src/services/backendDiscovery", () => ({
   discoverBackend: async () => "http://localhost:8000",
   backendDiscovery: {

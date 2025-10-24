@@ -13,6 +13,7 @@ from ..models.trends_models import (
     TrendCacheStatus
 )
 from ..services.trends_service import trends_service
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +105,7 @@ async def get_trends_summary() -> TrendStatsSummary:
         
     except Exception as e:
         logger.error(f"Error fetching trends summary: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to fetch trends summary: {str(e)}")
+        raise BusinessLogicException(f"Failed to fetch trends summary: {str(e, status_code=500)}")
 
 
 @router.get("/cache/status", response_model=TrendCacheStatus)
@@ -120,7 +121,7 @@ async def get_cache_status() -> TrendCacheStatus:
         
     except Exception as e:
         logger.error(f"Error fetching cache status: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to fetch cache status: {str(e)}")
+        raise BusinessLogicException(f"Failed to fetch cache status: {str(e, status_code=500)}")
 
 
 @router.post("/cache/clear")
@@ -146,7 +147,7 @@ async def clear_trends_cache() -> Dict[str, Any]:
             
     except Exception as e:
         logger.error(f"Error clearing trends cache: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to clear trends cache: {str(e)}")
+        raise BusinessLogicException(f"Failed to clear trends cache: {str(e, status_code=500)}")
 
 
 @router.get("/metrics/available")

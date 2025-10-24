@@ -170,9 +170,9 @@ async def validation_exception_handler(request: Request, exc: Union[RequestValid
             pass
     
     # Extract HTTP status
-    # Preserve FastAPI's default of 422 for request validation errors
-    # Always prefer 422 for validation style errors
-    http_status = 422
+    # Use 422 Unprocessable Entity to remain compatible with FastAPI's validation
+    # semantics while preserving our structured error envelope for clients/tests.
+    http_status = status.HTTP_422_UNPROCESSABLE_ENTITY
     # Remove internal helper status if present
     if "_http_status" in error_response:
         error_response.pop("_http_status", None)

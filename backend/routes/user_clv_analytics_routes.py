@@ -16,6 +16,7 @@ from backend.models.clv_bet_tracking import CLVBetTracking, CLVAnalyticsSummary,
 from backend.utils.clv_utils import get_clv_tier, get_achievement_badges, calculate_roi_percent, calculate_win_rate
 from backend.database import get_db
 from backend.auth.security import get_current_user
+from backend.core.exceptions import BusinessLogicException
 
 router = APIRouter(prefix="/api/users", tags=["User CLV Analytics"])
 
@@ -89,7 +90,7 @@ async def get_user_clv_analytics(
     """
     # Security check - users can only access their own data
     if user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Access denied")
+        raise BusinessLogicException("Access denied", status_code=403)
     
     try:
         period_start = datetime.now(timezone.utc) - timedelta(days=days)
@@ -158,7 +159,7 @@ async def get_user_clv_analytics(
         )
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get CLV analytics: {str(e)}")
+        raise BusinessLogicException(f"Failed to get CLV analytics: {str(e, status_code=500)}")
 
 
 @router.get("/{user_id}/clv/summary")
@@ -171,7 +172,7 @@ async def get_user_clv_summary(
     Get a quick CLV summary for dashboard display
     """
     if user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Access denied")
+        raise BusinessLogicException("Access denied", status_code=403)
     
     try:
         # Get 30-day stats
@@ -234,7 +235,7 @@ async def get_user_clv_summary(
             }
             
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get CLV summary: {str(e)}")
+        raise BusinessLogicException(f"Failed to get CLV summary: {str(e, status_code=500)}")
 
 
 @router.get("/{user_id}/clv/history")
@@ -249,7 +250,7 @@ async def get_user_clv_history(
     Get CLV performance history over time for charting
     """
     if user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Access denied")
+        raise BusinessLogicException("Access denied", status_code=403)
     
     try:
         period_start = datetime.now(timezone.utc) - timedelta(days=days)
@@ -276,7 +277,7 @@ async def get_user_clv_history(
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get CLV history: {str(e)}")
+        raise BusinessLogicException(f"Failed to get CLV history: {str(e, status_code=500)}")
 
 
 # Helper functions

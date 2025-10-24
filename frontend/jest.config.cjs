@@ -1,3 +1,5 @@
+/* eslint-env node */
+/* eslint-disable no-undef */
 // Unified Jest Configuration - consolidates all test setups
 module.exports = {
   globals: {
@@ -51,6 +53,8 @@ module.exports = {
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.(test|spec).(ts|tsx|js|jsx)',
     '<rootDir>/src/**/?(*.)(test|spec).(ts|tsx|js|jsx)',
+    '<rootDir>/src/tests/**/*.(test|spec).(ts|tsx|js|jsx)',
+    '<rootDir>/src/tests/**/?(*.)(test|spec).(ts|tsx|js|jsx)',
   ],
   testPathIgnorePatterns: [
     '/electron-dist/',

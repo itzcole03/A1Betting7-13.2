@@ -1,32 +1,72 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import App from '../App';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { AppContent } from '../App';
+import { useAuth } from '../contexts/AuthContext';
 
-describe('App Onboarding and Loading States', () => {
-  it('shows onboarding loading state by default', () => {
-    render(<App />);
-    expect(screen.getByText(/loading onboarding/i)).toBeInTheDocument();
+jest.mock('../utils/enhancedLogger', () => ({
+  enhancedLogger: {
+    info: jest.fn(),
+    debug: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
+jest.mock('../contexts/AuthContext', () => ({
+  useAuth: jest.fn(),
+}));
+
+jest.mock('../components/auth/AuthPage', () => ({
+  __esModule: true,
+  default: () => <div data-testid='mock-auth-page'>Auth Page</div>,
+}));
+
+const mockedUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
+
+function renderAppContent() {
+  return render(
+    <MemoryRouter>
+      <AppContent />
+    </MemoryRouter>
+  );
+}
+
+describe('App onboarding gating', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    mockedUseAuth.mockReturnValue({
+      isAuthenticated: false,
+      requiresPasswordChange: false,
+      changePassword: jest.fn(),
+      loading: false,
+      error: null,
+      user: null,
+      isAdmin: false,
+      hydrated: true,
+      login: jest.fn(),
+      logout: jest.fn(),
+      clearError: jest.fn(),
+      register: jest.fn(),
+    });
   });
 
-  it('transitions from loading to onboarding steps', async () => {
-    render(<App />);
-    // Simulate loading complete
-    await waitFor(() => {
-      expect(screen.getByText(/welcome to a1betting/i)).toBeInTheDocument();
-    });
-    // Simulate user onboarding step
-    const nextButton = screen.getByRole('button', { name: /next/i });
-    fireEvent.click(nextButton);
-    expect(screen.getByText(/choose your favorite sport/i)).toBeInTheDocument();
+  it('renders the onboarding welcome screen when unauthenticated', () => {
+    renderAppContent();
+    expect(screen.getByText(/welcome to a1betting/i)).toBeInTheDocument();
+    expect(screen.getByTestId('app-gating-state')).toHaveAttribute('data-state', 'onboarding');
   });
 
-  it('shows loading overlay when fetching analysis', async () => {
-    render(<App />);
-    // Simulate navigation to analysis page
-    const analysisTab = screen.getByRole('tab', { name: /analysis/i });
-    fireEvent.click(analysisTab);
-    expect(screen.getByText(/loading dashboard/i)).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.queryByText(/loading dashboard/i)).not.toBeInTheDocument();
-    });
+  it('advances to the next onboarding step when Next is clicked', () => {
+    renderAppContent();
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    expect(screen.getByText(/set up your profile/i)).toBeInTheDocument();
+    expect(screen.getAllByTestId('app-gating-state')[0]).toHaveAttribute('data-state', 'onboarding');
+  });
+
+  it('renders the auth page once onboarding is complete but user is unauthenticated', () => {
+    localStorage.setItem('onboardingComplete', 'true');
+    renderAppContent();
+    expect(screen.getByTestId('mock-auth-page')).toBeInTheDocument();
+    expect(screen.getByTestId('app-gating-state')).toHaveAttribute('data-state', 'auth');
   });
 });

@@ -60,7 +60,9 @@ def get_rules_audit_log(
     audit_path = os.path.join(os.path.dirname(__file__), "../rules_audit_log.jsonl")
     entries: List[Dict[str, Any]] = []
     if not os.path.exists(audit_path):
-        return ResponseBuilder.success(ok([]))
+        # Return the standardized envelope directly (ok) to avoid double-wrapping
+        # (ResponseBuilder.success(ok(...)) would nest the envelope inside `data`)
+        return ok([])
     try:
         with open(audit_path, "r", encoding="utf-8") as f:
             for line in f:
@@ -79,7 +81,10 @@ def get_rules_audit_log(
                     entries.append(entry)
                 except Exception:
                     continue
-        return ResponseBuilder.success(ok(entries))
+
+        # Return the standardized envelope directly so callers/tests see
+        # {"success": True, "data": [...], "error": None}
+        return ok(entries)
     except Exception as e:
         raise BusinessLogicException(
             detail=f"Failed to read audit log: {str(e)}", error_code="audit_log_error"

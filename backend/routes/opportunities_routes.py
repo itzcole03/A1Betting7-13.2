@@ -13,6 +13,7 @@ import logging
 from fastapi import APIRouter, Query, HTTPException
 from backend.models.ev_models import EVFeedResponse, SportType, MarketType
 from backend.services.ev_feed_service import ev_feed_service
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger("opportunities_routes")
 router = APIRouter(prefix="/api/opportunities", tags=["Opportunities"])
@@ -40,4 +41,4 @@ async def get_positive_ev_opportunities(
         return resp
     except Exception as e:
         logger.error(f"Failed to fetch positive EV opportunities: {e}")
-        raise HTTPException(status_code=500, detail="Failed to fetch opportunities")
+        raise BusinessLogicException("Failed to fetch opportunities", status_code=500)

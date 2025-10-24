@@ -7,6 +7,7 @@ from datetime import date, datetime
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request
+from json import JSONDecodeError
 
 # Contract compliance imports
 from ..core.response_models import ResponseBuilder, StandardAPIResponse
@@ -68,10 +69,13 @@ v1_router = VersionedAPIRouter(version="v1", tags=["v1"], deprecated=True)
 @v1_router.get("/health", response_model=APIResponse)
 async def v1_health_check():
     """V1 Health check endpoint (deprecated)"""
-    return ResponseBuilder.success(APIResponse(
-        success=True,
-        message="API v1 is operational but deprecated. Please migrate to v2.",
-        timestamp=datetime.utcnow()),
+    return ResponseBuilder.success(
+        APIResponse(
+            success=True,
+            message="API v1 is operational but deprecated. Please migrate to v2.",
+            timestamp=datetime.utcnow(),
+            request_id="v1_health_check",
+        )
     )
 
 
@@ -100,14 +104,16 @@ async def v1_get_games(sport: Optional[str] = None):
             total=8.5,
         ).model_dump()
     ]
-    return ResponseBuilder.success(ListResponse(
-        success=True,
-        message="Games retrieved (v1 deprecated format))",
-        data=mock_games,
-        total_count=len(mock_games),
-        filters_applied={"sport": sport},
-        timestamp=datetime.utcnow(),
-        request_id="v1_get_games",
+    return ResponseBuilder.success(
+        ListResponse(
+            success=True,
+            message="Games retrieved (v1 deprecated format))",
+            data=mock_games,
+            total_count=len(mock_games),
+            filters_applied={"sport": sport},
+            timestamp=datetime.utcnow(),
+            request_id="v1_get_games",
+        )
     )
 
 
@@ -134,14 +140,16 @@ async def v1_get_props(game_id: Optional[str] = None):
             sharp_money=None,
         ).model_dump()
     ]
-    return ResponseBuilder.success(ListResponse(
-        success=True,
-        message="Props retrieved (v1 deprecated format))",
-        data=mock_props,
-        total_count=len(mock_props),
-        filters_applied={"game_id": game_id},
-        timestamp=datetime.utcnow(),
-        request_id="v1_get_props",
+    return ResponseBuilder.success(
+        ListResponse(
+            success=True,
+            message="Props retrieved (v1 deprecated format))",
+            data=mock_props,
+            total_count=len(mock_props),
+            filters_applied={"game_id": game_id},
+            timestamp=datetime.utcnow(),
+            request_id="v1_get_props",
+        )
     )
 
 
@@ -152,18 +160,12 @@ async def v1_get_props(game_id: Optional[str] = None):
 # V2 Router with enhanced features
 from pydantic import BaseModel
 
-from backend.services.unified_error_handler import handle_error
+from backend.services.lazy_sport_manager import lazy_sport_manager
+from backend.services.unified_error_handler import ErrorContext, handle_error
 from backend.services.unified_logging import get_logger
 
 logger = get_logger("sports_routes")
 
-
-v2_router = VersionedAPIRouter(version="v2", tags=["v2"])
-
-
-# ...existing code...
-
-# Place OPTIONS handler immediately after v2_router is defined
 
 v2_router = VersionedAPIRouter(version="v2", tags=["v2"])
 
@@ -178,26 +180,75 @@ class SportActivateRequest(BaseModel):
 
 
 @v2_router.post("/sports/activate", status_code=200)
-async def activate_sport(request: SportActivateRequest):
+async def activate_sport(request: Request):
+    """V2 activation that accepts raw request to provide contract-compliant error codes and response shape."""
+    sport = ""
     try:
-        sport = request.sport.upper()
+        # Enforce JSON content type explicitly to map to 415 when unsupported
+        content_type = request.headers.get("content-type", "") or ""
+        if not content_type.lower().startswith("application/json"):
+            raise BusinessLogicException("Unsupported content type")
+
+        try:
+            body = await request.json()
+        except Exception:
+            # return a validation-style business error for malformed JSON
+            raise BusinessLogicException("Invalid JSON")
+
+        sport = (body.get("sport") or "").strip().upper()
+        if not sport:
+            raise BusinessLogicException("Sport is required")
+
         logger.info(f"Activating sport: {sport}")
-        # Here you would add logic to activate/configure the sport in the backend
-        # For now, just return ResponseBuilder.success(a) success response
-        return ResponseBuilder.success({"status": "success", "sport": sport})
+        activation_result = await lazy_sport_manager.activate_sport(sport)
+
+        if activation_result.get("status") != "ready":
+            error_message = activation_result.get("error") or "Sport activation failed"
+            logger.warning(f"Sport activation failed for {sport}: {activation_result}")
+            raise BusinessLogicException(f"Failed to activate sport '{sport}': {error_message}")
+
+        service_status = lazy_sport_manager.get_sport_status(sport)
+        payload = {
+            "status": activation_result.get("status"),
+            "sport": sport,
+            "activated": True,
+            "version_used": "v2",
+            "load_time": activation_result.get("load_time"),
+            "cached": activation_result.get("cached", False),
+            "newly_loaded": activation_result.get("newly_loaded", False),
+            "waited": activation_result.get("waited", False),
+            "service_status": service_status,
+        }
+
+        return ResponseBuilder.success(payload)
+    except BusinessLogicException:
+        # Let the global handlers translate BusinessLogicException -> 400/415 as configured
+        raise
     except Exception as e:
-        error_info = handle_error(e, message="Failed to activate sport")
-        raise BusinessLogicException("error_info.user_message")
+        error_info = handle_error(
+            e,
+            context=ErrorContext(
+                endpoint="/api/v2/sports/activate",
+                additional_data={"sport": sport},
+            ),
+            message="Failed to activate sport",
+        )
+        user_message = error_info.user_message or "Failed to activate sport"
+        if sport:
+            user_message = f"{user_message} '{sport}'"
+        raise BusinessLogicException(user_message)
 
 
 @v2_router.get("/health", response_model=APIResponse)
 async def v2_health_check():
     """V2 Enhanced health check with detailed system status"""
-    return ResponseBuilder.success(APIResponse(
-        success=True,
-        message="API v2 operational with full feature support",
-        timestamp=datetime.utcnow()),
-        request_id="health_check_v2",
+    return ResponseBuilder.success(
+        APIResponse(
+            success=True,
+            message="API v2 operational with full feature support",
+            timestamp=datetime.utcnow(),
+            request_id="health_check_v2",
+        )
     )
 
 
@@ -234,20 +285,26 @@ async def v2_get_games(
         ).model_dump()
     ]
 
-    return ResponseBuilder.success(DataResponse(
-        success=True,
-        message="Enhanced games retrieved with full metadata",
-        data={
-            "games": enhanced_games,
-            "pagination": {
-                "limit": limit,
-                "offset": offset,
-                "total": len(enhanced_games)),
+    return ResponseBuilder.success(
+        DataResponse(
+            success=True,
+            message="Enhanced games retrieved with full metadata",
+            data={
+                "games": enhanced_games,
+                "pagination": {
+                    "limit": limit,
+                    "offset": offset,
+                    "total": len(enhanced_games),
+                },
+                "filters_applied": {
+                    "sport": sport,
+                    "date": game_date,
+                    "status": status,
+                },
             },
-            "filters_applied": {"sport": sport, "date": game_date, "status": status},
-        },
-        timestamp=datetime.utcnow(),
-        request_id="v2_get_games",
+            timestamp=datetime.utcnow(),
+            request_id="v2_get_games",
+        )
     )
 
 
@@ -317,12 +374,14 @@ async def v2_get_game_props(
             ).model_dump()
         ]
 
-    return ResponseBuilder.success(DataResponse(
-        success=True,
-        message="Enhanced props retrieved with ML predictions",
-        data=response_data,
-        timestamp=datetime.utcnow()),
-        request_id="v2_get_game_props",
+    return ResponseBuilder.success(
+        DataResponse(
+            success=True,
+            message="Enhanced props retrieved with ML predictions",
+            data=response_data,
+            timestamp=datetime.utcnow(),
+            request_id="v2_get_game_props",
+        )
     )
 
 
@@ -373,20 +432,24 @@ async def v2_comprehensive_analysis(request: PropAnalysisRequest):
         ).model_dump()
         analysis_results.append(analysis)
 
-    return ResponseBuilder.success(DataResponse(
-        success=True,
-        message=f"Comprehensive analysis completed for {len(request.prop_ids))} props",
-        data={
-            "analyses": analysis_results,
-            "processing_summary": {
-                "total_props": len(request.prop_ids),
-                "avg_processing_time_ms": 1250,
-                "analysis_type": request.analysis_type,
-                "shap_included": request.include_ml_prediction,
+    return ResponseBuilder.success(
+        DataResponse(
+            success=True,
+            message=(
+                f"Comprehensive analysis completed for {len(request.prop_ids)} props"
+            ),
+            data={
+                "analyses": analysis_results,
+                "processing_summary": {
+                    "total_props": len(request.prop_ids),
+                    "avg_processing_time_ms": 1250,
+                    "analysis_type": request.analysis_type,
+                    "shap_included": request.include_ml_prediction,
+                },
             },
-        },
-        timestamp=datetime.utcnow(),
-        request_id="v2_comprehensive_analysis",
+            timestamp=datetime.utcnow(),
+            request_id="v2_comprehensive_analysis",
+        )
     )
 
 
@@ -418,7 +481,7 @@ class APIVersionManager:
     @classmethod
     def get_version_info(cls, version: str) -> Optional[APIVersionInfo]:
         """Get information for specific API version"""
-        return ResponseBuilder.success(cls.VERSIONS.get(version))
+        return cls.VERSIONS.get(version)
 
     @classmethod
     def get_current_version(cls) -> str:
@@ -429,7 +492,7 @@ class APIVersionManager:
     def is_version_deprecated(cls, version: str) -> bool:
         """Check if version is deprecated"""
         info = cls.get_version_info(version)
-        return ResponseBuilder.success(bool(info and info.status == "deprecated"))
+        return bool(info and info.status == "deprecated")
 
     @classmethod
     def is_version_supported(cls, version: str) -> bool:
@@ -441,7 +504,7 @@ class APIVersionManager:
         if info.sunset_date and datetime.now().date() > info.sunset_date:
             return False
 
-        return ResponseBuilder.success(info.status) in ["current", "deprecated"]
+        return info.status in ["current", "deprecated"]
 
 
 # Version info endpoint
@@ -483,13 +546,16 @@ async def get_specific_version_info(version: str):
     """Get specific version information"""
     info = APIVersionManager.get_version_info(version)
     if not info:
-        raise BusinessLogicException("f"API version {version} not found")
-    return ResponseBuilder.success(DataResponse(
-        success=True,
-        message=f"Information for API version {version}",
-        data=info.model_dump()),
-        timestamp=datetime.utcnow(),
-        request_id=f"get_version_{version}",
+        raise BusinessLogicException(f"API version {version} not found")
+
+    return ResponseBuilder.success(
+        DataResponse(
+            success=True,
+            message=f"Information for API version {version}",
+            data=info.model_dump(),
+            timestamp=datetime.utcnow(),
+            request_id=f"get_version_{version}",
+        )
     )
 
 

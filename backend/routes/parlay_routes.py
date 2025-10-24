@@ -88,14 +88,14 @@ async def analyze_parlay(
     try:
         # Validate minimum number of legs
         if not request.legs or len(request.legs) < 2:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Parlay must have at least 2 legs"
             )
         
         # Validate maximum number of legs (reasonable limit)
         if len(request.legs) > 15:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Parlay cannot have more than 15 legs"
             )
@@ -284,6 +284,7 @@ async def simulate_parlay_outcomes(
         
         # Simple simulation logic
         import random
+from backend.core.exceptions import BusinessLogicException
         wins = 0
         total_payout = 0
         

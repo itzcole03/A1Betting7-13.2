@@ -49,8 +49,9 @@ def require_admin_if_enabled(
         raise AuthorizationException(detail="Not authorized", error_code="not_authorized")
     except Exception:
         from fastapi import HTTPException, status
+from backend.core.exceptions import BusinessLogicException
 
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+        raise BusinessLogicException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
 
 
 @router.get("")

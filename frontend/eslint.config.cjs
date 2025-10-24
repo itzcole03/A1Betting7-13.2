@@ -54,6 +54,14 @@ module.exports = [
 
       // Import rules
       'no-duplicate-imports': 'error',
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'AbortSignal',
+          property: 'timeout',
+          message: 'Use createTimeoutSignal helper instead of AbortSignal.timeout.',
+        },
+      ],
     },
   },
   {
@@ -73,6 +81,12 @@ module.exports = [
         console: true,
         global: true,
       },
+    },
+  },
+  {
+    files: ['src/utils/createTimeoutSignal.ts'],
+    rules: {
+      'no-restricted-properties': 'off',
     },
   },
 ];

@@ -360,10 +360,23 @@ class InstrumentedOperation:
         self.tier = tier
         self.start_time = 0.0
         self.latency_ms = 0.0
+        # For get-hit operations we only record when explicitly marked as a hit.
+        self._should_record = operation != "get_hit"
     
     def __enter__(self):
         self.start_time = time.time()
         return self
+
+    def mark_hit(self) -> None:
+        """Mark the wrapped operation as a successful cache hit."""
+
+        if self.operation == "get_hit":
+            self._should_record = True
+
+    def suppress(self) -> None:
+        """Suppress recording for the wrapped operation."""
+
+        self._should_record = False
     
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.latency_ms = (time.time() - self.start_time) * 1000
@@ -371,16 +384,24 @@ class InstrumentedOperation:
         if exc_type is None:
             # Successful operation
             if self.operation == "get_hit":
+                if not self._should_record:
+                    return False
                 self.instrumentation.record_hit(self.key, self.latency_ms, self.namespace, self.tier)
             elif self.operation == "get_miss":
+                if not self._should_record:
+                    return False
                 self.instrumentation.record_miss(self.key, self.latency_ms, self.namespace, self.tier)
             elif self.operation == "set":
+                if not self._should_record:
+                    return False
                 self.instrumentation.record_set(self.key, self.latency_ms, self.namespace, self.tier)
             elif self.operation == "delete":
+                if not self._should_record:
+                    return False
                 self.instrumentation.record_delete(self.key, self.namespace, self.tier)
         else:
             # Operation failed - still record miss for gets
-            if self.operation in ["get_hit", "get_miss"]:
+            if self.operation in ["get_hit", "get_miss"] and self._should_record:
                 self.instrumentation.record_miss(self.key, self.latency_ms, self.namespace, self.tier)
 
 

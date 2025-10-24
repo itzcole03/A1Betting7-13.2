@@ -21,6 +21,7 @@ from backend.services.alerting.rule_evaluator import AlertRuleEvaluator
 from backend.services.alerting.alert_dispatcher import AlertDispatcher
 from backend.services.alerting.alert_scheduler import AlertScheduler
 from backend.models.risk_personalization import (
+from backend.core.exceptions import BusinessLogicException
     BankrollStrategy, AlertRuleType, DeliveryChannel, 
     InterestSignalType
 )
@@ -162,7 +163,7 @@ async def calculate_stake(
         )
     except Exception as e:
         logger.error(f"Error calculating stake: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 @router.post("/check-exposure-limits", response_model=ExposureLimitResponse)
 async def check_exposure_limits(
@@ -188,7 +189,7 @@ async def check_exposure_limits(
         )
     except Exception as e:
         logger.error(f"Error checking exposure limits: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 @router.get("/risk-constraints/{user_id}")
 async def get_risk_constraints(
@@ -206,7 +207,7 @@ async def get_risk_constraints(
         }
     except Exception as e:
         logger.error(f"Error getting risk constraints: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 # Personalization Endpoints
 
@@ -229,7 +230,7 @@ async def create_watchlist(
         )
     except Exception as e:
         logger.error(f"Error creating watchlist: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 @router.get("/watchlists/{user_id}")
 async def get_user_watchlists(
@@ -245,7 +246,7 @@ async def get_user_watchlists(
         }
     except Exception as e:
         logger.error(f"Error getting watchlists: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 @router.post("/interest-signal")
 async def record_interest_signal(
@@ -266,7 +267,7 @@ async def record_interest_signal(
         return {'status': 'success', 'message': 'Interest signal recorded'}
     except Exception as e:
         logger.error(f"Error recording interest signal: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 @router.get("/user-interests/{user_id}")
 async def get_user_interests(
@@ -279,7 +280,7 @@ async def get_user_interests(
         return profile
     except Exception as e:
         logger.error(f"Error getting user interests: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 # Alerting Endpoints
 
@@ -299,7 +300,7 @@ async def create_alert_rule(
         }
     except Exception as e:
         logger.error(f"Error creating alert rule: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 @router.get("/alert-rules/{user_id}")
 async def get_user_alert_rules(
@@ -315,7 +316,7 @@ async def get_user_alert_rules(
         }
     except Exception as e:
         logger.error(f"Error getting alert rules: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 @router.get("/alerts/{user_id}")
 async def get_user_alerts(
@@ -335,7 +336,7 @@ async def get_user_alerts(
         }
     except Exception as e:
         logger.error(f"Error getting alerts: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 # Health and Status Endpoints
 
@@ -359,7 +360,7 @@ async def health_check():
         )
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 @router.get("/status")
 async def get_system_status():
@@ -378,4 +379,4 @@ async def get_system_status():
         }
     except Exception as e:
         logger.error(f"Error getting system status: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))

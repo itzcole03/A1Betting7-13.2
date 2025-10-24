@@ -13,6 +13,7 @@ out/
 .vercel/
 .cache/
 coverage/
+frontend/coverage/
 
 # Environment
 .env
@@ -35,6 +36,11 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 backend/logs/*
+logs/
+frontend/logs/
+*.jsonl
+reports/service_dependency_report.json
+reports/security/
 
 # OS
 Thumbs.db
@@ -42,6 +48,9 @@ Desktop.ini
 
 # Testing
 coverage/
+htmlcov/
+.coverage
+.mypy_cache/
 *.lcov
 
 # Storybook
@@ -81,6 +90,8 @@ chat_history.db
 prizepicks_data.db
 real_training_data.db
 users.db
+backend/prizepicks_cookies.json
+**/prizepicks_cookies.json
 
 # Large ML/Data files
 *.pkl
@@ -91,6 +102,7 @@ data/cached_models/
 data/training_data/
 cleanup_archive/test_databases/
 cleanup_archive/*/
+mlruns/
 *.h5
 *.hdf5
 *.parquet

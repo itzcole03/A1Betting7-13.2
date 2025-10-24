@@ -18,9 +18,9 @@ import asyncio
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Tuple, Union, Callable
+from typing import Any, Dict, List, Optional, Set, Tuple, Union, Callable, cast
 
 from .provider_confidence_integration import (
     ProviderConfidenceIntegration, 
@@ -127,6 +127,9 @@ class SmartFallbackPriorityService:
         # Caching for provider priorities
         self.priority_cache: Dict[str, Tuple[List[ProviderPriority], float]] = {}
         self.priority_cache_ttl = 60  # 1 minute cache
+
+        # Strategy state trackers
+        self.round_robin_counters: Dict[str, int] = {}
         
         self.logger.info("Smart Fallback Priority Service initialized")
     
@@ -136,19 +139,19 @@ class SmartFallbackPriorityService:
         self.logger.info(f"Set primary provider for {context}: {provider_id}")
     
     async def get_provider_priorities(
-        self, 
-        context: str, 
+        self,
+        context: str,
         available_providers: List[str],
-        force_refresh: bool = False
+        force_refresh: bool = False,
     ) -> List[ProviderPriority]:
         """
         Get provider priorities for fallback decision making.
-        
+
         Returns providers ordered by priority (highest first).
         """
         cache_key = f"{context}:{':'.join(sorted(available_providers))}"
         current_time = time.time()
-        
+
         # Check cache unless force refresh
         if not force_refresh and cache_key in self.priority_cache:
             priorities, cached_time = self.priority_cache[cache_key]
@@ -169,20 +172,17 @@ class SmartFallbackPriorityService:
                 
                 # Get enhanced statistics through confidence integration
                 enhanced_metrics = self.confidence_integration.statistics_manager.provider_metrics.get(provider_id)
-                last_successful = enhanced_metrics.last_request_time if enhanced_metrics and enhanced_metrics.last_request_time else 0.0
+                last_successful = 0.0
+                if enhanced_metrics:
+                    last_epoch = self._to_epoch_seconds(getattr(enhanced_metrics, "last_request_time", None))
+                    if last_epoch is not None:
+                        last_successful = last_epoch
                 
-                # Calculate average latency from percentiles
-                if enhanced_metrics and enhanced_metrics.window_5m.total_count > 0:
-                    latency_percentiles = enhanced_metrics.window_5m.get_latency_percentiles()
-                    estimated_latency = latency_percentiles.get("p50", 100.0)
-                else:
-                    estimated_latency = 100.0
+                # Calculate representative latency with fallbacks for different percentile providers.
+                estimated_latency = self._resolve_latency_ms(enhanced_metrics)
                 
                 # Calculate staleness with null check
-                if enhanced_metrics and enhanced_metrics.last_data_update is not None:
-                    staleness = current_time - enhanced_metrics.last_data_update
-                else:
-                    staleness = float('inf')
+                staleness = self._calculate_staleness_seconds(enhanced_metrics, current_time)
                 
                 # Calculate priority score
                 priority_score = self._calculate_priority_score(
@@ -217,8 +217,19 @@ class SmartFallbackPriorityService:
                     staleness_seconds=float('inf')
                 ))
         
-        # Sort by priority score (highest first)
-        priorities.sort(key=lambda p: p.priority_score, reverse=True)
+        if (
+            self.config.strategy == FallbackStrategy.MANUAL_ORDER
+            and self.config.manual_provider_order
+        ):
+            manual_rank = {
+                provider_id: idx
+                for idx, provider_id in enumerate(self.config.manual_provider_order)
+            }
+            priorities.sort(
+                key=lambda p: manual_rank.get(p.provider_id, len(manual_rank))
+            )
+        else:
+            priorities.sort(key=lambda p: p.priority_score, reverse=True)
         
         # Cache the result
         self.priority_cache[cache_key] = (priorities, current_time)
@@ -288,13 +299,15 @@ class SmartFallbackPriorityService:
             # Use manual order for selection
             for provider_id in self.config.manual_provider_order:
                 if provider_id in available_providers:
-                    provider_priority = next((p for p in priorities if p.provider_id == provider_id), None)
-                    if provider_priority and provider_priority.priority_score >= self.config.min_confidence_threshold:
-                        selected_provider = provider_id
-                        break
+                    selected_provider = provider_id
+                    break
             else:
                 # Fallback to best available if manual order fails
                 selected_provider = priorities[0].provider_id
+        elif self.config.strategy == FallbackStrategy.ROUND_ROBIN:
+            counter = self.round_robin_counters.get(context, 0)
+            selected_provider = priorities[counter % len(priorities)].provider_id
+            self.round_robin_counters[context] = (counter + 1) % len(priorities)
         else:
             # Default to best available
             selected_provider = priorities[0].provider_id
@@ -353,10 +366,17 @@ class SmartFallbackPriorityService:
         
         Returns: (result, selected_provider, fallback_events)
         """
+        # Allow positional arguments in legacy order (context, providers, operation).
+        if isinstance(operation, list) and callable(available_providers):
+            operation, available_providers = available_providers, operation
+
+        operation = cast(Callable, operation)
+        available_providers = list(available_providers)
+
         operation_args = operation_args or {}
         fallback_events = []
         attempts = 0
-        
+
         # Get initial provider
         selected_provider, fallback_reason = await self.select_optimal_provider(
             context, available_providers, current_provider
@@ -493,6 +513,12 @@ class SmartFallbackPriorityService:
             "active_fallbacks": len(self.active_fallbacks),
             "cache_hit_rate": self._calculate_cache_hit_rate()
         }
+
+        performance = analytics["performance"]
+        performance.setdefault(
+            "average_fallback_time_ms",
+            performance.get("average_fallback_latency_ms", 0.0),
+        )
         
         return analytics
     
@@ -554,6 +580,90 @@ class SmartFallbackPriorityService:
             del self.priority_cache[key]
         
         self.logger.info(f"Cleaned up fallback data older than {max_age_hours} hours")
+
+    @staticmethod
+    def _to_epoch_seconds(value: Optional[Union[float, int, datetime]]) -> Optional[float]:
+        """Normalize supported timestamp representations to epoch seconds."""
+        if value is None:
+            return None
+        if isinstance(value, (float, int)):
+            return float(value)
+        if isinstance(value, datetime):
+            if value.tzinfo is None:
+                value = value.replace(tzinfo=timezone.utc)
+            return value.timestamp()
+        return None
+
+    def _calculate_staleness_seconds(self, metrics: Optional[Any], current_time: float) -> float:
+        """Resolve the freshest available timestamp and derive staleness."""
+        if not metrics:
+            return float("inf")
+
+        candidates: List[float] = []
+        for attr in ("last_data_update", "last_request_time", "last_success_time"):
+            epoch = self._to_epoch_seconds(getattr(metrics, attr, None))
+            if epoch is not None:
+                candidates.append(epoch)
+
+        if not candidates:
+            return float("inf")
+
+        oldest = min(candidates)
+        return max(0.0, current_time - oldest)
+
+    def _resolve_latency_ms(self, metrics: Optional[Any]) -> float:
+        """Derive a representative latency from whichever percentile source is available."""
+        if not metrics:
+            return 100.0
+
+        percentiles = None
+        try:
+            percentiles = metrics.get_latency_percentiles()
+        except AttributeError:
+            percentiles = None
+
+        value = self._extract_latency_value(percentiles)
+        if value is not None:
+            return value
+
+        window = getattr(metrics, "window_5m", None)
+        if window and getattr(window, "total_count", 0) > 0:
+            window_percentiles = window.get_latency_percentiles()
+            value = self._extract_latency_value(window_percentiles)
+            if value is not None:
+                return value
+
+        return 100.0
+
+    @staticmethod
+    def _extract_latency_value(percentiles: Optional[Any]) -> Optional[float]:
+        """Normalize percentile outputs (tuple/dict) to a single float if possible."""
+        if percentiles is None:
+            return None
+        if isinstance(percentiles, dict):
+            for key in ("p50", "median"):
+                if key in percentiles:
+                    try:
+                        return float(percentiles[key])
+                    except (TypeError, ValueError):
+                        return None
+            # Fallback to first value in dict order
+            try:
+                first_value = next(iter(percentiles.values()))
+                return float(first_value)
+            except (StopIteration, TypeError, ValueError):
+                return None
+        if isinstance(percentiles, (list, tuple)):
+            try:
+                if len(percentiles) >= 2:
+                    return float(percentiles[1])
+                if percentiles:
+                    return float(percentiles[0])
+            except (TypeError, ValueError):
+                return None
+        if isinstance(percentiles, (int, float)):
+            return float(percentiles)
+        return None
 
 
 # Global instance

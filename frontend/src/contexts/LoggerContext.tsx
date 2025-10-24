@@ -63,3 +63,7 @@ export const _useLogger = () => {
   if (!_ctx) throw new Error('useLogger must be used within LoggerProvider');
   return _ctx;
 };
+
+// Non-underscored aliases (safe, reversible)
+export const LoggerProvider = _LoggerProvider;
+export const useLogger = _useLogger;

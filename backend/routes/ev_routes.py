@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Body
 from pydantic import BaseModel
 
 from backend.betting.ev_calculator import compute_ev
@@ -135,4 +135,129 @@ async def get_ev_summary(sport: Optional[str] = None):
         return unified_error_handler.handle_error(e, context=None)
 
 
+
+@router.post("/calc")
+async def post_ev_calc(payload: dict):
+    """Compatibility EV calculation endpoint used by integrations/tests.
+
+    Accepts payload with keys:
+      - probability: float (0..1)
+      - odds: number (decimal or american format depending on odds_format)
+      - odds_format: optional string 'american' or 'decimal' (default: decimal)
+      - stake: optional numeric (not required for EV per-unit calculation)
+    Returns canonical envelope {success: True, data: {...}}
+    """
+    try:
+        if not isinstance(payload, dict):
+            raise ValueError("invalid payload")
+
+        p = payload.get("probability")
+        odds = payload.get("odds")
+        odds_format = (payload.get("odds_format") or "decimal").lower()
+
+        if p is None or odds is None:
+            raise ValueError("probability and odds are required")
+
+        try:
+            p = float(p)
+        except Exception:
+            raise ValueError("probability must be numeric")
+
+        # Determine decimal odds and market american representation
+        def _decimal_from_american(a: int) -> float:
+            a = int(a)
+            if a > 0:
+                return (a / 100.0) + 1.0
+            else:
+                return (100.0 / float(abs(a))) + 1.0
+
+        def _american_from_decimal(d: float) -> int:
+            if d >= 2.0:
+                return int(round((d - 1.0) * 100.0))
+            else:
+                # Negative odds when decimal < 2
+                try:
+                    return int(round(-100.0 / (d - 1.0)))
+                except Exception:
+                    return int(round((d - 1.0) * 100.0))
+
+        if odds_format == "american":
+            market_american = int(round(float(odds)))
+            decimal_odds = _decimal_from_american(market_american)
+        else:
+            # treat as decimal by default
+            decimal_odds = float(odds)
+            market_american = _american_from_decimal(decimal_odds)
+
+        # EV per unit stake: p*(decimal_odds-1) - (1-p)
+        ev_value = p * (decimal_odds - 1.0) - (1.0 - p)
+
+        return {
+            "success": True,
+            "data": {
+                "ev": ev_value,
+                "decimal_odds": decimal_odds,
+                "market_american": market_american,
+            },
+            "error": None,
+        }
+
+    except ValueError as ve:
+        logger.debug(f"EV calc validation error: {ve}")
+        return {"success": False, "data": None, "error": {"message": str(ve)}}
+    except Exception as e:  # pragma: no cover - defensive
+        logger.error(f"EV calc unexpected error: {e}")
+        return unified_error_handler.handle_error(e, context=None)
+
 __all__ = ["router", "EVOpportunity"]
+
+
+@router.post("/feed")
+async def post_feed_compat(payload: list = Body(...)):
+    """Compatibility POST /feed used by some unit tests.
+
+    Accepts a list of items with keys: id, probability, odds, odds_format (optional), stake (optional)
+    Returns canonical envelope {success: True, results: [...]}
+    """
+    try:
+        results = []
+        for item in payload:
+            try:
+                p = float(item.get("probability"))
+                odds = item.get("odds")
+                odds_format = (item.get("odds_format") or "decimal").lower()
+                # Convert to decimal if needed
+                if odds_format == "american":
+                    a = int(round(float(odds)))
+                    if a > 0:
+                        decimal_odds = (a / 100.0) + 1.0
+                    else:
+                        decimal_odds = (100.0 / float(abs(a))) + 1.0
+                else:
+                    decimal_odds = float(odds)
+
+                ev = compute_ev(p, int(round(_american_from_decimal(decimal_odds))))
+                is_plus_ev = ev.get("edge_pct", 0) > 0
+                results.append({
+                    "id": item.get("id"),
+                    "is_plus_ev": is_plus_ev,
+                    "ev": ev.get("edge_pct"),
+                    "decimal_odds": decimal_odds,
+                })
+            except Exception:
+                # Skip bad items but continue
+                continue
+        return {"success": True, "results": results, "error": None}
+    except Exception as e:
+        return {"success": False, "results": None, "error": {"message": str(e)}}
+
+
+def _american_from_decimal(d: float) -> int:
+    # Simple helper used above (mirrors logic in other modules)
+    if d >= 2.0:
+        return int(round((d - 1.0) * 100.0))
+    else:
+        try:
+            return int(round(-100.0 / (d - 1.0)))
+        except Exception:
+            return int(round((d - 1.0) * 100.0))

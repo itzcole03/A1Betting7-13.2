@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 
 from ..services.cache_service_ext import cache_service_ext, get_cache_stats
 from ..services.cache_keys import get_current_version, CacheTier, CacheEntity
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -144,9 +145,7 @@ async def get_cache_stats_endpoint():
         
     except Exception as e:
         logger.error(f"❌ Failed to get cache statistics: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve cache statistics: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve cache statistics: {str(e, status_code=500)}"
         )
 
 
@@ -189,9 +188,7 @@ async def get_namespace_stats(namespace: str):
         
     except Exception as e:
         logger.error(f"❌ Failed to get namespace stats for {namespace}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve namespace statistics: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve namespace statistics: {str(e, status_code=500)}"
         )
 
 
@@ -269,10 +266,7 @@ async def invalidate_cache(request: InvalidateRequest):
             pattern_used = f"version:{request.version}"
             
         else:
-            raise HTTPException(
-                status_code=400,
-                detail="Must specify either pattern, namespace, or version for invalidation"
-            )
+            raise BusinessLogicException("Must specify either pattern, namespace, or version for invalidation", status_code=400)
         
         success = keys_invalidated >= 0  # Non-negative result indicates success
         
@@ -334,7 +328,5 @@ async def get_cache_info():
         
     except Exception as e:
         logger.error(f"❌ Failed to get cache info: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve cache information: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve cache information: {str(e, status_code=500)}"
         )

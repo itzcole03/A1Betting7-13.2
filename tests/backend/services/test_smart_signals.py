@@ -263,7 +263,7 @@ class TestSmartSignalsAPI:
     
     @patch.dict(os.environ, {"ENABLE_SMART_SIGNALS": "true"})
     @patch('backend.services.simple_propfinder_service.SimplePropFinderService.get_opportunities')
-    async def test_smart_signals_endpoint_with_data(self, mock_get_opportunities, client):
+    def test_smart_signals_endpoint_with_data(self, mock_get_opportunities, client):
         """Test smart signals endpoint with mock data."""
         # Mock PropFinder data
         mock_get_opportunities.return_value = {

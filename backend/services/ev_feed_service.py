@@ -16,18 +16,28 @@ import json
 import logging
 import random
 import time
-from datetime import datetime, timedelta
-from typing import List, Dict, Optional, Set, Tuple, Any
 from dataclasses import asdict
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import redis.asyncio as redis
+
 from backend.models.ev_models import (
-    EVOpportunity, EVFeedResponse, EVFeedStats, EVTier,
-    SportType, MarketType, calculate_expected_value
+    EVFeedResponse,
+    EVFeedStats,
+    EVOpportunity,
+    EVTier,
+    MarketType,
+    SportType,
+    calculate_expected_value,
 )
-from backend.services.unified_data_fetcher import unified_data_fetcher
 from backend.services.unified_cache_service import unified_cache_service
-import logging
+from backend.services.unified_data_fetcher import unified_data_fetcher
+
+try:
+    from backend.services.mlb_stats_api_client import MLBStatsAPIClient
+except Exception:  # pragma: no cover - optional dependency
+    MLBStatsAPIClient = None  # type: ignore[assignment]
 
 logger = logging.getLogger("ev_feed_service")
 
@@ -50,6 +60,7 @@ class EVFeedService:
         self.is_running = False
         self.last_generation_time = None
         self.generation_count = 0
+        self._initialized = False
 
         # Core config
         self.REDIS_KEY = "ev:feed"
@@ -78,6 +89,19 @@ class EVFeedService:
         self.last_prune_at = None  # float timestamp
         self.last_added_at = None  # float timestamp
         self.max_edge = 0.0
+        self._initialize_lock = asyncio.Lock()
+        self._generation_lock = asyncio.Lock()
+        self.mlb_stats_client = None
+
+        if MLBStatsAPIClient is not None:
+            try:
+                self.mlb_stats_client = MLBStatsAPIClient()
+                logger.info("EVFeedService initialized MLBStatsAPIClient integration")
+            except Exception as init_error:  # pragma: no cover - initialization guard
+                logger.warning(
+                    "EVFeedService could not initialize MLBStatsAPIClient; using mock MLB data (%s)",
+                    init_error,
+                )
 
     @staticmethod
     def classify_edge(edge_pct: float) -> str:
@@ -97,7 +121,7 @@ class EVFeedService:
         return "unknown"
 
     # ------------- Ring Buffer Operations -------------
-    async def add_feed_entry(self, opp: 'EVOpportunity') -> Dict[str, Any]:  # type: ignore
+    async def add_feed_entry(self, opp: "EVOpportunity") -> Dict[str, Any]:  # type: ignore
         """Add an EV opportunity with dedupe & replacement semantics.
 
         Dedupe logic (5 min window):
@@ -112,7 +136,7 @@ class EVFeedService:
         async with self._lock:
             try:
                 now_ts = time.time()
-                ev_pct = float(getattr(opp, 'ev_percent', 0.0))
+                ev_pct = float(getattr(opp, "ev_percent", 0.0))
                 # Update max_edge
                 if ev_pct > self.max_edge:
                     self.max_edge = ev_pct
@@ -202,35 +226,57 @@ class EVFeedService:
         return {
             "total_added": self.total_added,
             "total_deduped": self.total_deduped,
-            "total_replaced": getattr(self, 'total_replaced', 0),
+            "total_replaced": getattr(self, "total_replaced", 0),
             "current_size": len(self._ring),
             "max_capacity": self.MAX_RING_CAPACITY,
             "last_added_at": self.last_added_at,
             "last_prune_at": self.last_prune_at,
             "max_edge": self.max_edge,
         }
-        
+
     async def initialize(self):
         """Initialize the service and Redis connection"""
+        if self._initialized:
+            return
         try:
-            self.redis_client = redis.from_url("redis://localhost:6379", decode_responses=True)
+            self.redis_client = redis.from_url(
+                "redis://localhost:6379", decode_responses=True
+            )
             await self.redis_client.ping()
             logger.info("EVFeedService initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize EVFeedService: {e}")
             # Fallback to unified cache service
             self.redis_client = None
-    
+        finally:
+            self._initialized = True
+
+    async def ensure_initialized(self):
+        if self._initialized:
+            return
+        async with self._initialize_lock:
+            if not self._initialized:
+                await self.initialize()
+
+    async def _generate_and_cache_opportunities(self) -> List[EVOpportunity]:
+        """Generate a fresh batch of opportunities and persist them in cache."""
+        async with self._generation_lock:
+            opportunities = await self._generate_ev_opportunities()
+            await self._store_opportunities(opportunities)
+            self.last_generation_time = datetime.utcnow()
+            self.generation_count += 1
+            return opportunities
+
     async def start_background_task(self):
         """Start the background task for generating +EV feeds"""
         if self.is_running:
             logger.warning("Background task already running")
             return
-            
+
         self.is_running = True
         self.background_task = asyncio.create_task(self._background_feed_generator())
         logger.info("Started +EV feed background task")
-    
+
     async def stop_background_task(self):
         """Stop the background task"""
         if self.background_task:
@@ -241,80 +287,112 @@ class EVFeedService:
                 pass
         self.is_running = False
         logger.info("Stopped +EV feed background task")
-    
+
     async def _background_feed_generator(self):
         """Background task that generates +EV feeds every 60 seconds"""
         logger.info("Starting +EV feed generation loop")
-        
+
         while self.is_running:
             try:
                 start_time = time.time()
-                
+
                 # Generate new +EV opportunities
                 opportunities = await self._generate_ev_opportunities()
-                
+
                 # Store in Redis/cache
                 await self._store_opportunities(opportunities)
-                
+
                 # Update statistics
                 generation_time = int((time.time() - start_time) * 1000)
                 await self._update_stats(opportunities, generation_time)
-                
+
                 self.last_generation_time = datetime.utcnow()
                 self.generation_count += 1
-                
-                logger.info(f"Generated {len(opportunities)} +EV opportunities in {generation_time}ms")
-                
+
+                logger.info(
+                    f"Generated {len(opportunities)} +EV opportunities in {generation_time}ms"
+                )
+
                 # Wait for next generation cycle
                 await asyncio.sleep(self.GENERATION_INTERVAL)
-                
+
             except asyncio.CancelledError:
                 break
             except Exception as e:
                 logger.error(f"Error in +EV feed generation: {e}")
                 await asyncio.sleep(30)  # Wait 30s before retry on error
-    
+
     async def _generate_ev_opportunities(self) -> List[EVOpportunity]:
         """Generate +EV opportunities from available data sources"""
         opportunities = []
-        
+
         try:
             # Fetch current props from various sources
             mlb_props = await self._fetch_mlb_props()
             nba_props = await self._fetch_nba_props()
             nfl_props = await self._fetch_nfl_props()
-            
+
             # Process each sport's props
-            opportunities.extend(await self._process_sport_props(mlb_props, SportType.MLB))
-            opportunities.extend(await self._process_sport_props(nba_props, SportType.NBA))
-            opportunities.extend(await self._process_sport_props(nfl_props, SportType.NFL))
-            
+            opportunities.extend(
+                await self._process_sport_props(mlb_props, SportType.MLB)
+            )
+            opportunities.extend(
+                await self._process_sport_props(nba_props, SportType.NBA)
+            )
+            opportunities.extend(
+                await self._process_sport_props(nfl_props, SportType.NFL)
+            )
+
             # Filter for positive EV only
             positive_ev_opportunities = [
-                opp for opp in opportunities 
-                if opp.ev_percent >= self.MIN_EV_THRESHOLD
+                opp for opp in opportunities if opp.ev_percent >= self.MIN_EV_THRESHOLD
             ]
-            
+
             # Sort by EV percentage (highest first)
             positive_ev_opportunities.sort(key=lambda x: x.ev_percent, reverse=True)
-            
+
             # Limit to max opportunities
-            return positive_ev_opportunities[:self.MAX_OPPORTUNITIES]
-            
+            return positive_ev_opportunities[: self.MAX_OPPORTUNITIES]
+
         except Exception as e:
             logger.error(f"Error generating +EV opportunities: {e}")
             return []
-    
+
     async def _fetch_mlb_props(self) -> List[Dict]:
         """Fetch MLB props from data sources"""
+        if self.mlb_stats_client is None:
+            try:
+                return self._generate_mock_props(SportType.MLB, 20)
+            except Exception as mock_error:
+                logger.error(f"Error generating mock MLB props: {mock_error}")
+                return []
+
         try:
-            # For now, use mock data similar to PropFinder service
-            # In production, this would fetch from unified_data_fetcher.fetch_events()
+            raw_props = await self.mlb_stats_client.generate_player_props_data()
+            normalized: List[Dict[str, Any]] = []
+            for prop in raw_props or []:
+                try:
+                    normalized_prop = self._normalize_mlb_prop(prop)
+                    if normalized_prop:
+                        normalized.append(normalized_prop)
+                except Exception as normalize_error:
+                    logger.debug(
+                        "Skipping MLB prop in EV feed due to normalization error: %s",
+                        normalize_error,
+                    )
+
+            if normalized:
+                return normalized
+
+            logger.debug("MLB stats client returned no props; falling back to mock data")
             return self._generate_mock_props(SportType.MLB, 20)
-        except Exception as e:
-            logger.error(f"Error fetching MLB props: {e}")
-            return []
-    
+        except Exception as stats_error:
+            logger.warning(
+                "MLB stats fetch failed for EV feed; using mock data (%s)",
+                stats_error,
+            )
+            return self._generate_mock_props(SportType.MLB, 20)
+
     async def _fetch_nba_props(self) -> List[Dict]:
         """Fetch NBA props from data sources"""
         try:
@@ -323,7 +401,7 @@ class EVFeedService:
         except Exception as e:
             logger.error(f"Error fetching NBA props: {e}")
             return []
-    
+
     async def _fetch_nfl_props(self) -> List[Dict]:
         """Fetch NFL props from data sources"""
         try:
@@ -332,59 +410,96 @@ class EVFeedService:
         except Exception as e:
             logger.error(f"Error fetching NFL props: {e}")
             return []
-    
+
     def _generate_mock_props(self, sport: SportType, count: int) -> List[Dict]:
         """Generate mock props for demonstration"""
         import random
-        
+
         players = {
-            SportType.MLB: ["Aaron Judge", "Mookie Betts", "Ronald Acuña Jr.", "Mike Trout", "Francisco Lindor"],
-            SportType.NBA: ["LeBron James", "Stephen Curry", "Giannis Antetokounmpo", "Luka Dončić", "Jayson Tatum"],
-            SportType.NFL: ["Josh Allen", "Patrick Mahomes", "Lamar Jackson", "Travis Kelce", "Tyreek Hill"]
+            SportType.MLB: [
+                "Aaron Judge",
+                "Mookie Betts",
+                "Ronald Acuña Jr.",
+                "Mike Trout",
+                "Francisco Lindor",
+            ],
+            SportType.NBA: [
+                "LeBron James",
+                "Stephen Curry",
+                "Giannis Antetokounmpo",
+                "Luka Dončić",
+                "Jayson Tatum",
+            ],
+            SportType.NFL: [
+                "Josh Allen",
+                "Patrick Mahomes",
+                "Lamar Jackson",
+                "Travis Kelce",
+                "Tyreek Hill",
+            ],
         }
-        
+
         markets = {
             SportType.MLB: ["Hits", "RBIs", "Home Runs", "Strikeouts", "Total Bases"],
-            SportType.NBA: ["Points", "Rebounds", "Assists", "Three-Pointers", "Steals"],
-            SportType.NFL: ["Passing Yards", "Rushing Yards", "Touchdowns", "Receptions", "Receiving Yards"]
+            SportType.NBA: [
+                "Points",
+                "Rebounds",
+                "Assists",
+                "Three-Pointers",
+                "Steals",
+            ],
+            SportType.NFL: [
+                "Passing Yards",
+                "Rushing Yards",
+                "Touchdowns",
+                "Receptions",
+                "Receiving Yards",
+            ],
         }
-        
+
         props = []
         for i in range(count):
             player = random.choice(players[sport])
             market = random.choice(markets[sport])
             line = random.uniform(0.5, 50.5)
-            
-            props.append({
-                "player": player,
-                "market": f"{market} Over {line:.1f}",
-                "market_type": "player_props",
-                "line": line,
-                "game_info": f"Team A @ Team B",
-                "odds_data": {
-                    sbook: random.randint(-150, 150) for sbook in self.sportsbooks
+
+            props.append(
+                {
+                    "player": player,
+                    "market": f"{market} Over {line:.1f}",
+                    "market_type": "player_props",
+                    "line": line,
+                    "game_info": f"Team A @ Team B",
+                    "odds_data": {
+                        sbook: random.randint(-150, 150) for sbook in self.sportsbooks
+                    },
                 }
-            })
-        
+            )
+
         return props
-    
-    async def _process_sport_props(self, props: List[Dict], sport: SportType) -> List[EVOpportunity]:
+
+    async def _process_sport_props(
+        self, props: List[Dict], sport: SportType
+    ) -> List[EVOpportunity]:
         """Process props for a specific sport and detect +EV opportunities"""
         opportunities = []
-        
+
         for prop in props:
             try:
                 # Calculate fair odds (mock calculation for demo)
                 fair_odds = await self._calculate_fair_odds(prop, sport)
-                
+
                 # Check each sportsbook for +EV opportunities
                 odds_data = prop.get("odds_data", {})
                 for sportsbook, market_odds in odds_data.items():
                     if market_odds and fair_odds:
                         # Calculate EV
                         ev_result = calculate_expected_value(market_odds, fair_odds)
-                        
-                        if ev_result.is_positive and ev_result.ev_percent >= self.MIN_EV_THRESHOLD:
+
+                        if (
+                            ev_result.is_positive
+                            and ev_result.ev_percent >= self.MIN_EV_THRESHOLD
+                        ):
                             opportunity = EVOpportunity(
                                 id=f"{sport}_{prop.get('player', 'unknown')}_{sportsbook}_{int(time.time())}",
                                 player=prop.get("player", "Unknown Player"),
@@ -400,30 +515,115 @@ class EVFeedService:
                                 volume_indicator="Medium",
                                 line_movement="Stable",
                                 predicted_ev_next_5m=None,
-                                edge_tier=self.classify_edge(ev_result.ev_percent)
+                                edge_tier=self.classify_edge(ev_result.ev_percent),
                             )
                             opportunities.append(opportunity)
-                            
+
             except Exception as e:
                 logger.error(f"Error processing prop: {e}")
                 continue
-        
+
         return opportunities
-    
+
     async def _calculate_fair_odds(self, prop: Dict, sport: SportType) -> float:
         """Calculate fair odds for a prop (mock implementation)"""
-        import random
-        
-        # Mock fair odds calculation
-        # In production, this would use ML models, historical data, etc.
+        model_prob = prop.get("model_probability")
+        if sport == SportType.MLB and model_prob is not None:
+            try:
+                probability = self._clamp_probability(float(model_prob))
+                return float(self._probability_to_american(probability))
+            except Exception as prob_error:
+                logger.debug(
+                    "Falling back to stochastic fair odds for MLB prop due to probability error: %s",
+                    prob_error,
+                )
+
+        # Mock fair odds calculation for other sports / fallback
         base_odds = random.choice([-110, -105, -115, -120, 100, 105, 110])
-        
-        # Add some variance to create +EV opportunities
         variance = random.uniform(-20, 30)
         fair_odds = base_odds + variance
-        
+
         return round(fair_odds, 1)
-    
+
+    def _normalize_mlb_prop(self, prop: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Normalize MLB Stats API prop into EV feed friendly payload."""
+
+        player_name = prop.get("player_name") or prop.get("player")
+        stat_type = prop.get("stat_type") or prop.get("market")
+        line_value = prop.get("line") or prop.get("line_score")
+
+        if player_name is None or stat_type is None or line_value is None:
+            return None
+
+        try:
+            stat_display = str(stat_type).replace("_", " ").title()
+            line_float = float(line_value)
+        except (TypeError, ValueError) as parse_error:
+            raise ValueError(f"Invalid MLB prop line value: {line_value}") from parse_error
+
+        market = f"{stat_display} Over {line_float:.1f}" if line_float % 1 else f"{stat_display} Over {int(line_float)}"
+
+        odds_data: Dict[str, int] = {}
+        for bookmaker in prop.get("bookmakers", []) or []:
+            name = bookmaker.get("name") or "Sportsbook"
+            odds = bookmaker.get("odds")
+            if odds is None:
+                continue
+            try:
+                odds_data[name] = int(round(float(odds)))
+            except (TypeError, ValueError):
+                continue
+
+        if not odds_data and prop.get("odds") is not None:
+            try:
+                odds_data["Season Benchmark"] = int(round(float(prop["odds"])))
+            except (TypeError, ValueError):
+                pass
+
+        if not odds_data:
+            return None
+
+        model_probability = prop.get("ai_probability")
+        if model_probability is not None:
+            model_probability = self._clamp_probability(float(model_probability) / 100.0)
+
+        implied_probability = prop.get("implied_probability")
+        if implied_probability is not None:
+            implied_probability = self._clamp_probability(float(implied_probability) / 100.0)
+
+        game_info = prop.get("matchup") or f"{prop.get('team_name', 'MLB')} vs {prop.get('opponent', 'Opponent')}"
+
+        normalized = {
+            "player": player_name,
+            "market": market,
+            "market_type": MarketType.PLAYER_PROPS.value,
+            "line": line_float,
+            "game_info": game_info,
+            "odds_data": odds_data,
+            "model_probability": model_probability,
+            "implied_probability": implied_probability,
+            "edge_pct": prop.get("edge"),
+            "provider": prop.get("provider_id", "mlb_stats_api"),
+            "team": prop.get("team_name"),
+            "opponent": prop.get("opponent"),
+            "start_time": prop.get("start_time"),
+        }
+
+        return normalized
+
+    @staticmethod
+    def _clamp_probability(value: float) -> float:
+        return max(0.01, min(0.99, value))
+
+    @staticmethod
+    def _probability_to_american(probability: float) -> int:
+        probability = EVFeedService._clamp_probability(probability)
+        if probability >= 0.5:
+            odds = -((probability / (1 - probability)) * 100)
+        else:
+            odds = ((1 - probability) / probability) * 100
+        return int(round(odds))
+
     async def _store_opportunities(self, opportunities: List[EVOpportunity]):
         """Store opportunities in Redis/cache"""
         try:
@@ -433,7 +633,9 @@ class EVFeedService:
                 opp_dict = opp.dict()
                 opp_dict["updated_at"] = opp_dict["updated_at"].isoformat()
                 # Supplemental edge classification (non-breaking optional field)
-                opp_dict["edge_tier"] = self.classify_edge(opp_dict.get("ev_percent", 0))
+                opp_dict["edge_tier"] = self.classify_edge(
+                    opp_dict.get("ev_percent", 0)
+                )
                 opportunities_data.append(opp_dict)
 
                 # Insert into ring buffer (best-effort; failure does not block)
@@ -448,22 +650,20 @@ class EVFeedService:
                     await self.record_ev_snapshot(opp)
             except Exception as e:
                 logger.debug(f"Snapshot recording failed (non-fatal): {e}")
-            
+
             # Store in Redis if available
             if self.redis_client:
                 await self.redis_client.set(
                     self.REDIS_KEY,
                     json.dumps(opportunities_data),
-                    ex=300  # 5 minute expiry
+                    ex=300,  # 5 minute expiry
                 )
             else:
                 # Fallback to unified cache service
                 await unified_cache_service.set(
-                    self.REDIS_KEY,
-                    opportunities_data,
-                    ttl=300
+                    self.REDIS_KEY, opportunities_data, ttl=300
                 )
-                
+
             try:
                 logger.debug(
                     "ev_feed:batch_summary",
@@ -480,33 +680,43 @@ class EVFeedService:
                 logger.debug(
                     f"ev_feed:batch_summary added={self.total_added} deduped={self.total_deduped} replaced={self.total_replaced} size={len(self._ring)} batch={len(opportunities_data)}"
                 )
-            
+
+            if opportunities_data:
+                # Record an effective generation timestamp so downstream calls avoid forced refresh.
+                self.last_generation_time = datetime.utcnow()
+
         except Exception as e:
             logger.error(f"Error storing opportunities: {e}")
-    
-    async def _update_stats(self, opportunities: List[EVOpportunity], generation_time_ms: int):
+
+    async def _update_stats(
+        self, opportunities: List[EVOpportunity], generation_time_ms: int
+    ):
         """Update feed statistics"""
         try:
             # Calculate statistics
             by_sport = {}
             by_tier = {}
             total_ev = 0
-            
+
             for opp in opportunities:
                 # Count by sport
                 sport_key = opp.sport.value
                 by_sport[sport_key] = by_sport.get(sport_key, 0) + 1
-                
+
                 # Count by tier
                 tier_key = opp.ev_tier.value
                 by_tier[tier_key] = by_tier.get(tier_key, 0) + 1
-                
+
                 # Sum EV for average
                 total_ev += opp.ev_percent
-            
+
             avg_ev = total_ev / len(opportunities) if opportunities else 0
-            max_edge = max((opp.ev_percent for opp in opportunities), default=0) if opportunities else 0
-            
+            max_edge = (
+                max((opp.ev_percent for opp in opportunities), default=0)
+                if opportunities
+                else 0
+            )
+
             stats = EVFeedStats(
                 total_opportunities=len(opportunities),
                 by_sport=by_sport,
@@ -514,38 +724,35 @@ class EVFeedService:
                 avg_ev_percent=round(avg_ev, 2),
                 last_generation_time=datetime.utcnow(),
                 generation_duration_ms=generation_time_ms,
-                max_edge=round(max_edge, 2)
+                max_edge=round(max_edge, 2),
             )
-            
+
             # Store stats
             stats_data = stats.dict()
-            stats_data["last_generation_time"] = stats_data["last_generation_time"].isoformat()
-            
+            stats_data["last_generation_time"] = stats_data[
+                "last_generation_time"
+            ].isoformat()
+
             if self.redis_client:
                 await self.redis_client.set(
-                    self.STATS_KEY,
-                    json.dumps(stats_data),
-                    ex=300
+                    self.STATS_KEY, json.dumps(stats_data), ex=300
                 )
             else:
-                await unified_cache_service.set(
-                    self.STATS_KEY,
-                    stats_data,
-                    ttl=300
-                )
-                
+                await unified_cache_service.set(self.STATS_KEY, stats_data, ttl=300)
+
         except Exception as e:
             logger.error(f"Error updating stats: {e}")
-    
+
     async def get_opportunities(
         self,
         min_ev: float = 3.0,
         sport: SportType = SportType.ALL,
         market_type: Optional[MarketType] = None,
         source_book: Optional[str] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> EVFeedResponse:
         """Get filtered +EV opportunities from cache"""
+        await self.ensure_initialized()
         try:
             # Retrieve from cache
             if self.redis_client:
@@ -556,40 +763,80 @@ class EVFeedService:
                     opportunities_data = []
             else:
                 opportunities_data = await unified_cache_service.get(self.REDIS_KEY, [])
-            
-            # Convert back to EVOpportunity objects
-            opportunities = []
-            for opp_data in opportunities_data:
-                try:
-                    # Parse datetime
-                    opp_data["updated_at"] = datetime.fromisoformat(opp_data["updated_at"])
-                    opportunities.append(EVOpportunity(**opp_data))
-                except Exception as e:
-                    logger.error(f"Error parsing opportunity: {e}")
-                    continue
-            
+
+            opportunities: List[EVOpportunity] = []
+            used_ring_fallback = False
+
+            if opportunities_data:
+                for opp_data in opportunities_data:
+                    try:
+                        opp_data["updated_at"] = datetime.fromisoformat(
+                            opp_data["updated_at"]
+                        )
+                        opportunities.append(EVOpportunity(**opp_data))
+                    except Exception as e:
+                        logger.error(f"Error parsing opportunity: {e}")
+                        continue
+            elif self._ring:
+                for ring_item in self._ring:
+                    try:
+                        ring_data = dict(ring_item)
+                        if isinstance(ring_data.get("updated_at"), str):
+                            ring_data["updated_at"] = datetime.fromisoformat(
+                                ring_data["updated_at"]
+                            )
+                        opportunities.append(EVOpportunity(**ring_data))
+                    except Exception as e:
+                        logger.error(f"Error parsing ring opportunity: {e}")
+                        continue
+                used_ring_fallback = bool(opportunities)
+
+            should_refresh = False
+            if not opportunities:
+                should_refresh = True
+            elif not used_ring_fallback:
+                if self.last_generation_time is None:
+                    should_refresh = True
+                else:
+                    is_stale = (
+                        datetime.utcnow() - self.last_generation_time
+                    ) >= timedelta(seconds=self.GENERATION_INTERVAL * 3)
+                    should_refresh = is_stale and not self.is_running
+
+            if should_refresh:
+                fresh_opportunities = await self._generate_and_cache_opportunities()
+                if fresh_opportunities:
+                    opportunities = fresh_opportunities
+                # If no fresh opportunities were generated, fall back to existing list
+
             # Apply filters
             filtered_opportunities = self._apply_filters(
                 opportunities, min_ev, sport, market_type, source_book
             )
-            
+
             # Fallback classification: guarantee edge_tier present
             for opp in filtered_opportunities:
                 try:
-                    if not getattr(opp, 'edge_tier', None):
+                    if not getattr(opp, "edge_tier", None):
                         # classify from ev_percent and assign directly
-                        setattr(opp, 'edge_tier', self.classify_edge(getattr(opp, 'ev_percent', 0.0)))
+                        setattr(
+                            opp,
+                            "edge_tier",
+                            self.classify_edge(getattr(opp, "ev_percent", 0.0)),
+                        )
                 except Exception:  # pragma: no cover - defensive
                     pass
 
             # Apply limit after enrichment
             limited_opportunities = filtered_opportunities[:limit]
-            
+
             # Calculate cache age
             cache_age = 0
             if self.last_generation_time:
-                cache_age = int((datetime.utcnow() - self.last_generation_time).total_seconds())
-            
+                cache_age = int(
+                    (datetime.utcnow() - self.last_generation_time).total_seconds()
+                )
+
             # Build response
             return EVFeedResponse(
                 opportunities=limited_opportunities,
@@ -599,12 +846,12 @@ class EVFeedService:
                     "sport": sport.value,
                     "market_type": market_type.value if market_type else None,
                     "source_book": source_book,
-                    "limit": limit
+                    "limit": limit,
                 },
                 last_updated=self.last_generation_time or datetime.utcnow(),
-                cache_age_seconds=cache_age
+                cache_age_seconds=cache_age,
             )
-            
+
         except Exception as e:
             logger.error(f"Error getting opportunities: {e}")
             return EVFeedResponse(
@@ -612,37 +859,37 @@ class EVFeedService:
                 total_count=0,
                 filters_applied={},
                 last_updated=datetime.utcnow(),
-                cache_age_seconds=0
+                cache_age_seconds=0,
             )
-    
+
     def _apply_filters(
         self,
         opportunities: List[EVOpportunity],
         min_ev: float,
         sport: SportType,
         market_type: Optional[MarketType],
-        source_book: Optional[str]
+        source_book: Optional[str],
     ) -> List[EVOpportunity]:
         """Apply filters to opportunities list"""
         filtered = opportunities
-        
+
         # Filter by minimum EV
         filtered = [opp for opp in filtered if opp.ev_percent >= min_ev]
-        
+
         # Filter by sport
         if sport != SportType.ALL:
             filtered = [opp for opp in filtered if opp.sport == sport]
-        
+
         # Filter by market type
         if market_type:
             filtered = [opp for opp in filtered if opp.market_type == market_type]
-        
+
         # Filter by source book
         if source_book:
             filtered = [opp for opp in filtered if opp.source_book == source_book]
-        
+
         return filtered
-    
+
     async def get_stats(self) -> Optional[EVFeedStats]:
         """Get feed statistics"""
         try:
@@ -650,18 +897,23 @@ class EVFeedService:
                 stats_data = await self.redis_client.get(self.STATS_KEY)
                 if stats_data:
                     stats_dict = json.loads(stats_data)
-                    stats_dict["last_generation_time"] = datetime.fromisoformat(
-                        stats_dict["last_generation_time"]
-                    )
+                    last_generated = stats_dict.get("last_generation_time")
+                    if isinstance(last_generated, str):
+                        stats_dict["last_generation_time"] = datetime.fromisoformat(
+                            last_generated
+                        )
                     return EVFeedStats(**stats_dict)
             else:
                 stats_data = await unified_cache_service.get(self.STATS_KEY)
                 if stats_data:
-                    stats_data["last_generation_time"] = datetime.fromisoformat(
-                        stats_data["last_generation_time"]
-                    )
-                    return EVFeedStats(**stats_data)
-            
+                    stats_dict = dict(stats_data)
+                    last_generated = stats_dict.get("last_generation_time")
+                    if isinstance(last_generated, str):
+                        stats_dict["last_generation_time"] = datetime.fromisoformat(
+                            last_generated
+                        )
+                    return EVFeedStats(**stats_dict)
+
             return None
         except Exception as e:
             logger.error(f"Error getting feed stats: {e}")
@@ -693,7 +945,9 @@ class EVFeedService:
         except Exception:
             return market
 
-    async def record_ev_snapshot(self, opp: EVOpportunity, timestamp: Optional[float] = None):
+    async def record_ev_snapshot(
+        self, opp: EVOpportunity, timestamp: Optional[float] = None
+    ):
         """Append an EV snapshot for the given opportunity.
         Stores up to SNAPSHOT_MAX_PER_OPP most recent points.
         """
@@ -715,7 +969,7 @@ class EVFeedService:
                     arr = []
                 arr.append(entry)
                 if len(arr) > self.SNAPSHOT_MAX_PER_OPP:
-                    arr = arr[-self.SNAPSHOT_MAX_PER_OPP:]
+                    arr = arr[-self.SNAPSHOT_MAX_PER_OPP :]
                 await self.redis_client.set(key, json.dumps(arr), ex=60 * 60)
             else:
                 # Fallback: use unified cache as list emulation
@@ -724,12 +978,14 @@ class EVFeedService:
                     data = []
                 data.append(entry)
                 if len(data) > self.SNAPSHOT_MAX_PER_OPP:
-                    data = data[-self.SNAPSHOT_MAX_PER_OPP:]
+                    data = data[-self.SNAPSHOT_MAX_PER_OPP :]
                 await unified_cache_service.set(key, data, ttl=3600)
         except Exception as e:
             logger.debug(f"Failed to record EV snapshot: {e}")
 
-    async def get_ev_snapshots(self, opp: EVOpportunity, last_n: Optional[int] = None) -> list:
+    async def get_ev_snapshots(
+        self, opp: EVOpportunity, last_n: Optional[int] = None
+    ) -> list:
         """Retrieve recent EV snapshots for an opportunity."""
         key = self.compute_snapshot_key(opp)
         try:
@@ -740,12 +996,16 @@ class EVFeedService:
                     try:
                         data = json.loads(raw)
                         if isinstance(data, list):
-                            points = data[-(last_n or self.SLOPE_WINDOW):]
+                            points = data[-(last_n or self.SLOPE_WINDOW) :]
                     except Exception:
                         points = []
             else:
                 data = await unified_cache_service.get(key, [])
-                points = data[-(last_n or self.SLOPE_WINDOW):] if isinstance(data, list) else []
+                points = (
+                    data[-(last_n or self.SLOPE_WINDOW) :]
+                    if isinstance(data, list)
+                    else []
+                )
 
             # sort by timestamp ascending
             points.sort(key=lambda p: p.get("ts", 0))
@@ -768,7 +1028,7 @@ class EVFeedService:
         sum_y = sum(ys)
         sum_xx = sum(x * x for x in xs)
         sum_xy = sum(x * y for x, y in zip(xs, ys))
-        denom = (n * sum_xx - sum_x * sum_x)
+        denom = n * sum_xx - sum_x * sum_x
         if denom == 0:
             return 0.0
         slope = (n * sum_xy - sum_x * sum_y) / denom
@@ -777,36 +1037,55 @@ class EVFeedService:
     async def compute_forecasts(self, min_ev: float = 2.0, limit: int = 100) -> list:
         """Compute forecast items for current feed opportunities with positive slope."""
         try:
-            feed = await self.get_opportunities(min_ev=min_ev, sport=SportType.ALL, limit=1000)
+            feed = await self.get_opportunities(
+                min_ev=min_ev, sport=SportType.ALL, limit=1000
+            )
             items = []
             for opp in feed.opportunities:
                 snaps = await self.get_ev_snapshots(opp, last_n=self.SLOPE_WINDOW)
                 # Ensure current point is included
-                if not snaps or (snaps and abs(snaps[-1].get("ev", 0) - float(opp.ev_percent)) > 1e-6):
+                if not snaps or (
+                    snaps and abs(snaps[-1].get("ev", 0) - float(opp.ev_percent)) > 1e-6
+                ):
                     # Use opp.updated_at as timestamp if recent; fallback to now
-                    ts = opp.updated_at.timestamp() if isinstance(opp.updated_at, datetime) else time.time()
-                    snaps = (snaps + [{"ts": ts, "ev": float(opp.ev_percent)}])[-self.SLOPE_WINDOW:]
+                    ts = (
+                        opp.updated_at.timestamp()
+                        if isinstance(opp.updated_at, datetime)
+                        else time.time()
+                    )
+                    snaps = (snaps + [{"ts": ts, "ev": float(opp.ev_percent)}])[
+                        -self.SLOPE_WINDOW :
+                    ]
 
                 slope = self._compute_slope_per_min(snaps)
                 if slope <= 0:
                     continue
 
                 predicted = float(opp.ev_percent) + slope * self.PREDICTION_HORIZON_MIN
-                items.append({
-                    "key": self.compute_snapshot_key(opp),
-                    "player": opp.player,
-                    "market": opp.market,
-                    "sport": opp.sport.value,
-                    "source_book": opp.source_book,
-                    "current_ev": float(opp.ev_percent),
-                    "slope_per_min": slope,
-                    "predictedEvNext5m": round(predicted, 2),
-                    "num_snapshots": len(snaps),
-                    "last_updated": (opp.updated_at.isoformat() if isinstance(opp.updated_at, datetime) else None)
-                })
+                items.append(
+                    {
+                        "key": self.compute_snapshot_key(opp),
+                        "player": opp.player,
+                        "market": opp.market,
+                        "sport": opp.sport.value,
+                        "source_book": opp.source_book,
+                        "current_ev": float(opp.ev_percent),
+                        "slope_per_min": slope,
+                        "predictedEvNext5m": round(predicted, 2),
+                        "num_snapshots": len(snaps),
+                        "last_updated": (
+                            opp.updated_at.isoformat()
+                            if isinstance(opp.updated_at, datetime)
+                            else None
+                        ),
+                    }
+                )
 
             # Sort by predicted advantage descending
-            items.sort(key=lambda x: x.get("predictedEvNext5m", 0) - x.get("current_ev", 0), reverse=True)
+            items.sort(
+                key=lambda x: x.get("predictedEvNext5m", 0) - x.get("current_ev", 0),
+                reverse=True,
+            )
             return items[:limit]
         except Exception as e:
             logger.error(f"Forecast computation failed: {e}")

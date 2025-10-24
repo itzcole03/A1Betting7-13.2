@@ -75,14 +75,20 @@ const CondensedPropCard: React.FC<CondensedPropCardProps> = ({
 
   return (
     <div
+      data-testid='prop-card'
+      // Backwards-compat test id used in older tests
+      data-condensed-testid='condensed-prop-card'
+      // Make legacy tests find this element by the expected data-testid
+      data-testid-condensed='condensed-prop-card'
       data-testid='condensed-prop-card'
-      data-testid-alt='prop-card'
+      // Keep a standard data-testid as well for newer tests
+      aria-label={`condensed-prop-card-${player}`}
       className={
         `relative rounded-xl p-0 mb-4 cursor-pointer transition-all duration-300 border border-gray-700 overflow-hidden shadow-lg flex items-center` +
         (isExpanded ? ' ring-2 ring-blue-500' : '')
       }
       style={{ backgroundColor: accentColor }}
-      onClick={e => {
+  onClick={_event => {
         if (typeof window !== 'undefined') {
           // eslint-disable-next-line no-console
           console.log(`[DEBUG] CondensedPropCard clicked: player=${player}, stat=${stat}`);

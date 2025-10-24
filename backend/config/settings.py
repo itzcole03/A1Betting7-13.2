@@ -3,13 +3,12 @@ Enhanced Configuration Management using Pydantic BaseSettings
 Following FastAPI 2024-2025 best practices for production-ready configuration.
 """
 
-import os
 from enum import Enum
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Set
+from typing import List, Optional
 
-from pydantic import Field, validator, model_validator
-from pydantic_settings import BaseSettings
+from pydantic import Field, field_validator, model_validator, ValidationInfo
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Environment(str, Enum):
@@ -54,9 +53,7 @@ class DatabaseSettings(BaseSettings):
     echo_sql: bool = Field(default=False)
     enable_query_logging: bool = Field(default=False)
 
-    class Config:
-        env_prefix = "DB_"
-        case_sensitive = False
+    model_config = SettingsConfigDict(env_prefix="DB_", case_sensitive=False)
 
 
 class RedisSettings(BaseSettings):
@@ -78,23 +75,25 @@ class RedisSettings(BaseSettings):
     default_ttl: int = Field(default=300, ge=1, le=86400)
     max_ttl: int = Field(default=3600, ge=1, le=86400)
 
-    @validator("url", pre=True)
-    def validate_redis_url(cls, v, values):
-        if v:
-            return v
-        # Build URL from components if not provided
-        host = values.get("host", "localhost")
-        port = values.get("port", 6379)
-        db = values.get("db", 0)
-        password = values.get("password")
+    model_config = SettingsConfigDict(env_prefix="REDIS_", case_sensitive=False)
+
+    @model_validator(mode="after")
+    def ensure_url(self):
+        if self.url:
+            return self
+
+        host = self.host or "localhost"
+        port = self.port or 6379
+        db = self.db or 0
+        password = self.password
 
         if password:
-            return f"redis://:{password}@{host}:{port}/{db}"
-        return f"redis://{host}:{port}/{db}"
+            computed_url = f"redis://:{password}@{host}:{port}/{db}"
+        else:
+            computed_url = f"redis://{host}:{port}/{db}"
 
-    class Config:
-        env_prefix = "REDIS_"
-        case_sensitive = False
+        object.__setattr__(self, "url", computed_url)
+        return self
 
 
 class SecuritySettings(BaseSettings):
@@ -167,7 +166,13 @@ class SecuritySettings(BaseSettings):
     enable_corp: Optional[bool] = Field(default=None, description="Legacy alias to enable Cross-Origin-Resource-Policy header")
     permissions_policy_enabled: Optional[bool] = Field(default=None, description="Legacy flag to enable permissions policy header")
 
-    @validator("security_strict_mode", pre=True)
+    model_config = SettingsConfigDict(
+        env_prefix="SECURITY_",
+        case_sensitive=False,
+        extra="allow",
+    )
+
+    @field_validator("security_strict_mode", mode="before")
     def validate_security_strict_mode_field(cls, v):
         """Convert string values to boolean for security_strict_mode field"""
         if isinstance(v, str):
@@ -179,14 +184,14 @@ class SecuritySettings(BaseSettings):
                 raise ValueError(f"Invalid boolean value: {v}")
         return bool(v) if v is not None else False
 
-    @validator("csp_upgrade_insecure_requests", pre=True, always=True)
-    def _sync_csp_upgrade_alias(cls, v, values):
+    @field_validator("csp_upgrade_insecure_requests", mode="before")
+    def _sync_csp_upgrade_alias(cls, v):
         # map legacy alias to canonical field if provided
         if v is not None:
             return bool(v)
         return None
 
-    @validator("csp_extra_connect_src", pre=True)
+    @field_validator("csp_extra_connect_src", mode="before")
     def _coerce_csp_extra_connect_src(cls, v):
         """Allow tests to pass either a list of sources or a comma-separated string.
 
@@ -207,26 +212,26 @@ class SecuritySettings(BaseSettings):
         # Fallback to string conversion
         return str(v)
 
-    @validator("csp_report_uri", pre=True, always=True)
+    @field_validator("csp_report_uri", mode="before")
     def _ensure_csp_report_uri_default(cls, v):
         # Only return provided value; don't inject a default here
         return v if v is not None else None
 
-    @validator("enable_corp", pre=True, always=True)
+    @field_validator("enable_corp", mode="before")
     def _map_enable_corp(cls, v):
         return v if v is not None else None
 
-    @validator("permissions_policy_enabled", pre=True, always=True)
+    @field_validator("permissions_policy_enabled", mode="before")
     def _map_permissions_policy_enabled(cls, v):
         return v if v is not None else None
 
-    @validator("secret_key")
+    @field_validator("secret_key")
     def validate_secret_key(cls, v):
         if len(v) < 32:
             raise ValueError("Secret key must be at least 32 characters long")
         return v
     
-    @validator("x_frame_options")
+    @field_validator("x_frame_options")
     def validate_x_frame_options(cls, v):
         if v.upper() not in ["DENY", "SAMEORIGIN"]:
             raise ValueError("X-Frame-Options must be either 'DENY' or 'SAMEORIGIN'")
@@ -287,10 +292,7 @@ class SecuritySettings(BaseSettings):
         
         return self
 
-    class Config:
-        env_prefix = "SECURITY_"
-        case_sensitive = False
-        extra = "allow"
+    # model_config defined above
 
 
 class ExternalAPISettings(BaseSettings):
@@ -309,9 +311,7 @@ class ExternalAPISettings(BaseSettings):
     # Rate limiting for external APIs
     external_api_rate_limit: int = Field(default=100, ge=1, le=10000)
 
-    class Config:
-        env_prefix = "API_"
-        case_sensitive = False
+    model_config = SettingsConfigDict(env_prefix="API_", case_sensitive=False)
 
 
 class MonitoringSettings(BaseSettings):
@@ -335,9 +335,7 @@ class MonitoringSettings(BaseSettings):
     enable_performance_monitoring: bool = Field(default=True)
     slow_query_threshold: float = Field(default=1.0, ge=0.1, le=60.0)
 
-    class Config:
-        env_prefix = "MONITORING_"
-        case_sensitive = False
+    model_config = SettingsConfigDict(env_prefix="MONITORING_", case_sensitive=False)
 
 
 class PerformanceSettings(BaseSettings):
@@ -360,9 +358,7 @@ class PerformanceSettings(BaseSettings):
     max_background_tasks: int = Field(default=100, ge=1, le=1000)
     background_task_timeout: int = Field(default=300, ge=1, le=3600)
 
-    class Config:
-        env_prefix = "PERFORMANCE_"
-        case_sensitive = False
+    model_config = SettingsConfigDict(env_prefix="PERFORMANCE_", case_sensitive=False)
 
 
 class AppSettings(BaseSettings):
@@ -402,24 +398,55 @@ class AppSettings(BaseSettings):
         description="Disable heavy monitoring and non-essential features for cleaner development"
     )
 
-    @validator("debug", pre=True)
-    def validate_debug(cls, v, values):
-        env = values.get("environment", Environment.DEVELOPMENT)
-        if env == Environment.PRODUCTION and v:
-            raise ValueError("Debug mode cannot be enabled in production")
-        return v
+    model_config = SettingsConfigDict(env_prefix="APP_", case_sensitive=False)
 
-    @validator("enable_docs", pre=True)
-    def validate_docs(cls, v, values):
-        env = values.get("environment", Environment.DEVELOPMENT)
-        # Automatically disable docs in production for security
+    @field_validator("debug", mode="before")
+    def validate_debug(cls, v, info: ValidationInfo):
+        env_value = info.data.get("environment", Environment.DEVELOPMENT)
+        if isinstance(env_value, str):
+            try:
+                env = Environment(env_value)
+            except Exception:
+                env = Environment.DEVELOPMENT
+        else:
+            env = env_value or Environment.DEVELOPMENT
+
+        parsed_debug: bool
+        if isinstance(v, str):
+            lowered = v.strip().lower()
+            if lowered in {"true", "1", "yes", "on"}:
+                parsed_debug = True
+            elif lowered in {"false", "0", "no", "off", ""}:
+                parsed_debug = False
+            else:
+                raise ValueError(f"Invalid boolean value for debug: {v}")
+        else:
+            parsed_debug = bool(v)
+
+        if env == Environment.PRODUCTION and parsed_debug:
+            raise ValueError("Debug mode cannot be enabled in production")
+        return parsed_debug
+
+    @field_validator("enable_docs", mode="before")
+    def validate_docs(cls, v, info: ValidationInfo):
+        env_value = info.data.get("environment", Environment.DEVELOPMENT)
+        if isinstance(env_value, str):
+            try:
+                env = Environment(env_value)
+            except Exception:
+                env = Environment.DEVELOPMENT
+        else:
+            env = env_value or Environment.DEVELOPMENT
+
         if env == Environment.PRODUCTION:
             return False
+        if isinstance(v, str):
+            lowered = v.strip().lower()
+            if lowered in {"true", "1", "yes", "on"}:
+                return True
+            if lowered in {"false", "0", "no", "off", ""}:
+                return False
         return v
-
-    class Config:
-        env_prefix = "APP_"
-        case_sensitive = False
 
 
 class Settings(BaseSettings):
@@ -479,12 +506,13 @@ class Settings(BaseSettings):
         self.monitoring.log_level = LogLevel.DEBUG
         self.monitoring.enable_sql_logging = True
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
-        validate_assignment = True
-        extra = "allow"  # Allow extra fields for backward compatibility
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        validate_assignment=True,
+        extra="allow",
+    )
 
 
 # Cache settings instance for performance

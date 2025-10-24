@@ -16,6 +16,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from backend.services.ai_recommendations_service import (
+from backend.core.exceptions import BusinessLogicException
     get_ai_recommendations_service,
     AIRecommendationsService,
     SmartRecommendation,
@@ -477,12 +478,4 @@ async def ai_recommendations_health_check():
         
     except Exception as e:
         logger.error(f"AI recommendations health check failed: {e}")
-        return JSONResponse(
-            status_code=503,
-            content={
-                "service": "ai_recommendations",
-                "status": "degraded",
-                "error": str(e),
-                "timestamp": datetime.now().isoformat()
-            }
-        )
+        return raise BusinessLogicException("Service error")

@@ -1,0 +1,150 @@
+{
+  "success": true,
+  "data": {
+    "opportunities": [
+      {
+        "id": "s1",
+        "player": "P1",
+        "confidence": 72.0,
+        "sport": "NBA",
+        "market": "POINTS",
+        "pick": "OVER",
+        "edge": 0.0,
+        "impliedProbability": 0.5,
+        "evPercent": 22.0,
+        "evValue": null,
+        "line": 2.0,
+        "odds": 110,
+        "openingOdds": 110,
+        "latestOdds": 115,
+        "oddsChange": 5,
+        "openingLine": 1.5,
+        "latestLine": 2.0,
+        "movementDirection": "up",
+        "lineChange": 0.5,
+        "validationWarnings": []
+      },
+      {
+        "id": "s2",
+        "player": "P2",
+        "confidence": 75.0,
+        "sport": "NBA",
+        "market": "POINTS",
+        "pick": "OVER",
+        "edge": 0.0,
+        "impliedProbability": 0.5,
+        "evPercent": 25.0,
+        "evValue": null,
+        "line": 2.0,
+        "odds": 110,
+        "openingOdds": 110,
+        "latestOdds": 115,
+        "oddsChange": 5,
+        "openingLine": 1.5,
+        "latestLine": 2.0,
+        "movementDirection": "up",
+        "lineChange": 0.5,
+        "validationWarnings": []
+      },
+      {
+        "id": "s3",
+        "player": "P3",
+        "confidence": 68.0,
+        "sport": "NBA",
+        "market": "POINTS",
+        "pick": "OVER",
+        "edge": 0.0,
+        "impliedProbability": 0.5,
+        "evPercent": 18.0,
+        "evValue": null,
+        "line": 2.0,
+        "odds": 110,
+        "openingOdds": 110,
+        "latestOdds": 115,
+        "oddsChange": 5,
+        "openingLine": 1.5,
+        "latestLine": 2.0,
+        "movementDirection": "up",
+        "lineChange": 0.5,
+        "validationWarnings": []
+      },
+      {
+        "id": "s4",
+        "player": "P4",
+        "confidence": 80.0,
+        "sport": "NBA",
+        "market": "POINTS",
+        "pick": "OVER",
+        "edge": 0.0,
+        "impliedProbability": 0.5,
+        "evPercent": 30.0,
+        "evValue": null,
+        "line": 2.0,
+        "odds": 110,
+        "openingOdds": 110,
+        "latestOdds": 115,
+        "oddsChange": 5,
+        "openingLine": 1.5,
+        "latestLine": 2.0,
+        "movementDirection": "up",
+        "lineChange": 0.5,
+        "validationWarnings": []
+      },
+      {
+        "id": "s5",
+        "player": "P5",
+        "confidence": 60.0,
+        "sport": "NBA",
+        "market": "POINTS",
+        "pick": "OVER",
+        "edge": 0.0,
+        "impliedProbability": 0.5,
+        "evPercent": 10.0,
+        "evValue": null,
+        "line": 2.0,
+        "odds": 110,
+        "openingOdds": 110,
+        "latestOdds": 115,
+        "oddsChange": 5,
+        "openingLine": 1.5,
+        "latestLine": 2.0,
+        "movementDirection": "up",
+        "lineChange": 0.5,
+        "validationWarnings": []
+      }
+    ],
+    "total": 5,
+    "filtered": 5,
+    "summary": {
+      "count": 5,
+      "avg_confidence": 71.0
+    },
+    "clv_diagnostics": {
+      "enabled": false,
+      "metrics_available": false,
+      "reason": "clv_diag_disabled",
+      "window_size": null
+    },
+    "meta": {
+      "clv_diagnostics": {
+        "enabled": false,
+        "metrics_available": false,
+        "reason": "clv_diag_disabled",
+        "window_size": null
+      },
+      "shim": "minimal"
+    }
+  },
+  "error": null,
+  "status": "success",
+  "message": "OK",
+  "meta": {
+    "clv_diagnostics": {
+      "enabled": false,
+      "metrics_available": false,
+      "reason": "clv_diag_disabled",
+      "window_size": null
+    },
+    "shim": "minimal"
+  }
+}

@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 // Minimal deterministic payloads used by tests
 const mockCacheStats = {
@@ -19,7 +19,7 @@ const mockCacheStats = {
   timestamp: new Date().toISOString(),
 };
 
-const mockPerformanceMetricsLegacy = {
+const _mockPerformanceMetricsLegacy = {
   cache_performance: {
     total_requests: 379,
     hits: 312,
@@ -27,7 +27,7 @@ const mockPerformanceMetricsLegacy = {
   },
 };
 
-const mockPerformanceMetricsCanonical = {
+const _mockPerformanceMetricsCanonical = {
   cache_performance: {
     total_requests: 500,
     hits: 450,
@@ -37,21 +37,21 @@ const mockPerformanceMetricsCanonical = {
 
 const handlers = [
   // Cache stats endpoints used by useCacheStats
-  rest.get('http://localhost/api/v2/meta/cache-stats', (req: any, res: any, ctx: any) => {
-    return res(ctx.status(200), ctx.json(mockCacheStats));
-  }),
+  http.get('http://localhost/api/v2/meta/cache-stats', () =>
+    HttpResponse.json(mockCacheStats)
+  ),
 
-  rest.get('http://localhost/api/v2/meta/cache-health', (req: any, res: any, ctx: any) => {
+  http.get('http://localhost/api/v2/meta/cache-health', () => {
     const mockCacheHealth = {
       healthy: true,
       operations: { get: true, set: true, delete: true },
       stats_snapshot: { total_operations: 1000, hit_ratio: 0.85 },
     };
-    return res(ctx.status(200), ctx.json(mockCacheHealth));
+    return HttpResponse.json(mockCacheHealth);
   }),
 
   // Performance stats endpoint used by robustApi.fetchPerformanceStats
-  rest.get('http://localhost/performance/stats', (req: any, res: any, ctx: any) => {
+  http.get('http://localhost/performance/stats', () => {
     // Return the canonical shape expected by tests under `data` key
     const payload = {
       data: {
@@ -68,37 +68,35 @@ const handlers = [
         },
       },
     };
-    return res(ctx.status(200), ctx.json(payload));
+    return HttpResponse.json(payload);
   }),
 
   // Bookmark sync POST (propfinder) - tests check for POSTs to bookmark endpoints
-  rest.post('http://localhost/api/propfinder/opportunities', async (req: any, res: any, ctx: any) => {
+  http.post('http://localhost/api/propfinder/opportunities', async ({ request }) => {
     // Some tests post to /api/propfinder/opportunities for create; echo back
-    const body = await req.json().catch(() => ({}));
-    return res(ctx.status(200), ctx.json({ success: true, data: body }));
+    const body = await request.json().catch(() => ({}));
+    return HttpResponse.json({ success: true, data: body });
   }),
 
   // Common propfinder bookmark POST endpoints (some tests look for '/api/propfinder/bookmark')
-  rest.post('http://localhost/api/propfinder/bookmark', async (req: any, res: any, ctx: any) => {
-    const body = await req.json().catch(() => ({}));
-    return res(ctx.status(200), ctx.json({ success: true, received: body }));
+  http.post('http://localhost/api/propfinder/bookmark', async ({ request }) => {
+    const body = await request.json().catch(() => ({}));
+    return HttpResponse.json({ success: true, received: body });
   }),
 
   // Also support the previously added sync endpoint
-  rest.post('http://localhost/api/propfinder/bookmarks/sync', async (req: any, res: any, ctx: any) => {
-    const body = await req.json().catch(() => ({}));
-    return res(ctx.status(200), ctx.json({ received: body }));
+  http.post('http://localhost/api/propfinder/bookmarks/sync', async ({ request }) => {
+    const body = await request.json().catch(() => ({}));
+    return HttpResponse.json({ received: body });
   }),
 
   // AI/ensemble models (used by AdvancedAI) - minimal shape
-  rest.get('http://localhost/api/ai/ensemble/models', (req: any, res: any, ctx: any) => {
-    return res(ctx.status(200), ctx.json({ models: [] }));
-  }),
+  http.get('http://localhost/api/ai/ensemble/models', () =>
+    HttpResponse.json({ models: [] })
+  ),
 
   // Fallback catch-all to avoid network errors for other /api/* during tests
-  rest.all('http://localhost/:rest*', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json({}));
-  }),
+  http.all('http://localhost/:rest*', () => HttpResponse.json({})),
 ];
 
 export { handlers };

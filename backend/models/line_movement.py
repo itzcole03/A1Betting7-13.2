@@ -5,7 +5,7 @@ Data models for tracking betting line movements over time with Redis time-series
 Supports magnitude calculations, direction detection, and volatility scoring.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Literal
 from pydantic import BaseModel, Field
 from dataclasses import dataclass
@@ -31,6 +31,11 @@ class LineSnapshot(BaseModel):
         json_encoders = {
             datetime: lambda v: v.isoformat()
         }
+
+    @property
+    def best_odds(self) -> int:
+        """Expose snake_case accessor expected by legacy tests."""
+        return self.bestOdds
 
 
 class MovementStats(BaseModel):
@@ -137,7 +142,7 @@ def calculate_movement_stats(snapshots: List[LineSnapshot]) -> MovementStats:
             movementMagnitude=0.0,
             direction=MovementDirection.FLAT,
             volatilityScore=0.0,
-            lastUpdated=datetime.utcnow(),
+            lastUpdated=datetime.now(timezone.utc),
             snapshotCount=0
         )
     
@@ -148,7 +153,7 @@ def calculate_movement_stats(snapshots: List[LineSnapshot]) -> MovementStats:
     # Calculate magnitude (earliest to latest)
     earliest_line = line_values[0]
     latest_line = line_values[-1]
-    magnitude = abs(latest_line - earliest_line)
+    magnitude = round(abs(latest_line - earliest_line), 3)
     
     # Determine direction
     if latest_line > earliest_line:
@@ -200,6 +205,6 @@ def create_movement_event(
         magnitude=magnitude,
         direction=direction,
         volatility_score=volatility_score,
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         source=source
     )

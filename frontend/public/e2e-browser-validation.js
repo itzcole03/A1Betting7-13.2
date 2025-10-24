@@ -9,18 +9,43 @@ window.A1BettingE2EValidation = {
     passed: 0,
     failed: 0,
     total: 0,
-    details: []
+    details: [],
   },
 
   // Helper functions
-  sleep: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
-  
+  sleep: ms => new Promise(resolve => setTimeout(resolve, ms)),
+
+  createTimeoutSignal(ms) {
+    if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+      try {
+        const signal = AbortSignal.timeout(ms);
+        return {
+          signal,
+          cleanup: () => {},
+        };
+      } catch (error) {
+        this.log(
+          `  ⚠️ AbortSignal.timeout threw (${error.message}) - falling back to AbortController polyfill`,
+          'warning'
+        );
+      }
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), ms);
+
+    return {
+      signal: controller.signal,
+      cleanup: () => clearTimeout(timeoutId),
+    };
+  },
+
   log: (message, type = 'info') => {
     const styles = {
       info: 'color: #3b82f6',
       success: 'color: #10b981; font-weight: bold',
       error: 'color: #ef4444; font-weight: bold',
-      warning: 'color: #f59e0b'
+      warning: 'color: #f59e0b',
     };
     console.log(`%c${message}`, styles[type]);
   },
@@ -28,7 +53,7 @@ window.A1BettingE2EValidation = {
   // Test individual components
   async testComponent(componentName, selector, expectedFeatures = []) {
     this.log(`🧪 Testing ${componentName}...`);
-    
+
     const component = document.querySelector(selector);
     if (!component) {
       this.log(`❌ ${componentName} not found!`, 'error');
@@ -38,11 +63,12 @@ window.A1BettingE2EValidation = {
     }
 
     this.log(`✅ ${componentName} found`, 'success');
-    
+
     // Test expected features
     let featuresPassed = 0;
     for (const feature of expectedFeatures) {
-      const featureElement = component.querySelector(feature.selector) || document.querySelector(feature.selector);
+      const featureElement =
+        component.querySelector(feature.selector) || document.querySelector(feature.selector);
       if (featureElement) {
         this.log(`  ✅ ${feature.name} - found`, 'success');
         featuresPassed++;
@@ -65,7 +91,7 @@ window.A1BettingE2EValidation = {
       found: true,
       featuresTotal: expectedFeatures.length,
       featuresPassed,
-      status: passed ? 'PASS' : 'FAIL'
+      status: passed ? 'PASS' : 'FAIL',
     });
 
     return passed;
@@ -74,7 +100,7 @@ window.A1BettingE2EValidation = {
   // Test navigation
   async testNavigation() {
     this.log('🧭 Testing Navigation System...', 'info');
-    
+
     const sidebar = document.querySelector('.sidebar, [data-testid="sidebar"], nav');
     if (!sidebar) {
       this.log('❌ Sidebar not found!', 'error');
@@ -93,16 +119,17 @@ window.A1BettingE2EValidation = {
       { href: '/arbitrage', name: 'Arbitrage Hunter' },
       { href: '/cheatsheets', name: 'Prop Cheatsheets' },
       { href: '/kelly', name: 'Kelly Calculator' },
-      { href: '/ml-models', name: 'ML Models' }
+      { href: '/ml-models', name: 'ML Models' },
     ];
 
     let foundRoutes = 0;
     expectedRoutes.forEach(route => {
-      const link = Array.from(navLinks).find(link => 
-        link.getAttribute('href') === route.href ||
-        link.getAttribute('href')?.includes(route.href)
+      const link = Array.from(navLinks).find(
+        link =>
+          link.getAttribute('href') === route.href ||
+          link.getAttribute('href')?.includes(route.href)
       );
-      
+
       if (link) {
         this.log(`  ✅ ${route.name} route found`, 'success');
         foundRoutes++;
@@ -125,22 +152,28 @@ window.A1BettingE2EValidation = {
   // Test API integration
   async testAPIIntegration() {
     this.log('🔌 Testing API Integration...', 'info');
-    
+
     const apiTests = [
       { endpoint: '/health', name: 'Health Check' },
       { endpoint: '/v1/cheatsheets/opportunities', name: 'Cheatsheets API' },
       { endpoint: '/v1/odds/compare', name: 'Odds API' },
-      { endpoint: '/api/models', name: 'Models API' }
+      { endpoint: '/api/models', name: 'Models API' },
     ];
 
     let passedTests = 0;
 
     for (const test of apiTests) {
       try {
-        const response = await fetch(test.endpoint, {
-          signal: AbortSignal.timeout(5000)
-        });
-        
+        const timeout = this.createTimeoutSignal(5000);
+        let response;
+        try {
+          response = await fetch(test.endpoint, {
+            signal: timeout.signal,
+          });
+        } finally {
+          timeout.cleanup();
+        }
+
         if (response.ok) {
           this.log(`  ✅ ${test.name} - Status: ${response.status}`, 'success');
           passedTests++;
@@ -170,7 +203,7 @@ window.A1BettingE2EValidation = {
   // Test data loading and display
   async testDataDisplay() {
     this.log('📊 Testing Data Display...', 'info');
-    
+
     // Check for demo mode indicator
     const demoIndicator = document.querySelector('[data-testid="demo-mode"], .demo-mode, .alert');
     if (demoIndicator) {
@@ -183,7 +216,7 @@ window.A1BettingE2EValidation = {
       { selector: '.arbitrage-opportunity, .profit-margin', name: 'Arbitrage Data' },
       { selector: '.odds-comparison, .best-lines', name: 'Odds Data' },
       { selector: '.model-card, .performance-metrics', name: 'ML Model Data' },
-      { selector: '.player-stats, .analytics', name: 'Player Data' }
+      { selector: '.player-stats, .analytics', name: 'Player Data' },
     ];
 
     let foundData = 0;
@@ -211,13 +244,13 @@ window.A1BettingE2EValidation = {
   // Test interactive features
   async testInteractivity() {
     this.log('⚡ Testing Interactive Features...', 'info');
-    
+
     const interactiveElements = [
       { selector: 'button, .btn', name: 'Buttons' },
       { selector: 'input, .input', name: 'Input Fields' },
       { selector: '.filter-controls, .controls', name: 'Filter Controls' },
       { selector: '.refresh-btn, [data-action="refresh"]', name: 'Refresh Functionality' },
-      { selector: '.export-btn, [data-action="export"]', name: 'Export Functionality' }
+      { selector: '.export-btn, [data-action="export"]', name: 'Export Functionality' },
     ];
 
     let workingFeatures = 0;
@@ -245,16 +278,19 @@ window.A1BettingE2EValidation = {
   // Test performance
   async testPerformance() {
     this.log('🚀 Testing Performance...', 'info');
-    
+
     const perfEntries = performance.getEntriesByType('navigation');
     if (perfEntries.length > 0) {
       const nav = perfEntries[0];
       const loadTime = nav.loadEventEnd - nav.fetchStart;
       const domContentLoaded = nav.domContentLoadedEventEnd - nav.fetchStart;
-      
+
       this.log(`  Load Time: ${loadTime.toFixed(0)}ms`, loadTime < 3000 ? 'success' : 'warning');
-      this.log(`  DOM Ready: ${domContentLoaded.toFixed(0)}ms`, domContentLoaded < 1500 ? 'success' : 'warning');
-      
+      this.log(
+        `  DOM Ready: ${domContentLoaded.toFixed(0)}ms`,
+        domContentLoaded < 1500 ? 'success' : 'warning'
+      );
+
       const passed = loadTime < 5000 && domContentLoaded < 3000;
       if (passed) {
         this.results.passed++;
@@ -262,7 +298,7 @@ window.A1BettingE2EValidation = {
         this.results.failed++;
       }
       this.results.total++;
-      
+
       return passed;
     } else {
       this.log('  ⚠️ Performance data not available', 'warning');
@@ -274,49 +310,63 @@ window.A1BettingE2EValidation = {
   async runComprehensiveValidation() {
     this.log('🚀 Starting Comprehensive E2E Validation...', 'info');
     this.log('==========================================', 'info');
-    
+
     // Reset results
     this.results = { passed: 0, failed: 0, total: 0, details: [] };
-    
+
     try {
       // Test core functionality
       await this.testNavigation();
       await this.sleep(100);
-      
+
       await this.testAPIIntegration();
       await this.sleep(100);
-      
+
       await this.testDataDisplay();
       await this.sleep(100);
-      
+
       await this.testInteractivity();
       await this.sleep(100);
-      
+
       await this.testPerformance();
       await this.sleep(100);
 
       // Test specific components if visible
-      await this.testComponent('Cheatsheets Dashboard', '.cheatsheets-container, [data-testid="cheatsheets"]', [
-        { selector: '.opportunities-table, .cheatsheet-table', name: 'Opportunities Table' },
-        { selector: '.filter-controls, .filters', name: 'Filter Controls' },
-        { selector: '.export-button, .export-btn', name: 'Export Button' }
-      ]);
+      await this.testComponent(
+        'Cheatsheets Dashboard',
+        '.cheatsheets-container, [data-testid="cheatsheets"]',
+        [
+          { selector: '.opportunities-table, .cheatsheet-table', name: 'Opportunities Table' },
+          { selector: '.filter-controls, .filters', name: 'Filter Controls' },
+          { selector: '.export-button, .export-btn', name: 'Export Button' },
+        ]
+      );
 
-      await this.testComponent('Arbitrage Hunter', '.arbitrage-container, [data-testid="arbitrage"]', [
-        { selector: '.arbitrage-opportunity, .opportunity-card', name: 'Arbitrage Opportunities' },
-        { selector: '.profit-calculator, .calculator', name: 'Profit Calculator' },
-        { selector: '.execution-steps, .steps', name: 'Execution Steps' }
-      ]);
+      await this.testComponent(
+        'Arbitrage Hunter',
+        '.arbitrage-container, [data-testid="arbitrage"]',
+        [
+          {
+            selector: '.arbitrage-opportunity, .opportunity-card',
+            name: 'Arbitrage Opportunities',
+          },
+          { selector: '.profit-calculator, .calculator', name: 'Profit Calculator' },
+          { selector: '.execution-steps, .steps', name: 'Execution Steps' },
+        ]
+      );
 
-      await this.testComponent('ML Model Center', '.ml-models-container, [data-testid="ml-models"]', [
-        { selector: '.model-card, .model-item', name: 'Model Cards' },
-        { selector: '.performance-metrics, .metrics', name: 'Performance Metrics' },
-        { selector: '.model-registry, .registry', name: 'Model Registry' }
-      ]);
+      await this.testComponent(
+        'ML Model Center',
+        '.ml-models-container, [data-testid="ml-models"]',
+        [
+          { selector: '.model-card, .model-item', name: 'Model Cards' },
+          { selector: '.performance-metrics, .metrics', name: 'Performance Metrics' },
+          { selector: '.model-registry, .registry', name: 'Model Registry' },
+        ]
+      );
 
       // Generate final report
       this.generateReport();
-      
     } catch (error) {
       this.log(`❌ Validation error: ${error.message}`, 'error');
     }
@@ -327,9 +377,19 @@ window.A1BettingE2EValidation = {
     this.log('==========================================', 'info');
     this.log('📊 E2E Validation Results:', 'info');
     this.log(`Total Tests: ${this.results.total}`, 'info');
-    this.log(`Passed: ${this.results.passed} (${((this.results.passed/this.results.total)*100).toFixed(1)}%)`, 'success');
-    this.log(`Failed: ${this.results.failed} (${((this.results.failed/this.results.total)*100).toFixed(1)}%)`, this.results.failed > 0 ? 'error' : 'info');
-    
+    this.log(
+      `Passed: ${this.results.passed} (${((this.results.passed / this.results.total) * 100).toFixed(
+        1
+      )}%)`,
+      'success'
+    );
+    this.log(
+      `Failed: ${this.results.failed} (${((this.results.failed / this.results.total) * 100).toFixed(
+        1
+      )}%)`,
+      this.results.failed > 0 ? 'error' : 'info'
+    );
+
     const passRate = this.results.passed / this.results.total;
     if (passRate >= 0.8) {
       this.log('✅ OVERALL STATUS: VALIDATION PASSED', 'success');
@@ -340,12 +400,21 @@ window.A1BettingE2EValidation = {
     }
 
     this.log('==========================================', 'info');
-    this.log('💡 To run validation again: A1BettingE2EValidation.runComprehensiveValidation()', 'info');
-    
+    this.log(
+      '💡 To run validation again: A1BettingE2EValidation.runComprehensiveValidation()',
+      'info'
+    );
+
     return this.results;
-  }
+  },
 };
 
 // Auto-run validation when script loads
-console.log('%c🎯 A1Betting E2E Validation Loaded', 'color: #10b981; font-size: 16px; font-weight: bold');
-console.log('%cRun: A1BettingE2EValidation.runComprehensiveValidation()', 'color: #3b82f6; font-weight: bold');
+console.log(
+  '%c🎯 A1Betting E2E Validation Loaded',
+  'color: #10b981; font-size: 16px; font-weight: bold'
+);
+console.log(
+  '%cRun: A1BettingE2EValidation.runComprehensiveValidation()',
+  'color: #3b82f6; font-weight: bold'
+);

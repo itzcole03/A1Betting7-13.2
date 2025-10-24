@@ -1,7 +1,8 @@
+/* eslint-disable no-console, @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 
 interface PastMatchupTrackerProps {
-  gameId: number;
+  gameId: string;
   awayTeam?: string;
   homeTeam?: string;
 }
@@ -20,7 +21,7 @@ interface PastMatchup {
 
 interface PastMatchupData {
   status: string;
-  game_id: number;
+  game_id: string;
   teams: {
     away: string;
     home: string;
@@ -59,6 +60,34 @@ export const PastMatchupTracker: React.FC<PastMatchupTrackerProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'recent' | 'season'>('recent');
 
+  const extractPayload = <T,>(raw: unknown): { payload: T | null; message?: string } => {
+    if (raw && typeof raw === 'object') {
+      const envelope = raw as {
+        success?: boolean;
+        data?: T;
+        error?: unknown;
+        message?: string;
+      };
+
+      if ('data' in envelope || 'success' in envelope || 'error' in envelope) {
+        const payload = (envelope.data ?? null) as T | null;
+        if (envelope.success === false) {
+          const errorMessage =
+            typeof envelope.error === 'string'
+              ? envelope.error
+              : typeof envelope.error === 'object' && envelope.error !== null
+              ? String((envelope.error as { message?: unknown }).message ?? envelope.message ?? '')
+              : envelope.message;
+          return { payload, message: errorMessage };
+        }
+
+        return { payload, message: envelope.message };
+      }
+    }
+
+    return { payload: (raw as T) ?? null, message: undefined };
+  };
+
   useEffect(() => {
     const fetchPastMatchupData = async () => {
       try {
@@ -76,7 +105,14 @@ export const PastMatchupTracker: React.FC<PastMatchupTrackerProps> = ({
         }
 
         const data = await response.json();
-        setMatchupData(data);
+        const { payload, message } = extractPayload<PastMatchupData>(data);
+
+        if (payload) {
+          setMatchupData(payload);
+        } else {
+          setError(message || 'Past matchup data unavailable');
+          setMatchupData(generateMockMatchupData(gameId, awayTeam, homeTeam));
+        }
       } catch (err) {
         console.log('Past matchup API not available, using mock data');
         // Use mock data as fallback
@@ -89,7 +125,7 @@ export const PastMatchupTracker: React.FC<PastMatchupTrackerProps> = ({
     fetchPastMatchupData();
   }, [gameId, awayTeam, homeTeam]);
 
-  const generateMockMatchupData = (gameId: number, away: string, home: string): PastMatchupData => {
+  const generateMockMatchupData = (gameId: string, away: string, home: string): PastMatchupData => {
     const currentYear = new Date().getFullYear();
     const mockMatchups: PastMatchup[] = [];
 
@@ -230,7 +266,7 @@ export const PastMatchupTracker: React.FC<PastMatchupTrackerProps> = ({
         <div>
           <h4 className='text-lg font-semibold text-white mb-4'>Recent Matchups</h4>
           <div className='space-y-3'>
-            {matchupData.last_5_matchups.map((matchup, index) => (
+            {matchupData.last_5_matchups.map((matchup, _index) => (
               <div
                 key={matchup.id}
                 className='flex items-center justify-between p-3 bg-slate-700 rounded-lg'

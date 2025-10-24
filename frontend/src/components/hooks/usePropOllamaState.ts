@@ -29,7 +29,7 @@ export interface PropOllamaState {
   projections: FeaturedProp[];
   unifiedResponse: EnhancedBetsResponse | null;
   upcomingGames: UpcomingGame[];
-  selectedGame: { game_id: number; home: string; away: string } | null;
+  selectedGame: { game_id: string; home: string; away: string } | null;
 
   // UI State
   filters: PropFilters;
@@ -73,7 +73,7 @@ export interface PropOllamaActions {
   setProjections: (projections: FeaturedProp[]) => void;
   setUnifiedResponse: (response: EnhancedBetsResponse | null) => void;
   setUpcomingGames: (games: UpcomingGame[]) => void;
-  setSelectedGame: (game: { game_id: number; home: string; away: string } | null) => void;
+  setSelectedGame: (game: { game_id: string; home: string; away: string } | null) => void;
 
   // Filters
   updateFilters: (filters: Partial<PropFilters>) => void;
@@ -127,7 +127,7 @@ export function usePropOllamaState(): [PropOllamaState, PropOllamaActions] {
   const [unifiedResponse, setUnifiedResponse] = useState<EnhancedBetsResponse | null>(null);
   const [upcomingGames, setUpcomingGames] = useState<UpcomingGame[]>([]);
   const [selectedGame, setSelectedGame] = useState<{
-    game_id: number;
+    game_id: string;
     home: string;
     away: string;
   } | null>(null);

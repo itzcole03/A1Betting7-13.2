@@ -67,7 +67,8 @@ class AlertDispatcher:
         if AlertDispatcher._instance is not None:
             raise Exception("AlertDispatcher is a singleton")
             
-        self.config = unified_config.get_config_value("risk_management")
+        # Risk config lives under the "risk" key in unified config
+        self.config = unified_config.get_risk_config()
         self.dispatch_active = False
         
         # Delivery queues per channel

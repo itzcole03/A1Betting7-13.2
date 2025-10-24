@@ -1050,17 +1050,7 @@ async def generate_comprehensive_props(
         logger.error(
             f"[COMPREHENSIVE-PROPS] Error generating props for game {game_id}: {e}"
         )
-        return JSONResponse(
-            status_code=500,
-            content={
-                "status": "error",
-                "error": str(e),
-                "game_id": game_id,
-                "props": [],
-                "total_props": 0,
-                "timestamp": datetime.now().isoformat(),
-            },
-        )
+        return raise BusinessLogicException("Service error")
 
 
 @router.get("/ml-performance-analytics/", response_model=StandardAPIResponse[Dict[str, Any]])
@@ -1130,14 +1120,7 @@ async def get_ml_performance_analytics():
 
     except Exception as e:
         logger.error(f"[ML-ANALYTICS] Error retrieving analytics: {e}")
-        return JSONResponse(
-            status_code=500,
-            content={
-                "status": "error",
-                "error": str(e),
-                "timestamp": datetime.now().isoformat(),
-            },
-        )
+        return raise BusinessLogicException("Service error")
 
 
 @router.get("/phase2-performance-analytics/", response_model=StandardAPIResponse[Dict[str, Any]])
@@ -1231,6 +1214,7 @@ async def get_phase2_performance_analytics():
         try:
             # Try to get stats from a temporary generator instance
             from backend.services.comprehensive_prop_generator import (
+from backend.core.exceptions import BusinessLogicException
                 ComprehensivePropGenerator,
             )
 

@@ -12,6 +12,7 @@ from backend.models.alert_models import (
     AlertsListResponse, FiredAlertsResponse, AlertStats
 )
 from backend.services.alert_service import alert_service
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger("propollama.alerts")
 
@@ -56,7 +57,7 @@ async def create_alert_rule(
     
     except Exception as e:
         logger.error(f"Error creating alert rule: {e}")
-        raise HTTPException(status_code=500, detail="Failed to create alert rule")
+        raise BusinessLogicException("Failed to create alert rule", status_code=500)
 
 
 @router.get("/", response_model=AlertsListResponse)
@@ -90,7 +91,7 @@ async def get_alert_rules(
     
     except Exception as e:
         logger.error(f"Error getting alert rules: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get alert rules")
+        raise BusinessLogicException("Failed to get alert rules", status_code=500)
 
 
 @router.delete("/{rule_id}")
@@ -105,7 +106,7 @@ async def delete_alert_rule(
         success = await alert_service.delete_alert_rule(user_id, rule_id)
         
         if not success:
-            raise HTTPException(status_code=404, detail="Alert rule not found")
+            raise BusinessLogicException("Alert rule not found", status_code=404)
         
         return {"message": "Alert rule deleted successfully", "rule_id": rule_id}
     
@@ -113,7 +114,7 @@ async def delete_alert_rule(
         raise
     except Exception as e:
         logger.error(f"Error deleting alert rule: {e}")
-        raise HTTPException(status_code=500, detail="Failed to delete alert rule")
+        raise BusinessLogicException("Failed to delete alert rule", status_code=500)
 
 
 @router.get("/fired", response_model=FiredAlertsResponse)
@@ -134,7 +135,7 @@ async def get_fired_alerts(
     
     except Exception as e:
         logger.error(f"Error getting fired alerts: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get fired alerts")
+        raise BusinessLogicException("Failed to get fired alerts", status_code=500)
 
 
 @router.get("/stats", response_model=AlertStats)
@@ -149,7 +150,7 @@ async def get_alert_stats():
     
     except Exception as e:
         logger.error(f"Error getting alert stats: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get alert stats")
+        raise BusinessLogicException("Failed to get alert stats", status_code=500)
 
 
 @router.post("/evaluation/start")
@@ -164,7 +165,7 @@ async def start_alert_evaluation():
     
     except Exception as e:
         logger.error(f"Error starting alert evaluation: {e}")
-        raise HTTPException(status_code=500, detail="Failed to start alert evaluation")
+        raise BusinessLogicException("Failed to start alert evaluation", status_code=500)
 
 
 @router.post("/evaluation/stop")
@@ -179,7 +180,7 @@ async def stop_alert_evaluation():
     
     except Exception as e:
         logger.error(f"Error stopping alert evaluation: {e}")
-        raise HTTPException(status_code=500, detail="Failed to stop alert evaluation")
+        raise BusinessLogicException("Failed to stop alert evaluation", status_code=500)
 
 
 @router.post("/evaluation/trigger")
@@ -200,4 +201,4 @@ async def trigger_manual_evaluation():
     
     except Exception as e:
         logger.error(f"Error in manual alert evaluation: {e}")
-        raise HTTPException(status_code=500, detail="Failed to trigger alert evaluation")
+        raise BusinessLogicException("Failed to trigger alert evaluation", status_code=500)

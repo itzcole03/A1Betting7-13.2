@@ -16,6 +16,7 @@ from backend.services.model_registry import get_model_registry
 
 # Import security for admin endpoints
 from backend.services.security.security_integration import (
+from backend.core.exceptions import BusinessLogicException
     secure_admin_endpoint,
     secure_task_trigger_endpoint,
     secure_factor_rebuild_endpoint
@@ -404,10 +405,7 @@ async def enable_shadow_mode(request: Request, shadow_request: ShadowModeRequest
         controller = get_runtime_shadow_controller()
         
         if not shadow_request.shadow_version:
-            raise HTTPException(
-                status_code=400,
-                detail="Shadow version must be specified to enable shadow mode"
-            )
+            raise BusinessLogicException("Shadow version must be specified to enable shadow mode", status_code=400)
         
         logger.info(
             "Processing shadow mode enable request",
@@ -437,11 +435,11 @@ async def enable_shadow_mode(request: Request, shadow_request: ShadowModeRequest
         
     except ValueError as e:
         logger.error(f"Invalid shadow mode configuration: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=400))
     
     except Exception as e:
         logger.error(f"Failed to enable shadow mode: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to enable shadow mode: {str(e)}")
+        raise BusinessLogicException(f"Failed to enable shadow mode: {str(e, status_code=500)}")
 
 
 @router.post(
@@ -484,7 +482,7 @@ async def disable_shadow_mode(request: Request, shadow_request: ShadowModeReques
         
     except Exception as e:
         logger.error(f"Failed to disable shadow mode: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to disable shadow mode: {str(e)}")
+        raise BusinessLogicException(f"Failed to disable shadow mode: {str(e, status_code=500)}")
 
 
 @router.delete(
@@ -528,7 +526,7 @@ async def clear_shadow_override(request: Request, shadow_request: ShadowModeRequ
         
     except Exception as e:
         logger.error(f"Failed to clear shadow override: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to clear shadow override: {str(e)}")
+        raise BusinessLogicException(f"Failed to clear shadow override: {str(e, status_code=500)}")
 
 
 @router.get(
@@ -569,7 +567,7 @@ async def get_admin_status(request: Request):
         
     except Exception as e:
         logger.error(f"Failed to get admin status: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to get admin status: {str(e)}")
+        raise BusinessLogicException(f"Failed to get admin status: {str(e, status_code=500)}")
 
 
 # Monkey patch model registry to use runtime controller

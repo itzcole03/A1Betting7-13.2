@@ -1,0 +1,67 @@
+{
+  "sha": "b2614f1e",
+  "timestamp": "2025-10-01T08:30:31Z",
+  "results": {
+    "js_quickcheck": {
+      "exitCode": 0,
+      "durationSeconds": 0
+    },
+    "ts_quickcheck": {
+      "exitCode": 0,
+      "durationSeconds": 2
+    },
+    "tsc_smoke": {
+      "exitCode": 0,
+      "durationSeconds": 1
+    },
+    "metrics_checker": {
+      "exitCode": 0,
+      "durationSeconds": 0
+    }
+  },
+  "environment": {
+    "node": "v24.4.1",
+    "npm": "11.4.2",
+    "cwd": "C:/Users/bcmad/Downloads/A1Betting7-13.2"
+  },
+  "checks": [
+    {
+      "name": "js_quickcheck",
+      "ok": true,
+      "exitCode": 0,
+      "durationSeconds": 0
+    },
+    {
+      "name": "ts_quickcheck",
+      "ok": true,
+      "exitCode": 0,
+      "durationSeconds": 2
+    },
+    {
+      "name": "tsc_smoke",
+      "ok": true,
+      "exitCode": 0,
+      "durationSeconds": 1
+    },
+    {
+      "name": "metrics.cache_hit_rate",
+      "ok": true,
+      "value": 1
+    },
+    {
+      "name": "metrics.logger_flush_time_ms",
+      "ok": true,
+      "value": 0
+    }
+  ],
+  "metrics": {
+    "quickcheck_duration_ms": 0,
+    "cache_hit_rate": 1,
+    "cache_samples": {
+      "hits": 1,
+      "misses": 0,
+      "total": 1
+    },
+    "logger_flush_time_ms": 0
+  }
+}

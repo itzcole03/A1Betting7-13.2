@@ -160,9 +160,9 @@ def get_client_ip(request: Request) -> str:
 
 @router.post("/auth/register", response_model=StandardAPIResponse[Dict[str, Any]])
 async def register_user(
-    user_data: UserRegistrationRequest, 
+    user_data: UserRegistrationRequest,
+    request: Request,
     session: AsyncSession = Depends(get_async_session),
-    request: Request
 ):
     """Register a new user (admin endpoint)"""
     try:
@@ -241,9 +241,9 @@ async def register_user(
 
 @router.post("/auth/login", response_model=StandardAPIResponse[Dict[str, Any]])
 async def admin_login(
-    login_data: LoginRequest, 
+    login_data: LoginRequest,
+    request: Request,
     session: AsyncSession = Depends(get_async_session),
-    request: Request
 ):
     """Admin login endpoint"""
     try:

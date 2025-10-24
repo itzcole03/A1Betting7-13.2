@@ -31,10 +31,13 @@ def trending_suggestions(
     except Exception:
         httpx = None
 
-    #...
+    try:
         suggestions = get_trending_suggestions(sport=sport, limit=limit)
+        # Ensure we always return the standardized envelope
         return ok(suggestions)
     except Exception as e:
+        # Convert to BusinessLogicException so the test-local exception handler
+        # will serialize a consistent error envelope with success=False
         raise BusinessLogicException(
             detail=f"Failed to fetch trending suggestions: {str(e)}",
             error_code="trending_error",

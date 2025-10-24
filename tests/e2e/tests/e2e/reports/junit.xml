@@ -1,0 +1,10 @@
+<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="10.072519999999999">
+<testsuite name="navigation.spec.ts" timestamp="2025-10-14T08:49:57.232Z" hostname="chromium" tests="1" failures="0" skipped="0" time="3.136" errors="0">
+<testcase name="Navigation and User Flow E2E Tests › Core Navigation › should navigate to matchup analysis" classname="navigation.spec.ts" time="3.136">
+<system-err>
+<![CDATA[
+Warning: attachment ..\test-results\navigation-Navigation-and--27fed-avigate-to-matchup-analysis-chromium\trace.zip is missing]]>
+</system-err>
+</testcase>
+</testsuite>
+</testsuites>

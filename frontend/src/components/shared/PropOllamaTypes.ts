@@ -23,13 +23,18 @@ export interface ConnectionHealth {
 }
 
 export interface UpcomingGame {
-  game_id?: number;
+  game_id?: string;
   home: string;
   away: string;
   time: string;
   event_name: string;
   status?: string;
   venue?: string;
+  start_time?: string;
+  probable_pitchers?: {
+    home?: string;
+    away?: string;
+  };
 }
 
 export interface SportActivationStatus {
@@ -130,7 +135,7 @@ export interface PropOllamaState {
   selectedProps: SelectedProp[];
   upcomingGames: UpcomingGame[];
   availableSports: string[];
-  selectedGameId: number | null;
+  selectedGameId: string | null;
 
   // UI State
   loading: boolean;

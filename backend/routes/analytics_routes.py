@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 
 from backend.database import get_async_session
 from backend.services.analytics_persistence_service import (
+from backend.core.exceptions import BusinessLogicException
     AnalyticsPersistenceService,
     DailyEVStats,
     DailyArbitrageStats
@@ -111,7 +112,7 @@ async def get_daily_ev_stats(
         
     except Exception as e:
         logger.error(f"Failed to get daily EV stats: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to retrieve EV statistics")
+        raise BusinessLogicException("Failed to retrieve EV statistics", status_code=500)
 
 
 @router.get("/daily-arb-stats", response_model=List[DailyArbitrageStatsResponse]) 
@@ -148,7 +149,7 @@ async def get_daily_arbitrage_stats(
         
     except Exception as e:
         logger.error(f"Failed to get daily arbitrage stats: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to retrieve arbitrage statistics")
+        raise BusinessLogicException("Failed to retrieve arbitrage statistics", status_code=500)
 
 
 @router.get("/summary", response_model=AnalyticsSummaryResponse)
@@ -181,7 +182,7 @@ async def get_analytics_summary(
         
     except Exception as e:
         logger.error(f"Failed to get analytics summary: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to retrieve analytics summary")
+        raise BusinessLogicException("Failed to retrieve analytics summary", status_code=500)
 
 
 @router.post("/prune", response_model=PruneResponse)
@@ -211,7 +212,7 @@ async def prune_old_records(
         
     except Exception as e:
         logger.error(f"Failed to prune old records: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to prune old records")
+        raise BusinessLogicException("Failed to prune old records", status_code=500)
 
 
 @router.get("/health")

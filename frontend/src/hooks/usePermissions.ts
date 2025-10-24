@@ -140,3 +140,6 @@ export const _usePermissions = () => {
 };
 
 export default _usePermissions;
+
+// Backwards-compatible alias
+export const usePermissions = _usePermissions;

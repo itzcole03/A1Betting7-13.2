@@ -63,6 +63,20 @@ class SmartSignalsService:
         
         logger.info(f"SmartSignalsService initialized - enabled: {self.enabled}")
     
+    def sync_feature_flag(self) -> bool:
+        """Synchronize the feature flag with the latest environment setting."""
+        try:
+            env_enabled = os.getenv("ENABLE_SMART_SIGNALS", "false").lower() == "true"
+            if env_enabled != self.enabled:
+                logger.debug(
+                    "Smart signals feature flag toggled via environment (enabled=%s)",
+                    env_enabled,
+                )
+                self.enabled = env_enabled
+        except Exception as exc:  # pragma: no cover - defensive guard
+            logger.debug("Failed to refresh smart signals flag: %s", exc)
+        return self.enabled
+
     def compute_signal(self, opportunity: Dict[str, Any]) -> Optional[SmartSignal]:
         """
         Compute smart signal score for a betting opportunity.
@@ -234,24 +248,42 @@ class SmartSignalsService:
                 if arbitrage_profit >= 5.0:
                     score = 100
                 elif arbitrage_profit >= 3.0:
-                    score = 85
+                    score = 95
                 elif arbitrage_profit >= 1.0:
-                    score = 70
+                    score = 75
                 else:
                     score = 50
             else:
-                # Check for potential arbitrage indicators
+                # Check for potential arbitrage indicators or strong value signals
+                score = 20  # Neutral baseline when no explicit arbitrage
+
+                edge_value = opportunity.get("ev_percent") or opportunity.get("edge") or 0
+                if edge_value >= 12:
+                    score = max(score, 65)
+                elif edge_value >= 8:
+                    score = max(score, 55)
+                elif edge_value >= 5:
+                    score = max(score, 45)
+
                 odds_spread = opportunity.get("oddsSpread", 0)
-                line_spread = opportunity.get("lineSpread", 0)
-                
                 if odds_spread >= 50:  # Large odds difference
-                    score = 60
+                    score = max(score, 60)
                 elif odds_spread >= 30:
-                    score = 40
-                elif line_spread >= 1.0:  # Significant line differences
-                    score = 30
-                else:
-                    score = 10
+                    score = max(score, 40)
+
+                line_spread = opportunity.get("lineSpread", 0)
+                if line_spread >= 1.0:  # Significant line differences
+                    score = max(score, 35)
+
+                movement = opportunity.get("line_movement")
+                direction = opportunity.get("movement_direction")
+                if movement and direction == "favorable":
+                    if movement >= 0.5:
+                        score = max(score, 55)
+                    elif movement >= 0.25:
+                        score = max(score, 45)
+
+                score = min(score, 100)
             
             return SignalFactor(
                 name="arbitrage",

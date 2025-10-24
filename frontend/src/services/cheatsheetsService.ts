@@ -4,8 +4,9 @@
  * Based on A1Betting Real-Time Data Optimization best practices
  */
 
-import { logger } from '../utils/logger';
 import { backendHealthChecker } from '../utils/backendHealth';
+import { createTimeoutSignal } from '../utils/createTimeoutSignal';
+import { logger } from '../utils/logger';
 
 export interface PropOpportunity {
   id: string;
@@ -63,16 +64,21 @@ class CheatsheetsService {
   constructor() {
     // Detect cloud environment to avoid unnecessary API calls
     const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-    this.isCloudEnvironment = hostname.includes('.fly.dev') ||
-                             hostname.includes('.vercel.app') ||
-                             hostname.includes('.netlify.app') ||
-                             hostname.includes('.herokuapp.com') ||
-                             (!hostname.includes('localhost') && hostname !== '');
+    this.isCloudEnvironment =
+      hostname.includes('.fly.dev') ||
+      hostname.includes('.vercel.app') ||
+      hostname.includes('.netlify.app') ||
+      hostname.includes('.herokuapp.com') ||
+      (!hostname.includes('localhost') && hostname !== '');
 
     if (this.isCloudEnvironment) {
-      logger.info('Cloud environment detected - using fallback data mode', {
-        hostname
-      }, 'CheatsheetsService');
+      logger.info(
+        'Cloud environment detected - using fallback data mode',
+        {
+          hostname,
+        },
+        'CheatsheetsService'
+      );
     }
   }
 
@@ -86,10 +92,14 @@ class CheatsheetsService {
     // Check cache first for fast response
     const cached = this.getCachedData(cacheKey);
     if (cached) {
-      logger.info('Cache hit', {
-        cacheKey,
-        age: Date.now() - cached.timestamp
-      }, 'CheatsheetsService');
+      logger.info(
+        'Cache hit',
+        {
+          cacheKey,
+          age: Date.now() - cached.timestamp,
+        },
+        'CheatsheetsService'
+      );
       return cached.data;
     }
 
@@ -109,12 +119,16 @@ class CheatsheetsService {
       const queryParams = this.buildQueryParams(filters);
       const url = `/api/v1/cheatsheets/opportunities?${queryParams}`;
 
-      logger.debug('Making request to: ' + url, {
-        filters,
-        queryParams,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent
-      }, 'CheatsheetsService');
+      logger.debug(
+        'Making request to: ' + url,
+        {
+          filters,
+          queryParams,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+        },
+        'CheatsheetsService'
+      );
 
       const response = await this.fetchWithRetry(url);
 
@@ -130,26 +144,34 @@ class CheatsheetsService {
       // Cache the response
       this.setCachedData(cacheKey, data);
 
-      logger.info('Data fetched successfully', {
-        opportunityCount: data.opportunities?.length || 0,
-        processingTime: data.processing_time_ms,
-        cacheHit: data.cache_hit
-      }, 'CheatsheetsService');
+      logger.info(
+        'Data fetched successfully',
+        {
+          opportunityCount: data.opportunities?.length || 0,
+          processingTime: data.processing_time_ms,
+          cacheHit: data.cache_hit,
+        },
+        'CheatsheetsService'
+      );
 
       return data;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to fetch opportunities: ${errorMessage}`, {
-        filters,
-        duration: Date.now() - startTime,
-        stack: error instanceof Error ? error.stack : undefined
-      }, 'CheatsheetsService');
+      logger.error(
+        `Failed to fetch opportunities: ${errorMessage}`,
+        {
+          filters,
+          duration: Date.now() - startTime,
+          stack: error instanceof Error ? error.stack : undefined,
+        },
+        'CheatsheetsService'
+      );
 
       // Return fallback data with error context
       logger.warn('Using fallback data due to API error', undefined, 'CheatsheetsService');
-  const fallbackData = this.generateFallbackData(filters);
-  // Return fallback (typed) data; extended debug fields are intentionally omitted
-  return fallbackData;
+      const fallbackData = this.generateFallbackData(filters);
+      // Return fallback (typed) data; extended debug fields are intentionally omitted
+      return fallbackData;
     }
   }
 
@@ -167,7 +189,7 @@ class CheatsheetsService {
         active_sports: ['MLB'],
         top_books: ['DraftKings', 'FanDuel', 'BetMGM'],
         last_updated: new Date().toISOString(),
-        cloud_demo_mode: true
+        cloud_demo_mode: true,
       };
     }
 
@@ -183,7 +205,7 @@ class CheatsheetsService {
         avg_confidence: 0,
         active_sports: [],
         top_books: [],
-        last_updated: new Date().toISOString()
+        last_updated: new Date().toISOString(),
       };
     }
   }
@@ -223,7 +245,7 @@ class CheatsheetsService {
 
     opportunities.forEach(opp => {
       const row = headers.map(header => {
-    const value = (opp as any)[header];
+        const value = (opp as any)[header];
         return typeof value === 'string' && value.includes(',')
           ? `"${value.replace(/"/g, '""')}"`
           : value;
@@ -271,18 +293,28 @@ class CheatsheetsService {
 
       // Test a simple request to identify the issue
       try {
-        const testResponse = await fetch('/api/v1/cheatsheets/health', {
-          method: 'GET',
-          signal: AbortSignal.timeout(5000)
-        });
+        const timeout = createTimeoutSignal(5000);
+        let testResponse: Response;
+        try {
+          testResponse = await fetch('/api/v1/cheatsheets/health', {
+            method: 'GET',
+            signal: timeout.signal,
+          });
+        } finally {
+          timeout.cleanup();
+        }
 
         if (!testResponse.ok) {
           const errorText = await testResponse.text();
-          logger.error('Health endpoint error', {
-            status: testResponse.status,
-            statusText: testResponse.statusText,
-            body: errorText
-          }, 'CheatsheetsService');
+          logger.error(
+            'Health endpoint error',
+            {
+              status: testResponse.status,
+              statusText: testResponse.statusText,
+              body: errorText,
+            },
+            'CheatsheetsService'
+          );
         } else {
           logger.info('Health endpoint responding normally', undefined, 'CheatsheetsService');
         }
@@ -293,7 +325,6 @@ class CheatsheetsService {
       // Get diagnostic info
       const diagnostics = await this.getDiagnosticInfo();
       logger.info('Backend diagnostics', diagnostics, 'CheatsheetsService');
-
     } catch (error) {
       logger.error('Diagnostics failed', { error }, 'CheatsheetsService');
     }
@@ -310,43 +341,57 @@ class CheatsheetsService {
   private async fetchWithRetry(url: string, retries = this.MAX_RETRIES): Promise<Response> {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        const response = await fetch(url, {
-          signal: AbortSignal.timeout(this.REQUEST_TIMEOUT),
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
-        });
+        const timeout = createTimeoutSignal(this.REQUEST_TIMEOUT);
+        let response: Response;
+        try {
+          response = await fetch(url, {
+            signal: timeout.signal,
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          });
+        } finally {
+          timeout.cleanup();
+        }
         return response;
       } catch (error) {
         if (attempt === retries) {
           throw error;
         }
-        
+
         const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
         const errorMessage = error instanceof Error ? error.message : String(error);
-        logger.warn(`Retry ${attempt + 1}/${retries} after ${delay}ms`, {
-          url,
-          error: errorMessage
-        }, 'CheatsheetsService');
+        logger.warn(
+          `Retry ${attempt + 1}/${retries} after ${delay}ms`,
+          {
+            url,
+            error: errorMessage,
+          },
+          'CheatsheetsService'
+        );
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
+
+    throw new Error('Failed to fetch cheatsheets data after retries');
   }
 
   private buildQueryParams(filters: Partial<CheatsheetFilters>): string {
     const params = new URLSearchParams();
-    
+
     if (filters.min_edge !== undefined) params.set('min_edge', filters.min_edge.toString());
-    if (filters.min_confidence !== undefined) params.set('min_confidence', filters.min_confidence.toString());
-    if (filters.min_sample_size !== undefined) params.set('min_sample_size', filters.min_sample_size.toString());
+    if (filters.min_confidence !== undefined)
+      params.set('min_confidence', filters.min_confidence.toString());
+    if (filters.min_sample_size !== undefined)
+      params.set('min_sample_size', filters.min_sample_size.toString());
     if (filters.stat_types?.length) params.set('stat_types', filters.stat_types.join(','));
     if (filters.books?.length) params.set('books', filters.books.join(','));
     if (filters.sides?.length) params.set('sides', filters.sides.join(','));
     if (filters.sports?.length) params.set('sports', filters.sports.join(','));
     if (filters.search_query) params.set('search_query', filters.search_query);
     if (filters.max_results) params.set('max_results', filters.max_results.toString());
-    
+
     return params.toString();
   }
 
@@ -359,34 +404,49 @@ class CheatsheetsService {
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
       return cached;
     }
-    
+
     // Clean up expired cache
     if (cached) {
       this.cache.delete(key);
     }
-    
+
     return null;
   }
 
   private setCachedData(key: string, data: OpportunitiesResponse): void {
     this.cache.set(key, { data, timestamp: Date.now() });
-    
+
     // Limit cache size
     if (this.cache.size > 20) {
       const oldestKey = this.cache.keys().next().value;
-      this.cache.delete(oldestKey);
+      if (typeof oldestKey === 'string') {
+        this.cache.delete(oldestKey);
+      }
     }
   }
 
   private generateFallbackData(filters: Partial<CheatsheetFilters>): OpportunitiesResponse {
-    const mockPlayers = ['Aaron Judge', 'Mookie Betts', 'Ronald Acuna Jr.', 'Juan Soto', 'Fernando Tatis Jr.', 'Shohei Ohtani', 'Freddie Freeman', 'Vladimir Guerrero Jr.'];
+    const mockPlayers = [
+      'Aaron Judge',
+      'Mookie Betts',
+      'Ronald Acuna Jr.',
+      'Juan Soto',
+      'Fernando Tatis Jr.',
+      'Shohei Ohtani',
+      'Freddie Freeman',
+      'Vladimir Guerrero Jr.',
+    ];
     const statTypes = ['hits', 'total_bases', 'home_runs', 'rbis', 'runs_scored', 'strikeouts'];
     const books = ['DraftKings', 'FanDuel', 'BetMGM', 'Caesars', 'BetRivers'];
     const teams = ['NYY', 'LAD', 'ATL', 'SD', 'BOS', 'SF', 'NYM', 'LAA', 'TOR', 'HOU'];
 
-    logger.info(this.isCloudEnvironment
-      ? 'Generating cloud demo data'
-      : 'Generating fallback data - API unavailable', undefined, 'CheatsheetsService');
+    logger.info(
+      this.isCloudEnvironment
+        ? 'Generating cloud demo data'
+        : 'Generating fallback data - API unavailable',
+      undefined,
+      'CheatsheetsService'
+    );
 
     const opportunities: PropOpportunity[] = [];
 
@@ -401,7 +461,7 @@ class CheatsheetsService {
         id: this.isCloudEnvironment ? `cloud-demo-${i}` : `fallback-${i}`,
         player_name: player,
         stat_type: stat,
-        line: 1.5 + (i * 0.3),
+        line: 1.5 + i * 0.3,
         recommended_side: Math.random() > 0.5 ? 'over' : 'under',
         edge_percentage: 2.5 + Math.random() * 5,
         confidence: 70 + Math.random() * 25,
@@ -417,7 +477,7 @@ class CheatsheetsService {
         opponent,
         venue: Math.random() > 0.5 ? 'home' : 'away',
         weather: Math.random() > 0.7 ? 'Clear, 75°F' : undefined,
-        injury_concerns: Math.random() > 0.9 ? 'Minor day-to-day' : undefined
+        injury_concerns: Math.random() > 0.9 ? 'Minor day-to-day' : undefined,
       });
     }
 
@@ -430,8 +490,8 @@ class CheatsheetsService {
       last_updated: new Date().toISOString(),
       data_sources: this.isCloudEnvironment ? ['cloud-demo-generator'] : ['fallback-generator'],
       market_status: this.isCloudEnvironment ? 'active' : 'limited',
-  // Attach cloud demo flag in an extended object to avoid changing OpportunitiesResponse
-  // cloud_demo_mode is kept in extendedFallback only (not part of OpportunitiesResponse)
+      // Attach cloud demo flag in an extended object to avoid changing OpportunitiesResponse
+      // cloud_demo_mode is kept in extendedFallback only (not part of OpportunitiesResponse)
     };
   }
 }

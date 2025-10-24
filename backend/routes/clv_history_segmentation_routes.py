@@ -17,6 +17,7 @@ from backend.models.clv_bet_tracking import CLVBetTracking, CLVAnalyticsSummary,
 from backend.utils.clv_utils import get_clv_tier, get_clv_performance_score
 from backend.database import get_db
 from backend.auth.security import get_current_user
+from backend.core.exceptions import BusinessLogicException
 
 router = APIRouter(prefix="/api/clv-history", tags=["CLV History & Segmentation"])
 
@@ -95,7 +96,7 @@ async def get_enhanced_clv_history(
     """
     # Security check
     if user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Access denied")
+        raise BusinessLogicException("Access denied", status_code=403)
     
     try:
         period_start = datetime.now(timezone.utc) - timedelta(days=days)
@@ -139,7 +140,7 @@ async def get_enhanced_clv_history(
         )
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get enhanced CLV history: {str(e)}")
+        raise BusinessLogicException(f"Failed to get enhanced CLV history: {str(e, status_code=500)}")
 
 
 @router.get("/segments/overview")
@@ -188,7 +189,7 @@ async def get_user_segments_overview(
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get segments overview: {str(e)}")
+        raise BusinessLogicException(f"Failed to get segments overview: {str(e, status_code=500)}")
 
 
 @router.get("/leaderboard")
@@ -275,7 +276,7 @@ async def get_clv_leaderboard(
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get leaderboard: {str(e)}")
+        raise BusinessLogicException(f"Failed to get leaderboard: {str(e, status_code=500)}")
 
 
 @router.get("/benchmarks/{user_id}")
@@ -289,7 +290,7 @@ async def get_user_benchmarks(
     Get detailed benchmarking data for a user against their tier
     """
     if user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Access denied")
+        raise BusinessLogicException("Access denied", status_code=403)
     
     try:
         period_start = datetime.now(timezone.utc) - timedelta(days=period_days)
@@ -324,7 +325,7 @@ async def get_user_benchmarks(
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get user benchmarks: {str(e)}")
+        raise BusinessLogicException(f"Failed to get user benchmarks: {str(e, status_code=500)}")
 
 
 # Helper functions

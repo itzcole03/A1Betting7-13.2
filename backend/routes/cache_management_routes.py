@@ -16,6 +16,7 @@ from ..core.exceptions import AuthenticationException
 from ..auth.security import TokenData, get_current_user
 from ..services.auth_service import verify_token
 from ..services.redis_cache_service import get_redis_cache
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ async def get_cache_stats(
         
     except Exception as e:
         logger.error(f"Error getting cache stats: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve cache statistics"
         )
@@ -57,7 +58,7 @@ async def invalidate_predictions_cache(
         
     except Exception as e:
         logger.error(f"Error invalidating prediction cache: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to invalidate prediction cache"
         )
@@ -79,7 +80,7 @@ async def invalidate_opportunities_cache(
         
     except Exception as e:
         logger.error(f"Error invalidating opportunities cache: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to invalidate opportunities cache"
         )
@@ -109,7 +110,7 @@ async def invalidate_all_cache(
         
     except Exception as e:
         logger.error(f"Error invalidating all cache: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to invalidate all cache"
         )
@@ -132,7 +133,7 @@ async def warm_popular_cache(
         
     except Exception as e:
         logger.error(f"Error warming cache: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to initiate cache warming"
         )

@@ -53,3 +53,7 @@ export const _useMetrics = () => {
   if (!_ctx) throw new Error('useMetrics must be used within MetricsProvider');
   return _ctx;
 };
+
+// Non-underscored aliases (safe, reversible)
+export const MetricsProvider = _MetricsProvider;
+export const useMetrics = _useMetrics;

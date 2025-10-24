@@ -1,0 +1,1164 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\playwright.temp.config.js",
+    "rootDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/tests/e2e/tmp/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "navigation.spec.ts",
+      "file": "navigation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Navigation and User Flow E2E Tests",
+          "file": "navigation.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Core Navigation",
+              "file": "navigation.spec.ts",
+              "line": 13,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should navigate to dashboard successfully",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 4702,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts:23:26",
+                            "location": {
+                              "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts",
+                              "column": 26,
+                              "line": 23
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m       \u001b[36mconst\u001b[39m dashboardPage \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mDashboardPage\u001b[39m(page)\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m       \u001b[36mconst\u001b[39m hasContent \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m dashboardPage\u001b[33m.\u001b[39mvalidateDashboardContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m       expect(hasContent)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m\n \u001b[90m 26 |\u001b[39m     test(\u001b[32m'should navigate to matchup analysis'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts",
+                                "column": 26,
+                                "line": 23
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n\u001b[0m \u001b[90m 21 |\u001b[39m       \u001b[36mconst\u001b[39m dashboardPage \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mDashboardPage\u001b[39m(page)\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m       \u001b[36mconst\u001b[39m hasContent \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m dashboardPage\u001b[33m.\u001b[39mvalidateDashboardContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m       expect(hasContent)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m\n \u001b[90m 26 |\u001b[39m     test(\u001b[32m'should navigate to matchup analysis'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts:23:26\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:17:12.355Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--86f1e-e-to-dashboard-successfully-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--86f1e-e-to-dashboard-successfully-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--86f1e-e-to-dashboard-successfully-chromium\\error-context.md"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--86f1e-e-to-dashboard-successfully-chromium\\trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts",
+                            "column": 26,
+                            "line": 23
+                          }
+                        },
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 3250,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts:23:26",
+                            "location": {
+                              "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts",
+                              "column": 26,
+                              "line": 23
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m       \u001b[36mconst\u001b[39m dashboardPage \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mDashboardPage\u001b[39m(page)\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m       \u001b[36mconst\u001b[39m hasContent \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m dashboardPage\u001b[33m.\u001b[39mvalidateDashboardContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m       expect(hasContent)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m\n \u001b[90m 26 |\u001b[39m     test(\u001b[32m'should navigate to matchup analysis'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts",
+                                "column": 26,
+                                "line": 23
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n\u001b[0m \u001b[90m 21 |\u001b[39m       \u001b[36mconst\u001b[39m dashboardPage \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mDashboardPage\u001b[39m(page)\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m       \u001b[36mconst\u001b[39m hasContent \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m dashboardPage\u001b[33m.\u001b[39mvalidateDashboardContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m       expect(hasContent)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m\n \u001b[90m 26 |\u001b[39m     test(\u001b[32m'should navigate to matchup analysis'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts:23:26\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 1,
+                          "startTime": "2025-10-14T10:17:18.509Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--86f1e-e-to-dashboard-successfully-chromium-retry1\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--86f1e-e-to-dashboard-successfully-chromium-retry1\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--86f1e-e-to-dashboard-successfully-chromium-retry1\\error-context.md"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--86f1e-e-to-dashboard-successfully-chromium-retry1\\trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts",
+                            "column": 26,
+                            "line": 23
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-fe9cabad0bdd04264757",
+                  "file": "navigation.spec.ts",
+                  "line": 14,
+                  "column": 9
+                },
+                {
+                  "title": "should navigate to matchup analysis",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3150,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:17:23.179Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--27fed-avigate-to-matchup-analysis-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-db7bd79e26f6e2f979c5",
+                  "file": "navigation.spec.ts",
+                  "line": 26,
+                  "column": 9
+                },
+                {
+                  "title": "should navigate to analytics page",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 12654,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts:60:26",
+                            "location": {
+                              "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts",
+                              "column": 26,
+                              "line": 60
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 58 |\u001b[39m       \u001b[36mconst\u001b[39m analyticsPage \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mAnalyticsPage\u001b[39m(page)\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m       \u001b[36mconst\u001b[39m hasContent \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m analyticsPage\u001b[33m.\u001b[39mvalidateAnalyticsContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 60 |\u001b[39m       expect(hasContent)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 61 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 62 |\u001b[39m\n \u001b[90m 63 |\u001b[39m     test(\u001b[32m'should handle navigation menu interactions'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts",
+                                "column": 26,
+                                "line": 60
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n\u001b[0m \u001b[90m 58 |\u001b[39m       \u001b[36mconst\u001b[39m analyticsPage \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mAnalyticsPage\u001b[39m(page)\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m       \u001b[36mconst\u001b[39m hasContent \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m analyticsPage\u001b[33m.\u001b[39mvalidateAnalyticsContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 60 |\u001b[39m       expect(hasContent)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 61 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 62 |\u001b[39m\n \u001b[90m 63 |\u001b[39m     test(\u001b[32m'should handle navigation menu interactions'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts:60:26\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:17:26.515Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--0c898--navigate-to-analytics-page-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--0c898--navigate-to-analytics-page-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--0c898--navigate-to-analytics-page-chromium\\error-context.md"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--0c898--navigate-to-analytics-page-chromium\\trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts",
+                            "column": 26,
+                            "line": 60
+                          }
+                        },
+                        {
+                          "workerIndex": 3,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 13317,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts:60:26",
+                            "location": {
+                              "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts",
+                              "column": 26,
+                              "line": 60
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 58 |\u001b[39m       \u001b[36mconst\u001b[39m analyticsPage \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mAnalyticsPage\u001b[39m(page)\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m       \u001b[36mconst\u001b[39m hasContent \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m analyticsPage\u001b[33m.\u001b[39mvalidateAnalyticsContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 60 |\u001b[39m       expect(hasContent)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 61 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 62 |\u001b[39m\n \u001b[90m 63 |\u001b[39m     test(\u001b[32m'should handle navigation menu interactions'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts",
+                                "column": 26,
+                                "line": 60
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n\u001b[0m \u001b[90m 58 |\u001b[39m       \u001b[36mconst\u001b[39m analyticsPage \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mAnalyticsPage\u001b[39m(page)\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m       \u001b[36mconst\u001b[39m hasContent \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m analyticsPage\u001b[33m.\u001b[39mvalidateAnalyticsContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 60 |\u001b[39m       expect(hasContent)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 61 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 62 |\u001b[39m\n \u001b[90m 63 |\u001b[39m     test(\u001b[32m'should handle navigation menu interactions'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts:60:26\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 1,
+                          "startTime": "2025-10-14T10:17:41.756Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--0c898--navigate-to-analytics-page-chromium-retry1\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--0c898--navigate-to-analytics-page-chromium-retry1\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--0c898--navigate-to-analytics-page-chromium-retry1\\error-context.md"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--0c898--navigate-to-analytics-page-chromium-retry1\\trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts",
+                            "column": 26,
+                            "line": 60
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-ab7f1cd89398881b63c2",
+                  "file": "navigation.spec.ts",
+                  "line": 42,
+                  "column": 9
+                },
+                {
+                  "title": "should handle navigation menu interactions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2244,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:17:56.534Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--063f4-avigation-menu-interactions-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-cf3817f0546f9f0dcf89",
+                  "file": "navigation.spec.ts",
+                  "line": 63,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Page-to-Page Navigation Flow",
+              "file": "navigation.spec.ts",
+              "line": 81,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should maintain state when navigating between pages",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2412,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:17:58.949Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--c5cef-en-navigating-between-pages-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-0ca9fac1099a382748a6",
+                  "file": "navigation.spec.ts",
+                  "line": 82,
+                  "column": 9
+                },
+                {
+                  "title": "should handle deep linking to specific pages",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2584,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:18:01.413Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--e381b-p-linking-to-specific-pages-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-c44535155757f6dc8d2c",
+                  "file": "navigation.spec.ts",
+                  "line": 102,
+                  "column": 7
+                },
+                {
+                  "title": "should handle browser back/forward navigation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4326,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:18:04.063Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--d99de-ser-back-forward-navigation-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-de7f2e466fd87a33cba0",
+                  "file": "navigation.spec.ts",
+                  "line": 148,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "URL Handling and Routing",
+              "file": "navigation.spec.ts",
+              "line": 168,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should handle invalid URLs gracefully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3777,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:18:08.484Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--8c04d-dle-invalid-URLs-gracefully-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-f7c0ac636f5eac8a5a70",
+                  "file": "navigation.spec.ts",
+                  "line": 169,
+                  "column": 9
+                },
+                {
+                  "title": "should preserve query parameters",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2740,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:18:12.315Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--3b8ea-d-preserve-query-parameters-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-8c4ea8178974d2a6e54c",
+                  "file": "navigation.spec.ts",
+                  "line": 184,
+                  "column": 9
+                },
+                {
+                  "title": "should handle hash fragments in URLs",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1839,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:18:15.110Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--5c0f9-ndle-hash-fragments-in-URLs-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-8fc8d211e4e43fd31c2e",
+                  "file": "navigation.spec.ts",
+                  "line": 203,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Performance and Loading States",
+              "file": "navigation.spec.ts",
+              "line": 223,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should show loading states during navigation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2737,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "API Response: 200 http://127.0.0.1:5173/api/health\n"
+                            },
+                            {
+                              "text": "API Response: 200 http://127.0.0.1:5173/api/props\n"
+                            },
+                            {
+                              "text": "API Response: 200 http://127.0.0.1:5173/api/predictions\n"
+                            },
+                            {
+                              "text": "API Response: 200 http://127.0.0.1:5173/api/analytics\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:18:16.986Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--24af8-ng-states-during-navigation-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-e0cdfedcca011e74282a",
+                  "file": "navigation.spec.ts",
+                  "line": 224,
+                  "column": 7
+                },
+                {
+                  "title": "should handle concurrent navigation requests",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4247,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:18:19.774Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--a07a5-current-navigation-requests-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-4b11fba0e53121d56a2c",
+                  "file": "navigation.spec.ts",
+                  "line": 276,
+                  "column": 7
+                },
+                {
+                  "title": "should maintain performance across multiple navigations",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 5100,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:18:24.103Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--6e116-across-multiple-navigations-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-7663d2fcc788f2fff383",
+                  "file": "navigation.spec.ts",
+                  "line": 303,
+                  "column": 7
+                }
+              ]
+            },
+            {
+              "title": "Error Handling and Recovery",
+              "file": "navigation.spec.ts",
+              "line": 335,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should recover from navigation errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 6598,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:18:29.310Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--c39af-over-from-navigation-errors-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-4825a99236feab2fc523",
+                  "file": "navigation.spec.ts",
+                  "line": 336,
+                  "column": 9
+                },
+                {
+                  "title": "should handle network disconnection during navigation",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 9600,
+                          "error": {
+                            "message": "Error: page.goto: net::ERR_INTERNET_DISCONNECTED at http://127.0.0.1:5173/analytics\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/analytics\", waiting until \"domcontentloaded\"\u001b[22m\n",
+                            "stack": "Error: page.goto: net::ERR_INTERNET_DISCONNECTED at http://127.0.0.1:5173/analytics\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/analytics\", waiting until \"domcontentloaded\"\u001b[22m\n\n    at NavigationPage.goto (C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts:22:25)\n    at NavigationPage.navigateToPage (C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts:215:5)\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts:368:7",
+                            "location": {
+                              "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts",
+                              "column": 25,
+                              "line": 22
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mutils\\pageObjects.ts:22\n\n\u001b[0m \u001b[90m 20 |\u001b[39m         \u001b[90m// Prefer networkidle on the first attempt\u001b[39m\n \u001b[90m 21 |\u001b[39m         \u001b[36mconst\u001b[39m waitUntil \u001b[33m=\u001b[39m attempt \u001b[33m===\u001b[39m \u001b[35m1\u001b[39m \u001b[33m?\u001b[39m \u001b[32m'networkidle'\u001b[39m \u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mgoto(path\u001b[33m,\u001b[39m { waitUntil })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mwaitForPageLoad()\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m         lastError \u001b[33m=\u001b[39m \u001b[36mnull\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m         \u001b[36mbreak\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts",
+                                "column": 25,
+                                "line": 22
+                              },
+                              "message": "Error: page.goto: net::ERR_INTERNET_DISCONNECTED at http://127.0.0.1:5173/analytics\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/analytics\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n\u001b[90m   at \u001b[39mutils\\pageObjects.ts:22\n\n\u001b[0m \u001b[90m 20 |\u001b[39m         \u001b[90m// Prefer networkidle on the first attempt\u001b[39m\n \u001b[90m 21 |\u001b[39m         \u001b[36mconst\u001b[39m waitUntil \u001b[33m=\u001b[39m attempt \u001b[33m===\u001b[39m \u001b[35m1\u001b[39m \u001b[33m?\u001b[39m \u001b[32m'networkidle'\u001b[39m \u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mgoto(path\u001b[33m,\u001b[39m { waitUntil })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mwaitForPageLoad()\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m         lastError \u001b[33m=\u001b[39m \u001b[36mnull\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m         \u001b[36mbreak\u001b[39m\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at NavigationPage.goto (C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts:22:25)\u001b[22m\n\u001b[2m    at NavigationPage.navigateToPage (C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts:215:5)\u001b[22m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts:368:7\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:18:36.000Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--b60dc-onnection-during-navigation-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--b60dc-onnection-during-navigation-chromium\\video.webm"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--b60dc-onnection-during-navigation-chromium\\trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts",
+                            "column": 25,
+                            "line": 22
+                          }
+                        },
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 9691,
+                          "error": {
+                            "message": "Error: page.goto: net::ERR_INTERNET_DISCONNECTED at http://127.0.0.1:5173/analytics\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/analytics\", waiting until \"domcontentloaded\"\u001b[22m\n",
+                            "stack": "Error: page.goto: net::ERR_INTERNET_DISCONNECTED at http://127.0.0.1:5173/analytics\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/analytics\", waiting until \"domcontentloaded\"\u001b[22m\n\n    at NavigationPage.goto (C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts:22:25)\n    at NavigationPage.navigateToPage (C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts:215:5)\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts:368:7",
+                            "location": {
+                              "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts",
+                              "column": 25,
+                              "line": 22
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mutils\\pageObjects.ts:22\n\n\u001b[0m \u001b[90m 20 |\u001b[39m         \u001b[90m// Prefer networkidle on the first attempt\u001b[39m\n \u001b[90m 21 |\u001b[39m         \u001b[36mconst\u001b[39m waitUntil \u001b[33m=\u001b[39m attempt \u001b[33m===\u001b[39m \u001b[35m1\u001b[39m \u001b[33m?\u001b[39m \u001b[32m'networkidle'\u001b[39m \u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mgoto(path\u001b[33m,\u001b[39m { waitUntil })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mwaitForPageLoad()\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m         lastError \u001b[33m=\u001b[39m \u001b[36mnull\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m         \u001b[36mbreak\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts",
+                                "column": 25,
+                                "line": 22
+                              },
+                              "message": "Error: page.goto: net::ERR_INTERNET_DISCONNECTED at http://127.0.0.1:5173/analytics\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5173/analytics\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n\u001b[90m   at \u001b[39mutils\\pageObjects.ts:22\n\n\u001b[0m \u001b[90m 20 |\u001b[39m         \u001b[90m// Prefer networkidle on the first attempt\u001b[39m\n \u001b[90m 21 |\u001b[39m         \u001b[36mconst\u001b[39m waitUntil \u001b[33m=\u001b[39m attempt \u001b[33m===\u001b[39m \u001b[35m1\u001b[39m \u001b[33m?\u001b[39m \u001b[32m'networkidle'\u001b[39m \u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 22 |\u001b[39m         \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mpage\u001b[33m.\u001b[39mgoto(path\u001b[33m,\u001b[39m { waitUntil })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 23 |\u001b[39m         \u001b[36mawait\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mwaitForPageLoad()\u001b[33m;\u001b[39m\n \u001b[90m 24 |\u001b[39m         lastError \u001b[33m=\u001b[39m \u001b[36mnull\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m         \u001b[36mbreak\u001b[39m\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at NavigationPage.goto (C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts:22:25)\u001b[22m\n\u001b[2m    at NavigationPage.navigateToPage (C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts:215:5)\u001b[22m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\navigation.spec.ts:368:7\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 1,
+                          "startTime": "2025-10-14T10:18:48.167Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--b60dc-onnection-during-navigation-chromium-retry1\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--b60dc-onnection-during-navigation-chromium-retry1\\video.webm"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--b60dc-onnection-during-navigation-chromium-retry1\\trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\utils\\pageObjects.ts",
+                            "column": 25,
+                            "line": 22
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-665ccdf9da462ba262c5",
+                  "file": "navigation.spec.ts",
+                  "line": 363,
+                  "column": 9
+                },
+                {
+                  "title": "should handle JavaScript errors during navigation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 6,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 7772,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:18:59.226Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--15676-pt-errors-during-navigation-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-0624f0bb045a8403cb92",
+                  "file": "navigation.spec.ts",
+                  "line": 382,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Mobile Navigation Experience",
+              "file": "navigation.spec.ts",
+              "line": 412,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should provide mobile-friendly navigation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 6,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1892,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "Mobile menu button not found; skipping tap assertions\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:19:07.272Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--90188--mobile-friendly-navigation-chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-b12847d7f5609dc76a22",
+                  "file": "navigation.spec.ts",
+                  "line": 413,
+                  "column": 9
+                },
+                {
+                  "title": "should handle swipe gestures (if implemented)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 6,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2757,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "Touchscreen gesture failed, continuing: touchscreen.tap: hasTouch must be enabled on the browser context before using the touchscreen.\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-10-14T10:19:09.199Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tests\\e2e\\tmp\\test-results\\navigation-Navigation-and--89472-pe-gestures-if-implemented--chromium\\trace.zip"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5d2868f7d23420c27cca-afe5faf2634e4f9cf303",
+                  "file": "navigation.spec.ts",
+                  "line": 442,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-10-14T10:17:11.741Z",
+    "duration": 122186.756,
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

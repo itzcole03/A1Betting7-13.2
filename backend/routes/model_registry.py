@@ -228,7 +228,7 @@ class ModelRegistryService:
         try:
             semver.VersionInfo.parse(model_entry.version)
         except ValueError:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid semantic version: {model_entry.version}"
             )
@@ -236,7 +236,7 @@ class ModelRegistryService:
         # Check for duplicate model ID
         existing_model = await self.get_model(model_entry.model_id)
         if existing_model:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Model {model_entry.model_id} already exists"
             )
@@ -272,7 +272,7 @@ class ModelRegistryService:
         
         model = await self.get_model(promotion_request.model_id)
         if not model:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Model {promotion_request.model_id} not found"
             )
@@ -288,7 +288,7 @@ class ModelRegistryService:
         target_order = stage_order.get(promotion_request.target_stage, -1)
         
         if target_order <= current_order and promotion_request.target_stage != ModelStage.ROLLBACK:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Cannot promote from {model.stage} to {promotion_request.target_stage}"
             )
@@ -348,7 +348,7 @@ class ModelRegistryService:
                 "error": str(e)
             })
             
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Model deployment failed: {str(e)}"
             )
@@ -368,7 +368,7 @@ class ModelRegistryService:
         
         model = await self.get_model(rollback_request.model_id)
         if not model:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Model {rollback_request.model_id} not found"
             )
@@ -376,7 +376,7 @@ class ModelRegistryService:
         # Get rollback state
         rollback_state = await self._get_rollback_state(rollback_request.model_id)
         if not rollback_state:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"No rollback state available for {rollback_request.model_id}"
             )
@@ -415,7 +415,7 @@ class ModelRegistryService:
         
         model = await self.get_model(model_id)
         if not model:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Model {model_id} not found"
             )
@@ -423,7 +423,7 @@ class ModelRegistryService:
         # Validate traffic split sums to 100%
         total_traffic = sum(ab_config.traffic_split.values())
         if abs(total_traffic - 1.0) > 0.001:  # Allow small floating point errors
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Traffic split must sum to 1.0, got {total_traffic}"
             )
@@ -455,6 +455,7 @@ class ModelRegistryService:
         # This would integrate with actual model deployment system
         # For now, simulate deployment delay
         import asyncio
+from backend.core.exceptions import BusinessLogicException
         await asyncio.sleep(1)
         
         logger.info(f"Model deployed: {model.model_id} v{model.version}")
@@ -515,7 +516,7 @@ async def get_model_registry(stage: Optional[ModelStage] = None):
             e,
             ErrorContext(endpoint="/api/models/registry", method="GET")
         )
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve model registry"
         )
@@ -529,7 +530,7 @@ async def get_model(model_id: str):
         model = await model_registry_service.get_model(model_id)
         
         if not model:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Model {model_id} not found"
             )
@@ -544,7 +545,7 @@ async def get_model(model_id: str):
             e,
             ErrorContext(endpoint=f"/api/models/registry/{model_id}", method="GET")
         )
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve model"
         )
@@ -566,7 +567,7 @@ async def register_model(model: ModelRegistryEntry):
             e,
             ErrorContext(endpoint="/api/models/registry", method="POST")
         )
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to register model"
         )
@@ -588,7 +589,7 @@ async def promote_model(promotion: ModelPromotionRequest):
             e,
             ErrorContext(endpoint="/api/models/registry/promote", method="POST")
         )
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to promote model"
         )
@@ -610,7 +611,7 @@ async def rollback_model(rollback: ModelRollbackRequest):
             e,
             ErrorContext(endpoint="/api/models/registry/rollback", method="POST")
         )
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to rollback model"
         )
@@ -632,7 +633,7 @@ async def setup_ab_test(model_id: str, ab_config: ABTestConfig):
             e,
             ErrorContext(endpoint=f"/api/models/registry/{model_id}/ab-test", method="POST")
         )
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to setup A/B test"
         )

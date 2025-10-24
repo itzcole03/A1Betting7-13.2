@@ -198,7 +198,7 @@ const UnifiedBettingInterface: React.FC<UnifiedBettingInterfaceProps> = ({
 
         {/* Error Banner */}
         {error && (
-          <div className='min-h-[200px] bg-red-50 p-6 rounded mb-6'>
+          <div className='min-h-[200px] bg-red-50 p-6 rounded mb-6' data-testid='error-banner'>
             <div className='text-center'>
               <h2 className='text-xl font-semibold text-red-600 mb-2'>
                 Oops! Something went wrong.

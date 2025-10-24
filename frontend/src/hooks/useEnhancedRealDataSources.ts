@@ -392,4 +392,6 @@ export const _useEnhancedRealDataSources = () => {
   };
 };
 
-export default useEnhancedRealDataSources;
+export const useEnhancedRealDataSources = _useEnhancedRealDataSources;
+
+export default _useEnhancedRealDataSources;

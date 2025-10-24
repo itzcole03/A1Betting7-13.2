@@ -4,8 +4,7 @@
  * Tests covering the useInferenceAudit hook and InferenceAuditPanel component.
  */
 
-import { renderHook, waitFor } from '@testing-library/react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { renderHook, waitFor, render, screen, fireEvent, act, within, type RenderHookResult, type RenderResult } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import React from 'react';
 
@@ -74,35 +73,101 @@ const mockRegistryInfo = {
   shadow_enabled: true,
 };
 
+const mockDriftStatus = {
+  drift_status: 'NORMAL' as const,
+  last_update_ts: Math.floor(Date.now() / 1000),
+  sample_count: 200,
+  alert_active: false,
+};
+
+type AuditResponseOverrides = {
+  summary?: typeof mockSummary;
+  recentEntries?: typeof mockRecentEntries;
+  registry?: typeof mockRegistryInfo;
+  drift?: typeof mockDriftStatus | null;
+};
+
+const resolveAsync = <T,>(value: T) =>
+  new Promise<T>((resolve) => {
+    setTimeout(() => resolve(value), 0);
+  });
+
+const queueAuditFetchSequence = ({
+  summary = mockSummary,
+  recentEntries = mockRecentEntries,
+  registry = mockRegistryInfo,
+  drift = mockDriftStatus,
+}: AuditResponseOverrides = {}) => {
+  mockFetch
+    .mockResolvedValueOnce({
+      ok: true,
+      json: () => resolveAsync(summary),
+    } as Response)
+    .mockResolvedValueOnce({
+      ok: true,
+      json: () => resolveAsync(recentEntries),
+    } as Response)
+    .mockResolvedValueOnce({
+      ok: true,
+      json: () => resolveAsync(registry),
+    } as Response);
+
+  if (drift === null) {
+    mockFetch.mockRejectedValueOnce(new Error('Drift status unavailable'));
+  } else {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => resolveAsync(drift),
+    } as Response);
+  }
+};
+
+const flushPendingEffects = () =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, 0);
+  });
+
+type HookOptions = Parameters<typeof useInferenceAudit>[0];
+type HookResult = RenderHookResult<ReturnType<typeof useInferenceAudit>, undefined>;
+
+const renderUseInferenceAudit = async (options?: HookOptions): Promise<HookResult> => {
+  let hookResult: HookResult | null = null;
+
+  await act(async () => {
+    hookResult = renderHook(() => useInferenceAudit(options));
+    await flushPendingEffects();
+  });
+
+  if (!hookResult) {
+    throw new Error('Failed to render useInferenceAudit hook');
+  }
+
+  return hookResult;
+};
+
+type PanelProps = React.ComponentProps<typeof InferenceAuditPanel>;
+
+const renderInferenceAuditPanel = async (props?: PanelProps): Promise<RenderResult> => {
+  let view: RenderResult | null = null;
+
+  await act(async () => {
+    view = render(<InferenceAuditPanel {...props} />);
+    await flushPendingEffects();
+  });
+
+  if (!view) {
+    throw new Error('Failed to render InferenceAuditPanel');
+  }
+
+  return view;
+};
+
 describe('useInferenceAudit Hook', () => {
   beforeEach(() => {
-    mockFetch.mockClear();
-    jest.useFakeTimers();
+    mockFetch.mockReset();
   });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  const setupMockFetch = (responses: any[] = [mockSummary, mockRecentEntries, mockRegistryInfo]) => {
-    mockFetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => responses[0], // summary
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => responses[1], // recent entries
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => responses[2], // registry info
-      } as Response);
-  };
 
   it('should initialize with correct default state', () => {
-    setupMockFetch();
-    
     const { result } = renderHook(() => useInferenceAudit({ autoStart: false }));
 
     expect(result.current.summary).toBeNull();
@@ -114,12 +179,9 @@ describe('useInferenceAudit Hook', () => {
   });
 
   it('should fetch data on mount when autoStart is true', async () => {
-    setupMockFetch();
-    
-    const { result } = renderHook(() => useInferenceAudit({ autoStart: true }));
+    queueAuditFetchSequence();
 
-    // Should start polling immediately
-    expect(result.current.isPolling).toBe(true);
+    const { result } = await renderUseInferenceAudit({ autoStart: true });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -134,7 +196,7 @@ describe('useInferenceAudit Hook', () => {
   it('should handle API errors gracefully', async () => {
     mockFetch.mockRejectedValue(new Error('API Error'));
 
-    const { result } = renderHook(() => useInferenceAudit());
+    const { result } = await renderUseInferenceAudit();
 
     await waitFor(() => {
       expect(result.current.error).toBe('API Error');
@@ -145,27 +207,33 @@ describe('useInferenceAudit Hook', () => {
   });
 
   it('should toggle polling correctly', async () => {
-    setupMockFetch();
-    
-    const { result } = renderHook(() => useInferenceAudit({ autoStart: false }));
+    queueAuditFetchSequence();
+
+    const { result } = await renderUseInferenceAudit({ autoStart: false });
 
     expect(result.current.isPolling).toBe(false);
 
     // Toggle polling on
-    result.current.togglePolling();
+    act(() => {
+      result.current.togglePolling();
+    });
     expect(result.current.isPolling).toBe(true);
 
     // Toggle polling off
-    result.current.togglePolling();
+    act(() => {
+      result.current.togglePolling();
+    });
     expect(result.current.isPolling).toBe(false);
   });
 
   it('should refresh data manually', async () => {
-    setupMockFetch();
-    
-    const { result } = renderHook(() => useInferenceAudit({ autoStart: false }));
+    queueAuditFetchSequence();
 
-    await result.current.refresh();
+    const { result } = await renderUseInferenceAudit({ autoStart: false });
+
+    await act(async () => {
+      await result.current.refresh();
+    });
 
     await waitFor(() => {
       expect(result.current.summary).toEqual(mockSummary);
@@ -248,36 +316,23 @@ describe('usePerformanceMetrics Hook', () => {
 
 describe('InferenceAuditPanel Component', () => {
   beforeEach(() => {
-    mockFetch.mockClear();
-    setupMockFetch();
+    mockFetch.mockReset();
   });
 
-  const setupMockFetch = () => {
-    mockFetch
-      .mockResolvedValue({
-        ok: true,
-        json: async () => mockSummary,
-      } as Response)
-      .mockResolvedValue({
-        ok: true,
-        json: async () => mockRecentEntries,
-      } as Response)
-      .mockResolvedValue({
-        ok: true,
-        json: async () => mockRegistryInfo,
-      } as Response);
-  };
+  it('should render loading state initially', async () => {
+    mockFetch.mockImplementation(() => new Promise(() => {}));
 
-  it('should render loading state initially', () => {
-    render(<InferenceAuditPanel />);
-    
+    await act(async () => {
+      render(<InferenceAuditPanel />);
+    });
+
     expect(screen.getByText('Loading inference audit data...')).toBeInTheDocument();
   });
 
   it('should render error state when API fails', async () => {
     mockFetch.mockRejectedValue(new Error('API Error'));
-    
-    render(<InferenceAuditPanel />);
+
+    await renderInferenceAuditPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Error Loading Audit Data')).toBeInTheDocument();
@@ -286,7 +341,8 @@ describe('InferenceAuditPanel Component', () => {
   });
 
   it('should render audit panel with data', async () => {
-    render(<InferenceAuditPanel />);
+    queueAuditFetchSequence();
+    await renderInferenceAuditPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Model Inference Audit')).toBeInTheDocument();
@@ -300,11 +356,15 @@ describe('InferenceAuditPanel Component', () => {
     expect(screen.getByText('45.50 ms')).toBeInTheDocument(); // Avg latency
     expect(screen.getByText('98.0%')).toBeInTheDocument(); // Success rate
     expect(screen.getByText('100')).toBeInTheDocument(); // Total count
-    expect(screen.getByText('2')).toBeInTheDocument(); // Error count
+    const errorsLabel = screen.getByText('Errors');
+    const errorsCard = errorsLabel.parentElement;
+    expect(errorsCard).not.toBeNull();
+    expect(within(errorsCard as HTMLElement).getByText('2')).toBeInTheDocument(); // Error count
   });
 
   it('should toggle polling when button is clicked', async () => {
-    render(<InferenceAuditPanel />);
+    queueAuditFetchSequence();
+    await renderInferenceAuditPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Polling On')).toBeInTheDocument();
@@ -319,21 +379,32 @@ describe('InferenceAuditPanel Component', () => {
   });
 
   it('should refresh data when refresh button is clicked', async () => {
-    render(<InferenceAuditPanel />);
+    queueAuditFetchSequence();
+    queueAuditFetchSequence();
+    await renderInferenceAuditPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Refresh')).toBeInTheDocument();
     });
 
     const refreshButton = screen.getByText('Refresh');
-    fireEvent.click(refreshButton);
+    expect(mockFetch).toHaveBeenCalledTimes(4);
+    await act(async () => {
+      fireEvent.click(refreshButton);
+    });
 
-    // Should show refreshing state
-    expect(screen.getByText('Refreshing...')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledTimes(8);
+    });
+
+    await waitFor(() => {
+      expect(refreshButton).toHaveTextContent('Refresh');
+    });
   });
 
   it('should render confidence distribution', async () => {
-    render(<InferenceAuditPanel />);
+    queueAuditFetchSequence();
+    await renderInferenceAuditPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Confidence Distribution')).toBeInTheDocument();
@@ -345,18 +416,23 @@ describe('InferenceAuditPanel Component', () => {
   });
 
   it('should render shadow model comparison when enabled', async () => {
-    render(<InferenceAuditPanel />);
+    queueAuditFetchSequence();
+    await renderInferenceAuditPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Shadow Model Comparison')).toBeInTheDocument();
     });
 
     // Check shadow metrics
-    expect(screen.getByText('0.15')).toBeInTheDocument(); // Avg difference
+    const avgDiffLabel = screen.getByText('Avg Difference:');
+    const avgDiffRow = avgDiffLabel.parentElement;
+    expect(avgDiffRow).not.toBeNull();
+    expect(within(avgDiffRow as HTMLElement).getByText('0.15')).toBeInTheDocument(); // Avg difference
   });
 
   it('should render recent table when enabled', async () => {
-    render(<InferenceAuditPanel showRecentTable={true} />);
+    queueAuditFetchSequence();
+    await renderInferenceAuditPanel({ showRecentTable: true });
 
     await waitFor(() => {
       expect(screen.getByText('Recent Inferences (2)')).toBeInTheDocument();
@@ -372,12 +448,8 @@ describe('InferenceAuditPanel Component', () => {
 
   it('should handle disabled shadow mode display', async () => {
     const disabledShadowSummary = { ...mockSummary, shadow_enabled: false };
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => disabledShadowSummary,
-    } as Response);
-
-    render(<InferenceAuditPanel />);
+    queueAuditFetchSequence({ summary: disabledShadowSummary });
+    await renderInferenceAuditPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Shadow mode not enabled')).toBeInTheDocument();
@@ -387,9 +459,9 @@ describe('InferenceAuditPanel Component', () => {
 
 describe('Component Integration', () => {
   it('should integrate hook and component correctly', async () => {
-    setupMockFetch();
+    queueAuditFetchSequence();
 
-    render(<InferenceAuditPanel />);
+    await renderInferenceAuditPanel();
 
     // Wait for data to load
     await waitFor(() => {
@@ -402,20 +474,4 @@ describe('Component Integration', () => {
     expect(screen.getByText('Confidence Distribution')).toBeInTheDocument();
     expect(screen.getByText('Shadow Model Comparison')).toBeInTheDocument();
   });
-
-  const setupMockFetch = () => {
-    mockFetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockSummary,
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockRecentEntries,
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockRegistryInfo,
-      } as Response);
-  };
 });

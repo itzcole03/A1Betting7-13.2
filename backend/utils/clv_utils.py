@@ -23,9 +23,12 @@ def american_to_probability(odds: int) -> float:
 
 
 def calculate_clv_percent(placed_odds: int, closing_odds: int) -> Optional[float]:
-    """Calculate CLV percentage based on placed and closing odds"""
-    if not closing_odds or not placed_odds:
+    """Calculate CLV percentage based on placed and closing odds."""
+    if placed_odds in (None,) or closing_odds in (None,):
         return None
+    if placed_odds == 0 or closing_odds == 0:
+        # Gracefully handle bad data by returning flat CLV rather than None
+        return 0.0
         
     try:
         placed_prob = american_to_probability(placed_odds)
@@ -48,19 +51,20 @@ def is_profitable_clv(clv_percent: Optional[float], threshold: float = 0.0) -> O
 
 
 def get_clv_tier(clv_percent: Optional[float]) -> str:
-    """Get CLV performance tier"""
+    """Get CLV performance tier."""
     if clv_percent is None:
         return "unknown"
-    elif clv_percent >= 10:
+    if clv_percent >= 12:
+        return "elite"
+    if clv_percent >= 6:
         return "excellent"
-    elif clv_percent >= 5:
+    if clv_percent >= 3:
         return "good"
-    elif clv_percent >= 0:
+    if clv_percent >= 1:
         return "positive"
-    elif clv_percent >= -5:
+    if clv_percent >= -3:
         return "slight_negative"
-    else:
-        return "poor"
+    return "poor"
 
 
 def calculate_roi_percent(total_profit_loss: float, total_stake: float) -> Optional[float]:
@@ -107,11 +111,19 @@ def get_clv_performance_score(
         }
     
     # Normalize CLV to 0-100 scale (assuming reasonable CLV range of -20% to +20%)
-    clv_normalized = max(0, min(100, (avg_clv + 20) * 2.5))
-    
-    # Consistency and volume are already 0-1, scale to 0-100
-    consistency_normalized = consistency_factor * 100
-    volume_normalized = volume_factor * 100
+    clv_normalized = max(0.0, min(100.0, (avg_clv + 20) * 2.5))
+    if avg_clv < 0:
+        clv_normalized *= 0.7
+
+    def _normalize_ratio(value: float) -> float:
+        if value is None:
+            return 0.0
+        if value <= 1:
+            return max(0.0, min(100.0, value * 100.0))
+        return max(0.0, min(100.0, float(value)))
+
+    consistency_normalized = _normalize_ratio(consistency_factor)
+    volume_normalized = _normalize_ratio(volume_factor)
     
     # Calculate weighted score
     score = (
@@ -206,40 +218,44 @@ def calculate_sharpe_ratio(returns: List[float], risk_free_rate: float = 0.0) ->
 
 
 def get_achievement_badges(user_stats: Dict[str, Any]) -> List[str]:
-    """Determine achievement badges based on user statistics"""
-    badges = []
-    
-    avg_clv = user_stats.get('avg_clv_percent', 0)
-    total_bets = user_stats.get('total_bets', 0)
-    positive_clv_rate = user_stats.get('positive_clv_rate', 0)
-    win_rate = user_stats.get('win_rate', 0)
-    
+    """Determine achievement badges based on user statistics."""
+    badges: List[str] = []
+
+    avg_clv = user_stats.get('avg_clv_percent', 0) or 0
+    total_bets = user_stats.get('total_bets', 0) or 0
+    positive_clv_rate = user_stats.get('positive_clv_rate', 0) or 0
+    win_rate = user_stats.get('win_rate', 0) or 0
+
     # CLV-based badges
-    if avg_clv >= 10:
+    if avg_clv >= 12:
         badges.append("clv_master")
+    elif avg_clv >= 8:
+        badges.append("clv_elite")
     elif avg_clv >= 5:
         badges.append("clv_expert")
     elif avg_clv >= 0:
         badges.append("clv_positive")
-    
+
     # Volume badges
-    if total_bets >= 1000:
-        badges.append("high_volume")
-    elif total_bets >= 500:
-        badges.append("active_bettor")
-    elif total_bets >= 100:
+    if total_bets >= 500:
+        badges.extend(["volume_champion", "high_volume"])
+    elif total_bets >= 200:
+        badges.append("volume_champion")
+    elif total_bets >= 50:
         badges.append("regular_bettor")
-    
+    elif total_bets > 0:
+        badges.append("first_steps")
+
     # Consistency badges
     if positive_clv_rate >= 80:
         badges.append("consistent_performer")
     elif positive_clv_rate >= 60:
         badges.append("solid_performer")
-    
+
     # Win rate badges (if available)
-    if win_rate and win_rate >= 60:
+    if win_rate >= 60:
         badges.append("winner")
-    elif win_rate and win_rate >= 55:
+    elif win_rate >= 55:
         badges.append("profitable")
-    
+
     return badges

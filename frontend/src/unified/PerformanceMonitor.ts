@@ -1,5 +1,5 @@
 import type { ComponentMetrics, PerformanceMetrics } from '../types/core';
-import { ErrorHandler } from './ErrorHandler.js';
+import { ErrorHandler } from './ErrorHandler';
 
 interface MetricData {
   value: number;

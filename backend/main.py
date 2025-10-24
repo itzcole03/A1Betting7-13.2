@@ -125,3 +125,25 @@ async def dev_set_password(payload: dict = Body(...)):
         return ResponseBuilder.success(data={"message": "password set"})
     except Exception as e:
         return ResponseBuilder.error(message=str(e), status_code=500)
+
+
+# Backwards-compatible error response helper expected by some tests
+def error_response(message: str, status_code: int = 400, details: any = None):
+    """Compatibility helper that builds an error JSONResponse using the
+    canonical ResponseBuilder so tests and old callers can import it from
+    `backend.main`.
+    """
+    try:
+        return ResponseBuilder.error(message=message, details=details, status_code=status_code)
+    except Exception:
+        # Fallback to a minimal JSONResponse if the builder fails for any reason
+        from fastapi.responses import JSONResponse
+
+        content = {
+            "success": False,
+            "data": None,
+            "error": {"code": "OPERATION_FAILED", "message": message, "details": details},
+            "status": "error",
+            "message": message,
+        }
+        return JSONResponse(status_code=status_code, content=content)

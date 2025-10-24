@@ -73,7 +73,6 @@ class MasterServiceRegistry {
     };
   }
 
-
   static getInstance(): MasterServiceRegistry {
     if (!MasterServiceRegistry.instance) {
       MasterServiceRegistry.instance = new MasterServiceRegistry();
@@ -146,10 +145,13 @@ class MasterServiceRegistry {
   }
 
   // Execute a method across all registered services if present
-  async executeAcrossServices(methodName: string, ...args: unknown[]): Promise<Map<string, unknown>> {
+  async executeAcrossServices(
+    methodName: string,
+    ...args: unknown[]
+  ): Promise<Map<string, unknown>> {
     const results = new Map<string, unknown>();
     for (const [name, svc] of this.services.entries()) {
-  const service = svc as unknown as Record<string, unknown>;
+      const service = svc as unknown as Record<string, unknown>;
       if (service && typeof service[methodName] === 'function') {
         try {
           const res = await service[methodName](...args);
@@ -174,7 +176,7 @@ class MasterServiceRegistry {
   updateConfiguration(config: Partial<ServiceConfiguration>): void {
     Object.assign(this.configuration, config);
     for (const [name, svc] of this.services.entries()) {
-  const service = svc as unknown as Record<string, unknown>;
+      const service = svc as unknown as Record<string, unknown>;
       if (service && typeof service.updateConfiguration === 'function') {
         try {
           service.updateConfiguration(this.configuration);
@@ -196,9 +198,13 @@ class MasterServiceRegistry {
     const healthyServices = health.filter(h => h.status === 'healthy').length;
     const degradedServices = health.filter(h => h.status === 'degraded').length;
     const downServices = health.filter(h => h.status === 'down').length;
-    const averageResponseTime = totalServices ? health.reduce((s, h) => s + Math.max(0, h.responseTime), 0) / totalServices : 0;
+    const averageResponseTime = totalServices
+      ? health.reduce((s, h) => s + Math.max(0, h.responseTime), 0) / totalServices
+      : 0;
     const totalRequests = metrics.reduce((s, m) => s + (m.totalRequests || 0), 0);
-    const overallSuccessRate = metrics.length ? metrics.reduce((s, m) => s + (m.successRate || 0), 0) / metrics.length : 100;
+    const overallSuccessRate = metrics.length
+      ? metrics.reduce((s, m) => s + (m.successRate || 0), 0) / metrics.length
+      : 100;
     return {
       totalServices,
       healthyServices,
@@ -213,7 +219,7 @@ class MasterServiceRegistry {
   private log(level: 'debug' | 'info' | 'warn' | 'error', message: string, err?: unknown): void {
     if (!this.configuration.enableLogging) return;
     try {
-  const logger = this.getService('logger') as unknown as Record<string, unknown> | null;
+      const logger = this.getService('logger') as unknown as Record<string, unknown> | null;
       if (logger && typeof logger[level] === 'function') {
         logger[level](message, err);
         return;
@@ -245,7 +251,7 @@ class MasterServiceRegistry {
 
   async shutdown(): Promise<void> {
     for (const [name, svc] of this.services.entries()) {
-  const service = svc as unknown as Record<string, unknown>;
+      const service = svc as unknown as Record<string, unknown>;
       try {
         if (service && typeof service.shutdown === 'function') {
           await service.shutdown();
@@ -262,7 +268,11 @@ class MasterServiceRegistry {
 
   // Test helper: update a service health entry (used by E2E tests)
   // Minimal, safe surface that mirrors how tests expect to simulate health updates.
-  public updateServiceHealth(name: string, status: ServiceHealth['status'], responseTime: number): void {
+  public updateServiceHealth(
+    name: string,
+    status: ServiceHealth['status'],
+    responseTime: number
+  ): void {
     const existing = this.serviceHealth.get(name) || {
       name,
       status: 'healthy' as ServiceHealth['status'],
@@ -288,12 +298,15 @@ class MasterServiceRegistry {
   // avoid TypeScript private-member/class-compatibility errors when passing
   // this adapter into existing unified services. Call sites may cast when
   // they require the concrete `UnifiedServiceRegistry` type.
-  public toUnifiedRegistry(): ExternalUnifiedServiceRegistry & { services: Map<string, unknown>; getAllServices(): Map<string, unknown> } {
+  public toUnifiedRegistry(): ExternalUnifiedServiceRegistry & {
+    services: Map<string, unknown>;
+    getAllServices(): Map<string, unknown>;
+  } {
     const adapter = new UnifiedRegistryAdapter(this);
 
     // Create a plain object that matches the public shape of the external
     // `UnifiedServiceRegistry` so TypeScript structural checks succeed.
-  const unifiedLike = {
+    const unifiedLike = {
       register: (name: string, service: unknown) => adapter.register(name, service),
       get: <T = unknown>(name: string) => adapter.get<T>(name),
       has: (name: string) => adapter.has(name),
@@ -301,7 +314,10 @@ class MasterServiceRegistry {
       getAllServices: () => adapter.getAllServices(),
       clear: () => adapter.clear(),
       services: adapter.services,
-  } as unknown as ExternalUnifiedServiceRegistry & { services: Map<string, unknown>; getAllServices(): Map<string, unknown> };
+    } as unknown as ExternalUnifiedServiceRegistry & {
+      services: Map<string, unknown>;
+      getAllServices(): Map<string, unknown>;
+    };
 
     return unifiedLike;
   }
@@ -357,18 +373,26 @@ class MasterServiceRegistry {
   // intentionally narrow and will be tightened after remaining call-sites
   // are migrated or explicitly cast.
   private get thisAsUnifiedRegistry(): any {
-  // Return the adapter but keep callers type-stable by allowing a local cast
-  // at the call-site. Some legacy unified services require the concrete
-  // external class-type; callers should cast like:
-  //   this.thisAsUnifiedRegistry as unknown as ExternalUnifiedServiceRegistry
-  return this.toUnifiedRegistry() as unknown as ExternalUnifiedServiceRegistry & { services: Map<string, unknown>; getAllServices(): Map<string, unknown> };
+    // Return the adapter but keep callers type-stable by allowing a local cast
+    // at the call-site. Some legacy unified services require the concrete
+    // external class-type; callers should cast like:
+    //   this.thisAsUnifiedRegistry as unknown as ExternalUnifiedServiceRegistry
+    return this.toUnifiedRegistry() as unknown as ExternalUnifiedServiceRegistry & {
+      services: Map<string, unknown>;
+      getAllServices(): Map<string, unknown>;
+    };
   }
 }
 
 // Adapter class removed — use `toUnifiedRegistry()` to provide a compatible wrapper.
 
-
 export const _masterServiceRegistry = MasterServiceRegistry.getInstance();
+
+// Backwards-compatible alias: many legacy callers import `masterServiceRegistry`.
+// Provide the non-underscored name to reduce widespread "Cannot find name 'masterServiceRegistry'" errors
+// during the focused TypeScript smoke triage. This is intentionally an alias to
+// avoid changing existing runtime behaviour.
+export const masterServiceRegistry = _masterServiceRegistry;
 
 export const _getService = <T = unknown>(name: string): T | null => {
   return _masterServiceRegistry.getService<T>(name);
@@ -407,7 +431,10 @@ export default _masterServiceRegistry;
 // The UnifiedServiceRegistryAdapter class has been removed as it incorrectly extended a class with a private constructor.
 
 // Compatibility exports for legacy callers that reference `UnifiedServiceRegistryAdapter`.
-export type UnifiedServiceRegistryAdapter = ExternalUnifiedServiceRegistry & { services: Map<string, unknown>; getAllServices(): Map<string, unknown> };
+export type UnifiedServiceRegistryAdapter = ExternalUnifiedServiceRegistry & {
+  services: Map<string, unknown>;
+  getAllServices(): Map<string, unknown>;
+};
 
 // Return `any` here to avoid propagating structural-check issues to legacy callers.
 // Callers that need concrete typing can cast locally to the exact external type.

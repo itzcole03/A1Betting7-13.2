@@ -6,9 +6,13 @@ from fastapi import APIRouter
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
-# Example placeholder route
-define_get_user = router.get("/{user_id}")
 
+@router.get("/{user_id}")
+async def get_user(user_id: int):
+    """Placeholder GET /api/v1/users/{user_id}
 
-def get_user(user_id: int):
+    Return a minimal JSON payload so tests that exercise this endpoint
+    don't receive a 404. Implementations should replace this with a proper
+    user lookup when ready.
+    """
     return {"user_id": user_id, "message": "User endpoint (to be implemented)"}

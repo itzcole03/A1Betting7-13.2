@@ -24,6 +24,7 @@ export interface AuthContextType {
   error: string | null;
   isAdmin: boolean;
   isAuthenticated: boolean;
+  hydrated: boolean;
   requiresPasswordChange: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -59,15 +60,17 @@ function useAuthState(): AuthContextType {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [requiresPasswordChange, setRequiresPasswordChange] = useState(false);
+  const [hydrated, setHydrated] = useState(typeof window === 'undefined');
 
   useEffect(() => {
-    // Skip auth restoration if bootstrap already handled it
-    const globalState = window as typeof window & { __A1_AUTH_RESTORED?: boolean };
-    if (typeof window !== 'undefined' && globalState.__A1_AUTH_RESTORED) {
-      return;
-    }
+    if (typeof window === 'undefined') return;
 
-    const _initializeAuth = () => {
+    const globalState = window as typeof window & { __A1_AUTH_RESTORED?: boolean };
+    let cancelled = false;
+
+    const restoreAuthState = () => {
+      const alreadyRestored = Boolean(globalState.__A1_AUTH_RESTORED);
+
       if (authService.isAuthenticated()) {
         const _storedUser = authService.getUser();
         if (_storedUser) {
@@ -75,31 +78,44 @@ function useAuthState(): AuthContextType {
           setIsAdmin(authService.isAdmin());
           setIsAuthenticated(true);
           setRequiresPasswordChange(authService.requiresPasswordChange());
-          
-          // Mark as restored to prevent duplicate logs
-          if (typeof window !== 'undefined') {
-            globalState.__A1_AUTH_RESTORED = true;
+
+          if (!alreadyRestored) {
+            logger.info(
+              '🔐 Authentication restored',
+              {
+                email: _storedUser.email,
+                role: _storedUser.role,
+                userId: _storedUser.id,
+              },
+              'Auth'
+            );
           }
-          
-          // Structured logging for audit (only if not already restored by bootstrap)
-          logger.info(
-            '🔐 Authentication restored',
-            {
-              email: _storedUser.email,
-              role: _storedUser.role,
-              userId: _storedUser.id,
-            },
-            'Auth'
-          );
         }
+      } else {
+        setUser(null);
+        setIsAdmin(false);
+        setIsAuthenticated(false);
+        setRequiresPasswordChange(false);
+      }
+
+      globalState.__A1_AUTH_RESTORED = true;
+
+      if (!cancelled) {
+        setHydrated(true);
       }
     };
-    // In tests we want immediate auth restoration to avoid timing flakiness
+
     if (process.env.NODE_ENV === 'test') {
-      _initializeAuth();
-    } else {
-      setTimeout(_initializeAuth, 100);
+      restoreAuthState();
+      return;
     }
+
+    const timeoutId = window.setTimeout(restoreAuthState, 100);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -114,6 +130,7 @@ function useAuthState(): AuthContextType {
         );
         setIsAuthenticated(true);
         setRequiresPasswordChange(_response.requiresPasswordChange || false);
+        setHydrated(true);
       } else {
         throw new Error(_response.message || 'Login failed');
       }
@@ -134,6 +151,7 @@ function useAuthState(): AuthContextType {
       setIsAdmin(false);
       setIsAuthenticated(false);
       setRequiresPasswordChange(false);
+      setHydrated(true);
     } catch (e: unknown) {
       setError((e as Error).message || 'Logout failed');
     } finally {
@@ -173,6 +191,7 @@ function useAuthState(): AuthContextType {
     error,
     isAdmin,
     isAuthenticated,
+    hydrated,
     requiresPasswordChange,
     login,
     logout,

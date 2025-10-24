@@ -17,6 +17,7 @@ from backend.services.inference_audit import get_inference_audit
 # Import security middleware
 try:
     from backend.services.security_middleware import secure_endpoint, rate_limited
+from backend.core.exceptions import BusinessLogicException
     SECURITY_AVAILABLE = True
 except ImportError:
     SECURITY_AVAILABLE = False
@@ -172,11 +173,11 @@ async def predict(request: Request, prediction_request: PredictionRequest):
         
     except ValueError as e:
         logger.error(f"Invalid model configuration: {str(e)}")
-        raise HTTPException(status_code=400, detail=f"Invalid model configuration: {str(e)}")
+        raise BusinessLogicException(f"Invalid model configuration: {str(e, status_code=400)}")
     
     except Exception as e:
         logger.error(f"Inference request failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Inference failed: {str(e)}")
+        raise BusinessLogicException(f"Inference failed: {str(e, status_code=500)}")
 
 
 @router.get(
@@ -219,7 +220,7 @@ async def get_recent_audit_entries(
         
     except Exception as e:
         logger.error(f"Failed to retrieve audit entries: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve audit entries: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve audit entries: {str(e, status_code=500)}")
 
 
 @router.get(
@@ -275,7 +276,7 @@ async def get_audit_summary(request: Request):
         
     except Exception as e:
         logger.error(f"Failed to retrieve audit summary: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve audit summary: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve audit summary: {str(e, status_code=500)}")
 
 
 @router.post(
@@ -323,7 +324,7 @@ async def record_outcome(request: Request, outcome_request: OutcomeRequest):
         
     except Exception as e:
         logger.error(f"Failed to record outcome: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to record outcome: {str(e)}")
+        raise BusinessLogicException(f"Failed to record outcome: {str(e, status_code=500)}")
 
 
 @router.get(
@@ -369,7 +370,7 @@ async def get_drift_status(request: Request):
         
     except Exception as e:
         logger.error(f"Failed to retrieve drift status: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve drift status: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve drift status: {str(e, status_code=500)}")
 
 
 @router.get(
@@ -417,7 +418,7 @@ async def get_model_registry_info(request: Request):
         
     except Exception as e:
         logger.error(f"Failed to retrieve model registry information: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve registry info: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve registry info: {str(e, status_code=500)}")
 
 
 # Health check endpoint for the inference system
@@ -471,7 +472,7 @@ async def inference_health_check(request: Request):
         
     except Exception as e:
         logger.error(f"Inference system health check failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
+        raise BusinessLogicException(f"Health check failed: {str(e, status_code=500)}")
 
 
 # TODO: Admin endpoint for model activation (if time permits)
@@ -488,7 +489,4 @@ async def activate_model_version(request: Request):
     This endpoint would allow authorized users to switch the active model version
     without restarting the service. Requires admin role validation.
     """
-    raise HTTPException(
-        status_code=501,
-        detail="Model activation endpoint not yet implemented - TODO for future PR"
-    )
+    raise BusinessLogicException("Model activation endpoint not yet implemented - TODO for future PR", status_code=501)

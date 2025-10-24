@@ -2,8 +2,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  // Test directory
-  testDir: './tests/e2e',
+  // Test directory (point at current folder containing specs)
+  testDir: '.',
   
   // Run tests in files in parallel
   fullyParallel: true,
@@ -30,7 +30,14 @@ export default defineConfig({
     // Base URL to use in actions like `await page.goto('/')`
     baseURL: process.env.E2E_BASE_URL || 'https://56516de19ade4606b4959f15366b615b-159ad93eec194a67a29e416e3.fly.dev',
     
-    // Collect trace when retrying the failed test
+  // Enable touchscreen support for contexts that exercise touch actions
+  // (helps tests that call page.touchscreen.tap() or emulate mobile gestures)
+  hasTouch: true,
+    
+  // Reuse storage state saved by global-setup (auth tokens, onboarding flags)
+  storageState: 'tests/e2e/auth.json',
+
+  // Collect trace when retrying the failed test
     trace: 'on-first-retry',
     
     // Take screenshot on failure
@@ -48,9 +55,8 @@ export default defineConfig({
     // Ignore HTTPS errors
     ignoreHTTPSErrors: true,
     
-    // Extra HTTP headers
+    // Extra HTTP headers (keep minimal to avoid CORS preflight failures)
     extraHTTPHeaders: {
-      'X-E2E-Test': 'true',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     },
   },
@@ -71,11 +77,11 @@ export default defineConfig({
     },
     {
       name: 'mobile-chrome',
-      use: { ...devices['Pixel 5'] },
+      use: { ...devices['Pixel 5'], hasTouch: true },
     },
     {
       name: 'mobile-safari',
-      use: { ...devices['iPhone 12'] },
+      use: { ...devices['iPhone 12'], hasTouch: true },
     },
   ],
 

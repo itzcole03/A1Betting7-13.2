@@ -1,10 +1,10 @@
 /**
  * Legacy Usage Panel
- * 
+ *
  * React component for displaying legacy endpoint usage statistics and migration
  * readiness in diagnostics dashboards. Provides color-coded warnings and
  * actionable migration guidance.
- * 
+ *
  * Features:
  * - Real-time usage monitoring
  * - Color-coded severity indicators
@@ -14,7 +14,7 @@
  */
 
 import React, { useState } from 'react';
-import { useLegacyUsage, type LegacyEndpointEntry } from '../legacy/useLegacyUsage';
+import { useLegacyUsage, type LegacyEndpointEntry } from '../hooks/useLegacyUsage';
 
 interface LegacyUsagePanelProps {
   pollInterval?: number;
@@ -22,35 +22,36 @@ interface LegacyUsagePanelProps {
   onError?: (error: Error) => void;
 }
 
-const LegacyUsagePanel: React.FC<LegacyUsagePanelProps> = ({ 
-  pollInterval = 30000, 
+const LegacyUsagePanel: React.FC<LegacyUsagePanelProps> = ({
+  pollInterval = 30000,
   threshold = 50,
-  onError 
+  onError,
 }) => {
   const [expanded, setExpanded] = useState(false);
-  
-  const { 
-    data, 
-    readiness, 
-    loading, 
-    error, 
-    refetch, 
-    totalCalls, 
-    hasHighUsage, 
-    isLegacyEnabled 
-  } = useLegacyUsage({ 
-    pollInterval, 
-    threshold, 
-    onError,
-    includeReadiness: true
-  });
+
+  const { data, readiness, loading, error, refetch, totalCalls, hasHighUsage, isLegacyEnabled } =
+    useLegacyUsage({
+      pollInterval,
+      threshold,
+      onError,
+      includeReadiness: true,
+    });
 
   if (error) {
     return (
-      <div style={{ fontSize: 12, color: '#ef4444', padding: '8px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '4px' }}>
+      <div
+        style={{
+          fontSize: 12,
+          color: '#ef4444',
+          padding: '8px',
+          backgroundColor: '#fef2f2',
+          border: '1px solid #fecaca',
+          borderRadius: '4px',
+        }}
+      >
         <strong>Legacy Usage Error:</strong> {error}
-        <button 
-          onClick={refetch} 
+        <button
+          onClick={refetch}
           style={{ marginLeft: '8px', fontSize: '10px', padding: '2px 6px' }}
         >
           Retry
@@ -104,50 +105,52 @@ const LegacyUsagePanel: React.FC<LegacyUsagePanelProps> = ({
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    
+
     if (hours > 0) return `${hours}h ${minutes}m`;
     if (minutes > 0) return `${minutes}m`;
     return `${seconds}s`;
   };
 
   return (
-    <div style={{ 
-      fontSize: 12, 
-      border: '1px solid #e5e7eb', 
-      borderRadius: '6px', 
-      padding: '12px',
-      backgroundColor: '#ffffff'
-    }}>
+    <div
+      style={{
+        fontSize: 12,
+        border: '1px solid #e5e7eb',
+        borderRadius: '6px',
+        padding: '12px',
+        backgroundColor: '#ffffff',
+      }}
+    >
       {/* Header */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        marginBottom: '8px'
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '8px',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div
             style={{
               width: '8px',
               height: '8px',
               borderRadius: '50%',
-              backgroundColor: getStatusColor()
+              backgroundColor: getStatusColor(),
             }}
           />
           <strong>Legacy Endpoints ({getStatusText()})</strong>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ color: '#6b7280' }}>
-            {totalCalls} total calls
-          </span>
+          <span style={{ color: '#6b7280' }}>{totalCalls} total calls</span>
           <button
             onClick={() => setExpanded(!expanded)}
-            style={{ 
-              background: 'none', 
-              border: 'none', 
+            style={{
+              background: 'none',
+              border: 'none',
               fontSize: '12px',
               color: '#3b82f6',
-              cursor: 'pointer'
+              cursor: 'pointer',
             }}
           >
             {expanded ? '▼' : '▶'} Details
@@ -185,43 +188,51 @@ const LegacyUsagePanel: React.FC<LegacyUsagePanelProps> = ({
           {/* Migration Readiness */}
           {readiness && (
             <div style={{ marginBottom: '16px' }}>
-              <h4 style={{ 
-                margin: '0 0 8px 0', 
-                fontSize: '13px', 
-                fontWeight: 'bold' 
-              }}>
+              <h4
+                style={{
+                  margin: '0 0 8px 0',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                }}
+              >
                 Migration Readiness
               </h4>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '4px' 
-                }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
                   <span>Score:</span>
-                  <span style={{ 
-                    color: getReadinessColor(readiness.score),
-                    fontWeight: 'bold'
-                  }}>
+                  <span
+                    style={{
+                      color: getReadinessColor(readiness.score),
+                      fontWeight: 'bold',
+                    }}
+                  >
                     {(readiness.score * 100).toFixed(0)}%
                   </span>
-                  <span style={{ color: '#6b7280' }}>
-                    ({readiness.readiness_level})
-                  </span>
+                  <span style={{ color: '#6b7280' }}>({readiness.readiness_level})</span>
                 </div>
                 <div style={{ color: '#6b7280' }}>
                   {readiness.usage_rate_per_hour.toFixed(1)} calls/hour
                 </div>
               </div>
-              
+
               {/* Recommendations */}
               {readiness.analysis.recommendations.length > 0 && (
-                <div style={{ 
-                  backgroundColor: '#f9fafb', 
-                  padding: '8px', 
-                  borderRadius: '4px',
-                  fontSize: '11px'
-                }}>
+                <div
+                  style={{
+                    backgroundColor: '#f9fafb',
+                    padding: '8px',
+                    borderRadius: '4px',
+                    fontSize: '11px',
+                  }}
+                >
                   {readiness.analysis.recommendations.map((rec, index) => (
                     <div key={index} style={{ marginBottom: '2px' }}>
                       {rec}
@@ -234,65 +245,78 @@ const LegacyUsagePanel: React.FC<LegacyUsagePanelProps> = ({
 
           {/* Endpoint List */}
           <div>
-            <h4 style={{ 
-              margin: '0 0 8px 0', 
-              fontSize: '13px', 
-              fontWeight: 'bold' 
-            }}>
+            <h4
+              style={{
+                margin: '0 0 8px 0',
+                fontSize: '13px',
+                fontWeight: 'bold',
+              }}
+            >
               Legacy Endpoints
             </h4>
-            
+
             {data.endpoints.length === 0 ? (
               <div style={{ color: '#6b7280', fontStyle: 'italic' }}>
                 No legacy endpoints accessed yet
               </div>
             ) : (
-              <div style={{ 
-                maxHeight: '200px', 
-                overflowY: 'auto',
-                border: '1px solid #e5e7eb',
-                borderRadius: '4px'
-              }}>
+              <div
+                style={{
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
+                }}
+              >
                 {data.endpoints
                   .sort((a, b) => b.count - a.count)
                   .map((endpoint: LegacyEndpointEntry, index: number) => (
-                    <div 
-                      key={endpoint.path} 
-                      style={{ 
+                    <div
+                      key={endpoint.path}
+                      style={{
                         padding: '6px 8px',
-                        borderBottom: index < data.endpoints.length - 1 ? '1px solid #f3f4f6' : 'none',
-                        backgroundColor: endpoint.count > threshold ? '#fef3cd' : 'transparent'
+                        borderBottom:
+                          index < data.endpoints.length - 1 ? '1px solid #f3f4f6' : 'none',
+                        backgroundColor: endpoint.count > threshold ? '#fef3cd' : 'transparent',
                       }}
                     >
-                      <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'center' 
-                      }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
                         <div>
-                          <code style={{ 
-                            backgroundColor: '#f3f4f6', 
-                            padding: '1px 4px', 
-                            borderRadius: '3px',
-                            fontSize: '10px'
-                          }}>
+                          <code
+                            style={{
+                              backgroundColor: '#f3f4f6',
+                              padding: '1px 4px',
+                              borderRadius: '3px',
+                              fontSize: '10px',
+                            }}
+                          >
                             {endpoint.path}
                           </code>
                           {endpoint.forward && (
-                            <div style={{ 
-                              fontSize: '10px', 
-                              color: '#6b7280',
-                              marginTop: '2px'
-                            }}>
+                            <div
+                              style={{
+                                fontSize: '10px',
+                                color: '#6b7280',
+                                marginTop: '2px',
+                              }}
+                            >
                               → <code>{endpoint.forward}</code>
                             </div>
                           )}
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ 
-                            fontWeight: 'bold',
-                            color: endpoint.count > threshold ? '#d97706' : '#374151'
-                          }}>
+                          <div
+                            style={{
+                              fontWeight: 'bold',
+                              color: endpoint.count > threshold ? '#d97706' : '#374151',
+                            }}
+                          >
                             {endpoint.count}
                           </div>
                           <div style={{ fontSize: '10px', color: '#6b7280' }}>
@@ -317,7 +341,7 @@ const LegacyUsagePanel: React.FC<LegacyUsagePanelProps> = ({
                 backgroundColor: '#f3f4f6',
                 border: '1px solid #d1d5db',
                 borderRadius: '4px',
-                cursor: loading ? 'not-allowed' : 'pointer'
+                cursor: loading ? 'not-allowed' : 'pointer',
               }}
             >
               {loading ? 'Refreshing...' : 'Refresh'}

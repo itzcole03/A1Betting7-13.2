@@ -1,12 +1,44 @@
 // HttpClient.ts - Enhanced fetch abstraction with request ID, logging, timing, and telemetry
-import { getRequestContext } from './RequestContextService';
 import { API_BASE_URL } from '../config/apiConfig';
+import { getRequestContext } from './RequestContextService';
+
+const AUTH_TOKEN_KEYS = ['token', 'auth_token', 'access_token'];
+
+const getStoredAuthToken = (): string | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const storageSources = [() => window.localStorage, () => window.sessionStorage] as const;
+
+  for (const getStorage of storageSources) {
+    try {
+      const storage = getStorage();
+      if (!storage) continue;
+      for (const key of AUTH_TOKEN_KEYS) {
+        const value = storage.getItem(key);
+        if (value) {
+          return value;
+        }
+      }
+    } catch (error) {
+      // Access to storage can throw in privacy modes; ignore and continue to next source
+      const message = error instanceof Error ? error.message : String(error);
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn('[HttpClient] Unable to read auth token from storage', message);
+      }
+    }
+  }
+
+  return null;
+};
 
 export interface HttpRequestOptions extends RequestInit {
   version?: string;
   logLabel?: string;
-  span_name?: string;  // For span tracking
-  tags?: Record<string, string | number | boolean>;  // For request tagging
+  span_name?: string; // For span tracking
+  tags?: Record<string, string | number | boolean>; // For request tagging
 }
 
 export interface RequestTelemetry {
@@ -44,7 +76,7 @@ class HttpTelemetry {
       startTime: performance.now(),
       success: false,
       span_name,
-      tags
+      tags,
     };
 
     this.activeRequests.set(requestId, telemetry);
@@ -100,14 +132,13 @@ class HttpTelemetry {
     const active = this.activeRequests.size;
     const successful = this.requestHistory.filter(r => r.success).length;
     const success_rate = total > 0 ? (successful / total) * 100 : 0;
-    
+
     const durations = this.requestHistory
       .filter(r => r.duration !== undefined)
       .map(r => r.duration!);
-    const avg_duration = durations.length > 0 
-      ? durations.reduce((a, b) => a + b, 0) / durations.length 
-      : 0;
-    
+    const avg_duration =
+      durations.length > 0 ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
+
     const errors = this.requestHistory.filter(r => r.error);
     const error_count = errors.length;
     const recent_errors = errors.slice(-5).map(r => r.error!);
@@ -118,42 +149,49 @@ class HttpTelemetry {
       success_rate: Math.round(success_rate * 100) / 100,
       avg_duration: Math.round(avg_duration * 100) / 100,
       error_count,
-      recent_errors
+      recent_errors,
     };
   }
 
   // Get span-based request grouping
-  getSpanSummary(): Record<string, {
-    count: number;
-    avg_duration: number;
-    success_rate: number;
-    recent_requests: RequestTelemetry[];
-  }> {
+  getSpanSummary(): Record<
+    string,
+    {
+      count: number;
+      avg_duration: number;
+      success_rate: number;
+      recent_requests: RequestTelemetry[];
+    }
+  > {
     const spans: Record<string, RequestTelemetry[]> = {};
-    
+
     this.requestHistory.forEach(req => {
       const span = req.span_name || 'default';
       if (!spans[span]) spans[span] = [];
       spans[span].push(req);
     });
 
-    const summary: Record<string, {
-      count: number;
-      avg_duration: number;
-      success_rate: number;
-      recent_requests: RequestTelemetry[];
-    }> = {};
+    const summary: Record<
+      string,
+      {
+        count: number;
+        avg_duration: number;
+        success_rate: number;
+        recent_requests: RequestTelemetry[];
+      }
+    > = {};
     Object.entries(spans).forEach(([spanName, requests]) => {
       const durations = requests.filter(r => r.duration).map(r => r.duration!);
       const successful = requests.filter(r => r.success).length;
-      
+
       summary[spanName] = {
         count: requests.length,
-        avg_duration: durations.length > 0 
-          ? Math.round((durations.reduce((a, b) => a + b, 0) / durations.length) * 100) / 100
-          : 0,
+        avg_duration:
+          durations.length > 0
+            ? Math.round((durations.reduce((a, b) => a + b, 0) / durations.length) * 100) / 100
+            : 0,
         success_rate: Math.round((successful / requests.length) * 100 * 100) / 100,
-        recent_requests: requests.slice(-3)
+        recent_requests: requests.slice(-3),
       };
     });
 
@@ -171,13 +209,24 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
     ...((fetchOptions.headers as Record<string, string>) || {}),
     ...getRequestContext(version),
   };
+
+  if (!headers.Authorization) {
+    const token = getStoredAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+  }
   const label = logLabel || 'HttpClient';
   const requestId = headers['X-Request-ID'];
   const method = fetchOptions.method || 'GET';
 
+  // Detect test environment more robustly (Jest sets NODE_ENV='test' and provides JEST_WORKER_ID)
+  const isTest = typeof process !== 'undefined' && process.env && (process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined');
+
   // Always prepend base URL to relative paths (starting with '/') that are not already absolute
+  // During tests we prefer to keep paths as-is to allow unit tests to assert raw endpoints
   let finalUrl = url;
-  if (url.startsWith('/') && !/^https?:\/\//.test(url)) {
+  if (!isTest && url.startsWith('/') && !/^https?:\/\//.test(url)) {
     const base = API_BASE_URL;
     finalUrl = base.replace(/\/$/, '') + url;
   }
@@ -195,39 +244,35 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
   }
 
   // Start telemetry tracking
-  const telemetry = httpTelemetry.startRequest(
-    requestId,
-    finalUrl,
-    method,
-    span_name,
-    tags
-  );
+  const telemetry = httpTelemetry.startRequest(requestId, finalUrl, method, span_name, tags);
 
   // Enhanced logging with span context
   const logPrefix = `[${label}] [${requestId}]`;
   const spanInfo = span_name ? ` [${span_name}]` : '';
-    const isTest = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test';
-    if (!isTest) {
-      // eslint-disable-next-line no-console
-      console.log(`${logPrefix}${spanInfo} Request:`, finalUrl, fetchOptions);
-    }
+  if (!isTest) {
+    // eslint-disable-next-line no-console
+    console.log(`${logPrefix}${spanInfo} Request:`, finalUrl, { ...fetchOptions, headers });
+  }
+
+  const requestInit: RequestInit = {
+    ...fetchOptions,
+    headers,
+  };
+
+  if (requestInit.credentials === undefined) {
+    requestInit.credentials = 'include';
+  }
 
   try {
-    const response = await fetch(finalUrl, { ...fetchOptions, headers });
-    
+    const response = await fetch(finalUrl, requestInit);
+
     // Calculate response size from content-length header
-    const responseSize = response.headers.get('content-length') 
+    const responseSize = response.headers.get('content-length')
       ? parseInt(response.headers.get('content-length')!, 10)
       : undefined;
 
     // Finish telemetry tracking
-    httpTelemetry.finishRequest(
-      requestId,
-      response.status,
-      undefined,
-      responseSize,
-      requestSize
-    );
+    httpTelemetry.finishRequest(requestId, response.status, undefined, responseSize, requestSize);
 
     if (!isTest) {
       // eslint-disable-next-line no-console
@@ -243,15 +288,9 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
     return response;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    
+
     // Finish telemetry tracking with error
-    httpTelemetry.finishRequest(
-      requestId,
-      undefined,
-      errorMessage,
-      undefined,
-      requestSize
-    );
+    httpTelemetry.finishRequest(requestId, undefined, errorMessage, undefined, requestSize);
 
     // Suppress "Failed to fetch" errors to avoid console noise when backend unavailable
     if (!isTest) {
@@ -296,17 +335,19 @@ export function getHttpSpanSummary() {
 
 // Global telemetry access for debugging in browser console
 if (typeof window !== 'undefined') {
-  (window as unknown as {
-    httpTelemetry: {
-      stats: () => ReturnType<typeof getHttpTelemetryStats>;
-      history: () => RequestTelemetry[];
-      active: () => RequestTelemetry[];
-      spans: () => ReturnType<typeof getHttpSpanSummary>;
-    };
-  }).httpTelemetry = {
+  (
+    window as unknown as {
+      httpTelemetry: {
+        stats: () => ReturnType<typeof getHttpTelemetryStats>;
+        history: () => RequestTelemetry[];
+        active: () => RequestTelemetry[];
+        spans: () => ReturnType<typeof getHttpSpanSummary>;
+      };
+    }
+  ).httpTelemetry = {
     stats: getHttpTelemetryStats,
     history: getHttpRequestHistory,
     active: getActiveHttpRequests,
-    spans: getHttpSpanSummary
+    spans: getHttpSpanSummary,
   };
 }

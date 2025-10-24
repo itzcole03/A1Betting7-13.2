@@ -1,3 +1,38 @@
+jest.mock('axios', () => ({
+  __esModule: true,
+  default: {
+    get: jest.fn(() => Promise.resolve({ data: { status: 'ok' } })),
+  },
+}));
+
+jest.mock('../hooks/usePropFinderData', () => ({
+  __esModule: true,
+  usePropFinderData: jest.fn(() => ({
+    opportunities: [],
+    stats: {
+      total_opportunities: 0,
+      avg_confidence: 0,
+      max_edge: 0,
+      alert_triggered_count: 0,
+      sharp_heavy_count: 0,
+      sports_count: 0,
+      markets_count: 0,
+      last_updated: new Date(0).toISOString(),
+    },
+    loading: false,
+    error: null,
+    lastUpdated: new Date(0).toISOString(),
+    filters: {},
+    searchQuery: '',
+    isAutoRefreshEnabled: false,
+    toggleAutoRefresh: jest.fn(),
+    refreshData: jest.fn(),
+    updateFilters: jest.fn(),
+    setSearchQuery: jest.fn(),
+    bookmarkOpportunity: jest.fn(),
+  })),
+}));
+
 import { render, screen, waitFor } from '@testing-library/react';
 import App from '../App';
 

@@ -6,7 +6,8 @@ from backend.odds.odds_snapshot_store import odds_snapshot_store
 pytestmark = pytest.mark.asyncio
 
 
-async def test_refresh_market_generates_snapshots():
+async def test_refresh_market_generates_snapshots(monkeypatch):
+    monkeypatch.setattr("backend.odds.odds_ingestion_service.API_KEY", None)
     snaps = await refresh_market("MLB", "player_props")
     assert len(snaps) >= 4  # one per book
     latest = await odds_snapshot_store.get_latest(sport="MLB", market="player_props", limit=10)

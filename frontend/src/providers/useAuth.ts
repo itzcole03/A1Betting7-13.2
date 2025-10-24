@@ -1,6 +1,4 @@
-import { useContext } from 'react';
 // @ts-expect-error TS(2305): Module '"./AuthProvider"' has no exported member '... Remove this comment to see the full error message
-import { AuthContext } from './AuthProvider';
 
 export const _useAuth = () => {
   // @ts-expect-error TS(2304): Cannot find name 'context'.
@@ -10,3 +8,7 @@ export const _useAuth = () => {
   // @ts-expect-error TS(2304): Cannot find name 'context'.
   return context;
 };
+
+// Backwards-compatible alias for non-underscored consumers
+export const useAuth = _useAuth;
+export default _useAuth;

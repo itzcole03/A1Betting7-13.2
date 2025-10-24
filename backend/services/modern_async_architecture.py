@@ -14,7 +14,7 @@ import asyncio
 import logging
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
@@ -36,7 +36,7 @@ class RequestContext(BaseModel):
 
     request_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: Optional[str] = None
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     correlation_id: Optional[str] = None
 
 
@@ -107,7 +107,7 @@ class AsyncTaskManager:
 
         # Create task status
         status = TaskStatus(
-            task_id=task_id, status="pending", created_at=datetime.utcnow()
+            task_id=task_id, status="pending", created_at=datetime.now(timezone.utc)
         )
         self.tasks[task_id] = status
 
@@ -115,7 +115,7 @@ class AsyncTaskManager:
         async def task_wrapper():
             try:
                 self.tasks[task_id].status = "running"
-                self.tasks[task_id].started_at = datetime.utcnow()
+                self.tasks[task_id].started_at = datetime.now(timezone.utc)
 
                 self.logger.info(f"Starting background task: {task_id}")
 
@@ -124,7 +124,7 @@ class AsyncTaskManager:
 
                 # Update success status
                 self.tasks[task_id].status = "completed"
-                self.tasks[task_id].completed_at = datetime.utcnow()
+                self.tasks[task_id].completed_at = datetime.now(timezone.utc)
                 self.tasks[task_id].result = result
                 self.tasks[task_id].progress = 100
 
@@ -134,7 +134,7 @@ class AsyncTaskManager:
             except Exception as e:
                 # Update error status
                 self.tasks[task_id].status = "failed"
-                self.tasks[task_id].completed_at = datetime.utcnow()
+                self.tasks[task_id].completed_at = datetime.now(timezone.utc)
                 self.tasks[task_id].error = str(e)
 
                 self.logger.error(f"Background task failed: {task_id}, error: {e}")
@@ -211,7 +211,7 @@ class AsyncAnalyticsService:
             # Mock analysis result
             result = {
                 "game_id": game_id,
-                "analysis_time": datetime.utcnow().isoformat(),
+                "analysis_time": datetime.now(timezone.utc).isoformat(),
                 "request_id": context.request_id,
                 "confidence_score": 0.85,
                 "predicted_outcome": "favorable",
@@ -261,7 +261,7 @@ class AsyncBettingService:
             result = {
                 "bet_id": bet_data.get("bet_id", str(uuid.uuid4())),
                 "status": "placed",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "request_id": context.request_id,
                 "amount": bet_data.get("amount", 0),
                 "odds": bet_data.get("odds", 0),

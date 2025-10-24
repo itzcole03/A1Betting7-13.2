@@ -5,6 +5,50 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>A1Betting Ultra-Enhanced Platform</title>
+    <script>
+      (function disableConsoleNinja() {
+        var g = typeof globalThis !== 'undefined' ? globalThis : window;
+        try {
+          Object.defineProperty(g, '_consoleNinjaAllowedToStart', {
+            configurable: true,
+            get: function () {
+              return false;
+            },
+            set: function () {
+              /* ignore attempts to re-enable */
+            },
+          });
+        } catch (err) {
+          try {
+            g._consoleNinjaAllowedToStart = false;
+          } catch (innerErr) {
+            console.warn('Console Ninja pre-disable failed', innerErr);
+          }
+        }
+
+        g._triedToInstallGlobalErrorHandler = true;
+        g._triedToInstallNetworkLoggingHandler = true;
+
+        if (typeof g.pauseNetworkLogging !== 'function') {
+          g.pauseNetworkLogging = function () {
+            /* no-op */
+          };
+        }
+        if (typeof g.resumeNetworkLogging !== 'function') {
+          g.resumeNetworkLogging = function () {
+            /* no-op */
+          };
+        }
+
+        g._console_ninja_session = {
+          tool: 'disabled',
+          _allowedToSend: false,
+          _allowedToConnectOnSend: false,
+          _connecting: false,
+          _connected: false,
+        };
+      })();
+    </script>
     <!-- CSP for XSS protection -->
     <meta
       name="description"

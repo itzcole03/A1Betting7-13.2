@@ -13,7 +13,13 @@ from datetime import datetime, timezone, time, timedelta
 from typing import Optional
 
 from backend.database import get_async_session
-from backend.services.analytics_persistence_service import AnalyticsPersistenceService
+from backend.services.analytics_persistence_service import (
+    AnalyticsPersistenceService,
+    ArbitrageOpportunityData,
+    EVOpportunityData,
+    ARB_MIN_PROFIT_PCT,
+    EV_MIN_THRESHOLD,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -216,12 +222,10 @@ async def persist_ev_opportunity_if_qualified(
         bool: True if persisted, False if below threshold
     """
     try:
-        # Get analytics service
-        from backend.services.analytics_persistence_service import (
-            EVOpportunityData,
-            AnalyticsPersistenceService
-        )
-        
+        if ev_percent < EV_MIN_THRESHOLD:
+            # Below persistence threshold so skip expensive service wiring
+            return False
+
         analytics_service = AnalyticsPersistenceService(get_async_session)
         
         # Create data object
@@ -264,12 +268,9 @@ async def persist_arbitrage_opportunity_if_qualified(
         bool: True if persisted, False if below threshold
     """
     try:
-        # Get analytics service
-        from backend.services.analytics_persistence_service import (
-            ArbitrageOpportunityData,
-            AnalyticsPersistenceService
-        )
-        
+        if profit_pct < ARB_MIN_PROFIT_PCT:
+            return False
+
         analytics_service = AnalyticsPersistenceService(get_async_session)
         
         # Create data object

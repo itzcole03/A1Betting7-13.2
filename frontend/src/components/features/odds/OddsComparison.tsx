@@ -16,6 +16,7 @@ import {
   Zap,
 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { createTimeoutSignal } from '../../../utils/createTimeoutSignal';
 import { enhancedLogger } from '../../../utils/enhancedLogger';
 import { mockOddsData } from './MockOddsData';
 
@@ -102,8 +103,8 @@ const OddsComparison: React.FC = () => {
     setLoading(true);
     setError(null);
 
-  // Use mock data immediately for demo mode
-  enhancedLogger.info('OddsComparison', 'fetchOddsData', 'Using mock data (backend unavailable)');
+    // Use mock data immediately for demo mode
+    enhancedLogger.info('OddsComparison', 'fetchOddsData', 'Using mock data (backend unavailable)');
     setBestLines(mockOddsData.best_lines);
 
     // Extract unique books for filtering
@@ -129,9 +130,15 @@ const OddsComparison: React.FC = () => {
         limit: '100',
       });
 
-      const response = await fetch(`/v1/odds/compare?${params}`, {
-        signal: AbortSignal.timeout(2000),
-      });
+      const timeout = createTimeoutSignal(2000);
+      let response: Response;
+      try {
+        response = await fetch(`/v1/odds/compare?${params}`, {
+          signal: timeout.signal,
+        });
+      } finally {
+        timeout.cleanup();
+      }
 
       if (response.ok) {
         const data = await response.json();
@@ -144,11 +151,19 @@ const OddsComparison: React.FC = () => {
         });
         setAvailableBooks(Array.from(realBooks));
         setLastUpdate(new Date());
-  enhancedLogger.info('OddsComparison', 'fetchOddsData', 'Successfully loaded real data', { timestamp: new Date().toISOString() });
+        enhancedLogger.info('OddsComparison', 'fetchOddsData', 'Successfully loaded real data', {
+          timestamp: new Date().toISOString(),
+        });
       }
     } catch (err) {
       // Silently continue with mock data
-      enhancedLogger.warn('OddsComparison', 'fetchOddsData', 'Backend unavailable, continuing with mock data', undefined, err as Error);
+      enhancedLogger.warn(
+        'OddsComparison',
+        'fetchOddsData',
+        'Backend unavailable, continuing with mock data',
+        undefined,
+        err as Error
+      );
     }
   }, [filters.sport]);
 
@@ -165,16 +180,28 @@ const OddsComparison: React.FC = () => {
         limit: '50',
       });
 
-      const response = await fetch(`/v1/odds/arbitrage?${params}`, {
-        signal: AbortSignal.timeout(2000),
-      });
+      const timeout = createTimeoutSignal(2000);
+      let response: Response;
+      try {
+        response = await fetch(`/v1/odds/arbitrage?${params}`, {
+          signal: timeout.signal,
+        });
+      } finally {
+        timeout.cleanup();
+      }
 
       if (response.ok) {
         const data = await response.json();
         setArbitrageOps(data.opportunities || mockOddsData.arbitrage_opportunities);
       }
     } catch (err) {
-      enhancedLogger.warn('OddsComparison', 'fetchArbitrageData', 'Arbitrage API unavailable, using mock data', undefined, err as Error);
+      enhancedLogger.warn(
+        'OddsComparison',
+        'fetchArbitrageData',
+        'Arbitrage API unavailable, using mock data',
+        undefined,
+        err as Error
+      );
     }
   }, [filters.sport, filters.minArbitrageProfit]);
 
@@ -510,15 +537,15 @@ const OddsComparison: React.FC = () => {
         <div className='bg-slate-800/50 backdrop-blur rounded-lg border border-slate-700 mb-6'>
           <div className='border-b border-slate-700'>
             <nav className='flex space-x-8 px-6'>
-      {[ 
+              {[
                 { id: 'lines', label: 'Best Lines', icon: TrendingUp },
                 { id: 'arbitrage', label: 'Arbitrage Opportunities', icon: Target },
-      ].map(tab => {
+              ].map(tab => {
                 const Icon = tab.icon;
                 return (
                   <button
-        key={tab.id}
-        onClick={() => setActiveTab(tab.id as 'lines' | 'arbitrage')}
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as 'lines' | 'arbitrage')}
                     className={`flex items-center gap-2 py-4 border-b-2 font-medium text-sm transition-colors ${
                       activeTab === tab.id
                         ? 'border-blue-500 text-blue-400'

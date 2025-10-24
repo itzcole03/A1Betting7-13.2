@@ -21,25 +21,19 @@ class TestLLMErrorHandling:
     @pytest.mark.asyncio
     async def test_adapter_unavailable_fallback(self):
         """Test fallback when primary adapter is unavailable"""
-        with patch('backend.services.llm.adapters.get_llm_adapter') as mock_get_adapter:
-            # First call (openai) raises error, second call (local_stub) succeeds
-            local_stub_adapter = Mock()
-            local_stub_adapter.generate.return_value = {
-                "content": "Fallback explanation",
-                "tokens_used": 100,
-                "provider": "local_stub",
-                "finish_reason": "stop"
-            }
-            
-            mock_get_adapter.side_effect = [
-                UnsupportedProviderError("OpenAI not available"),
-                local_stub_adapter
-            ]
-            
-            # Test should handle adapter unavailability gracefully
-            # This tests the factory fallback logic
-            adapter = mock_get_adapter()
-            assert adapter == local_stub_adapter
+        # Simulate OpenAI adapter being unavailable so the factory falls back
+        # to the local stub adapter. Patch the OpenAIAdapter class so the
+        # real `get_llm_adapter` factory runs its fallback logic.
+        from backend.services.llm.adapters import get_llm_adapter, LocalStubAdapter
+
+        with patch('backend.services.llm.adapters.OpenAIAdapter') as mock_openai_cls:
+            mock_openai_instance = mock_openai_cls.return_value
+            # Simulate that the OpenAI adapter reports it is not available
+            mock_openai_instance.is_available.return_value = False
+
+            adapter = get_llm_adapter('openai')
+            # Factory should return a LocalStubAdapter when OpenAI isn't available
+            assert isinstance(adapter, LocalStubAdapter)
     
     @pytest.mark.asyncio
     async def test_cache_error_recovery(self):

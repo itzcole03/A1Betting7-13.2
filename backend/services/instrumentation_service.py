@@ -250,11 +250,31 @@ class InstrumentationService:
                 "enrichment_type": "expected_value"
             })
             
-            # Call the enrichment function
+            # Call the enrichment function.
+            # Backwards-compatibility: some call sites (and older tests)
+            # expect a single kwarg to be passed positionally. To preserve
+            # compatibility we support a lightweight rule: if the caller did
+            # not explicitly request preservation (see convenience wrapper)
+            # and there is exactly one kwarg and no positional args, call
+            # the enrichment function with that single value as a positional
+            # argument. Otherwise, pass through args/kwargs as-is.
+            preserve_kwargs = False
+            if "_preserve_call_kwargs" in kwargs:
+                preserve_kwargs = bool(kwargs.pop("_preserve_call_kwargs"))
+
+            call_args = args
+            call_kwargs = kwargs
+
+            if not preserve_kwargs and not call_args and len(call_kwargs) == 1:
+                # Convert single kw value to positional argument for legacy callers
+                single_value = next(iter(call_kwargs.values()))
+                call_args = (single_value,)
+                call_kwargs = {}
+
             if asyncio.iscoroutinefunction(enrichment_func):
-                result = await enrichment_func(*args, **kwargs)
+                result = await enrichment_func(*call_args, **call_kwargs)
             else:
-                result = enrichment_func(*args, **kwargs)
+                result = enrichment_func(*call_args, **call_kwargs)
             
             # Add result metadata
             span.metadata.update({
@@ -628,6 +648,7 @@ class InstrumentationService:
                     "success_rate": (metrics.successful_calls / metrics.total_calls) if metrics.total_calls > 0 else 0.0,
                     "avg_duration_ms": round(metrics.avg_duration_ms, 2),
                     "p95_duration_ms": round(metrics.p95_duration_ms, 2),
+                    "p99_duration_ms": round(metrics.p99_duration_ms, 2),
                     "error_rate": round(metrics.error_rate, 4)
                 }
         
@@ -709,6 +730,8 @@ instrumentation_service = InstrumentationService()
 # Convenience functions for easy integration
 async def trace_ev_enrichment(player_id: str, market_type: str, func, *args, **kwargs):
     """Convenience function for tracing EV enrichment"""
+    # Set marker to preserve kwargs for convenience wrapper callers
+    kwargs["_preserve_call_kwargs"] = True
     return await instrumentation_service.trace_ev_enrichment(
         player_id, market_type, func, *args, **kwargs
     )

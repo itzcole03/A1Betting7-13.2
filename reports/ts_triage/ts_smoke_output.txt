@@ -1,0 +1,528 @@
+frontend/src/constants/sports.ts(267,51): error TS2304: Cannot find name 'SPORTS_CONFIG'.
+frontend/src/constants/sports.ts(270,10): error TS2304: Cannot find name 'SPORTS_CONFIG'.
+frontend/src/constants/sports.ts(274,10): error TS2304: Cannot find name 'SPORTS_CONFIG'.
+frontend/src/constants/sports.ts(278,21): error TS2304: Cannot find name 'getSportNames'.
+frontend/src/constants/sports.ts(282,10): error TS2304: Cannot find name 'SPORTS_CONFIG'.
+frontend/src/constants/sports.ts(286,10): error TS2304: Cannot find name 'SPORTS_CONFIG'.
+frontend/src/constants/sports.ts(290,10): error TS2304: Cannot find name 'SPORTS_CONFIG'.
+frontend/src/constants/sports.ts(294,10): error TS2304: Cannot find name 'SPORTS_CONFIG'.
+frontend/src/constants/sports.ts(298,18): error TS2304: Cannot find name 'getSportById'.
+frontend/src/constants/sports.ts(299,10): error TS2304: Cannot find name 'sport'.
+frontend/src/constants/sports.ts(299,18): error TS2304: Cannot find name 'sport'.
+frontend/src/constants/sports.ts(304,18): error TS2304: Cannot find name 'getSportById'.
+frontend/src/constants/sports.ts(305,10): error TS2304: Cannot find name 'sport'.
+frontend/src/constants/sports.ts(305,21): error TS2304: Cannot find name 'sport'.
+frontend/src/constants/sports.ts(305,36): error TS2304: Cannot find name 'sport'.
+frontend/src/constants/sports.ts(309,18): error TS2304: Cannot find name 'getSportById'.
+frontend/src/constants/sports.ts(310,10): error TS2304: Cannot find name 'sport'.
+frontend/src/constants/sports.ts(310,18): error TS2304: Cannot find name 'sport'.
+frontend/src/constants/sports.ts(314,18): error TS2304: Cannot find name 'getSportById'.
+frontend/src/constants/sports.ts(315,10): error TS2304: Cannot find name 'sport'.
+frontend/src/constants/sports.ts(315,18): error TS2304: Cannot find name 'sport'.
+frontend/src/constants/sports.ts(320,48): error TS2304: Cannot find name 'SPORTS_CONFIG'.
+frontend/src/constants/sports.ts(321,48): error TS2304: Cannot find name 'getSportsByCategory'.
+frontend/src/constants/sports.ts(322,54): error TS2304: Cannot find name 'getSportsByCategory'.
+frontend/src/constants/sports.ts(326,12): error TS2304: Cannot find name 'getSportsByCategory'.
+frontend/src/constants/sports.ts(332,46): error TS2304: Cannot find name 'getActiveSports'.
+frontend/src/constants/sports.ts(333,55): error TS2304: Cannot find name 'getFantasySports'.
+frontend/src/constants/sports.ts(334,47): error TS2304: Cannot find name 'getLiveBettingSports'.
+frontend/src/constants/sports.ts(338,31): error TS2304: Cannot find name 'getSportNamesWithAll'.
+frontend/src/constants/sports.ts(339,30): error TS2304: Cannot find name 'getSportsByCategory'.
+frontend/src/constants/sports.ts(340,33): error TS2304: Cannot find name 'getSportsByCategory'.
+frontend/src/constants/sports.ts(341,38): error TS2304: Cannot find name 'getSportsByCategory'.
+frontend/src/constants/sports.ts(362,53): error TS2304: Cannot find name 'getFantasySports'.
+frontend/src/core/MasterIntegrationHub.tsx(4,10): error TS2305: Module '"../hooks/useAnalytics"' has no exported member 'useAnalytics'.
+frontend/src/core/MasterIntegrationHub.tsx(5,10): error TS2305: Module '"../hooks/useBettingAnalytics"' has no exported member 'useBettingAnalytics'.
+frontend/src/core/MasterIntegrationHub.tsx(6,10): error TS2724: '"../hooks/useEnhancedBettingEngine"' has no exported member named 'useEnhancedBettingEngine'. Did you mean '_useEnhancedBettingEngine'?
+frontend/src/core/MasterIntegrationHub.tsx(7,10): error TS2724: '"../hooks/useEnhancedRealDataSources"' has no exported member named 'useEnhancedRealDataSources'. Did you mean '_useEnhancedRealDataSources'?
+frontend/src/core/MasterIntegrationHub.tsx(10,10): error TS2724: '"../hooks/useRealtimePredictions"' has no exported member named 'useRealtimePredictions'. Did you mean '_useRealtimePredictions'?
+frontend/src/core/MasterIntegrationHub.tsx(11,10): error TS2724: '"../hooks/useSmartAlerts"' has no exported member named 'useSmartAlerts'. Did you mean '_useSmartAlerts'?
+frontend/src/core/MasterIntegrationHub.tsx(12,10): error TS2305: Module '"../hooks/useUnifiedAnalytics"' has no exported member 'useUnifiedAnalytics'.
+frontend/src/core/MasterIntegrationHub.tsx(13,10): error TS2724: '"../hooks/useUnifiedBetting"' has no exported member named 'useUnifiedBetting'. Did you mean '_useUnifiedBetting'?
+frontend/src/core/MasterIntegrationHub.tsx(24,1): error TS2578: Unused '@ts-expect-error' directive.
+frontend/src/core/MasterIntegrationHub.tsx(32,10): error TS2724: '"../constants/sports"' has no exported member named 'SPORTS_CONFIG'. Did you mean '_SPORTS_CONFIG'?
+frontend/src/core/MasterIntegrationHub.tsx(32,25): error TS2724: '"../constants/sports"' has no exported member named 'getActiveSports'. Did you mean '_getActiveSports'?
+frontend/src/core/MasterIntegrationHub.tsx(122,31): error TS2304: Cannot find name 'MasterIntegrationContext'.
+frontend/src/core/MasterIntegrationHub.tsx(123,8): error TS2304: Cannot find name 'context'.
+frontend/src/core/MasterIntegrationHub.tsx(126,10): error TS2304: Cannot find name 'context'.
+frontend/src/core/MasterIntegrationHub.tsx(138,7): error TS2578: Unused '@ts-expect-error' directive.
+frontend/src/core/MasterIntegrationHub.tsx(142,12): error TS2673: Constructor of class 'ApiService' is private and only accessible within the class declaration.
+frontend/src/core/MasterIntegrationHub.tsx(208,5): error TS2304: Cannot find name 'initializeAllSystems'.
+frontend/src/core/MasterIntegrationHub.tsx(209,35): error TS2304: Cannot find name 'syncAllSystems'.
+frontend/src/core/MasterIntegrationHub.tsx(210,32): error TS2304: Cannot find name 'interval'.
+frontend/src/core/MasterIntegrationHub.tsx(218,9): error TS2304: Cannot find name 'initializeDataServices'.
+frontend/src/core/MasterIntegrationHub.tsx(219,9): error TS2304: Cannot find name 'initializeMLSystems'.
+frontend/src/core/MasterIntegrationHub.tsx(220,9): error TS2304: Cannot find name 'initializeSportsData'.
+frontend/src/core/MasterIntegrationHub.tsx(221,9): error TS2304: Cannot find name 'initializeUserSystems'.
+frontend/src/core/MasterIntegrationHub.tsx(222,9): error TS2304: Cannot find name 'initializeMonitoring'.
+frontend/src/core/MasterIntegrationHub.tsx(253,9): error TS2304: Cannot find name 'services'.
+frontend/src/core/MasterIntegrationHub.tsx(254,9): error TS2304: Cannot find name 'services'.
+frontend/src/core/MasterIntegrationHub.tsx(255,9): error TS2304: Cannot find name 'services'.
+frontend/src/core/MasterIntegrationHub.tsx(256,9): error TS2304: Cannot find name 'services'.
+frontend/src/core/MasterIntegrationHub.tsx(261,9): error TS2304: Cannot find name 'injuryService'.
+frontend/src/core/MasterIntegrationHub.tsx(264,9): error TS2304: Cannot find name 'realtimePredictions'.
+frontend/src/core/MasterIntegrationHub.tsx(273,19): error TS2304: Cannot find name 'smartAlerts'.
+frontend/src/core/MasterIntegrationHub.tsx(298,22): error TS2304: Cannot find name 'realtimePredictions'.
+frontend/src/core/MasterIntegrationHub.tsx(300,23): error TS2304: Cannot find name 'mlAnalytics'.
+frontend/src/core/MasterIntegrationHub.tsx(305,20): error TS2304: Cannot find name 'mlData'.
+frontend/src/core/MasterIntegrationHub.tsx(319,9): error TS2304: Cannot find name 'marketData'.
+frontend/src/core/MasterIntegrationHub.tsx(319,20): error TS2304: Cannot find name 'sport'.
+frontend/src/core/MasterIntegrationHub.tsx(320,27): error TS2304: Cannot find name 'sport'.
+frontend/src/core/MasterIntegrationHub.tsx(331,11): error TS18004: No value exists in scope for the shorthand property 'marketData'. Either declare one or provide an initializer.
+frontend/src/core/MasterIntegrationHub.tsx(369,20): error TS2304: Cannot find name 'userProfile'.
+frontend/src/core/MasterIntegrationHub.tsx(370,24): error TS2304: Cannot find name 'userProfile'.
+frontend/src/core/MasterIntegrationHub.tsx(371,22): error TS2304: Cannot find name 'userProfile'.
+frontend/src/core/MasterIntegrationHub.tsx(372,24): error TS2304: Cannot find name 'userProfile'.
+frontend/src/core/MasterIntegrationHub.tsx(373,31): error TS2304: Cannot find name 'userProfile'.
+frontend/src/core/MasterIntegrationHub.tsx(387,35): error TS2339: Property 'averageResponseTime' does not exist on type 'Performance'.
+frontend/src/core/MasterIntegrationHub.tsx(395,23): error TS2304: Cannot find name 'healthData'.
+frontend/src/core/MasterIntegrationHub.tsx(406,13): error TS2304: Cannot find name 'syncAllSystems'.
+frontend/src/core/MasterIntegrationHub.tsx(421,11): error TS2304: Cannot find name 'realtimePredictions'.
+frontend/src/core/MasterIntegrationHub.tsx(424,11): error TS2304: Cannot find name 'smartAlerts'.
+frontend/src/core/MasterIntegrationHub.tsx(425,11): error TS2304: Cannot find name 'injuryService'.
+frontend/src/core/MasterIntegrationHub.tsx(459,13): error TS2698: Spread types may only be created from object types.
+frontend/src/core/MasterIntegrationHub.tsx(460,13): error TS2698: Spread types may only be created from object types.
+frontend/src/core/MasterIntegrationHub.tsx(474,11): error TS2698: Spread types may only be created from object types.
+frontend/src/core/MasterIntegrationHub.tsx(475,11): error TS2698: Spread types may only be created from object types.
+frontend/src/core/MasterIntegrationHub.tsx(481,21): error TS2339: Property 'theme' does not exist on type 'unknown'.
+frontend/src/core/MasterIntegrationHub.tsx(482,47): error TS2339: Property 'theme' does not exist on type 'unknown'.
+frontend/src/core/MasterIntegrationHub.tsx(483,11): error TS2304: Cannot find name 'theme'.
+frontend/src/core/MasterIntegrationHub.tsx(484,27): error TS2304: Cannot find name 'theme'.
+frontend/src/core/MasterIntegrationHub.tsx(489,13): error TS18004: No value exists in scope for the shorthand property 'theme'. Either declare one or provide an initializer.
+frontend/src/core/MasterIntegrationHub.tsx(511,75): error TS2339: Property 'id' does not exist on type 'unknown'.
+frontend/src/core/MasterIntegrationHub.tsx(545,5): error TS18004: No value exists in scope for the shorthand property 'refreshAllData'. Either declare one or provide an initializer.
+frontend/src/core/MasterIntegrationHub.tsx(546,5): error TS18004: No value exists in scope for the shorthand property 'updateSportsData'. Either declare one or provide an initializer.
+frontend/src/core/MasterIntegrationHub.tsx(547,5): error TS18004: No value exists in scope for the shorthand property 'updateUserPreferences'. Either declare one or provide an initializer.
+frontend/src/core/MasterIntegrationHub.tsx(548,5): error TS18004: No value exists in scope for the shorthand property 'addAlert'. Either declare one or provide an initializer.
+frontend/src/core/MasterIntegrationHub.tsx(549,5): error TS18004: No value exists in scope for the shorthand property 'dismissAlert'. Either declare one or provide an initializer.
+frontend/src/core/MasterIntegrationHub.tsx(550,5): error TS18004: No value exists in scope for the shorthand property 'optimizePerformance'. Either declare one or provide an initializer.
+frontend/src/core/MasterIntegrationHub.tsx(551,5): error TS18004: No value exists in scope for the shorthand property 'syncAllSystems'. Either declare one or provide an initializer.
+frontend/src/core/MasterIntegrationHub.tsx(561,7): error TS2304: Cannot find name 'MasterIntegrationContext'.
+frontend/src/core/MasterIntegrationHub.tsx(565,16): error TS2552: Cannot find name 'MasterIntegrationProvider'. Did you mean '_MasterIntegrationProvider'?
+frontend/src/core/PredictionEngine.ts(2,3): error TS1205: Re-exporting a type when 'isolatedModules' is enabled requires using 'export type'.
+frontend/src/core/tests/smoke/unified_shims_runner.ts(5,16): error TS2393: Duplicate function implementation.
+frontend/src/core/tests/smoke/unified_shims_runner.ts(6,18): error TS2348: Value of type 'typeof UnifiedLogger' is not callable. Did you mean to include 'new'?
+frontend/src/core/tests/smoke/unified_shims_runner.ts(25,16): error TS2393: Duplicate function implementation.
+frontend/src/core/tests/smoke/unified_shims_runner.ts(26,18): error TS2348: Value of type 'typeof UnifiedLogger' is not callable. Did you mean to include 'new'?
+frontend/src/core/tests/smoke/unified_shims_runner.ts(40,76): error TS2554: Expected 1-2 arguments, but got 3.
+frontend/src/core/tests/smoke/unified_shims_runner.ts(49,5): error TS2348: Value of type 'typeof UnifiedLogger' is not callable. Did you mean to include 'new'?
+frontend/src/core/UnifiedConfig.ts(177,5): error TS7027: Unreachable code detected.
+frontend/src/core/UnifiedConfigManager.ts(64,42): error TS2339: Property 'config' does not exist on type 'unknown'.
+frontend/src/core/UnifiedLogger/index.ts(14,78): error TS18048: 'Date' is possibly 'undefined'.
+frontend/src/core/UnifiedPredictionEngine.ts(1,10): error TS1205: Re-exporting a type when 'isolatedModules' is enabled requires using 'export type'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(70,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(71,12): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(76,36): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(77,17): error TS2304: Cannot find name 'engineConfig'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(80,43): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(81,21): error TS2304: Cannot find name 'availableStrategies'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(84,37): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(85,18): error TS2304: Cannot find name 'engineMetrics'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(88,30): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(89,20): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<boolean>'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(93,16): error TS2304: Cannot find name 'errorMessage'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(102,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(103,12): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(107,30): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(108,11): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(113,14): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(116,16): error TS2304: Cannot find name 'errorMessage'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(124,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(125,12): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(129,30): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(130,11): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(135,14): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(138,16): error TS2304: Cannot find name 'errorMessage'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(149,33): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(150,13): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(151,17): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(151,51): error TS2304: Cannot find name 'updatedConfig'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(154,19): error TS2304: Cannot find name 'updatedConfig'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(166,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(167,11): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(168,15): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(186,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(187,11): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(188,15): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(206,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(207,11): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(208,15): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(226,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(227,12): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(231,20): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(241,14): error TS2304: Cannot find name 'strategy'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(243,26): error TS2304: Cannot find name 'strategy'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(244,21): error TS2304: Cannot find name 'strategy'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(245,24): error TS2304: Cannot find name 'strategy'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(246,22): error TS2304: Cannot find name 'strategy'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(255,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(256,12): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(260,20): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(270,33): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(271,14): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(275,40): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(277,13): error TS2304: Cannot find name 'optimizedConfig'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(278,17): error TS2304: Cannot find name 'updateStrategyConfig'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(278,50): error TS2304: Cannot find name 'optimizedConfig'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(281,16): error TS2304: Cannot find name 'optimizedConfig'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(287,6): error TS2304: Cannot find name 'updateStrategyConfig'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(292,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(293,12): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(297,33): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(298,18): error TS2304: Cannot find name 'newMetrics'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(316,5): error TS2304: Cannot find name 'initializeEngine'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(321,9): error TS2304: Cannot find name 'refreshMetrics'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(325,32): error TS2304: Cannot find name 'interval'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(326,7): error TS2304: Cannot find name 'initializeEngine'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(326,36): error TS2304: Cannot find name 'refreshMetrics'.
+frontend/src/hooks/useEnhancedBettingEngine.ts(335,5): error TS2552: Cannot find name 'startEngine'. Did you mean '_startEngine'?
+frontend/src/hooks/useEnhancedBettingEngine.ts(336,5): error TS2552: Cannot find name 'stopEngine'. Did you mean '_stopEngine'?
+frontend/src/hooks/useEnhancedBettingEngine.ts(337,5): error TS2552: Cannot find name 'updateConfig'. Did you mean '_updateConfig'?
+frontend/src/hooks/useEnhancedBettingEngine.ts(338,5): error TS18004: No value exists in scope for the shorthand property 'enableStrategy'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedBettingEngine.ts(339,5): error TS18004: No value exists in scope for the shorthand property 'disableStrategy'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedBettingEngine.ts(340,5): error TS18004: No value exists in scope for the shorthand property 'updateStrategyConfig'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedBettingEngine.ts(341,5): error TS18004: No value exists in scope for the shorthand property 'getEnginePerformance'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedBettingEngine.ts(342,5): error TS18004: No value exists in scope for the shorthand property 'getStrategyPerformance'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedBettingEngine.ts(343,5): error TS18004: No value exists in scope for the shorthand property 'simulateStrategy'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedBettingEngine.ts(344,5): error TS18004: No value exists in scope for the shorthand property 'optimizeStrategy'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedBettingEngine.ts(345,5): error TS18004: No value exists in scope for the shorthand property 'refreshMetrics'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedBettingEngine.ts(346,5): error TS18004: No value exists in scope for the shorthand property 'getActiveStrategies'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedBettingEngine.ts(347,5): error TS18004: No value exists in scope for the shorthand property 'getStrategyByType'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedBettingEngine.ts(348,5): error TS18004: No value exists in scope for the shorthand property 'initializeEngine'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedBettingEngine.ts(352,16): error TS2552: Cannot find name 'useEnhancedBettingEngine'. Did you mean '_useEnhancedBettingEngine'?
+frontend/src/hooks/useEnhancedRealDataSources.ts(63,28): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(64,12): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(69,31): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(70,22): error TS2304: Cannot find name 'sources'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(73,31): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(74,22): error TS2304: Cannot find name 'quality'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(77,35): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(78,23): error TS2304: Cannot find name 'initialData'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(82,16): error TS2304: Cannot find name 'errorMessage'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(91,28): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(92,12): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(96,30): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(98,11): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(108,14): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(117,28): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(118,12): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(122,30): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(124,11): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(132,14): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(141,28): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(142,12): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(146,30): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(148,11): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(156,14): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(165,28): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(166,12): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(168,53): error TS2304: Cannot find name 'refreshDataSource'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(169,27): error TS2304: Cannot find name 'promises'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(173,30): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(175,11): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(184,14): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(189,20): error TS2304: Cannot find name 'refreshDataSource'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(231,9): error TS2304: Cannot find name 'total'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(237,12): error TS2304: Cannot find name 'healthy'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(237,22): error TS2304: Cannot find name 'total'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(248,9): error TS2304: Cannot find name 'monitoringInterval'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(249,21): error TS2304: Cannot find name 'monitoringInterval'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(254,5): error TS2304: Cannot find name 'monitoringInterval'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(256,30): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(257,14): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(260,33): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(261,24): error TS2304: Cannot find name 'sources'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(264,33): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(265,24): error TS2304: Cannot find name 'quality'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(268,33): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(269,25): error TS2304: Cannot find name 'newData'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(277,9): error TS2304: Cannot find name 'monitoringInterval'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(278,21): error TS2304: Cannot find name 'monitoringInterval'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(279,7): error TS2304: Cannot find name 'monitoringInterval'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(286,28): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(287,12): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(291,20): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(300,28): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(301,12): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(305,20): error TS2304: Cannot find name 'dataService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(316,12): error TS2304: Cannot find name 'totalLatency'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(324,24): error TS2304: Cannot find name 'frequencies'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(325,24): error TS2304: Cannot find name 'frequencies'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(326,12): error TS2304: Cannot find name 'frequencies'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(326,63): error TS2304: Cannot find name 'frequencies'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(332,26): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(333,12): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(336,7): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(339,32): error TS2339: Property 'sourceId' does not exist on type 'unknown'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(339,64): error TS2339: Property 'updates' does not exist on type 'unknown'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(345,7): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(350,7): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(359,5): error TS2304: Cannot find name 'initializeDataSources'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(360,5): error TS2304: Cannot find name 'subscribeToDataUpdates'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(361,5): error TS2304: Cannot find name 'startMonitoring'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(364,7): error TS2304: Cannot find name 'stopMonitoring'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(366,7): error TS2304: Cannot find name 'initializeDataSources'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(366,30): error TS2304: Cannot find name 'subscribeToDataUpdates'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(366,54): error TS2304: Cannot find name 'startMonitoring'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(366,71): error TS2304: Cannot find name 'stopMonitoring'.
+frontend/src/hooks/useEnhancedRealDataSources.ts(375,5): error TS18004: No value exists in scope for the shorthand property 'connectToDataSource'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(376,5): error TS18004: No value exists in scope for the shorthand property 'disconnectFromDataSource'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(377,5): error TS18004: No value exists in scope for the shorthand property 'refreshDataSource'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(378,5): error TS18004: No value exists in scope for the shorthand property 'refreshAllDataSources'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(379,5): error TS18004: No value exists in scope for the shorthand property 'getDataByType'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(380,5): error TS18004: No value exists in scope for the shorthand property 'getDataSourcesByStatus'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(381,5): error TS18004: No value exists in scope for the shorthand property 'getDataSourcesByType'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(382,5): error TS18004: No value exists in scope for the shorthand property 'getHighPriorityDataSources'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(383,5): error TS18004: No value exists in scope for the shorthand property 'getDataSourceHealth'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(384,5): error TS18004: No value exists in scope for the shorthand property 'getUnreliableDataSources'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(385,5): error TS18004: No value exists in scope for the shorthand property 'startMonitoring'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(386,5): error TS18004: No value exists in scope for the shorthand property 'stopMonitoring'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(387,5): error TS18004: No value exists in scope for the shorthand property 'testDataSource'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(388,5): error TS18004: No value exists in scope for the shorthand property 'optimizeDataSources'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(389,5): error TS18004: No value exists in scope for the shorthand property 'getDataLatency'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(390,5): error TS18004: No value exists in scope for the shorthand property 'getUpdateFrequencyStats'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(391,5): error TS18004: No value exists in scope for the shorthand property 'initializeDataSources'. Either declare one or provide an initializer.
+frontend/src/hooks/useEnhancedRealDataSources.ts(395,16): error TS2552: Cannot find name 'useEnhancedRealDataSources'. Did you mean '_useEnhancedRealDataSources'?
+frontend/src/hooks/useRealtimePredictions.ts(46,36): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useRealtimePredictions.ts(47,14): error TS2304: Cannot find name 'predictionService'.
+frontend/src/hooks/useRealtimePredictions.ts(55,11): error TS2698: Spread types may only be created from object types.
+frontend/src/hooks/useRealtimePredictions.ts(58,29): error TS2304: Cannot find name 'predictionService'.
+frontend/src/hooks/useRealtimePredictions.ts(58,70): error TS2304: Cannot find name 'requestFilters'.
+frontend/src/hooks/useRealtimePredictions.ts(59,24): error TS2304: Cannot find name 'data'.
+frontend/src/hooks/useRealtimePredictions.ts(62,18): error TS2304: Cannot find name 'errorMessage'.
+frontend/src/hooks/useRealtimePredictions.ts(73,34): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useRealtimePredictions.ts(74,12): error TS2304: Cannot find name 'predictionService'.
+frontend/src/hooks/useRealtimePredictions.ts(78,29): error TS2304: Cannot find name 'predictionService'.
+frontend/src/hooks/useRealtimePredictions.ts(81,31): error TS2304: Cannot find name 'result'.
+frontend/src/hooks/useRealtimePredictions.ts(83,14): error TS2304: Cannot find name 'result'.
+frontend/src/hooks/useRealtimePredictions.ts(92,26): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useRealtimePredictions.ts(93,12): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useRealtimePredictions.ts(99,7): error TS2304: Cannot find name 'wsRef'.
+frontend/src/hooks/useRealtimePredictions.ts(99,23): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useRealtimePredictions.ts(102,15): error TS2304: Cannot find name 'index'.
+frontend/src/hooks/useRealtimePredictions.ts(105,13): error TS2304: Cannot find name 'updated'.
+frontend/src/hooks/useRealtimePredictions.ts(105,21): error TS2304: Cannot find name 'index'.
+frontend/src/hooks/useRealtimePredictions.ts(106,20): error TS2304: Cannot find name 'updated'.
+frontend/src/hooks/useRealtimePredictions.ts(115,7): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useRealtimePredictions.ts(117,9): error TS2304: Cannot find name 'fetchPredictions'.
+frontend/src/hooks/useRealtimePredictions.ts(117,41): error TS2339: Property 'gameId' does not exist on type 'unknown'.
+frontend/src/hooks/useRealtimePredictions.ts(125,7): error TS2304: Cannot find name 'fetchPredictions'.
+frontend/src/hooks/useRealtimePredictions.ts(129,26): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useRealtimePredictions.ts(130,11): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useRealtimePredictions.ts(130,24): error TS2304: Cannot find name 'wsRef'.
+frontend/src/hooks/useRealtimePredictions.ts(131,9): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useRealtimePredictions.ts(131,31): error TS2304: Cannot find name 'wsRef'.
+frontend/src/hooks/useRealtimePredictions.ts(132,9): error TS2304: Cannot find name 'wsRef'.
+frontend/src/hooks/useRealtimePredictions.ts(141,9): error TS2304: Cannot find name 'intervalRef'.
+frontend/src/hooks/useRealtimePredictions.ts(142,21): error TS2304: Cannot find name 'intervalRef'.
+frontend/src/hooks/useRealtimePredictions.ts(146,7): error TS2304: Cannot find name 'intervalRef'.
+frontend/src/hooks/useRealtimePredictions.ts(147,9): error TS2304: Cannot find name 'fetchPredictions'.
+frontend/src/hooks/useRealtimePredictions.ts(150,51): error TS2304: Cannot find name 'fetchPredictions'.
+frontend/src/hooks/useRealtimePredictions.ts(153,9): error TS2304: Cannot find name 'intervalRef'.
+frontend/src/hooks/useRealtimePredictions.ts(154,21): error TS2304: Cannot find name 'intervalRef'.
+frontend/src/hooks/useRealtimePredictions.ts(155,7): error TS2304: Cannot find name 'intervalRef'.
+frontend/src/hooks/useRealtimePredictions.ts(164,5): error TS2304: Cannot find name 'fetchPredictions'.
+frontend/src/hooks/useRealtimePredictions.ts(165,7): error TS2304: Cannot find name 'fetchPredictions'.
+frontend/src/hooks/useRealtimePredictions.ts(182,5): error TS2304: Cannot find name 'fetchPredictions'.
+frontend/src/hooks/useRealtimePredictions.ts(183,5): error TS2304: Cannot find name 'connectWebSocket'.
+frontend/src/hooks/useRealtimePredictions.ts(184,5): error TS2304: Cannot find name 'startAutoRefresh'.
+frontend/src/hooks/useRealtimePredictions.ts(187,7): error TS2304: Cannot find name 'disconnectWebSocket'.
+frontend/src/hooks/useRealtimePredictions.ts(188,7): error TS2304: Cannot find name 'stopAutoRefresh'.
+frontend/src/hooks/useRealtimePredictions.ts(190,7): error TS2304: Cannot find name 'fetchPredictions'.
+frontend/src/hooks/useRealtimePredictions.ts(190,25): error TS2304: Cannot find name 'connectWebSocket'.
+frontend/src/hooks/useRealtimePredictions.ts(190,43): error TS2304: Cannot find name 'startAutoRefresh'.
+frontend/src/hooks/useRealtimePredictions.ts(190,61): error TS2304: Cannot find name 'disconnectWebSocket'.
+frontend/src/hooks/useRealtimePredictions.ts(190,82): error TS2304: Cannot find name 'stopAutoRefresh'.
+frontend/src/hooks/useRealtimePredictions.ts(194,5): error TS2304: Cannot find name 'startAutoRefresh'.
+frontend/src/hooks/useRealtimePredictions.ts(195,15): error TS2304: Cannot find name 'startAutoRefresh'.
+frontend/src/hooks/useRealtimePredictions.ts(203,5): error TS18004: No value exists in scope for the shorthand property 'fetchPredictions'. Either declare one or provide an initializer.
+frontend/src/hooks/useRealtimePredictions.ts(204,5): error TS18004: No value exists in scope for the shorthand property 'makePrediction'. Either declare one or provide an initializer.
+frontend/src/hooks/useRealtimePredictions.ts(205,5): error TS18004: No value exists in scope for the shorthand property 'updateConfig'. Either declare one or provide an initializer.
+frontend/src/hooks/useRealtimePredictions.ts(206,5): error TS18004: No value exists in scope for the shorthand property 'refreshPredictions'. Either declare one or provide an initializer.
+frontend/src/hooks/useRealtimePredictions.ts(207,5): error TS18004: No value exists in scope for the shorthand property 'getPredictionsByGame'. Either declare one or provide an initializer.
+frontend/src/hooks/useRealtimePredictions.ts(208,5): error TS18004: No value exists in scope for the shorthand property 'getPredictionsBySport'. Either declare one or provide an initializer.
+frontend/src/hooks/useRealtimePredictions.ts(209,5): error TS18004: No value exists in scope for the shorthand property 'startAutoRefresh'. Either declare one or provide an initializer.
+frontend/src/hooks/useRealtimePredictions.ts(210,5): error TS18004: No value exists in scope for the shorthand property 'stopAutoRefresh'. Either declare one or provide an initializer.
+frontend/src/hooks/useRealtimePredictions.ts(214,16): error TS2552: Cannot find name 'useRealtimePredictions'. Did you mean '_useRealtimePredictions'?
+frontend/src/hooks/useSmartAlerts.ts(91,36): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useSmartAlerts.ts(92,12): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(97,27): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(98,17): error TS2304: Cannot find name 'data'.
+frontend/src/hooks/useSmartAlerts.ts(101,16): error TS2304: Cannot find name 'errorMessage'.
+frontend/src/hooks/useSmartAlerts.ts(110,36): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useSmartAlerts.ts(111,11): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(112,15): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(125,36): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useSmartAlerts.ts(126,11): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(127,15): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(138,36): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useSmartAlerts.ts(139,11): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(140,15): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(153,36): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useSmartAlerts.ts(154,11): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(155,15): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(168,24): error TS2304: Cannot find name 'updatedPrefs'.
+frontend/src/hooks/useSmartAlerts.ts(170,38): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useSmartAlerts.ts(171,13): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(172,17): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(172,55): error TS2304: Cannot find name 'updatedPrefs'.
+frontend/src/hooks/useSmartAlerts.ts(176,65): error TS2304: Cannot find name 'updatedPrefs'.
+frontend/src/hooks/useSmartAlerts.ts(187,38): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useSmartAlerts.ts(188,14): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(192,30): error TS2304: Cannot find name 'notificationService'.
+frontend/src/hooks/useSmartAlerts.ts(193,19): error TS2345: Argument of type '(prev: SmartAlert[]) => (((message?: any) => void) | SmartAlert)[]' is not assignable to parameter of type 'SetStateAction<SmartAlert[]>'.
+  Type '(prev: SmartAlert[]) => (((message?: any) => void) | SmartAlert)[]' is not assignable to type '(prevState: SmartAlert[]) => SmartAlert[]'.
+    Type '(((message?: any) => void) | SmartAlert)[]' is not assignable to type 'SmartAlert[]'.
+      Type '((message?: any) => void) | SmartAlert' is not assignable to type 'SmartAlert'.
+        Type '(message?: any) => void' is not assignable to type 'SmartAlert'.
+frontend/src/hooks/useSmartAlerts.ts(206,26): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useSmartAlerts.ts(207,12): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useSmartAlerts.ts(212,7): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useSmartAlerts.ts(214,11): error TS2304: Cannot find name 'createAlert'.
+frontend/src/hooks/useSmartAlerts.ts(218,30): error TS2339: Property 'value' does not exist on type 'unknown'.
+frontend/src/hooks/useSmartAlerts.ts(219,25): error TS2339: Property 'sport' does not exist on type 'unknown'.
+frontend/src/hooks/useSmartAlerts.ts(220,26): error TS2339: Property 'gameId' does not exist on type 'unknown'.
+frontend/src/hooks/useSmartAlerts.ts(235,7): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useSmartAlerts.ts(238,25): error TS2339: Property 'movement' does not exist on type 'unknown'.
+frontend/src/hooks/useSmartAlerts.ts(240,11): error TS2304: Cannot find name 'createAlert'.
+frontend/src/hooks/useSmartAlerts.ts(244,42): error TS2339: Property 'movement' does not exist on type 'unknown'.
+frontend/src/hooks/useSmartAlerts.ts(245,25): error TS2339: Property 'sport' does not exist on type 'unknown'.
+frontend/src/hooks/useSmartAlerts.ts(246,26): error TS2339: Property 'gameId' does not exist on type 'unknown'.
+frontend/src/hooks/useSmartAlerts.ts(253,7): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useSmartAlerts.ts(255,11): error TS2304: Cannot find name 'createAlert'.
+frontend/src/hooks/useSmartAlerts.ts(259,30): error TS2339: Property 'playerName' does not exist on type 'unknown'.
+frontend/src/hooks/useSmartAlerts.ts(259,50): error TS2339: Property 'status' does not exist on type 'unknown'.
+frontend/src/hooks/useSmartAlerts.ts(260,25): error TS2339: Property 'sport' does not exist on type 'unknown'.
+frontend/src/hooks/useSmartAlerts.ts(261,28): error TS2339: Property 'playerId' does not exist on type 'unknown'.
+frontend/src/hooks/useSmartAlerts.ts(270,20): error TS2304: Cannot find name 'createAlert'.
+frontend/src/hooks/useSmartAlerts.ts(293,9): error TS2304: Cannot find name 'savedPrefs'.
+frontend/src/hooks/useSmartAlerts.ts(295,35): error TS2304: Cannot find name 'savedPrefs'.
+frontend/src/hooks/useSmartAlerts.ts(301,5): error TS2304: Cannot find name 'fetchAlerts'.
+frontend/src/hooks/useSmartAlerts.ts(302,5): error TS2304: Cannot find name 'subscribeToAlerts'.
+frontend/src/hooks/useSmartAlerts.ts(303,7): error TS2304: Cannot find name 'fetchAlerts'.
+frontend/src/hooks/useSmartAlerts.ts(303,20): error TS2304: Cannot find name 'subscribeToAlerts'.
+frontend/src/hooks/useSmartAlerts.ts(310,5): error TS18004: No value exists in scope for the shorthand property 'fetchAlerts'. Either declare one or provide an initializer.
+frontend/src/hooks/useSmartAlerts.ts(311,5): error TS18004: No value exists in scope for the shorthand property 'markAsRead'. Either declare one or provide an initializer.
+frontend/src/hooks/useSmartAlerts.ts(312,5): error TS18004: No value exists in scope for the shorthand property 'markAllAsRead'. Either declare one or provide an initializer.
+frontend/src/hooks/useSmartAlerts.ts(313,5): error TS18004: No value exists in scope for the shorthand property 'dismissAlert'. Either declare one or provide an initializer.
+frontend/src/hooks/useSmartAlerts.ts(314,5): error TS18004: No value exists in scope for the shorthand property 'clearAlerts'. Either declare one or provide an initializer.
+frontend/src/hooks/useSmartAlerts.ts(315,5): error TS18004: No value exists in scope for the shorthand property 'updatePreferences'. Either declare one or provide an initializer.
+frontend/src/hooks/useSmartAlerts.ts(316,5): error TS18004: No value exists in scope for the shorthand property 'createAlert'. Either declare one or provide an initializer.
+frontend/src/hooks/useSmartAlerts.ts(317,5): error TS18004: No value exists in scope for the shorthand property 'getUnreadCount'. Either declare one or provide an initializer.
+frontend/src/hooks/useSmartAlerts.ts(318,5): error TS18004: No value exists in scope for the shorthand property 'getAlertsByType'. Either declare one or provide an initializer.
+frontend/src/hooks/useSmartAlerts.ts(319,5): error TS18004: No value exists in scope for the shorthand property 'getAlertsByPriority'. Either declare one or provide an initializer.
+frontend/src/hooks/useSmartAlerts.ts(323,16): error TS2552: Cannot find name 'useSmartAlerts'. Did you mean '_useSmartAlerts'?
+frontend/src/hooks/useSpecialistData.ts(14,27): error TS2304: Cannot find name 'sport'.
+frontend/src/hooks/useSpecialistData.ts(14,34): error TS2304: Cannot find name 'date'.
+frontend/src/hooks/useSpecialistData.ts(15,61): error TS2304: Cannot find name 'sport'.
+frontend/src/hooks/useSpecialistData.ts(15,68): error TS2304: Cannot find name 'date'.
+frontend/src/hooks/useSpecialistData.ts(16,22): error TS2304: Cannot find name 'sport'.
+frontend/src/hooks/useSpecialistData.ts(27,29): error TS2304: Cannot find name 'eventId'.
+frontend/src/hooks/useSpecialistData.ts(27,38): error TS2304: Cannot find name 'market'.
+frontend/src/hooks/useSpecialistData.ts(28,50): error TS2304: Cannot find name 'eventId'.
+frontend/src/hooks/useSpecialistData.ts(28,59): error TS2304: Cannot find name 'market'.
+frontend/src/hooks/useSpecialistData.ts(29,22): error TS2304: Cannot find name 'eventId'.
+frontend/src/hooks/useUnifiedBetting.ts(86,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useUnifiedBetting.ts(87,12): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(93,9): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(94,9): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(95,9): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(96,9): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(110,16): error TS2304: Cannot find name 'errorMessage'.
+frontend/src/hooks/useUnifiedBetting.ts(119,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useUnifiedBetting.ts(120,12): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(133,9): error TS18004: No value exists in scope for the shorthand property 'stake'. Either declare one or provide an initializer.
+frontend/src/hooks/useUnifiedBetting.ts(137,30): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(137,54): error TS2304: Cannot find name 'betData'.
+frontend/src/hooks/useUnifiedBetting.ts(139,11): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useUnifiedBetting.ts(147,15): error TS2304: Cannot find name 'refreshActiveBets'.
+frontend/src/hooks/useUnifiedBetting.ts(150,14): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useUnifiedBetting.ts(159,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useUnifiedBetting.ts(160,12): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(164,30): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(166,11): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useUnifiedBetting.ts(173,14): error TS2304: Cannot find name 'success'.
+frontend/src/hooks/useUnifiedBetting.ts(182,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useUnifiedBetting.ts(183,12): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(187,29): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(189,11): error TS2304: Cannot find name 'result'.
+frontend/src/hooks/useUnifiedBetting.ts(193,80): error TS2304: Cannot find name 'result'.
+frontend/src/hooks/useUnifiedBetting.ts(195,35): error TS2304: Cannot find name 'result'.
+frontend/src/hooks/useUnifiedBetting.ts(199,14): error TS2304: Cannot find name 'result'.
+frontend/src/hooks/useUnifiedBetting.ts(209,33): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useUnifiedBetting.ts(210,14): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(215,9): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(215,34): error TS2304: Cannot find name 'updatedSettings'.
+frontend/src/hooks/useUnifiedBetting.ts(219,21): error TS2304: Cannot find name 'updatedSettings'.
+frontend/src/hooks/useUnifiedBetting.ts(233,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useUnifiedBetting.ts(234,12): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(236,36): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(239,24): error TS2304: Cannot find name 'opportunities'.
+frontend/src/hooks/useUnifiedBetting.ts(248,31): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useUnifiedBetting.ts(249,12): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(251,33): error TS2304: Cannot find name 'bettingService'.
+frontend/src/hooks/useUnifiedBetting.ts(254,21): error TS2304: Cannot find name 'activeBets'.
+frontend/src/hooks/useUnifiedBetting.ts(263,26): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useUnifiedBetting.ts(264,12): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useUnifiedBetting.ts(267,23): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useUnifiedBetting.ts(275,23): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useUnifiedBetting.ts(279,29): error TS2339: Property 'betId' does not exist on type 'unknown'.
+frontend/src/hooks/useUnifiedBetting.ts(279,55): error TS2339: Property 'updates' does not exist on type 'unknown'.
+frontend/src/hooks/useUnifiedBetting.ts(285,27): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useUnifiedBetting.ts(288,25): error TS2339: Property 'balance' does not exist on type 'unknown'.
+frontend/src/hooks/useUnifiedBetting.ts(289,29): error TS2339: Property 'dailyProfit' does not exist on type 'unknown'.
+frontend/src/hooks/useUnifiedBetting.ts(293,7): error TS2304: Cannot find name 'wsSubscriptions'.
+frontend/src/hooks/useUnifiedBetting.ts(293,34): error TS2304: Cannot find name 'oppSub'.
+frontend/src/hooks/useUnifiedBetting.ts(293,42): error TS2304: Cannot find name 'betSub'.
+frontend/src/hooks/useUnifiedBetting.ts(293,50): error TS2304: Cannot find name 'balanceSub'.
+frontend/src/hooks/useUnifiedBetting.ts(301,26): error TS2304: Cannot find name 'masterServiceRegistry'.
+frontend/src/hooks/useUnifiedBetting.ts(302,11): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useUnifiedBetting.ts(302,24): error TS2304: Cannot find name 'wsSubscriptions'.
+frontend/src/hooks/useUnifiedBetting.ts(303,9): error TS2304: Cannot find name 'wsSubscriptions'.
+frontend/src/hooks/useUnifiedBetting.ts(303,48): error TS2304: Cannot find name 'wsService'.
+frontend/src/hooks/useUnifiedBetting.ts(304,9): error TS2304: Cannot find name 'wsSubscriptions'.
+frontend/src/hooks/useUnifiedBetting.ts(314,25): error TS2304: Cannot find name 'bankroll'.
+frontend/src/hooks/useUnifiedBetting.ts(319,28): error TS2304: Cannot find name 'edge'.
+frontend/src/hooks/useUnifiedBetting.ts(319,35): error TS2304: Cannot find name 'bankroll'.
+frontend/src/hooks/useUnifiedBetting.ts(319,48): error TS2304: Cannot find name 'odds'.
+frontend/src/hooks/useUnifiedBetting.ts(328,34): error TS2304: Cannot find name 'kellyStake'.
+frontend/src/hooks/useUnifiedBetting.ts(328,47): error TS2304: Cannot find name 'riskFactors'.
+frontend/src/hooks/useUnifiedBetting.ts(330,23): error TS2304: Cannot find name 'conservativeKelly'.
+frontend/src/hooks/useUnifiedBetting.ts(330,42): error TS2304: Cannot find name 'maxStake'.
+frontend/src/hooks/useUnifiedBetting.ts(349,5): error TS2304: Cannot find name 'initializeBetting'.
+frontend/src/hooks/useUnifiedBetting.ts(350,5): error TS2304: Cannot find name 'subscribeToUpdates'.
+frontend/src/hooks/useUnifiedBetting.ts(353,7): error TS2304: Cannot find name 'unsubscribeFromUpdates'.
+frontend/src/hooks/useUnifiedBetting.ts(355,7): error TS2304: Cannot find name 'initializeBetting'.
+frontend/src/hooks/useUnifiedBetting.ts(355,26): error TS2304: Cannot find name 'subscribeToUpdates'.
+frontend/src/hooks/useUnifiedBetting.ts(355,46): error TS2304: Cannot find name 'unsubscribeFromUpdates'.
+frontend/src/hooks/useUnifiedBetting.ts(361,5): error TS18004: No value exists in scope for the shorthand property 'placeBet'. Either declare one or provide an initializer.
+frontend/src/hooks/useUnifiedBetting.ts(362,5): error TS18004: No value exists in scope for the shorthand property 'cancelBet'. Either declare one or provide an initializer.
+frontend/src/hooks/useUnifiedBetting.ts(363,5): error TS18004: No value exists in scope for the shorthand property 'cashoutBet'. Either declare one or provide an initializer.
+frontend/src/hooks/useUnifiedBetting.ts(364,5): error TS18004: No value exists in scope for the shorthand property 'updateSettings'. Either declare one or provide an initializer.
+frontend/src/hooks/useUnifiedBetting.ts(365,5): error TS18004: No value exists in scope for the shorthand property 'refreshOpportunities'. Either declare one or provide an initializer.
+frontend/src/hooks/useUnifiedBetting.ts(366,5): error TS18004: No value exists in scope for the shorthand property 'refreshActiveBets'. Either declare one or provide an initializer.
+frontend/src/hooks/useUnifiedBetting.ts(367,5): error TS18004: No value exists in scope for the shorthand property 'calculateOptimalStake'. Either declare one or provide an initializer.
+frontend/src/hooks/useUnifiedBetting.ts(368,5): error TS18004: No value exists in scope for the shorthand property 'getFilteredOpportunities'. Either declare one or provide an initializer.
+frontend/src/hooks/useUnifiedBetting.ts(369,5): error TS18004: No value exists in scope for the shorthand property 'initializeBetting'. Either declare one or provide an initializer.
+frontend/src/hooks/useUnifiedBetting.ts(373,16): error TS2552: Cannot find name 'useUnifiedBetting'. Did you mean '_useUnifiedBetting'?
+frontend/src/services/analytics/AnalyticsService.ts(19,10): error TS2724: '"../api/client"' has no exported member named '_apiClient'. Did you mean 'apiClient'?
+frontend/src/services/api/client.ts(74,9): error TS2578: Unused '@ts-expect-error' directive.
+frontend/src/services/unified/ApiService.ts(215,57): error TS2339: Property 'entries' does not exist on type 'Headers'.
+frontend/src/services/unified/UnifiedAnalyticsService.ts(38,7): error TS2740: Type '{}' is missing the following properties from type 'UnifiedServiceRegistry': services, register, get, has, and 3 more.
+frontend/src/services/unified/UnifiedAnalyticsService.ts(340,40): error TS2339: Property 'getRecentBets' does not exist on type 'UnifiedBettingService'.
+frontend/src/services/unified/UnifiedAnalyticsService.ts(341,33): error TS2339: Property 'getRecentBets' does not exist on type 'UnifiedBettingService'.
+frontend/src/services/unified/UnifiedAnalyticsService.ts(347,43): error TS2339: Property 'getRecentPredictions' does not exist on type 'UnifiedPredictionService'.
+frontend/src/services/unified/UnifiedAnalyticsService.ts(348,36): error TS2339: Property 'getRecentPredictions' does not exist on type 'UnifiedPredictionService'.
+frontend/src/services/unified/UnifiedAnalyticsService.ts(352,39): error TS2339: Property 'getRecentOpportunities' does not exist on type 'UnifiedPredictionService'.
+frontend/src/services/unified/UnifiedAnalyticsService.ts(353,36): error TS2339: Property 'getRecentOpportunities' does not exist on type 'UnifiedPredictionService'.
+frontend/src/utils/AnalysisFramework.ts(37,30): error TS2339: Property 'getInstance' does not exist on type 'typeof EventBus'.
+frontend/src/utils/DataPipeline.ts(132,30): error TS2339: Property 'getInstance' does not exist on type 'typeof EventBus'.
+frontend/src/utils/DataPipeline.ts(142,19): error TS2339: Property 'publish' does not exist on type 'EventBus'.
+frontend/src/utils/DataPipeline.ts(162,19): error TS2339: Property 'publish' does not exist on type 'EventBus'.
+frontend/src/utils/DataPipeline.ts(214,32): error TS2339: Property 'publish' does not exist on type 'EventBus'.
+frontend/src/utils/DataPipeline.ts(215,23): error TS2339: Property 'publish' does not exist on type 'EventBus'.
+frontend/src/utils/DataPipeline.ts(227,32): error TS2339: Property 'publish' does not exist on type 'EventBus'.
+frontend/src/utils/DataPipeline.ts(228,23): error TS2339: Property 'publish' does not exist on type 'EventBus'.
+frontend/src/utils/FeatureComposition.ts(40,30): error TS2339: Property 'getInstance' does not exist on type 'typeof EventBus'.
+frontend/src/utils/FeatureComposition.ts(125,30): error TS2339: Property 'getInstance' does not exist on type 'typeof EventBus'.
+frontend/src/utils/StrategyComposition.ts(49,30): error TS2339: Property 'getInstance' does not exist on type 'typeof EventBus'.

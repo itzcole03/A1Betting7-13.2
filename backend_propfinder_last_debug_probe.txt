@@ -1,0 +1,16 @@
+Invoke-RestMethod: 
+{
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "E4040_NOT_FOUND",
+    "message": "Not Found"
+  },
+  "meta": {
+    "timestamp": "2025-10-11T01:54:58.679972",
+    "severity": "LOW",
+    "category": "CLIENT",
+    "retryable": false
+  }
+}
+

@@ -1,122 +1,66 @@
-// Mock useSimplePropOllamaData to provide all required actions
-jest.mock('../components/hooks/useSimplePropOllamaData', () => ({
+jest.mock('axios', () => ({
   __esModule: true,
-  useSimplePropOllamaData: ({ state, actions }: any) => ({
-    fetchData: jest.fn(),
-    // Removed invalid import inside object
-    // actions object with all required functions
-    actions: {
-      setIsLoading: jest.fn(),
-      setError: jest.fn(),
-      setLoadingMessage: jest.fn(),
-      setProjections: jest.fn(),
-    },
-  }),
+  default: {
+    get: jest.fn(() => Promise.resolve({ data: { status: 'ok' } })),
+  },
 }));
-// Mock FeaturedPropsService to return empty array for all fetches
-jest.mock('../services/unified/FeaturedPropsService', () => ({
+
+jest.mock('../hooks/usePropFinderData', () => ({
   __esModule: true,
-  fetchFeaturedProps: jest.fn(async () => []),
-  fetchBatchPredictions: jest.fn(async () => []),
-  mockProps: [],
+  usePropFinderData: jest.fn(),
 }));
 
 import { render, screen } from '@testing-library/react';
-import { act } from 'react';
-import '../../../jest.setup.e2e.js';
-import * as backendDiscoveryModule from '../services/backendDiscovery';
-import * as getBackendUrlModule from '../utils/getBackendUrl';
-import { setupBackendMocks } from './mocks/backend';
-jest.mock('../components/hooks/usePropOllamaState', () => ({
-  __esModule: true,
-  usePropOllamaState: () => [
-    {
-      projections: [],
-      isLoading: false,
-      filters: { searchTerm: '', selectedSport: 'MLB' },
-      sorting: { sortBy: 'default' },
-      displayOptions: { expandedRowKey: null, useVirtualization: false },
-      selectedProps: [],
-      entryAmount: 0,
-      enhancedAnalysisCache: new Map(),
-      loadingAnalysis: new Set(),
-      connectionHealth: { isHealthy: true, latency: 0, lastChecked: Date.now() },
-      loadingStage: { stage: 'complete' },
-      loadingMessage: '',
-      upcomingGames: [],
-      selectedGame: null,
-    },
-    {
-      updateFilters: jest.fn(),
-      updateSorting: jest.fn(),
-      setSelectedGame: jest.fn(),
-      updateDisplayOptions: jest.fn(),
-      removeSelectedProp: jest.fn(),
-      setEntryAmount: jest.fn(),
-      setSelectedProps: jest.fn(),
-      actions: {
-        setIsLoading: jest.fn(),
-        setError: jest.fn(),
-        setLoadingMessage: jest.fn(),
-        setProjections: jest.fn(),
-      },
-    },
-  ],
-}));
+import axios from 'axios';
+import { MemoryRouter } from 'react-router-dom';
+import UserFriendlyApp from '../components/user-friendly/UserFriendlyApp';
+import { usePropFinderData } from '../hooks/usePropFinderData';
+
+const usePropFinderDataMock = usePropFinderData as jest.Mock;
 
 describe('App E2E - Empty State', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Setup backend mocks
-    setupBackendMocks({ emptyFeaturedProps: true });
+    (axios.get as jest.Mock).mockResolvedValue({ data: { status: 'ok' } });
 
-    // Mock getBackendUrl to return a consistent URL
-    jest.spyOn(getBackendUrlModule, 'getBackendUrl').mockReturnValue('http://localhost:8000');
-    // Mock discoverBackend to resolve to null by default
-    if (!Object.getOwnPropertyDescriptor(backendDiscoveryModule, 'discoverBackend')?.get) {
-      jest.spyOn(backendDiscoveryModule, 'discoverBackend').mockResolvedValue(null);
-    }
-
-    // Mock localStorage.getItem using Object.defineProperty for Jest compatibility
-    Object.defineProperty(window.localStorage, 'getItem', {
-      configurable: true,
-      value: (key: string) => {
-        if (key === 'onboardingComplete') return 'true';
-        if (key === 'user')
-          return JSON.stringify({ id: 'test', email: 'test@example.com', role: 'user' });
-        if (key === 'token') return 'test-token';
-        return null;
+    usePropFinderDataMock.mockReturnValue({
+      opportunities: [],
+      stats: {
+        total_opportunities: 0,
+        avg_confidence: 0,
+        max_edge: 0,
       },
+      loading: false,
+      error: null,
+      bookmarkOpportunity: jest.fn(),
+      refreshData: jest.fn(),
+      isAutoRefreshEnabled: false,
+      toggleAutoRefresh: jest.fn(),
+      updateFilters: jest.fn(),
+      filters: {},
+      searchQuery: '',
+      setSearchQuery: jest.fn(),
+      lastUpdated: null,
     });
+
+    window.localStorage.setItem('onboardingComplete', 'true');
+    window.localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 'test-user', email: 'test@example.com', role: 'user', permissions: [] })
+    );
+    window.localStorage.setItem('token', 'test-token');
   });
 
-  it('shows empty state if no enhanced bets are returned', async () => {
-    jest.useFakeTimers();
-    try {
-      // Ensure the app loads the legacy PropOllama route so the empty-state component is rendered
-      window.history.pushState({}, 'Test', '/legacy-propollama');
-      const App = (await import('../App')).default;
-      await act(async () => {
-        render(<App />);
-        jest.runAllTimers();
-      });
-      // Prefer a data-testid if present, otherwise fallback to text match
-      let emptyState = null;
-      try {
-        emptyState = await screen.findByTestId('empty-props', {}, { timeout: 2000 });
-      } catch (err) {
-        // Try alternate testid used by some components
-        try {
-          emptyState = await screen.findByTestId('empty-state', {}, { timeout: 2000 });
-  } catch {
-          // fallback to text matcher used historically
-          emptyState = await screen.findByText(/No props found|No enhanced props|No results/i, {}, { timeout: 5000 });
-        }
-      }
-      expect(emptyState).toBeDefined();
-    } finally {
-      jest.useRealTimers();
-    }
-  }, 10000);
+  it('shows empty state on PropFinder dashboard when no opportunities are returned', async () => {
+    render(
+      <MemoryRouter initialEntries={['/propfinder']}>
+        <UserFriendlyApp />
+      </MemoryRouter>
+    );
+
+    expect(
+      await screen.findByText(/No opportunities match your current filters/i)
+    ).toBeInTheDocument();
+  });
 });

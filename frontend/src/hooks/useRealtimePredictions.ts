@@ -2,10 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface PredictionData {
   id: string;
-  sport: string;
-  gameId: string;
-  market: string;
-  prediction: number;
   confidence: number;
   modelUsed: string;
   factors: unknown[];
@@ -37,7 +33,7 @@ export const _useRealtimePredictions = () => {
     minConfidence: 0.6,
   });
 
-  const _fetchPredictions = useCallback(
+  const fetchPredictions = useCallback(
     async (filters?: unknown) => {
       try {
         setLoading(true);
@@ -211,4 +207,6 @@ export const _useRealtimePredictions = () => {
   };
 };
 
-export default useRealtimePredictions;
+export const useRealtimePredictions = _useRealtimePredictions;
+
+export default _useRealtimePredictions;

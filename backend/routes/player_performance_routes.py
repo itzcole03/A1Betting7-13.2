@@ -9,6 +9,7 @@ from fastapi import APIRouter, HTTPException, Query
 from backend.core.response_models import ResponseBuilder
 from backend.services.player_performance_service import get_player_performance_service
 from backend.models.player_models import PlayerPerformanceResponse
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/players", tags=["Player Performance"])
@@ -120,9 +121,7 @@ async def get_available_markets(
     try:
         valid_sports = {"MLB", "NBA", "NFL", "NHL"}
         if sport.upper() not in valid_sports:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid sport '{sport}'. Must be one of: {', '.join(valid_sports)}"
+            raise BusinessLogicException(f"Invalid sport '{sport}'. Must be one of: {', '.join(valid_sports, status_code=400)}"
             )
         
         markets = _get_valid_markets(sport.upper())
@@ -136,7 +135,7 @@ async def get_available_markets(
         raise
     except Exception as e:
         logger.error(f"Error in get_available_markets: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise BusinessLogicException(f"Internal server error: {str(e, status_code=500)}")
 
 
 def _get_valid_markets(sport: str) -> list:

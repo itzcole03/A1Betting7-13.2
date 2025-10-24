@@ -498,3 +498,7 @@ export const _useRealtimeData = () => useRealtimeData<RealtimeData>();
 
 // Export types
 export type { RealtimeData, UseRealtimeDataOptions, UseRealtimeDataResult, WebSocketMessage };
+
+// Backwards-compatible alias
+export const useRealtimeData = _useRealtimeData;
+export default _useRealtimeData;

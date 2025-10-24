@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks, @typescript-eslint/no-explicit-any, no-case-declarations */
 /**
  * Optimized PropOllama State Management with useReducer
  *
@@ -30,7 +31,7 @@ export interface PropOllamaReducerState {
   projections: FeaturedProp[];
   unifiedResponse: EnhancedBetsResponse | null;
   upcomingGames: UpcomingGame[];
-  selectedGame: { game_id: number; home: string; away: string } | null;
+  selectedGame: { game_id: string; home: string; away: string } | null;
 
   // UI State
   filters: PropFilters;
@@ -78,7 +79,7 @@ export type PropOllamaAction =
   | { type: 'SET_PROJECTIONS'; payload: FeaturedProp[] }
   | { type: 'SET_UNIFIED_RESPONSE'; payload: EnhancedBetsResponse | null }
   | { type: 'SET_UPCOMING_GAMES'; payload: UpcomingGame[] }
-  | { type: 'SET_SELECTED_GAME'; payload: { game_id: number; home: string; away: string } | null }
+  | { type: 'SET_SELECTED_GAME'; payload: { game_id: string; home: string; away: string } | null }
   | { type: 'UPDATE_FILTERS'; payload: Partial<PropFilters> }
   | { type: 'UPDATE_SORTING'; payload: Partial<PropSorting> }
   | { type: 'UPDATE_DISPLAY_OPTIONS'; payload: Partial<PropDisplayOptions> }
@@ -336,7 +337,7 @@ export interface PropOllamaReducerActions {
   setProjections: (projections: FeaturedProp[]) => void;
   setUnifiedResponse: (response: EnhancedBetsResponse | null) => void;
   setUpcomingGames: (games: UpcomingGame[]) => void;
-  setSelectedGame: (game: { game_id: number; home: string; away: string } | null) => void;
+  setSelectedGame: (game: { game_id: string; home: string; away: string } | null) => void;
   updateFilters: (filters: Partial<PropFilters>) => void;
   updateSorting: (sorting: Partial<PropSorting>) => void;
   updateDisplayOptions: (options: Partial<PropDisplayOptions>) => void;
@@ -412,7 +413,7 @@ export function usePropOllamaReducer(): [PropOllamaReducerState, PropOllamaReduc
       ),
 
       setSelectedGame: useCallback(
-        (game: { game_id: number; home: string; away: string } | null) =>
+        (game: { game_id: string; home: string; away: string } | null) =>
           dispatch({ type: 'SET_SELECTED_GAME', payload: game }),
         []
       ),

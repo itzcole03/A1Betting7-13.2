@@ -1,3 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="0" failures="0" errors="0" time="2.821">
+<testsuites name="jest tests" tests="9" failures="0" errors="0" time="3.008">
+  <testsuite name="App E2E" errors="0" failures="0" skipped="8" timestamp="2025-10-03T06:52:49" time="2.426" tests="9">
+    <testcase classname="App E2E renders the main headings and prop cards" name="App E2E renders the main headings and prop cards" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="App E2E shows error state if API returns error" name="App E2E shows error state if API returns error" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="App E2E opens navigation drawer and navigates via primary links" name="App E2E opens navigation drawer and navigates via primary links" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="App E2E renders quick navigation links and admin actions for privileged users" name="App E2E renders quick navigation links and admin actions for privileged users" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="App E2E navigates to EV feed via quick link and renders opportunities dashboard" name="App E2E navigates to EV feed via quick link and renders opportunities dashboard" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="App E2E opens Smart Alerts via navigation sidebar and renders alert manager" name="App E2E opens Smart Alerts via navigation sidebar and renders alert manager" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="App E2E navigates to arbitrage dashboard via quick link and renders opportunities" name="App E2E navigates to arbitrage dashboard via quick link and renders opportunities" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="App E2E hides admin quick actions when user lacks admin permissions" name="App E2E hides admin quick actions when user lacks admin permissions" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="App E2E signals navigation ready state and allows immediate subscriptions after mount" name="App E2E signals navigation ready state and allows immediate subscriptions after mount" time="0.229">
+    </testcase>
+  </testsuite>
 </testsuites>

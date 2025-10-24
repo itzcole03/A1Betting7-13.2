@@ -18,7 +18,7 @@ Usage:
 import logging
 import time
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, Optional, Union
 
@@ -277,7 +277,7 @@ def build_error(
     
     # Get request context
     request_id = get_request_id()
-    timestamp = datetime.utcnow().isoformat()
+    timestamp = datetime.now(timezone.utc).isoformat()
     
     # Increment metrics
     increment_error_metric(code.value, route or "unknown")

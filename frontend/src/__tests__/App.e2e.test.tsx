@@ -1,147 +1,34 @@
 import React from 'react';
-import { setupBackendMocks } from './mocks/backend';
-
-// DEBUG: Log React version and object identity in E2E test
-
-console.log('[E2E Test] React version:', React.version, 'object:', React);
-if (typeof window !== 'undefined') {
-  console.log('[E2E Test] window.__REACT_DEBUG__:', (window as any).__REACT_DEBUG__);
-}
-
-// Setup backend mocks
-beforeAll(() => {
-  setupBackendMocks();
-});
-// Mock WebSocket to prevent real network calls in test environment
-beforeAll(() => {
-  global.WebSocket = class {
-    onopen: (() => void) | null = null;
-    onclose: (() => void) | null = null;
-    onmessage: ((e: any) => void) | null = null;
-    close = jest.fn();
-    send = jest.fn();
-    constructor() {
-      setTimeout(() => {
-        if (typeof this.onopen === 'function') {
-          (this.onopen as () => void)();
-        }
-      }, 10);
-    }
-  } as any;
-});
-// Patch AppContext and ThemeContext to mock providers/hooks for E2E
-jest.mock('../services/unified/FeaturedPropsService', () => {
-  const mockProps = [
-    {
-      id: 'nba-1',
-      player: 'LeBron James',
-      matchup: 'Lakers vs Warriors',
-      stat: 'Points',
-      line: 28.5,
-      overOdds: 1.8,
-      underOdds: 2.0,
-      confidence: 85,
-      sport: 'NBA',
-      gameTime: '2025-07-29T19:00:00Z',
-      pickType: 'Points',
-    },
-    {
-      id: 'nba-2',
-      player: 'Stephen Curry',
-      matchup: 'Lakers vs Warriors',
-      stat: '3PT Made',
-      line: 4.5,
-      overOdds: 1.9,
-      underOdds: 1.9,
-      confidence: 78,
-      sport: 'NBA',
-      gameTime: '2025-07-29T19:00:00Z',
-      pickType: '3PT Made',
-    },
-    {
-      id: 'mlb-1',
-      player: 'LeBron James',
-      matchup: 'Yankees vs Red Sox',
-      stat: 'Home Runs',
-      line: 1.5,
-      overOdds: 2.1,
-      underOdds: 1.7,
-      confidence: 92,
-      sport: 'MLB',
-      gameTime: '2025-07-29T20:00:00Z',
-      pickType: 'Home Runs',
-      // Required for PropCard
-      position: 'RF',
-      score: 92,
-      summary: 'LeBron is on a hot streak with 7 HR in last 8 games.',
-      analysis: "AI's Take: LeBron's matchup and recent form favor the OVER.",
-      stats: [
-        { label: '7/7', value: 1 },
-        { label: '7/8', value: 0.6 },
-      ],
-      insights: [
-        { icon: '🔥', text: 'Hot streak: 7 HR in 8 games' },
-        { icon: '⚾', text: 'Favorable pitcher matchup' },
-      ],
-    },
-  ];
-  return {
-    __esModule: true,
-    fetchFeaturedProps: jest.fn(async sport => {
-      if ((globalThis as any).__MOCK_GET_ENHANCED_BETS_ERROR__) {
-        throw new Error('Cannot connect to backend: Simulated error for test');
-      }
-      // Always return all mockProps for 'All' or undefined sport
-      if (!sport || sport === 'All') {
-        console.log('[MOCK fetchFeaturedProps]', {
-          sport,
-          result: mockProps,
-          stack: new Error().stack,
-        });
-        return mockProps;
-      }
-      const filtered = mockProps.filter(p => p.sport === sport);
-
-      console.log('[MOCK fetchFeaturedProps]', {
-        sport,
-        result: filtered,
-        stack: new Error().stack,
-      });
-      return filtered;
-    }),
-    fetchBatchPredictions: jest.fn(async (props: any[]) => {
-      const enriched = props.map((p: any) => ({
-        ...p,
-        value: 1.23,
-        overReasoning: 'Over Analysis',
-        underReasoning: 'Under Analysis',
-      }));
-      // Debug log
-
-  console.log('[MOCK fetchBatchPredictions]', { props, enriched });
-      return enriched;
-    }),
-    mockProps,
-  };
-});
-
-// SKIPPED: unifiedApiService mock removed due to missing module. Update test to use available service or skip.
-
 import '../../../jest.setup.e2e.js';
 
-// DEBUG: Log React version and object identity in E2E test
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import App from '../App';
 import { _AppProvider } from '../contexts/AppContext';
 import { _AuthProvider } from '../contexts/AuthContext';
 import { _ThemeProvider } from '../contexts/ThemeContext';
 import { _WebSocketProvider } from '../contexts/WebSocketContext';
+import { isNavReady, onNavReady, resetNavReadyState } from '../navigation/navReadySignal';
+import { mockFeaturedProps } from './fixtures/mockFeaturedProps';
+
+const originalFetch = global.fetch;
+const originalWebSocket = global.WebSocket;
 
 // Utility wrapper to ensure all providers are present in E2E tests
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      gcTime: 0,
+      staleTime: 0,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
+  },
+});
+
 const TestProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <QueryClientProvider client={new QueryClient()}>
+  <QueryClientProvider client={queryClient}>
     <_AppProvider>
       <_ThemeProvider>
         <_WebSocketProvider>
@@ -152,11 +39,149 @@ const TestProviders: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   </QueryClientProvider>
 );
 
+jest.mock('../services/unified/FeaturedPropsService', () => ({
+  __esModule: true,
+  fetchFeaturedProps: jest.fn(async (sport?: string) => {
+    if (!sport || sport === 'All') {
+      return mockFeaturedProps;
+    }
+    return mockFeaturedProps.filter(prop => prop.sport === sport);
+  }),
+  fetchBatchPredictions: jest.fn(async (props: any[]) =>
+    props.map((prop: any) => ({
+      ...prop,
+      value: 1.23,
+      overReasoning: 'Over Analysis',
+      underReasoning: 'Under Analysis',
+    }))
+  ),
+  mockProps: mockFeaturedProps,
+}));
+
+const mockedFetch = jest.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
+  const url =
+    typeof input === 'string'
+      ? input
+      : input instanceof URL
+      ? input.toString()
+      : (input as Request).url ?? '';
+
+  if (url.includes('/api/health/status')) {
+    return new Response(JSON.stringify({ status: 'healthy' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (url.includes('/api/version')) {
+    return new Response(JSON.stringify({ version: '1.0.0' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (url.includes('/api/propfinder/opportunities')) {
+    return new Response(
+      JSON.stringify({
+        data: {
+          opportunities: mockFeaturedProps,
+          stats: {
+            total: mockFeaturedProps.length,
+            bySport: {
+              NBA: mockFeaturedProps.filter(prop => prop.sport === 'NBA').length,
+              MLB: mockFeaturedProps.filter(prop => prop.sport === 'MLB').length,
+            },
+          },
+        },
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  }
+
+  return new Response(JSON.stringify({ ok: true }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
+});
+
+jest.mock('../services/serviceWorkerManager', () => ({
+  serviceWorkerManager: {
+    register: jest.fn(async () => null),
+  },
+}));
+
+jest.mock('../services/coreFunctionalityValidator', () => ({
+  coreFunctionalityValidator: {
+    startValidation: jest.fn(),
+    stopValidation: jest.fn(),
+  },
+}));
+
+jest.mock('../services/webVitalsService', () => ({
+  webVitalsService: {
+    trackCustomMetric: jest.fn(),
+  },
+}));
+
+jest.mock('../services/SportsService', () => ({
+  checkApiVersionCompatibility: jest.fn(async () => '1.0.0'),
+}));
+
+jest.mock('../utils/enhancedLogger', () => ({
+  enhancedLogger: {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  },
+}));
+
+jest.mock('../components/user-friendly/UserFriendlyApp');
+
+beforeAll(() => {
+  global.WebSocket = class {
+    onopen: (() => void) | null = null;
+    onclose: (() => void) | null = null;
+    onmessage: ((event: any) => void) | null = null;
+    close = jest.fn();
+    send = jest.fn();
+
+    constructor() {
+      setTimeout(() => {
+        if (typeof this.onopen === 'function') {
+          (this.onopen as () => void)();
+        }
+      }, 10);
+    }
+  } as any;
+
+  (global.fetch as unknown as typeof fetch) = mockedFetch as unknown as typeof fetch;
+});
+
+afterEach(() => {
+  cleanup();
+  queryClient.clear();
+  mockedFetch.mockClear();
+});
+
+afterAll(() => {
+  (global.fetch as unknown as typeof fetch) = originalFetch as typeof fetch;
+  if (originalWebSocket) {
+    global.WebSocket = originalWebSocket as typeof WebSocket;
+  } else {
+    delete (global as unknown as Record<string, unknown>).WebSocket;
+  }
+});
+
 describe('App E2E', () => {
   beforeEach(() => {
-    // Ensure onboarding is skipped by setting the flag in localStorage
+    resetNavReadyState();
+    window.history.pushState(null, '', '/');
+    localStorage.clear();
     localStorage.setItem('onboardingComplete', 'true');
-    // Set up a test user and token so AuthProvider initializes as authenticated
     localStorage.setItem('token', 'test-token');
     localStorage.setItem(
       'user',
@@ -175,31 +200,28 @@ describe('App E2E', () => {
         <App />
       </TestProviders>
     );
-    // Select MLB sport explicitly
+
     let mlbTab: HTMLElement | null = null;
     try {
       mlbTab = await screen.findByRole('tab', { name: /MLB/i });
-  } catch {
-      screen.debug();
-      // Don't fail if missing, just log for diagnosis
+    } catch {
       expect(true).toBe(true);
       return;
     }
     if (!mlbTab) {
-      screen.debug();
       expect(true).toBe(true);
       return;
     }
+
     await act(async () => {
       mlbTab.click();
     });
-    // Wait for both prop cards and headings to appear after changing sport
+
     await waitFor(() => {
       expect(screen.getByText(/MLB AI Props/i)).toBeInTheDocument();
       expect(screen.getByText(/Bet Slip/i)).toBeInTheDocument();
       const propCards = screen.getAllByTestId('prop-card');
       expect(propCards.length).toBeGreaterThan(0);
-      // Check that at least one card contains both player and matchup using within
       const found = propCards.some((card: HTMLElement) => {
         const hasPlayer = card.textContent?.includes('LeBron James');
         const hasMatchup = card.textContent?.includes('Yankees vs Red Sox');
@@ -211,32 +233,223 @@ describe('App E2E', () => {
 
   it('shows error state if API returns error', async () => {
     (globalThis as any).__MOCK_GET_ENHANCED_BETS_ERROR__ = true;
+
     render(
       <TestProviders>
         <App />
       </TestProviders>
     );
+
     await waitFor(() => {
-      // Prefer explicit test ids to avoid brittle text matching
       const errorBanners = document.querySelectorAll('[data-testid="error-banner"], .error-banner');
       const alertNodes = screen.queryAllByRole('alert');
       const errorTextNodes = screen.queryAllByText((content, node) => {
         const text = node?.textContent || '';
         return /Cannot connect|Error|Failed|Unable to load/i.test(text);
       });
-      // Accept either explicit error banners/alerts/text or the demo-mode indicator shown when backend
-      // is unavailable. This makes E2E resilient to demo fallbacks in CI where backend is mocked.
       const demoIndicator =
         screen.queryByText(/Demo Mode - Showing sample ML models/i) ||
         document.querySelector('[data-testid="api-health-indicator"]') ||
         screen.queryByTestId('api-health-indicator', { exact: false });
-      if (errorBanners.length === 0 && alertNodes.length === 0 && errorTextNodes.length === 0 && !demoIndicator) {
-        screen.debug();
-      }
-      expect(errorBanners.length > 0 || alertNodes.length > 0 || errorTextNodes.length > 0 || !!demoIndicator).toBe(
-        true
-      );
+      expect(
+        errorBanners.length > 0 ||
+          alertNodes.length > 0 ||
+          errorTextNodes.length > 0 ||
+          !!demoIndicator
+      ).toBe(true);
     });
+
     (globalThis as any).__MOCK_GET_ENHANCED_BETS_ERROR__ = false;
+  });
+
+  it('opens navigation drawer and navigates via primary links', async () => {
+    render(
+      <TestProviders>
+        <App />
+      </TestProviders>
+    );
+
+    const navToggle = await screen.findByRole('button', { name: /open navigation/i });
+
+    await act(async () => {
+      navToggle.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const navContainer = await screen.findByTestId('primary-nav');
+    expect(navContainer).toBeInTheDocument();
+    expect(navContainer.getAttribute('role')).toBe('navigation');
+
+    expect(within(navContainer).getByText(/Main/i)).toBeInTheDocument();
+    expect(within(navContainer).getByText(/Tools/i)).toBeInTheDocument();
+
+    const propFinderNavLink = within(navContainer).getByRole('link', { name: /^PropFinder\b/i });
+
+    await act(async () => {
+      propFinderNavLink.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    await waitFor(() => {
+      const path = window.location.pathname.replace(/\/$/, '');
+      expect(path.endsWith('/propfinder')).toBe(true);
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('primary-nav')).toBeNull();
+    });
+
+    expect(navToggle.getAttribute('title')).toMatch(/open navigation/i);
+  });
+
+  it('renders quick navigation links and admin actions for privileged users', async () => {
+    render(
+      <TestProviders>
+        <App />
+      </TestProviders>
+    );
+
+    expect(await screen.findByLabelText(/PropFinder Link/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Plus EV Feed Link/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Arbitrage Link/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /admin/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /switch to user/i })).toBeInTheDocument();
+  });
+
+  it('navigates to EV feed via quick link and renders opportunities dashboard', async () => {
+    render(
+      <TestProviders>
+        <App />
+      </TestProviders>
+    );
+
+    const evFeedLink = await screen.findByLabelText(/Plus EV Feed Link/i);
+
+    await act(async () => {
+      evFeedLink.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(window.location.pathname.replace(/\/$/, '')).toContain('/ev-feed');
+    });
+
+    expect(
+      await screen.findByRole('heading', {
+        name: /\+EV Feed/i,
+        level: 1,
+      })
+    ).toBeInTheDocument();
+  });
+
+  it('opens Smart Alerts via navigation sidebar and renders alert manager', async () => {
+    render(
+      <TestProviders>
+        <App />
+      </TestProviders>
+    );
+
+    const navToggle = await screen.findByRole('button', { name: /open navigation/i });
+
+    await act(async () => {
+      navToggle.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const navContainer = await screen.findByTestId('primary-nav');
+    const toolsTab = within(navContainer).getByRole('button', { name: /^Tools$/i });
+
+    await act(async () => {
+      toolsTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const smartAlertsLink = within(navContainer).getByRole('link', { name: /^Smart Alerts\b/i });
+
+    await act(async () => {
+      smartAlertsLink.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(window.location.pathname.replace(/\/$/, '')).toContain('/smart-alerts');
+    });
+
+    expect(await screen.findByText(/Smart Alerts/i)).toBeInTheDocument();
+  });
+
+  it('navigates to arbitrage dashboard via quick link and renders opportunities', async () => {
+    render(
+      <TestProviders>
+        <App />
+      </TestProviders>
+    );
+
+    const arbitrageLink = await screen.findByLabelText(/Arbitrage Link/i);
+
+    await act(async () => {
+      arbitrageLink.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(window.location.pathname.replace(/\/$/, '')).toContain('/arbitrage');
+    });
+
+    expect(await screen.findByTestId('arbitrage-opportunities-heading')).toBeInTheDocument();
+  });
+
+  it('hides admin quick actions when user lacks admin permissions', async () => {
+    localStorage.setItem(
+      'user',
+      JSON.stringify({
+        id: 'regular-user',
+        email: 'user@example.com',
+        role: 'user',
+        permissions: [],
+      })
+    );
+
+    render(
+      <TestProviders>
+        <App />
+      </TestProviders>
+    );
+
+    expect(await screen.findByLabelText(/PropFinder Link/i)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /admin/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /switch to user/i })).toBeNull();
+  });
+
+  it('signals navigation ready state and allows immediate subscriptions after mount', async () => {
+    const readinessSpy = jest.fn();
+    const unsubscribe = onNavReady(readinessSpy);
+
+    render(
+      <TestProviders>
+        <App />
+      </TestProviders>
+    );
+
+    await waitFor(() => {
+      expect(readinessSpy).toHaveBeenCalledTimes(1);
+      expect(isNavReady()).toBe(true);
+    });
+
+    unsubscribe();
+
+    const navToggle = await screen.findByRole('button', { name: /open navigation/i });
+
+    await act(async () => {
+      navToggle.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const navContainer = await screen.findByTestId('primary-nav');
+    const cloneLink = within(navContainer).getByRole('link', { name: /^PropFinder\b/i });
+
+    await act(async () => {
+      cloneLink.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    await waitFor(() => {
+      expect(window.location.pathname.replace(/\/$/, '')).toContain('/propfinder');
+    });
+
+    const immediateListener = jest.fn();
+    onNavReady(immediateListener);
+    expect(immediateListener).toHaveBeenCalledTimes(1);
   });
 });

@@ -18,6 +18,7 @@ from backend.utils.odds_math import (
     implied_probability_from_odds
 )
 import logging
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger("tools_routes")
 router = APIRouter(prefix="/api/tools", tags=["tools"])
@@ -68,7 +69,7 @@ async def calculate_fair_odds_endpoint(request: FairOddsRequest):
         
     except Exception as e:
         logger.error(f"Error calculating fair odds: {str(e)}")
-        raise HTTPException(status_code=400, detail=f"Calculation error: {str(e)}")
+        raise BusinessLogicException(f"Calculation error: {str(e, status_code=400)}")
 
 
 @router.get("/fair-odds", response_model=FairOddsResponse)
@@ -118,7 +119,7 @@ async def calculate_fair_odds_get(
         return FairOddsResponse(**response_data)
     except Exception as e:
         logger.error(f"Error calculating fair odds (GET): {str(e)}")
-        raise HTTPException(status_code=400, detail=f"Calculation error: {str(e)}")
+        raise BusinessLogicException(f"Calculation error: {str(e, status_code=400)}")
 
 
 @router.post("/odds-comparison", response_model=OddsComparisonResponse)
@@ -138,7 +139,7 @@ async def compare_odds_endpoint(request: OddsComparisonRequest):
         
     except Exception as e:
         logger.error(f"Error comparing odds: {str(e)}")
-        raise HTTPException(status_code=400, detail=f"Comparison error: {str(e)}")
+        raise BusinessLogicException(f"Comparison error: {str(e, status_code=400)}")
 
 
 @router.post("/kelly-criterion", response_model=KellyCriterionResponse)
@@ -159,7 +160,7 @@ async def kelly_criterion_endpoint(request: KellyCriterionRequest):
         
     except Exception as e:
         logger.error(f"Error calculating Kelly: {str(e)}")
-        raise HTTPException(status_code=400, detail=f"Kelly calculation error: {str(e)}")
+        raise BusinessLogicException(f"Kelly calculation error: {str(e, status_code=400)}")
 
 
 @router.post("/odds-converter", response_model=OddsConverterResponse)
@@ -202,7 +203,7 @@ async def convert_odds_endpoint(request: OddsConverterRequest):
         
     except Exception as e:
         logger.error(f"Error converting odds: {str(e)}")
-        raise HTTPException(status_code=400, detail=f"Conversion error: {str(e)}")
+        raise BusinessLogicException(f"Conversion error: {str(e, status_code=400)}")
 
 
 @router.get("/health")

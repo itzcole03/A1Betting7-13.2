@@ -67,6 +67,66 @@ repos:
         args: ["-r", "backend/", "-f", "json", "-o", "bandit-report.json"]
         files: '^backend/.*\.py$'
 
+    - repo: local
+    hooks:
+      - id: block-sensitive-artifacts
+      name: Block sensitive artifacts
+      entry: python
+      language: system
+      pass_filenames: true
+      stages: [pre-commit]
+      args:
+        - -c
+        - |
+        import sys
+        from pathlib import Path
+
+        FORBIDDEN_NAMES = {
+          "prizepicks_cookies.json",
+          "chat_history.db",
+          "users.db",
+          "user_auth.db",
+          "mlflow.db",
+          "a1betting.db",
+          "a1betting_fallback.db",
+          "a1betting_line_movement.db",
+          "a1betting_test.db",
+        }
+        FORBIDDEN_SUFFIXES = {".db", ".sqlite", ".sqlite3"}
+        FORBIDDEN_KEYWORDS = {"_cookies.json", "session_cookies.json"}
+        FORBIDDEN_LOG_SUFFIXES = {".log", ".jsonl"}
+
+        blocked = []
+
+        for arg in sys.argv[1:]:
+          path = Path(arg)
+          name_lower = path.name.lower()
+          suffix_lower = path.suffix.lower()
+
+          if name_lower in FORBIDDEN_NAMES:
+            blocked.append(path)
+            continue
+
+          if any(name_lower.endswith(keyword) for keyword in FORBIDDEN_KEYWORDS):
+            blocked.append(path)
+            continue
+
+          if suffix_lower in FORBIDDEN_SUFFIXES:
+            blocked.append(path)
+            continue
+
+          if suffix_lower in FORBIDDEN_LOG_SUFFIXES and "docs" not in {p.name.lower() for p in path.parents}:
+            blocked.append(path)
+            continue
+
+        if blocked:
+          print("❌ Sensitive artifacts detected in staged files:")
+          for item in blocked:
+            print(f"  - {item}")
+          print("\nMove these files to secure storage (e.g., /data outside git) or provide sanitized fixtures before committing.")
+          sys.exit(1)
+
+        print("✅ No sensitive artifacts staged for commit.")
   # JavaScript/TypeScript specific hooks
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v4.0.0-alpha.8

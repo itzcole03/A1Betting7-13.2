@@ -1,0 +1,52 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - 'button "Dev: View Dashboard" [ref=e4] [cursor=pointer]'
+  - generic [ref=e11]:
+    - generic [ref=e12]:
+      - generic [ref=e14]: PropOllama
+      - heading "PropOllama" [level=1] [ref=e15]
+      - paragraph [ref=e16]: AI Prop Research & Analytics
+    - generic [ref=e18]:
+      - button "Sign In" [ref=e19] [cursor=pointer]
+      - button "Sign Up" [ref=e20] [cursor=pointer]
+      - button "Request Access" [ref=e21] [cursor=pointer]
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - img [ref=e27]
+        - heading "Welcome Back" [level=2] [ref=e29]
+        - paragraph [ref=e30]: Sign in to access your A1 Betting dashboard
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - generic [ref=e33]: Email Address
+          - textbox "Email Address" [ref=e34]:
+            - /placeholder: your.email@company.com
+            - text: ncr@a1betting.com
+        - generic [ref=e35]:
+          - generic [ref=e36]: Password
+          - generic [ref=e37]:
+            - textbox "Password" [ref=e38]:
+              - /placeholder: Enter your password
+              - text: A1Betting1337!
+            - button [ref=e39] [cursor=pointer]:
+              - img [ref=e40]
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - checkbox "Remember me" [ref=e45]
+            - generic [ref=e46]: Remember me
+          - button "Forgot password?" [ref=e47] [cursor=pointer]
+        - button "Sign In" [ref=e48] [cursor=pointer]:
+          - img [ref=e49]
+          - generic [ref=e52]: Sign In
+      - generic [ref=e53]:
+        - paragraph [ref=e54]: Don't have an account yet?
+        - button "Request Access" [ref=e55] [cursor=pointer]
+      - paragraph [ref=e57]: By signing in, you agree to our terms of service and privacy policy.
+    - generic [ref=e58]:
+      - paragraph [ref=e59]: © 2025 PropOllama. All rights reserved.
+      - generic [ref=e60]:
+        - button "Terms" [ref=e61] [cursor=pointer]
+        - button "Privacy" [ref=e62] [cursor=pointer]
+        - button "Support" [ref=e63] [cursor=pointer]
+```

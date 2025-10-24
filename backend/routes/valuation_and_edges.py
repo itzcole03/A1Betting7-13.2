@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 
 from ..services.edges.edge_service import edge_service, EdgeData
 from ..services.valuation.valuation_engine import valuation_engine, ValuationResult
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger(__name__)
 
@@ -92,10 +93,7 @@ async def get_valuation(
         )
         
         if not valuation:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Could not compute valuation for prop {prop_id}"
-            )
+            raise BusinessLogicException(f"Could not compute valuation for prop {prop_id}", status_code=404)
         
         # Convert to response model
         response = ValuationResponse(
@@ -120,9 +118,7 @@ async def get_valuation(
         raise
     except Exception as e:
         logger.error(f"Error getting valuation for prop {prop_id}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal error computing valuation: {str(e)}"
+        raise BusinessLogicException(f"Internal error computing valuation: {str(e, status_code=500)}"
         )
 
 
@@ -167,9 +163,7 @@ async def recompute_edges(
         
     except Exception as e:
         logger.error(f"Error recomputing edges for {sport}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal error recomputing edges: {str(e)}"
+        raise BusinessLogicException(f"Internal error recomputing edges: {str(e, status_code=500)}"
         )
 
 
@@ -249,9 +243,7 @@ async def get_edges(
         
     except Exception as e:
         logger.error(f"Error getting edges: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal error getting edges: {str(e)}"
+        raise BusinessLogicException(f"Internal error getting edges: {str(e, status_code=500)}"
         )
 
 
@@ -272,10 +264,7 @@ async def get_edge(edge_id: int) -> EdgeResponse:
         edge = await edge_service.get_edge_by_id(edge_id)
         
         if not edge:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Edge {edge_id} not found"
-            )
+            raise BusinessLogicException(f"Edge {edge_id} not found", status_code=404)
         
         response = EdgeResponse(
             id=edge.id,
@@ -297,9 +286,7 @@ async def get_edge(edge_id: int) -> EdgeResponse:
         raise
     except Exception as e:
         logger.error(f"Error getting edge {edge_id}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal error getting edge: {str(e)}"
+        raise BusinessLogicException(f"Internal error getting edge: {str(e, status_code=500)}"
         )
 
 
@@ -320,10 +307,7 @@ async def retire_edge(edge_id: int) -> Dict[str, Any]:
         # Get edge first to validate it exists
         edge = await edge_service.get_edge_by_id(edge_id)
         if not edge:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Edge {edge_id} not found"
-            )
+            raise BusinessLogicException(f"Edge {edge_id} not found", status_code=404)
         
         # Retire edges for the prop (will retire this edge and others)
         retired_count = await edge_service.retire_edges_for_prop(edge.prop_id)
@@ -342,9 +326,7 @@ async def retire_edge(edge_id: int) -> Dict[str, Any]:
         raise
     except Exception as e:
         logger.error(f"Error retiring edge {edge_id}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal error retiring edge: {str(e)}"
+        raise BusinessLogicException(f"Internal error retiring edge: {str(e, status_code=500)}"
         )
 
 
@@ -441,7 +423,6 @@ async def test_valuation() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error in valuation test: {e}")
-        return {
-            "status": "error",
+        raise BusinessLogicException("Handler status error"),
             "message": str(e)
         }

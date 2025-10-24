@@ -11,6 +11,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.orm import declarative_base, sessionmaker
 
+try:
+    from backend.services.mlb_stats_api_client import MLBStatsAPIClient
+except Exception:  # pragma: no cover - optional dependency
+    MLBStatsAPIClient = None  # type: ignore[assignment]
+
 # Stub unresolved models
 PrizePicksProjection = None
 from backend.models.projection_history import ProjectionHistory
@@ -72,47 +77,19 @@ class ComprehensivePrizePicksService:
             return []
 
     async def get_current_props(self) -> List[Any]:
-        """Return fast mock PrizePicks props for development/testing."""
-        # Return mock data instantly to avoid endpoint hangs
-        now = datetime.now(timezone.utc)
-        return [
-            {
-                "id": "mock_mlb_judge_1",
-                "player_name": "Aaron Judge",
-                "team": "NYY",
-                "position": "OF",
-                "league": "MLB",
-                "sport": "MLB",
-                "stat_type": "Home Runs",
-                "line_score": 1.5,
-                "confidence": 87.5,
-                "expected_value": 2.3,
-                "recommendation": "OVER",
-                "game_time": now.isoformat(),
-                "opponent": "vs LAA",
-                "venue": "Yankee Stadium",
-                "status": "active",
-                "updated_at": now.isoformat(),
-            },
-            {
-                "id": "mock_mlb_betts_2",
-                "player_name": "Mookie Betts",
-                "team": "LAD",
-                "position": "OF",
-                "league": "MLB",
-                "sport": "MLB",
-                "stat_type": "Total Bases",
-                "line_score": 2.5,
-                "confidence": 82.1,
-                "expected_value": 1.8,
-                "recommendation": "OVER",
-                "game_time": now.isoformat(),
-                "opponent": "vs SD",
-                "venue": "Dodger Stadium",
-                "status": "active",
-                "updated_at": now.isoformat(),
-            },
-        ]
+        """Return live MLB props when available, falling back to mock data."""
+
+        try:
+            real_props = await self._get_real_mlb_props()
+            if real_props:
+                return real_props
+        except Exception as real_error:  # pragma: no cover - guardrail logging
+            logger.warning(
+                "Falling back to mock PrizePicks props after MLB integration error: %s",
+                real_error,
+            )
+
+        return self._build_mock_prizepicks_props()
 
     def __init__(self, database_url: str = "sqlite:///backend/a1betting.db"):
         self.base_url = "https://api.prizepicks.com"
@@ -153,6 +130,156 @@ class ComprehensivePrizePicksService:
         self.cache_expiry: dict[str, float] = {}
         self.cache_duration: int = 300
         self.initialize_database()
+        self.mlb_stats_client: Optional[Any] = None
+
+        if MLBStatsAPIClient is not None:
+            try:
+                self.mlb_stats_client = MLBStatsAPIClient()
+                logger.info("Initialized MLBStatsAPIClient for PrizePicks integration")
+            except Exception as init_error:  # pragma: no cover - initialization guard
+                logger.warning(
+                    "Unable to initialize MLBStatsAPIClient; PrizePicks service will use mocks when necessary (%s)",
+                    init_error,
+                )
+
+    def _build_mock_prizepicks_props(self) -> List[Dict[str, Any]]:
+        """Return static mock data as a last resort."""
+
+        now = datetime.now(timezone.utc)
+        return [
+            {
+                "id": "mock_mlb_judge_1",
+                "player_name": "Aaron Judge",
+                "team": "NYY",
+                "position": "OF",
+                "league": "MLB",
+                "sport": "MLB",
+                "stat_type": "Home Runs",
+                "line_score": 1.5,
+                "confidence": 87.5,
+                "expected_value": 2.3,
+                "recommendation": "OVER",
+                "game_time": now.isoformat(),
+                "start_time": now.isoformat(),
+                "opponent": "vs LAA",
+                "venue": "Yankee Stadium",
+                "status": "active",
+                "updated_at": now.isoformat(),
+                "provider_id": "mock",
+            },
+            {
+                "id": "mock_mlb_betts_2",
+                "player_name": "Mookie Betts",
+                "team": "LAD",
+                "position": "OF",
+                "league": "MLB",
+                "sport": "MLB",
+                "stat_type": "Total Bases",
+                "line_score": 2.5,
+                "confidence": 82.1,
+                "expected_value": 1.8,
+                "recommendation": "OVER",
+                "game_time": now.isoformat(),
+                "start_time": now.isoformat(),
+                "opponent": "vs SD",
+                "venue": "Dodger Stadium",
+                "status": "active",
+                "updated_at": now.isoformat(),
+                "provider_id": "mock",
+            },
+        ]
+
+    async def _get_real_mlb_props(self) -> List[Dict[str, Any]]:
+        """Fetch and normalize real MLB props from the MLB stats client."""
+
+        if not self.mlb_stats_client:
+            return []
+
+        raw_props = await self.mlb_stats_client.generate_player_props_data()
+        if not raw_props:
+            return []
+
+        updated_at = datetime.now(timezone.utc).isoformat()
+        normalized: List[Dict[str, Any]] = []
+        for prop in raw_props:
+            try:
+                normalized.append(self._normalize_mlb_stats_prop(prop, updated_at))
+            except Exception as normalize_error:
+                logger.debug(
+                    "Skipping MLB stats prop due to normalization error: %s", normalize_error
+                )
+                continue
+
+        return normalized
+
+    def _normalize_mlb_stats_prop(
+        self, prop: Dict[str, Any], updated_at: str
+    ) -> Dict[str, Any]:
+        """Convert MLB stats prop payload into PrizePicks service schema."""
+
+        player_name = prop.get("player_name") or prop.get("player")
+        if not player_name:
+            raise ValueError("MLB prop is missing a player name")
+
+        stat_type = prop.get("stat_type") or prop.get("market")
+        if not stat_type:
+            raise ValueError("MLB prop is missing a stat type")
+
+        line_value = prop.get("line") or prop.get("line_score")
+        if line_value is None:
+            raise ValueError("MLB prop is missing a line value")
+
+        try:
+            line_score = float(line_value)
+        except (TypeError, ValueError) as parse_error:
+            raise ValueError(f"Invalid MLB prop line value: {line_value}") from parse_error
+
+        ai_probability = float(prop.get("ai_probability", prop.get("confidence", 70.0)))
+        implied_probability = float(prop.get("implied_probability", 50.0))
+        edge = float(prop.get("edge", ai_probability - implied_probability))
+
+        recommendation = "OVER" if ai_probability >= implied_probability else "UNDER"
+        provider_id = prop.get("provider_id", "mlb_stats_api")
+
+        prop_id = prop.get("event_id") or prop.get("player_id")
+        if not prop_id:
+            prop_id = f"mlb_stats_{hash((player_name, stat_type, line_score))}"
+
+        payload: Dict[str, Any] = {
+            "id": str(prop_id),
+            "player_name": player_name,
+            "team": prop.get("team_name") or prop.get("team") or "MLB",
+            "position": prop.get("position"),
+            "league": "MLB",
+            "sport": "MLB",
+            "stat_type": stat_type,
+            "line_score": line_score,
+            "line": line_score,
+            "confidence": ai_probability,
+            "implied_probability": implied_probability,
+            "ai_probability": ai_probability,
+            "expected_value": edge,
+            "edge": edge,
+            "recommendation": recommendation,
+            "game_time": prop.get("game_time") or prop.get("start_time"),
+            "start_time": prop.get("start_time"),
+            "opponent": prop.get("opponent"),
+            "matchup": prop.get("matchup"),
+            "venue": prop.get("venue"),
+            "status": prop.get("game_status", "scheduled"),
+            "updated_at": updated_at,
+            "provider_id": provider_id,
+            "odds": prop.get("odds"),
+            "bookmakers": prop.get("bookmakers", []),
+            "line_movement": prop.get("line_movement", {}),
+            "recent_form_values": prop.get("recent_form_values", []),
+            "tags": prop.get("tags", []),
+            "volume": prop.get("volume"),
+            "sharp_money": prop.get("sharp_money"),
+            "matchup_history": prop.get("matchup_history"),
+        }
+
+        return payload
 
     def _scrape(self) -> list[dict[str, str]]:
         """

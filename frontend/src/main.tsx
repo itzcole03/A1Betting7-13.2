@@ -3,10 +3,11 @@ import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App'; // Change to import the correct App component
 import { bootstrapApp } from './bootstrap/bootstrapApp';
+import './runtimeDebug'; // Global runtime error listeners (development only)
+import './services/setupHttpClient';
+import './utils/consoleErrorSuppression'; // Initialize console error filtering
 import { logger } from './utils/logger';
 import './utils/tracing';
-import './utils/consoleErrorSuppression'; // Initialize console error filtering
-import './runtimeDebug'; // Global runtime error listeners (development only)
 
 // Import Builder.io registry to register components
 import '../builder-registry';
@@ -26,9 +27,13 @@ async function start() {
   try {
     // Initialize application with idempotent bootstrap
     const bootstrapResult = await bootstrapApp();
-    
+
     if (bootstrapResult.alreadyBootstrapped) {
-      logger.debug('Application already bootstrapped, proceeding to render', bootstrapResult, 'Main');
+      logger.debug(
+        'Application already bootstrapped, proceeding to render',
+        bootstrapResult,
+        'Main'
+      );
     }
 
     // Find root element and render React app
@@ -41,7 +46,6 @@ async function start() {
         <App />
       </React.StrictMode>
     );
-    
   } catch (error) {
     logger.error(
       'Application startup failed',
@@ -51,7 +55,7 @@ async function start() {
       },
       'Main'
     );
-    
+
     // Show fallback error UI
     const rootElement = document.getElementById('root');
     if (rootElement) {
@@ -85,7 +89,7 @@ async function start() {
         </div>
       `;
     }
-    
+
     throw error;
   }
 }

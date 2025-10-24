@@ -15,6 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import { createTimeoutSignal } from '../../utils/createTimeoutSignal';
 import { DemoModeIndicator } from '../shared/DemoModeIndicator';
 
 export interface MLModelDeployment {
@@ -58,15 +59,21 @@ export class MLModelRegistryService {
   }
 
   public async fetchModels(): Promise<MLModel[]> {
+    const { signal, cleanup } = createTimeoutSignal(10000);
     try {
       console.log('[MLModelCenter] Fetching models from API...');
-      const response = await fetch(`${this.baseURL}`, {
+      const fetchOptions: RequestInit = {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        signal: AbortSignal.timeout(10000) // Increased timeout
-      });
+      };
+
+      if (signal) {
+        fetchOptions.signal = signal;
+      }
+
+      const response = await fetch(`${this.baseURL}`, fetchOptions);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -109,15 +116,20 @@ export class MLModelRegistryService {
 
       console.log('[MLModelCenter] Transformed models:', models);
       return models;
-
     } catch (error) {
       console.warn('[MLModelCenter] Failed to fetch real data, using demo mode:', error);
       // Fallback to mock data when backend is not running or has errors
       return this.getMockModels();
+    } finally {
+      cleanup();
     }
   }
 
-  public async uploadEvaluation(modelId: string, file: File, description: string = ''): Promise<any> {
+  public async uploadEvaluation(
+    modelId: string,
+    file: File,
+    description: string = ''
+  ): Promise<any> {
     try {
       const formData = new FormData();
       formData.append('evaluation_file', file);
@@ -153,7 +165,9 @@ export class MLModelRegistryService {
     }
   }
 
-  private mapModelType(apiType: string): 'transformer' | 'neural_network' | 'ensemble' | 'bayesian' {
+  private mapModelType(
+    apiType: string
+  ): 'transformer' | 'neural_network' | 'ensemble' | 'bayesian' {
     switch (apiType?.toLowerCase()) {
       case 'transformer':
         return 'transformer';
@@ -281,7 +295,9 @@ const MLModelCenter: React.FC = () => {
   const [models, setModels] = useState<MLModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploadModal, setUploadModal] = useState<{ open: boolean; modelId?: string }>({ open: false });
+  const [uploadModal, setUploadModal] = useState<{ open: boolean; modelId?: string }>({
+    open: false,
+  });
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadDescription, setUploadDescription] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -493,29 +509,23 @@ const MLModelCenter: React.FC = () => {
                     {model.version}
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2'>
-                    <button
-                      className='text-blue-600 hover:text-blue-900'
-                      title="View Details"
-                    >
+                    <button className='text-blue-600 hover:text-blue-900' title='View Details'>
                       <Eye className='w-4 h-4' />
                     </button>
                     <button
                       className='text-purple-600 hover:text-purple-900'
                       onClick={() => setUploadModal({ open: true, modelId: model.id })}
-                      title="Upload Evaluation"
+                      title='Upload Evaluation'
                     >
                       <Upload className='w-4 h-4' />
                     </button>
-                    <button
-                      className='text-green-600 hover:text-green-900'
-                      title="Edit Model"
-                    >
+                    <button className='text-green-600 hover:text-green-900' title='Edit Model'>
                       <Edit className='w-4 h-4' />
                     </button>
                     <button
                       className='text-red-600 hover:text-red-900'
                       onClick={() => handleDeleteModel(model.id)}
-                      title="Delete Model"
+                      title='Delete Model'
                     >
                       <Trash2 className='w-4 h-4' />
                     </button>
@@ -549,7 +559,7 @@ const MLModelCenter: React.FC = () => {
         {/* Demo Mode Indicator */}
         <DemoModeIndicator
           show={demoMode}
-          message="Demo Mode - Showing sample ML models (backend unavailable)"
+          message='Demo Mode - Showing sample ML models (backend unavailable)'
         />
 
         {/* Error Message */}
@@ -614,75 +624,78 @@ const MLModelCenter: React.FC = () => {
 
       {/* Evaluation Upload Modal */}
       {uploadModal.open && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+        <div className='fixed inset-0 z-50 overflow-y-auto'>
+          <div className='flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0'>
+            <div className='fixed inset-0 transition-opacity' aria-hidden='true'>
+              <div className='absolute inset-0 bg-gray-500 opacity-75'></div>
             </div>
 
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <span className='hidden sm:inline-block sm:align-middle sm:h-screen' aria-hidden='true'>
+              &#8203;
+            </span>
 
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 sm:mx-0 sm:h-10 sm:w-10">
-                    <Upload className="h-6 w-6 text-purple-600" aria-hidden="true" />
+            <div className='inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full'>
+              <div className='bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4'>
+                <div className='sm:flex sm:items-start'>
+                  <div className='mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 sm:mx-0 sm:h-10 sm:w-10'>
+                    <Upload className='h-6 w-6 text-purple-600' aria-hidden='true' />
                   </div>
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                  <div className='mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full'>
+                    <h3 className='text-lg leading-6 font-medium text-gray-900' id='modal-title'>
                       Upload Model Evaluation
                     </h3>
-                    <div className="mt-4 space-y-4">
+                    <div className='mt-4 space-y-4'>
                       {/* File Upload */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className='block text-sm font-medium text-gray-700'>
                           Evaluation File (JSON)
                         </label>
                         <input
-                          type="file"
-                          accept=".json"
-                          onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                          type='file'
+                          accept='.json'
+                          onChange={e => setUploadFile(e.target.files?.[0] || null)}
+                          className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500'
                         />
-                        <p className="mt-1 text-xs text-gray-500">
-                          Upload a JSON file containing evaluation metrics (accuracy, precision, recall, etc.)
+                        <p className='mt-1 text-xs text-gray-500'>
+                          Upload a JSON file containing evaluation metrics (accuracy, precision,
+                          recall, etc.)
                         </p>
                       </div>
 
                       {/* Description */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className='block text-sm font-medium text-gray-700'>
                           Description (Optional)
                         </label>
                         <textarea
                           value={uploadDescription}
-                          onChange={(e) => setUploadDescription(e.target.value)}
+                          onChange={e => setUploadDescription(e.target.value)}
                           rows={3}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                          placeholder="Describe this evaluation..."
+                          className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500'
+                          placeholder='Describe this evaluation...'
                         />
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div className='bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse'>
                 <button
-                  type="button"
+                  type='button'
                   onClick={handleUploadEvaluation}
                   disabled={!uploadFile || uploading}
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className='w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed'
                 >
                   {uploading ? 'Uploading...' : 'Upload'}
                 </button>
                 <button
-                  type="button"
+                  type='button'
                   onClick={() => {
                     setUploadModal({ open: false });
                     setUploadFile(null);
                     setUploadDescription('');
                   }}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  className='mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm'
                 >
                   Cancel
                 </button>

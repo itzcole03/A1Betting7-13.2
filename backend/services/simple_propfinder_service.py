@@ -1365,34 +1365,45 @@ class SimplePropFinderService:
             
             enriched_opportunities = []
             for opp in opportunities:
+                # Safe access helpers to support both object and dict inputs
+                def _get(field, default=None):
+                    try:
+                        if isinstance(opp, dict):
+                            return opp.get(field, default)
+                        return getattr(opp, field, default)
+                    except Exception:
+                        return default
+
+                def _set(field, value):
+                    try:
+                        if isinstance(opp, dict):
+                            opp[field] = value
+                        else:
+                            setattr(opp, field, value)
+                    except Exception:
+                        pass
+
                 # Calculate realistic CLV data
                 clv_percent = round(random.uniform(-15.0, 25.0), 1)
-                closing_line = opp.line + random.uniform(-2.0, 2.0) if opp.line else None
-                closing_odds = opp.odds + random.randint(-50, 50) if opp.odds else None
-                
+                current_line = _get("line")
+                current_odds = _get("odds")
+                closing_line = (current_line + random.uniform(-2.0, 2.0)) if current_line else None
+                closing_odds = (current_odds + random.randint(-50, 50)) if current_odds else None
+
                 # Add CLV fields directly to opportunity (for legacy compatibility)
-                opp.clvPercent = clv_percent
-                opp.closingLine = closing_line
-                opp.closingOdds = closing_odds
-                
+                _set("clvPercent", clv_percent)
+                _set("closingLine", closing_line)
+                _set("closingOdds", closing_odds)
+
                 # Also add clv_metrics object for test compatibility
-                if hasattr(opp, '__dict__'):
-                    # For PropOpportunity objects, add as attribute
-                    opp.clv_metrics = {
-                        "clv_estimate": clv_percent / 100.0,  # Convert percentage to decimal
-                        "market_efficiency": round(random.uniform(0.75, 0.95), 2),
-                        "historical_edge": round(random.uniform(0.05, 0.20), 2),
-                        "line_movement_indicator": random.choice(["stable", "rising", "falling"])
-                    }
-                elif isinstance(opp, dict):
-                    # For dict objects, add as key
-                    opp["clv_metrics"] = {
-                        "clv_estimate": clv_percent / 100.0,  # Convert percentage to decimal  
-                        "market_efficiency": round(random.uniform(0.75, 0.95), 2),
-                        "historical_edge": round(random.uniform(0.05, 0.20), 2),
-                        "line_movement_indicator": random.choice(["stable", "rising", "falling"])
-                    }
-                
+                cm = {
+                    "clv_estimate": clv_percent / 100.0,
+                    "market_efficiency": round(random.uniform(0.75, 0.95), 2),
+                    "historical_edge": round(random.uniform(0.05, 0.20), 2),
+                    "line_movement_indicator": random.choice(["stable", "rising", "falling"]),
+                }
+                _set("clv_metrics", cm)
+
                 enriched_opportunities.append(opp)
             
             # Record successful enrichment metrics

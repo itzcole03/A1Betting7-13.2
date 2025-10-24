@@ -71,7 +71,7 @@ async def health_check(
 
         return ResponseBuilder.success({
             "status": (
-                "healthy"
+                "ok"
                 if models_ready and scraper_health_data.get("is_healthy")
                 else "initializing"
             ),  # Overall status considers scraper

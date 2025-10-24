@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { createTimeoutSignal } from '../../utils/createTimeoutSignal';
 
 export interface SportsNewsArticle {
   id: string;
@@ -35,12 +36,23 @@ export class ExternalApiService extends EventEmitter {
     try {
       // Dynamic import to avoid circular dependencies;
       // Map ESPNHeadline to SportsNewsArticle;
-      return headlines.map((h: unknown) => ({
-        id: h.id || `article-${Date.now()}`,
-        title: h.title || h.summary || 'Untitled',
-        summary: h.summary || h.title || 'No summary available',
-        url: h.link || '',
-        publishedAt: h.publishedAt || new Date().toISOString(),
+      const headlines = _headlines as Array<Record<string, unknown>>;
+      return headlines.map((h, index) => ({
+        id: typeof h.id === 'string' ? h.id : `article-${Date.now()}-${index}`,
+        title:
+          typeof h.title === 'string'
+            ? h.title
+            : typeof h.summary === 'string'
+            ? h.summary
+            : 'Untitled',
+        summary:
+          typeof h.summary === 'string'
+            ? h.summary
+            : typeof h.title === 'string'
+            ? h.title
+            : 'No summary available',
+        url: typeof h.link === 'string' ? h.link : '',
+        publishedAt: typeof h.publishedAt === 'string' ? h.publishedAt : new Date().toISOString(),
       }));
     } catch (error) {
       this.emit('error', error);
@@ -60,10 +72,16 @@ export class ExternalApiService extends EventEmitter {
   // Add more endpoints as needed;
   public async getSchedule(): Promise<unknown[]> {
     try {
-      const _response = await fetch(`${this.config.baseURL}/schedule`, {
-        // @ts-expect-error TS(2339): Property 'timeout' does not exist on type '{ new (... Remove this comment to see the full error message
-        signal: AbortSignal.timeout(this.config.timeout || 5000),
-      });
+      const timeout = createTimeoutSignal(this.config.timeout || 5000);
+      let response: Response;
+      try {
+        response = await fetch(`${this.config.baseURL}/schedule`, {
+          signal: timeout.signal,
+        });
+      } finally {
+        timeout.cleanup();
+      }
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

@@ -25,11 +25,13 @@ class BetStatus:
 
 
 class CLVComputationStatus(str, Enum):
-    """CLV computation status with Enum semantics (string values)."""
+    """CLV computation lifecycle states."""
     PENDING = "pending"
     COMPUTED = "computed"
     ERROR = "error"
     MANUAL = "manual"
+    FAILED = "failed"
+    NO_CLOSING_ODDS = "no_closing_odds"
 
 
 class BetResult(str, Enum):
@@ -48,11 +50,13 @@ class CLVBetTracking(Base):
     id = Column(Integer, primary_key=True)
     bet_id = Column(String(50), unique=True, nullable=False, index=True)
     user_id = Column(String(50), nullable=False, index=True)
+    game_id = Column(String(100), nullable=True, index=True)
     
     # Bet placement details
     sport = Column(String(20), nullable=False, index=True)
     market = Column(String(100), nullable=False, index=True)
     player = Column(String(100), nullable=True, index=True)
+    selection = Column(String(100), nullable=True)
     team = Column(String(100), nullable=True)
     opponent = Column(String(100), nullable=True)
     
@@ -171,6 +175,12 @@ class CLVLeaderboard(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(String(50), nullable=False, index=True)
     username = Column(String(50), nullable=True)
+    period_start = Column(DateTime, nullable=False, index=True)
+    period_end = Column(DateTime, nullable=False, index=True)
+    avg_clv_percent = Column(Float, nullable=True)
+    total_bets = Column(Integer, nullable=True)
+    rank = Column(Integer, nullable=True, index=True)
+    percentile = Column(Float, nullable=True)
     
     # Ranking metrics
     rank_overall = Column(Integer, nullable=True, index=True)
@@ -201,4 +211,5 @@ class CLVLeaderboard(Base):
         Index('idx_rank_30d', 'rank_30d'),
         Index('idx_rank_7d', 'rank_7d'),
         Index('idx_clv_score', 'clv_score'),
+        Index('idx_leaderboard_rank', 'rank'),
     )

@@ -19,6 +19,7 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from ..services.provider_confidence_integration import (
+from backend.core.exceptions import BusinessLogicException
     get_provider_confidence_integration,
     ProviderConfidenceScore,
     ProviderSelectionResult,
@@ -124,9 +125,7 @@ async def get_confidence_health():
         
     except Exception as e:
         logger.error(f"Health check error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Health check failed: {str(e)}"
+        raise BusinessLogicException(f"Health check failed: {str(e, status_code=500)}"
         )
 
 
@@ -146,9 +145,7 @@ async def get_provider_confidence_score(provider_id: str):
         
     except Exception as e:
         logger.error(f"Error getting confidence score for {provider_id}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get confidence score: {str(e)}"
+        raise BusinessLogicException(f"Failed to get confidence score: {str(e, status_code=500)}"
         )
 
 
@@ -176,9 +173,7 @@ async def get_provider_rankings():
         
     except Exception as e:
         logger.error(f"Error getting provider rankings: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get provider rankings: {str(e)}"
+        raise BusinessLogicException(f"Failed to get provider rankings: {str(e, status_code=500)}"
         )
 
 
@@ -215,9 +210,7 @@ async def select_optimal_provider(
         
     except Exception as e:
         logger.error(f"Error selecting provider: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Provider selection failed: {str(e)}"
+        raise BusinessLogicException(f"Provider selection failed: {str(e, status_code=500)}"
         )
 
 
@@ -255,9 +248,7 @@ async def check_circuit_breaker_recommendation(
         
     except Exception as e:
         logger.error(f"Error checking circuit breaker for {provider_id}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Circuit breaker check failed: {str(e)}"
+        raise BusinessLogicException(f"Circuit breaker check failed: {str(e, status_code=500)}"
         )
 
 
@@ -298,9 +289,7 @@ async def update_provider_confidence_on_request(request: ProviderRequestUpdate):
         
     except Exception as e:
         logger.error(f"Error updating confidence for {request.provider_id}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Confidence update failed: {str(e)}"
+        raise BusinessLogicException(f"Confidence update failed: {str(e, status_code=500)}"
         )
 
 
@@ -329,9 +318,7 @@ async def get_confidence_thresholds():
         
     except Exception as e:
         logger.error(f"Error getting confidence thresholds: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get thresholds: {str(e)}"
+        raise BusinessLogicException(f"Failed to get thresholds: {str(e, status_code=500)}"
         )
 
 
@@ -358,7 +345,5 @@ async def get_integration_status():
         
     except Exception as e:
         logger.error(f"Error getting integration status: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get integration status: {str(e)}"
+        raise BusinessLogicException(f"Failed to get integration status: {str(e, status_code=500)}"
         )

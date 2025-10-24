@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { handleHttpError } from '../services/ErrorInterceptor';
 import { useErrorStore } from '../stores/errorStore';
 

@@ -19,6 +19,7 @@ from backend.services.provider_reliability_integration import (
     get_provider_reliability_status
 )
 from backend.services.unified_logging import get_logger
+from backend.core.exceptions import BusinessLogicException
 
 router = APIRouter(prefix="/api/provider-resilience", tags=["Provider Resilience"])
 logger = get_logger("provider_resilience_api")
@@ -51,7 +52,7 @@ async def get_resilience_status():
         }
     except Exception as e:
         logger.error(f"Failed to get resilience status: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.get("/providers")
@@ -78,7 +79,7 @@ async def get_all_providers():
         }
     except Exception as e:
         logger.error(f"Failed to get providers: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.get("/providers/{provider_id}")
@@ -87,7 +88,7 @@ async def get_provider_details(provider_id: str):
     try:
         provider_state = provider_resilience_manager.get_provider_state(provider_id)
         if not provider_state:
-            raise HTTPException(status_code=404, detail=f"Provider {provider_id} not found")
+            raise BusinessLogicException(f"Provider {provider_id} not found", status_code=404)
         
         health_summary = provider_resilience_manager.get_provider_health_summary(provider_id)
         
@@ -101,7 +102,7 @@ async def get_provider_details(provider_id: str):
         raise
     except Exception as e:
         logger.error(f"Failed to get provider {provider_id} details: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.post("/providers/register")
@@ -121,7 +122,7 @@ async def register_provider(request: ProviderRegistrationRequest):
         }
     except Exception as e:
         logger.error(f"Failed to register provider {request.provider_id}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.post("/providers/{provider_id}/record-request")
@@ -155,7 +156,7 @@ async def record_provider_request(
         }
     except Exception as e:
         logger.error(f"Failed to record request for provider {provider_id}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.get("/providers/{provider_id}/should-skip")
@@ -173,7 +174,7 @@ async def check_should_skip_provider(provider_id: str):
         }
     except Exception as e:
         logger.error(f"Failed to check skip status for provider {provider_id}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.post("/test/run-comprehensive")
@@ -205,7 +206,7 @@ async def run_comprehensive_tests(background_tasks: BackgroundTasks, request: Op
         }
     except Exception as e:
         logger.error(f"Failed to run comprehensive tests: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.post("/test/single-provider-outage")
@@ -228,7 +229,7 @@ async def test_single_provider_outage():
         }
     except Exception as e:
         logger.error(f"Failed to run single provider outage test: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.post("/test/circuit-breaker-recovery")
@@ -251,7 +252,7 @@ async def test_circuit_breaker_recovery():
         }
     except Exception as e:
         logger.error(f"Failed to run circuit breaker recovery test: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.post("/test/sla-metrics")
@@ -271,7 +272,7 @@ async def test_sla_metrics():
         }
     except Exception as e:
         logger.error(f"Failed to run SLA metrics test: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.get("/anomalies")
@@ -287,7 +288,7 @@ async def get_provider_anomalies():
         }
     except Exception as e:
         logger.error(f"Failed to get provider anomalies: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.get("/reliability-metrics")
@@ -302,7 +303,7 @@ async def get_reliability_metrics():
         }
     except Exception as e:
         logger.error(f"Failed to get reliability metrics: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.post("/monitoring/start")
@@ -318,7 +319,7 @@ async def start_monitoring(background_tasks: BackgroundTasks):
         }
     except Exception as e:
         logger.error(f"Failed to start monitoring: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.post("/test/forced-failure/{provider_id}")
@@ -352,7 +353,7 @@ async def simulate_provider_failure(provider_id: str, failure_count: int = 5):
         }
     except Exception as e:
         logger.error(f"Failed to simulate failure for provider {provider_id}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.post("/test/simulate-recovery/{provider_id}")
@@ -382,7 +383,7 @@ async def simulate_provider_recovery(provider_id: str, success_count: int = 5):
         }
     except Exception as e:
         logger.error(f"Failed to simulate recovery for provider {provider_id}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 # Include router in main application

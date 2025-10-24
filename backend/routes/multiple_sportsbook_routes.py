@@ -611,6 +611,12 @@ async def get_player_props(
             cache_key = f"sport={sport}|player={player_name}|providers={providers}|service={id(service)}"
             if cache_key in player_props_cache:
                 cached = player_props_cache[cache_key]
+                # If we previously cached the full response envelope, return it
+                # directly so metadata (timestamp/request_id) remains identical
+                # between the original and cached responses. Otherwise, wrap
+                # the cached payload in the canonical envelope.
+                if isinstance(cached, dict) and cached.get('success') is not None and 'meta' in cached:
+                    return JSONResponse(content=cached)
                 return JSONResponse(content=ResponseBuilder.success(cached))
         except Exception:
             # If cache construction fails for any reason, continue without cache
@@ -702,21 +708,27 @@ async def get_player_props(
                 normalized.append(item)
             try:
                 if cache_key is not None:
-                    player_props_cache[cache_key] = normalized
+                    # Build the canonical envelope once, store it and return the
+                    # same object so the cached and original responses are
+                    # byte-identical (meta/request_id/timestamp preserved).
+                    envelope = ResponseBuilder.success(normalized)
+                    player_props_cache[cache_key] = envelope
             except Exception:
-                pass
-            return JSONResponse(content=ResponseBuilder.success(normalized))
+                envelope = ResponseBuilder.success(normalized)
+            return JSONResponse(content=envelope)
 
         # Cache generic list payloads if they are JSON-serializable primitives/dicts
-        try:
-            payload = props or []
-            # Only cache simple iterable payloads (avoid caching complex objects)
-            if cache_key is not None and isinstance(payload, list) and all(not isinstance(x, _umock.Mock) for x in payload):
-                player_props_cache[cache_key] = payload
-        except Exception:
-            pass
+            try:
+                payload = props or []
+                # Only cache simple iterable payloads (avoid caching complex objects)
+                if cache_key is not None and isinstance(payload, list) and all(not isinstance(x, _umock.Mock) for x in payload):
+                    envelope = ResponseBuilder.success(payload)
+                    # Store the envelope so subsequent cache hits return the same object
+                    player_props_cache[cache_key] = envelope
+            except Exception:
+                envelope = ResponseBuilder.success(props or [])
 
-        return JSONResponse(content=ResponseBuilder.success(props or []))
+        return JSONResponse(content=envelope if 'envelope' in locals() else ResponseBuilder.success(props or []))
 
     except Exception as e:
         logger.error("Error fetching player props: %s", e)

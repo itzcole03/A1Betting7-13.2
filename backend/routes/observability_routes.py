@@ -8,10 +8,11 @@ Includes the /api/observability/snapshot endpoint that returns baseline keys eve
 import logging
 from typing import Dict, Any
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Body
 from fastapi.responses import JSONResponse
 
 from ..services.instrumentation_service import instrumentation_service
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger("a1betting.observability_routes")
 
@@ -114,7 +115,7 @@ async def get_instrumentation_health() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Failed to get instrumentation health: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Health check failed: {e}"
         )
@@ -139,7 +140,7 @@ async def get_operation_metrics() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Failed to get operation metrics: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Metrics retrieval failed: {e}"
         )
@@ -165,14 +166,14 @@ async def get_error_summary() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Failed to get error summary: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error summary retrieval failed: {e}"
         )
 
 
 @router.post("/flags/{flag_name}")
-async def update_feature_flag(flag_name: str, value: Any) -> Dict[str, Any]:
+async def update_feature_flag(flag_name: str, value: Any = Body(...)) -> Dict[str, Any]:
     """
     Update a feature flag value
     
@@ -194,7 +195,7 @@ async def update_feature_flag(flag_name: str, value: Any) -> Dict[str, Any]:
                 "message": f"Flag {flag_name} updated successfully"
             }
         else:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Flag {flag_name} not found"
             )
@@ -203,7 +204,7 @@ async def update_feature_flag(flag_name: str, value: Any) -> Dict[str, Any]:
         raise
     except Exception as e:
         logger.error(f"Failed to update flag {flag_name}: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Flag update failed: {e}"
         )
@@ -226,7 +227,7 @@ async def get_feature_flags() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Failed to get feature flags: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Feature flag retrieval failed: {e}"
         )
@@ -250,7 +251,7 @@ async def clear_all_metrics() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Failed to clear metrics: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Metrics clearing failed: {e}"
         )
@@ -323,12 +324,4 @@ async def get_observability_status() -> JSONResponse:
         
     except Exception as e:
         logger.error(f"Observability status check failed: {e}")
-        return JSONResponse(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            content={
-                "status": "error",
-                "observabilityEnabled": False,
-                "error": str(e),
-                "lastHealthCheck": "2024-01-01T00:00:00Z"
-            }
-        )
+        return raise BusinessLogicException("Service error")

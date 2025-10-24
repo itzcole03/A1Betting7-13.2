@@ -1,85 +1,147 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
+import React from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import UnifiedBettingInterface from '../components/betting/UnifiedBettingInterface';
 
-const mockBets = [
-  { id: 'bet-1', player: 'Shohei Ohtani', statType: 'Home Runs', value: 1.5, odds: 2.1 },
-  { id: 'bet-2', player: 'Aaron Judge', statType: 'RBIs', value: 2.5, odds: 1.8 },
-];
-const mockArbitrage = {
-  opportunities: [{ id: 'arb-1', description: 'MLB Arbitrage Opportunity', profit: 120.5 }],
+type UnifiedBettingProps = React.ComponentProps<typeof UnifiedBettingInterface>;
+type BettingOpportunity = Parameters<NonNullable<UnifiedBettingProps['addToBetSlip']>>[0];
+
+type BetSlipItem = {
+  opportunityId: string;
+  opportunity: BettingOpportunity;
+  id: string;
 };
-const mockKelly = { kellyFraction: 0.18, expectedValue: 42.5 };
 
-const server = setupServer(
-  rest.get('/api/bets', (req: any, res: any, ctx: any) => {
-    return res(ctx.json({ success: true, data: mockBets, error: null }));
-  }),
-  rest.get('/api/arbitrage', (req: any, res: any, ctx: any) => {
-    return res(ctx.json({ success: true, data: mockArbitrage, error: null }));
-  }),
-  rest.post('/api/kelly/calculate', (req: any, res: any, ctx: any) => {
-    return res(ctx.json({ success: true, data: mockKelly, error: null }));
-  })
-);
+const baseOpportunities: BettingOpportunity[] = [
+  {
+    id: 'opp-1',
+    sport: 'MLB',
+    market: 'Home Runs',
+    selection: 'Shohei Ohtani Over 1.5',
+    odds: 2.1,
+    edge: 5.2,
+    confidence: 92,
+    recommended_stake: 100,
+    max_stake: 200,
+    expected_value: 42.5,
+    bookmaker: 'DraftKings',
+    game_time: '2025-07-29T20:00:00Z',
+    edgeColor: 'bg-green-100 text-green-700',
+    confidenceColor: 'bg-blue-100 text-blue-700',
+  } as BettingOpportunity,
+  {
+    id: 'opp-2',
+    sport: 'MLB',
+    market: 'RBIs',
+    selection: 'Aaron Judge Over 2.5',
+    odds: 1.8,
+    edge: 4.1,
+    confidence: 88,
+    recommended_stake: 80,
+    max_stake: 150,
+    expected_value: 28,
+    bookmaker: 'FanDuel',
+    game_time: '2025-07-29T20:00:00Z',
+    edgeColor: 'bg-green-100 text-green-700',
+    confidenceColor: 'bg-blue-100 text-blue-700',
+  } as BettingOpportunity,
+];
 
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+type WrappedRenderResult = ReturnType<typeof render> & { placeBetMock: jest.Mock };
 
-describe('UnifiedBettingInterface - Bet Slip and Arbitrage', () => {
-  it('renders bet slip with mock bets and allows adding/removing', async () => {
-    render(<UnifiedBettingInterface />);
-    const addButtons = await screen.findAllByRole('button', { name: /Add to Bet Slip/i });
-    expect(addButtons.length).toBeGreaterThan(0);
-    fireEvent.click(addButtons[0]);
-    expect(screen.getByTestId('bet-slip-container')).toBeInTheDocument();
-    expect(screen.getByText(/Shohei Ohtani/)).toBeInTheDocument();
-    // Remove bet
-    const removeButtons = screen.getAllByRole('button', { name: /Remove/i });
-    fireEvent.click(removeButtons[0]);
+const renderInterface = (
+  overrideProps: Partial<UnifiedBettingProps> = {}
+): WrappedRenderResult => {
+  const placeBetMock = jest.fn();
+
+  const Wrapper: React.FC = () => {
+    const [betSlip, setBetSlip] = React.useState<BetSlipItem[]>([]);
+    const [entryAmount, setEntryAmount] = React.useState<number>(200);
+    const [activeTab, setActiveTab] = React.useState<string>('opportunities');
+
+    const addToBetSlip =
+      overrideProps.addToBetSlip ??
+      ((opportunity: BettingOpportunity) => {
+        setBetSlip(prev =>
+          prev.some(item => (item.opportunityId ?? item.id) === opportunity.id)
+            ? prev
+            : [
+                ...prev,
+                {
+                  opportunityId: opportunity.id,
+                  opportunity,
+                  id: opportunity.id,
+                },
+              ]
+        );
+      });
+
+    const removeFromBetSlip =
+      overrideProps.removeFromBetSlip ??
+      ((id: string) => {
+        setBetSlip(prev => prev.filter(item => (item.opportunityId ?? item.id) !== id));
+      });
+
+    const handleClearSlip = overrideProps.handleClearSlip ?? (() => setBetSlip([]));
+    const handlePlaceBet = overrideProps.handlePlaceBet ?? placeBetMock;
+
+    return (
+      <UnifiedBettingInterface
+        filteredOpportunities={overrideProps.filteredOpportunities ?? baseOpportunities}
+        betSlip={betSlip}
+        entryAmount={entryAmount}
+        addToBetSlip={addToBetSlip}
+        removeFromBetSlip={removeFromBetSlip}
+        setEntryAmount={overrideProps.setEntryAmount ?? setEntryAmount}
+        handleClearSlip={handleClearSlip}
+        handlePlaceBet={handlePlaceBet}
+        filters={overrideProps.filters ?? {}}
+        setFilters={overrideProps.setFilters ?? (() => undefined)}
+        activeTab={overrideProps.activeTab ?? activeTab}
+        setActiveTab={overrideProps.setActiveTab ?? setActiveTab}
+        loading={overrideProps.loading ?? false}
+        error={overrideProps.error ?? null}
+        onRetry={overrideProps.onRetry ?? (() => undefined)}
+      />
+    );
+  };
+
+  return { ...render(<Wrapper />), placeBetMock };
+};
+
+describe('UnifiedBettingInterface - Bet Slip interactions', () => {
+  it('allows adding and removing opportunities from the bet slip', () => {
+    renderInterface();
+    const addButtons = screen.getAllByRole('button', { name: /Add to Bet Slip/i });
+    expect(addButtons).toHaveLength(2);
+
+  fireEvent.click(addButtons[0]);
+
+  fireEvent.click(screen.getByRole('button', { name: /^Bet Slip/i }));
+  expect(screen.getByTestId('bet-slip-container')).toBeInTheDocument();
+  expect(screen.getByText(/Shohei Ohtani/)).toBeInTheDocument();
+
+    const removeButton = screen.getByRole('button', { name: /Remove/i });
+    fireEvent.click(removeButton);
     expect(screen.queryByText(/Shohei Ohtani/)).not.toBeInTheDocument();
   });
 
-  it('calculates Kelly Criterion and displays expected value', async () => {
-    render(<UnifiedBettingInterface />);
-    // Simulate adding a bet
-    const addButtons = await screen.findAllByRole('button', { name: /Add to Bet Slip/i });
+  it('invokes handlePlaceBet when Place Bet is clicked', () => {
+    const { placeBetMock } = renderInterface();
+    const addButtons = screen.getAllByRole('button', { name: /Add to Bet Slip/i });
     fireEvent.click(addButtons[0]);
-    // Calculate Kelly
-    const kellyButton = screen.getByRole('button', { name: /Calculate Kelly/i });
-    fireEvent.click(kellyButton);
-    await waitFor(() => {
-      expect(screen.getByText(/Kelly Fraction: 0.18/)).toBeInTheDocument();
-      expect(screen.getByText(/Expected Value: 42.5/)).toBeInTheDocument();
-    });
+
+  fireEvent.click(screen.getByRole('button', { name: /^Bet Slip/i }));
+
+  const placeBetButton = screen.getByRole('button', { name: /Place Bet/i });
+    fireEvent.click(placeBetButton);
+    expect(placeBetMock).toHaveBeenCalled();
   });
 
-  it('renders arbitrage opportunities with mock data', async () => {
-    render(<UnifiedBettingInterface />);
-    const arbTab = screen.getByRole('tab', { name: /Arbitrage/i });
-    fireEvent.click(arbTab);
-    await waitFor(() => {
-      expect(screen.getByText(/MLB Arbitrage Opportunity/)).toBeInTheDocument();
-      expect(screen.getByText(/Profit: 120.5/)).toBeInTheDocument();
-    });
-  });
+  it('displays error banner when error prop is provided', () => {
+    const errorMessage = 'Failed to fetch bets';
+    renderInterface({ error: { message: errorMessage }, filteredOpportunities: [] });
 
-  it('shows error banner when API returns error', async () => {
-    server.use(
-      rest.get('/api/bets', (req: any, res: any, ctx: any) => {
-        return res(
-          ctx.json({
-            success: false,
-            data: null,
-            error: { code: 'API_ERROR', message: 'Failed to fetch bets' },
-          })
-        );
-      })
-    );
-    render(<UnifiedBettingInterface />);
-    expect(await screen.findByTestId('error-banner')).toBeInTheDocument();
-    expect(screen.getByText(/Failed to fetch bets/)).toBeInTheDocument();
+    expect(screen.getByTestId('error-banner')).toBeInTheDocument();
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
 });

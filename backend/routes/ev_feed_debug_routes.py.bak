@@ -1,0 +1,26 @@
+"""Internal EV Feed Debug Routes (flag protected)
+
+Returns recent raw ring entries for inspection. Hidden (404) unless EV_FEED_DEBUG=1.
+"""
+from __future__ import annotations
+import os
+from fastapi import APIRouter, HTTPException, Query
+from backend.services.ev_feed_service import ev_feed_service
+from backend.core.response_models import ResponseBuilder
+
+router = APIRouter(prefix="/api/ev/feed/debug", tags=["EV Feed Debug"])
+
+
+def _debug_enabled() -> bool:
+    return os.getenv("EV_FEED_DEBUG", "0").lower() in ("1", "true", "yes", "on")
+
+
+@router.get("/latest")
+async def get_latest_ev_feed_entries(limit: int = Query(5, ge=1, le=50)):
+    if not _debug_enabled():
+        raise HTTPException(status_code=404, detail="Not found")
+    # Access internal ring safely
+    ring = getattr(ev_feed_service, "_ring", [])
+    effective_limit = min(limit, 20)
+    subset = ring[-effective_limit:]
+    return ResponseBuilder.success(data={"entries": subset, "count": len(subset), "effective_limit": effective_limit})

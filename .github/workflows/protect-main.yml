@@ -1,0 +1,16 @@
+name: Protect Main Branch
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  block-direct-push:
+    if: ${{ github.actor != 'dependabot[bot]' && github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block direct pushes to main
+        run: |
+          echo "Direct pushes to main are not allowed. Please open a pull request."
+          exit 1

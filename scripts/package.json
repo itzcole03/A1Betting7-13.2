@@ -9,9 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "puppeteer": "^21.0.0"
+    "puppeteer": "^21.3.8"
   },
-  "devDependencies": {},
   "keywords": [
     "reconnaissance",
     "competitive-analysis",
@@ -27,5 +26,6 @@
   "bugs": {
     "url": "https://github.com/itzcole03/A1Betting7-13.2/issues"
   },
-  "homepage": "https://github.com/itzcole03/A1Betting7-13.2#readme"
+  "homepage": "https://github.com/itzcole03/A1Betting7-13.2#readme",
+  "type": "commonjs"
 }

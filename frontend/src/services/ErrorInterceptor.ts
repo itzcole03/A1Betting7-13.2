@@ -21,13 +21,14 @@ export function handleHttpError(error: any, correlationId?: string) {
     message = error.message;
   }
 
+  const generatedId = correlationId || (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `cid-${Date.now()}-${Math.random().toString(36).slice(2,8)}`);
   addError({
-    id: correlationId || crypto.randomUUID(),
+    id: generatedId,
     message,
     category,
     statusCode,
     details: error,
-    correlationId,
+    correlationId: generatedId,
   });
 }
 

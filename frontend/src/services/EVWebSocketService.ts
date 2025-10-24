@@ -61,9 +61,50 @@ export class EVWebSocketService {
    * Get WebSocket URL based on current location
    */
   private getWebSocketUrl(): string {
+    const explicitUrl = this.resolveBackendWebSocketUrl();
+    if (explicitUrl) {
+      return explicitUrl;
+    }
+
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.host;
+
+    if (/^(localhost|127\.0\.0\.1):5173$/i.test(host)) {
+      const fallbackHost = host.toLowerCase().startsWith('127.0.0.1')
+        ? '127.0.0.1:8000'
+        : '127.0.0.1:8000';
+      return `${protocol}//${fallbackHost}/ws/ev-feed`;
+    }
+
     return `${protocol}//${host}/ws/ev-feed`;
+  }
+
+  /**
+   * Resolve a backend WebSocket URL from environment configuration when available.
+   */
+  private resolveBackendWebSocketUrl(): string | null {
+    const envBackendUrl = (typeof import.meta !== 'undefined' && import.meta.env)
+      ? import.meta.env.VITE_BACKEND_URL
+      : undefined;
+
+    const runtimeBackendUrl =
+      typeof window !== 'undefined'
+        ? ((window as Window & { __VITE_ENV__?: Record<string, string | undefined> }).__VITE_ENV__?.VITE_BACKEND_URL)
+        : undefined;
+
+    const candidate = envBackendUrl || runtimeBackendUrl;
+
+    if (!candidate) {
+      return null;
+    }
+
+    try {
+      const url = new URL(candidate);
+      const protocol = url.protocol.startsWith('https') ? 'wss:' : 'ws:';
+      return `${protocol}//${url.host}/ws/ev-feed`;
+    } catch {
+      return null;
+    }
   }
 
   /**

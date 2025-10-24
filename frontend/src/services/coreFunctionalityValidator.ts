@@ -269,14 +269,28 @@ export class CoreFunctionalityValidator {
 
     // Wait for bootstrap completion before starting validation cycles
     this.waitForBootstrapCompletion().then(() => {
-      // Use requestIdleCallback to avoid blocking main thread
+      // Use requestIdleCallback to avoid blocking main thread when available
       this.validationInterval = setInterval(() => {
-        if ('requestIdleCallback' in window) {
-          window.requestIdleCallback(() => this.runValidationCycle());
+        if (typeof (globalThis as any).requestIdleCallback === 'function') {
+          try {
+            (globalThis as any).requestIdleCallback(() => this.runValidationCycle());
+          } catch (e) {
+            // If requestIdleCallback is present but fails (some test shims), fallback to setTimeout
+            setTimeout(() => this.runValidationCycle(), 0);
+          }
         } else {
           setTimeout(() => this.runValidationCycle(), 0);
         }
-      }, interval);
+      }, Math.max(50, interval));
+      
+      // Schedule one immediate validation run using idle callback if available
+      if (typeof (globalThis as any).requestIdleCallback === 'function') {
+        try {
+          (globalThis as any).requestIdleCallback(() => this.runValidationCycle());
+        } catch (e) {
+          // If the provided requestIdleCallback shim throws or doesn't execute, do nothing; the interval will drive validation
+        }
+      }
     });
   }
 

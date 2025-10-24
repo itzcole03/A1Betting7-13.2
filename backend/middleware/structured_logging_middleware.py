@@ -16,7 +16,7 @@ import os
 import time
 import uuid
 from contextvars import ContextVar
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Optional, Any
 from fastapi import Request, Response
@@ -122,7 +122,7 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
             "client_ip": self.get_client_ip(request),
             "user_agent": request.headers.get("user-agent"),
             "content_type": request.headers.get("content-type"),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         })
 
     def log_request_success(self, request: Request, response: Response, req_id: str, duration_ms: float):
@@ -136,7 +136,7 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
             "status_code": response.status_code,
             "duration_ms": round(duration_ms, 2),
             "response_size": response.headers.get("content-length"),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "performance_category": self.get_performance_category(duration_ms)
         })
 
@@ -151,7 +151,7 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
             "error_type": type(exc).__name__,
             "error_message": str(exc),
             "duration_ms": round(duration_ms, 2),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }, exc_info=True)
 
     def get_client_ip(self, request: Request) -> str:

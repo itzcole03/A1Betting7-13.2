@@ -3,21 +3,30 @@ Odds Aggregation Service - Multi-sportsbook odds comparison and arbitrage detect
 Provides best-line identification and real-time arbitrage opportunities
 """
 
-import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
-import json
 import os
 
-import httpx
 from fastapi import HTTPException
 
 # Import line movement tracking for integration
 from .line_movement_service import trigger_snapshot
+from backend.odds.odds_snapshot_store import odds_snapshot_store
+from backend.odds.odds_ingestion_service import refresh_market as refresh_odds_market
+from backend.odds.odds_models import OddsSnapshot
 
 logger = logging.getLogger(__name__)
+
+
+def _snapshot_sport_label(sport: str | None) -> str:
+    if not sport:
+        return "MLB"
+    low = sport.lower()
+    if low in {"mlb", "baseball_mlb"}:
+        return "MLB"
+    return sport.upper()
 
 @dataclass
 class BookLine:
@@ -69,102 +78,59 @@ class OddsAggregationService:
     """Service for aggregating odds from multiple sportsbooks"""
     
     def __init__(self):
-        self.api_key = os.getenv("ODDS_API_KEY")
-        self.base_url = "https://api.the-odds-api.com/v4"
-        self.timeout = 10.0
+        self.api_key = (
+            os.getenv("THE_ODDS_API_KEY")
+            or os.getenv("THEODDS_API_KEY")
+            or os.getenv("ODDS_API_KEY")
+        )
         self.cache_ttl = 30  # 30 seconds for odds data
         self.odds_cache: Dict[str, Dict] = {}
+        self.snapshot_stale_seconds = 120
         
         # Mock sportsbook data for demo/offline mode
+        book_names = ["DraftKings", "FanDuel", "BetMGM", "Caesars", "PointsBet"]
         self.mock_books = [
-            {"id": "draftkings", "name": "DraftKings"},
-            {"id": "fanduel", "name": "FanDuel"},
-            {"id": "betmgm", "name": "BetMGM"},
-            {"id": "caesars", "name": "Caesars"},
-            {"id": "pointsbet", "name": "PointsBet"},
+            {"id": self._normalize_book_id(name), "name": name}
+            for name in book_names
         ]
     
     async def get_available_books(self) -> List[Dict[str, str]]:
-        """Get list of available sportsbooks"""
-        if not self.api_key:
-            logger.warning("No ODDS_API_KEY configured, using mock data")
-            return self.mock_books
-            
+        """Get list of available sportsbooks using recent snapshots when possible."""
+        sport_label = _snapshot_sport_label("MLB")
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.get(
-                    f"{self.base_url}/sports/americanfootball_nfl/bookmakers",
-                    params={"apiKey": self.api_key}
-                )
-                response.raise_for_status()
-                return response.json()
-        except Exception as e:
-            logger.warning(f"Failed to fetch bookmakers: {e}, using mock data")
-            return self.mock_books
+            await self._ensure_snapshot_freshness(sport_label)
+            snaps = await odds_snapshot_store.get_latest(sport=sport_label, market="player_props", limit=200)
+            books = sorted({snap.book for snap in snaps if getattr(snap, "book", None)})
+            if books:
+                return [{"id": self._normalize_book_id(name), "name": name} for name in books]
+        except Exception as exc:
+            logger.warning("Failed to derive sportsbook list from snapshots: %s", exc)
+        return self.mock_books
     
     async def fetch_player_props(self, sport: str = "baseball_mlb") -> List[BookLine]:
-        """Fetch player props from multiple sportsbooks"""
-        if not self.api_key:
-            return self._generate_mock_props()
-            
-        cache_key = f"props:{sport}"
-        if cache_key in self.odds_cache:
-            cached_data = self.odds_cache[cache_key]
-            if datetime.now() - cached_data["timestamp"] < timedelta(seconds=self.cache_ttl):
-                return cached_data["data"]
-        
+        """Fetch player props derived from in-memory snapshots"""
+        sport_label = _snapshot_sport_label(sport)
+        cache_key = f"props:{sport_label}"
+        cached = self.odds_cache.get(cache_key)
+        if cached and datetime.now() - cached["timestamp"] < timedelta(seconds=self.cache_ttl):
+            return cached["data"]
+
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.get(
-                    f"{self.base_url}/sports/{sport}/odds",
-                    params={
-                        "apiKey": self.api_key,
-                        "regions": "us",
-                        "markets": "player_props",
-                        "oddsFormat": "american"
-                    }
-                )
-                response.raise_for_status()
-                data = response.json()
-                
-                # Parse response into BookLine objects
-                lines = self._parse_odds_response(data)
-                
-                # Cache the results
-                self.odds_cache[cache_key] = {
-                    "data": lines,
-                    "timestamp": datetime.now()
-                }
-                
-                return lines
-                
-        except Exception as e:
-            logger.error(f"Failed to fetch odds: {e}")
-            return self._generate_mock_props()
-    
-    def _parse_odds_response(self, data: List[Dict]) -> List[BookLine]:
-        """Parse API response into BookLine objects"""
-        lines = []
-        
-        for game in data:
-            for bookmaker in game.get("bookmakers", []):
-                for market in bookmaker.get("markets", []):
-                    if market["key"] == "player_props":
-                        for outcome in market.get("outcomes", []):
-                            # Parse player prop outcome
-                            line = BookLine(
-                                book_id=bookmaker["key"],
-                                book_name=bookmaker["title"],
-                                market=f"{game['home_team']} vs {game['away_team']}",
-                                player_name=outcome.get("description", "Unknown Player"),
-                                stat_type=market.get("stat_type", "points"),
-                                line=float(outcome.get("point", 0)),
-                                over_price=outcome.get("price", 100) if outcome.get("name") == "Over" else 0,
-                                under_price=outcome.get("price", -110) if outcome.get("name") == "Under" else 0,
-                                timestamp=datetime.now()
-                            )
-                            lines.append(line)
-        
+            await self._ensure_snapshot_freshness(sport_label)
+            snaps = await odds_snapshot_store.get_latest(sport=sport_label, market="player_props", limit=2000)
+        except Exception as exc:
+            logger.error("Failed to load snapshot odds: %s", exc)
+            snaps = []
+
+        lines = self._snapshots_to_booklines(snaps) if snaps else []
+        if not lines:
+            lines = self._generate_mock_props()
+
+        self.odds_cache[cache_key] = {
+            "data": lines,
+            "timestamp": datetime.now()
+        }
+
         return lines
     
     def _generate_mock_props(self) -> List[BookLine]:
@@ -207,6 +173,83 @@ class OddsAggregationService:
                     lines.append(line_obj)
         
         return lines
+
+    async def _ensure_snapshot_freshness(self, sport_label: str, market: str = "player_props") -> None:
+        try:
+            snaps = await odds_snapshot_store.get_latest(sport=sport_label, market=market, limit=10)
+        except Exception as exc:
+            logger.warning("Snapshot retrieval failed: %s", exc)
+            snaps = []
+
+        if not snaps:
+            await refresh_odds_market(sport_label, market)
+            return
+
+        latest_capture = max(s.captured_at for s in snaps)
+        now = datetime.now(timezone.utc)
+        if (now - latest_capture).total_seconds() > self.snapshot_stale_seconds:
+            await refresh_odds_market(sport_label, market)
+
+    @staticmethod
+    def _normalize_book_id(name: str) -> str:
+        return name.strip().lower().replace(" ", "_")
+
+    def _snapshots_to_booklines(self, snaps: List[OddsSnapshot]) -> List[BookLine]:
+        grouped: Dict[tuple[str, str], Dict[str, Any]] = {}
+        for snap in snaps:
+            if not snap.book or not snap.selection_key:
+                continue
+            key = (snap.book, snap.selection_key)
+            entry = grouped.setdefault(
+                key,
+                {
+                    "book_id": self._normalize_book_id(snap.book),
+                    "book_name": snap.book,
+                    "market": snap.team or snap.market or "MLB",
+                    "player_name": snap.player or snap.selection_key,
+                    "stat_type": snap.selection_key.split(":")[-1] if snap.selection_key else snap.market,
+                    "line": snap.line,
+                    "over_price": None,
+                    "under_price": None,
+                    "timestamp": snap.captured_at,
+                },
+            )
+            if snap.line is not None:
+                entry["line"] = snap.line
+            entry["timestamp"] = max(entry["timestamp"], snap.captured_at)
+            if snap.side == "over":
+                entry["over_price"] = snap.american_odds
+            elif snap.side == "under":
+                entry["under_price"] = snap.american_odds
+
+        book_lines: List[BookLine] = []
+        for entry in grouped.values():
+            over_price = entry.get("over_price")
+            under_price = entry.get("under_price")
+            line_value = entry.get("line")
+            if over_price is None or under_price is None or line_value is None:
+                continue
+            try:
+                line_float = float(line_value)
+            except (TypeError, ValueError):
+                continue
+            timestamp = entry.get("timestamp")
+            if not isinstance(timestamp, datetime):
+                timestamp = datetime.now()
+            book_lines.append(
+                BookLine(
+                    book_id=entry["book_id"],
+                    book_name=entry["book_name"],
+                    market=entry["market"],
+                    player_name=entry["player_name"],
+                    stat_type=entry["stat_type"],
+                    line=line_float,
+                    over_price=int(over_price),
+                    under_price=int(under_price),
+                    timestamp=timestamp,
+                )
+            )
+        return book_lines
     
     async def find_best_lines(self, sport: str = "baseball_mlb") -> List[CanonicalLine]:
         """Find best available lines across all sportsbooks"""

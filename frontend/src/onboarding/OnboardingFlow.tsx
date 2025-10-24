@@ -1,5 +1,5 @@
 import React from 'react';
-import { useOnboarding } from './OnboardingContext';
+import { OnboardingStep, useOnboarding } from './OnboardingContext';
 
 const stepTitles: Record<string, string> = {
   welcome: 'Welcome to A1Betting!',
@@ -30,7 +30,10 @@ const socialSignIn = (
 const OnboardingFlow: React.FC = () => {
   const { currentStep, completedSteps, isNextStepDisabled, setCurrentStep, finishOnboarding } =
     useOnboarding();
-  const steps = Object.keys(stepTitles);
+  const steps = React.useMemo<OnboardingStep[]>(
+    () => Object.keys(stepTitles) as OnboardingStep[],
+    []
+  );
   const currentIdx = steps.indexOf(currentStep);
   const [isPending, startTransition] = React.useTransition();
   const deferredSteps = React.useDeferredValue(steps);
@@ -68,7 +71,14 @@ const OnboardingFlow: React.FC = () => {
       <div className='mt-8 flex gap-4'>
         {currentIdx > 0 && (
           <button
-            onClick={() => startTransition(() => setCurrentStep(steps[currentIdx - 1] as any))}
+            onClick={() =>
+              startTransition(() => {
+                const previousStep = steps[currentIdx - 1];
+                if (previousStep) {
+                  setCurrentStep(previousStep);
+                }
+              })
+            }
             className='btn-glass'
             disabled={isPending}
           >
@@ -81,7 +91,10 @@ const OnboardingFlow: React.FC = () => {
               if (isNextStepDisabled) return;
               startTransition(() => {
                 if (currentIdx < steps.length - 1) {
-                  setCurrentStep(steps[currentIdx + 1] as any);
+                  const nextStep = steps[currentIdx + 1];
+                  if (nextStep) {
+                    setCurrentStep(nextStep);
+                  }
                 } else {
                   finishOnboarding();
                 }
@@ -120,4 +133,5 @@ const OnboardingFlow: React.FC = () => {
   );
 };
 
+export { OnboardingFlow };
 export default OnboardingFlow;

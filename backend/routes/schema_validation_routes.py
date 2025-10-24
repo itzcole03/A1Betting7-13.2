@@ -20,6 +20,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from ..services.enhanced_schema_validation import (
+from backend.core.exceptions import BusinessLogicException
     ValidationLevel,
     ValidationCategory, 
     ValidationWarning,
@@ -133,9 +134,7 @@ async def test_validation(request: ValidationTestRequest):
         
     except Exception as e:
         logger.error(f"Validation test error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Validation test failed: {str(e)}"
+        raise BusinessLogicException(f"Validation test failed: {str(e, status_code=500)}"
         )
 
 
@@ -154,7 +153,7 @@ async def get_validation_statistics(
         stats = validator.get_provider_statistics(provider)
         
         if "error" in stats:
-            raise HTTPException(status_code=404, detail=stats["error"])
+            raise BusinessLogicException(stats["error"], status_code=404)
         
         return stats
         
@@ -162,9 +161,7 @@ async def get_validation_statistics(
         raise
     except Exception as e:
         logger.error(f"Error getting validation statistics: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get validation statistics: {str(e)}"
+        raise BusinessLogicException(f"Failed to get validation statistics: {str(e, status_code=500)}"
         )
 
 
@@ -176,7 +173,7 @@ async def get_provider_statistics(provider: str):
         stats = validator.get_provider_statistics(provider)
         
         if "error" in stats:
-            raise HTTPException(status_code=404, detail=stats["error"])
+            raise BusinessLogicException(stats["error"], status_code=404)
         
         return ProviderStatisticsResponse(**stats)
         
@@ -184,9 +181,7 @@ async def get_provider_statistics(provider: str):
         raise
     except Exception as e:
         logger.error(f"Error getting provider statistics for {provider}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get statistics for provider {provider}: {str(e)}"
+        raise BusinessLogicException(f"Failed to get statistics for provider {provider}: {str(e, status_code=500)}"
         )
 
 
@@ -221,9 +216,7 @@ async def get_validation_trends(
         
     except Exception as e:
         logger.error(f"Error getting validation trends: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get validation trends: {str(e)}"
+        raise BusinessLogicException(f"Failed to get validation trends: {str(e, status_code=500)}"
         )
 
 
@@ -279,9 +272,7 @@ async def get_validation_health():
         
     except Exception as e:
         logger.error(f"Error getting validation health: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get validation health: {str(e)}"
+        raise BusinessLogicException(f"Failed to get validation health: {str(e, status_code=500)}"
         )
 
 
@@ -299,9 +290,7 @@ async def get_monitored_providers():
             
     except Exception as e:
         logger.error(f"Error getting monitored providers: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get monitored providers: {str(e)}"
+        raise BusinessLogicException(f"Failed to get monitored providers: {str(e, status_code=500)}"
         )
 
 
@@ -332,9 +321,7 @@ async def get_validation_rules():
         
     except Exception as e:
         logger.error(f"Error getting validation rules: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get validation rules: {str(e)}"
+        raise BusinessLogicException(f"Failed to get validation rules: {str(e, status_code=500)}"
         )
 
 
@@ -384,9 +371,7 @@ async def validate_raw_data(request: ValidationTestRequest):
         
     except Exception as e:
         logger.error(f"Raw data validation error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Raw data validation failed: {str(e)}"
+        raise BusinessLogicException(f"Raw data validation failed: {str(e, status_code=500)}"
         )
 
 
@@ -430,7 +415,5 @@ async def get_integration_status():
         
     except Exception as e:
         logger.error(f"Error getting integration status: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get integration status: {str(e)}"
+        raise BusinessLogicException(f"Failed to get integration status: {str(e, status_code=500)}"
         )

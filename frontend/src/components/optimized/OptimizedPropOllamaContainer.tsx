@@ -1,4 +1,5 @@
-import React, { memo, useCallback, useMemo } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+import React, { memo, useMemo } from 'react';
 import { enhancedLogger } from '../../utils/enhancedLogger';
 import { httpFetch } from '../../services/HttpClient';
 import { BetSlipComponent } from '../betting/BetSlipComponent';
@@ -51,11 +52,11 @@ const OptimizedPropOllamaContainer: React.FC = memo(() => {
     handleGameSelect: (game: any) => {
       if (game) actions.setSelectedGame(game);
     },
-    handleStatsGameSelect: (gameId: number) => {
+    handleStatsGameSelect: (gameId: string) => {
       const game = state.upcomingGames.find((g: any) => g.game_id === gameId);
-      if (game) {
+      if (game && game.game_id) {
         actions.setSelectedGame({
-          game_id: gameId,
+          game_id: game.game_id,
           home: game.home,
           away: game.away,
         });
@@ -71,12 +72,12 @@ const OptimizedPropOllamaContainer: React.FC = memo(() => {
   }), [state.connectionHealth.isHealthy, state.connectionHealth.latency, state.connectionHealth.lastChecked]);
 
   // Memoized performance metrics to prevent unnecessary re-renders
-  const performanceMetrics = useMemo(() => ({} as unknown as object), []);
+  const performanceMetrics = useMemo<Record<string, number>>(() => ({}), []);
 
   // Derive BetSlipItem[] from selectedProps to satisfy BetSlipComponent
   const betSlipItems = React.useMemo(() => {
     try {
-      return (state.selectedProps || []).map((sp: any) => ({
+  return (state.selectedProps || []).map((sp: any) => ({
         opportunityId: sp.id ?? sp.opportunityId ?? String(sp?.playerId ?? sp?.key ?? ''),
         opportunity: sp as any,
         stake: typeof sp.stake === 'number' ? sp.stake : state.entryAmount || 0,
@@ -151,7 +152,7 @@ OptimizedPropOllamaContainer.displayName = 'OptimizedPropOllamaContainer';
 
 const HeaderSection = memo<{
   connectionHealth: { status: 'healthy' | 'error'; latency: number; lastCheck: Date };
-  performanceMetrics: {};
+  performanceMetrics: Record<string, number>;
   healthLoading: boolean;
 }>(({ connectionHealth, performanceMetrics, healthLoading }) => (
   <div className='header-section'>

@@ -7,8 +7,8 @@
  * Implements recommendations from the A1Betting Analysis Report
  */
 
+import { createTimeoutSignal } from '../utils/createTimeoutSignal';
 import { demoMonitoringService } from './demoMonitoringService';
-import { webVitalsService } from './webVitalsService';
 
 interface ServiceHealth {
   name: string;
@@ -81,16 +81,16 @@ class CoreFunctionalityService {
    */
   private initializeStabilityMonitoring(): void {
     console.log('[CoreStability] Initializing stability monitoring');
-    
+
     // Start monitoring critical services
     this.startMonitoring();
-    
+
     // Monitor for backend connectivity
     this.checkBackendConnectivity();
-    
+
     // Set up error tracking
     this.setupErrorTracking();
-    
+
     // Initialize demo mode by default
     this.enableDemoMode();
   }
@@ -102,7 +102,7 @@ class CoreFunctionalityService {
     if (this.isMonitoring) return;
 
     this.isMonitoring = true;
-    
+
     // Check services every 30 seconds
     this.monitoringInterval = setInterval(() => {
       this.performHealthChecks();
@@ -145,16 +145,15 @@ class CoreFunctionalityService {
     try {
       // Check PropOllama service (AI chat)
       await this.checkPropOllamaHealth();
-      
+
       // Check Sports service (data feeds)
       await this.checkSportsServiceHealth();
-      
+
       // Check arbitrage service
       await this.checkArbitrageServiceHealth();
-      
+
       // Update uptime
       this.metrics.uptime = (Date.now() - this.startTime) / 1000;
-      
     } catch (error) {
       console.warn('[CoreStability] Health check error:', error);
       this.handleHealthCheckError(error);
@@ -166,16 +165,22 @@ class CoreFunctionalityService {
    */
   private async checkPropOllamaHealth(): Promise<void> {
     const startTime = Date.now();
-    
+
     try {
       // Test PropOllama health endpoint
-      const response = await fetch('/api/propollama/health', {
-        method: 'GET',
-        signal: AbortSignal.timeout(5000), // 5 second timeout
-      });
+      const timeout = createTimeoutSignal(5000);
+      let response: Response;
+      try {
+        response = await fetch('/api/propollama/health', {
+          method: 'GET',
+          signal: timeout.signal, // 5 second timeout
+        });
+      } finally {
+        timeout.cleanup();
+      }
 
       const responseTime = Date.now() - startTime;
-      
+
       if (response.ok) {
         this.updateServiceHealth('predictions', 'healthy', responseTime);
       } else {
@@ -192,7 +197,7 @@ class CoreFunctionalityService {
       // Service unavailable - activate demo mode
       this.updateServiceHealth('predictions', 'down', 5000);
       this.enableDemoMode();
-      
+
       console.info('[CoreStability] PropOllama unavailable, demo mode active');
     }
   }
@@ -202,18 +207,24 @@ class CoreFunctionalityService {
    */
   private async checkSportsServiceHealth(): Promise<void> {
     const startTime = Date.now();
-    
+
     try {
       // Test sports activation endpoint
-      const response = await fetch('/api/sports/activate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sports: ['mlb'] }),
-        signal: AbortSignal.timeout(3000),
-      });
+      const timeout = createTimeoutSignal(3000);
+      let response: Response;
+      try {
+        response = await fetch('/api/sports/activate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sports: ['mlb'] }),
+          signal: timeout.signal,
+        });
+      } finally {
+        timeout.cleanup();
+      }
 
       const responseTime = Date.now() - startTime;
-      
+
       if (response.ok) {
         this.updateServiceHealth('dataFeeds', 'healthy', responseTime);
         this.metrics.demoMode = false;
@@ -224,7 +235,7 @@ class CoreFunctionalityService {
       // Expected in demo mode - not an error
       this.updateServiceHealth('dataFeeds', 'down', 3000);
       this.enableDemoMode();
-      
+
       console.info('[CoreStability] Sports service unavailable, demo mode active');
     }
   }
@@ -235,15 +246,16 @@ class CoreFunctionalityService {
   private async checkArbitrageServiceHealth(): Promise<void> {
     // Since real arbitrage engine is not implemented, use mock health
     const startTime = Date.now();
-    
+
     try {
       // Simulate arbitrage calculation test
       const mockResponseTime = Math.random() * 100 + 50; // 50-150ms
-      
+
       this.updateServiceHealth('arbitrage', 'healthy', mockResponseTime);
-      
+
       // Simulate occasional degradation for testing
-      if (Math.random() < 0.1) { // 10% chance
+      if (Math.random() < 0.1) {
+        // 10% chance
         this.updateServiceHealth('arbitrage', 'degraded', mockResponseTime * 2);
         this.addAlert({
           service: 'Arbitrage',
@@ -267,12 +279,12 @@ class CoreFunctionalityService {
     responseTime: number
   ): void {
     const serviceHealth = this.metrics[service];
-    
+
     // Update basic metrics
     serviceHealth.status = status;
     serviceHealth.lastCheck = new Date();
     serviceHealth.responseTime = responseTime;
-    
+
     // Update error tracking
     if (status === 'down') {
       serviceHealth.errorCount++;
@@ -280,7 +292,7 @@ class CoreFunctionalityService {
       // Service recovered
       this.resolveServiceAlerts(serviceHealth.name);
     }
-    
+
     // Calculate error rate (over last 10 checks)
     serviceHealth.errorRate = Math.min(serviceHealth.errorCount / 10, 1);
   }
@@ -292,7 +304,7 @@ class CoreFunctionalityService {
     const services = [this.metrics.dataFeeds, this.metrics.predictions, this.metrics.arbitrage];
     const healthyCount = services.filter(s => s.status === 'healthy').length;
     const downCount = services.filter(s => s.status === 'down').length;
-    
+
     if (healthyCount === 3) {
       this.metrics.overall = 'excellent';
     } else if (healthyCount === 2) {
@@ -309,7 +321,7 @@ class CoreFunctionalityService {
    */
   private checkStabilityThresholds(): void {
     const services = [this.metrics.dataFeeds, this.metrics.predictions, this.metrics.arbitrage];
-    
+
     services.forEach(service => {
       // Response time threshold
       if (service.responseTime > 2000 && service.status === 'healthy') {
@@ -321,7 +333,7 @@ class CoreFunctionalityService {
           resolved: false,
         });
       }
-      
+
       // Error rate threshold
       if (service.errorRate > 0.3) {
         this.addAlert({
@@ -333,7 +345,7 @@ class CoreFunctionalityService {
         });
       }
     });
-    
+
     // Overall system health alert
     if (this.metrics.overall === 'poor') {
       this.addAlert({
@@ -359,7 +371,7 @@ class CoreFunctionalityService {
         timestamp: new Date(),
         resolved: false,
       });
-      
+
       console.log('[CoreStability] Demo mode enabled');
     }
   }
@@ -369,10 +381,16 @@ class CoreFunctionalityService {
    */
   private async checkBackendConnectivity(): Promise<void> {
     try {
-      const response = await fetch('/api/health', {
-        method: 'GET',
-        signal: AbortSignal.timeout(2000),
-      });
+      const timeout = createTimeoutSignal(2000);
+      let response: Response;
+      try {
+        response = await fetch('/api/health', {
+          method: 'GET',
+          signal: timeout.signal,
+        });
+      } finally {
+        timeout.cleanup();
+      }
 
       if (response.ok) {
         this.metrics.demoMode = false;
@@ -394,11 +412,11 @@ class CoreFunctionalityService {
    */
   private setupErrorTracking(): void {
     // Track unhandled errors that might affect core functionality
-    window.addEventListener('error', (event) => {
+    window.addEventListener('error', event => {
       this.handleJavaScriptError(event.error);
     });
 
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener('unhandledrejection', event => {
       this.handlePromiseRejection(event.reason);
     });
   }
@@ -416,8 +434,8 @@ class CoreFunctionalityService {
       'arbitrage',
     ];
 
-    const isCritical = criticalErrors.some(keyword => 
-      error.message.includes(keyword) || error.stack?.includes(keyword)
+    const isCritical = criticalErrors.some(
+      keyword => error.message.includes(keyword) || error.stack?.includes(keyword)
     );
 
     if (isCritical) {
@@ -439,7 +457,7 @@ class CoreFunctionalityService {
    */
   private handlePromiseRejection(reason: any): void {
     const reasonStr = reason?.toString() || 'Unknown';
-    
+
     // Track API-related rejections
     if (reasonStr.includes('fetch') || reasonStr.includes('api')) {
       this.addAlert({
@@ -470,7 +488,7 @@ class CoreFunctionalityService {
    */
   private addAlert(alert: StabilityAlert): void {
     this.alerts.unshift(alert);
-    
+
     // Keep only last 50 alerts
     if (this.alerts.length > 50) {
       this.alerts = this.alerts.slice(0, 50);
@@ -541,7 +559,11 @@ Active Alerts:
 
 Recommendations:
 ${metrics.demoMode ? '- Demo mode active - backend unavailable' : '- All services operational'}
-${metrics.overall === 'poor' ? '- Multiple services need attention' : '- System stability is acceptable'}
+${
+  metrics.overall === 'poor'
+    ? '- Multiple services need attention'
+    : '- System stability is acceptable'
+}
 ${errorAlerts > 0 ? '- Review error alerts for service issues' : '- No critical errors detected'}
 `;
   }
@@ -586,10 +608,10 @@ ${errorAlerts > 0 ? '- Review error alerts for service issues' : '- No critical 
       demoMode: true,
       uptime: 0,
     };
-    
+
     this.alerts = [];
     this.startTime = Date.now();
-    
+
     console.log('[CoreStability] Metrics reset');
   }
 }
@@ -598,4 +620,4 @@ ${errorAlerts > 0 ? '- Review error alerts for service issues' : '- No critical 
 export const coreFunctionalityService = new CoreFunctionalityService();
 
 // Export types
-export type { StabilityMetrics, StabilityAlert, ServiceHealth };
+export type { ServiceHealth, StabilityAlert, StabilityMetrics };

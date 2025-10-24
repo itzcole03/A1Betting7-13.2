@@ -23,6 +23,7 @@ from backend.services.alerting.rule_evaluator import AlertRuleEvaluator
 from backend.services.alerting.alert_dispatcher import AlertDispatcher
 from backend.services.alerting.alert_scheduler import AlertScheduler
 from backend.models.risk_personalization import (
+from backend.core.exceptions import BusinessLogicException
     BankrollStrategy, AlertRuleType, DeliveryChannel, 
     InterestSignalType
 )
@@ -202,7 +203,7 @@ async def create_or_update_bankroll_profile(
             context="create_bankroll_profile",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 @router.get("/bankroll/profile/{user_id}", response_model=BankrollProfileResponse)
@@ -214,7 +215,7 @@ async def get_bankroll_profile(
     try:
         profile = await bankroll_service.get_user_profile(user_id)
         if not profile:
-            raise HTTPException(status_code=404, detail="Bankroll profile not found")
+            raise BusinessLogicException("Bankroll profile not found", status_code=404)
             
         return BankrollProfileResponse(**profile)
         
@@ -226,7 +227,7 @@ async def get_bankroll_profile(
             context="get_bankroll_profile",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 @router.post("/bankroll/calculate-stake", response_model=StakeCalculationResponse)
@@ -258,7 +259,7 @@ async def calculate_recommended_stake(
             context="calculate_stake",
             user_context={"user_id": stake_request.user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 # Exposure Management Endpoints
@@ -279,7 +280,7 @@ async def get_current_exposure(
             context="get_current_exposure",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 @router.post("/exposure/{user_id}/check")
@@ -303,7 +304,7 @@ async def check_exposure_limits(
             context="check_exposure_limits",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 # Risk Management Endpoints
@@ -341,7 +342,7 @@ async def analyze_risk(
             context="analyze_risk",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 @router.post("/risk/{user_id}/pre-submit-check")
@@ -380,7 +381,7 @@ async def pre_submit_risk_check(
                 "timestamp": datetime.utcnow().isoformat()
             }
         
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 # Personalization Endpoints
@@ -411,7 +412,7 @@ async def record_interest_signal(
             context="record_interest_signal",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 @router.get("/personalization/{user_id}/recommendations")
@@ -437,7 +438,7 @@ async def get_personalized_recommendations(
             context="get_recommendations",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 @router.get("/personalization/{user_id}/interest-profile")
@@ -461,7 +462,7 @@ async def get_interest_profile(
             context="get_interest_profile",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 # Watchlist Endpoints
@@ -495,7 +496,7 @@ async def create_watchlist(
             context="create_watchlist",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 @router.get("/watchlist/{user_id}")
@@ -519,7 +520,7 @@ async def get_user_watchlists(
             context="get_watchlists",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 @router.post("/watchlist/{watchlist_id}/items")
@@ -551,7 +552,7 @@ async def add_watchlist_item(
             context="add_watchlist_item",
             user_context={"watchlist_id": watchlist_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 @router.get("/watchlist/{watchlist_id}/edges")
@@ -576,7 +577,7 @@ async def get_watchlist_matching_edges(
             context="get_watchlist_edges",
             user_context={"watchlist_id": watchlist_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 # Alerting Endpoints
@@ -608,7 +609,7 @@ async def create_alert_rule(
             context="create_alert_rule",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 @router.get("/alerts/{user_id}/rules")
@@ -655,7 +656,7 @@ async def get_user_alert_rules(
             context="get_alert_rules",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 @router.post("/alerts/evaluate/immediate")
@@ -689,7 +690,7 @@ async def trigger_immediate_evaluation(
             context="immediate_evaluation",
             user_context={"user_id": user_id}
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 @router.get("/alerts/system/status")
@@ -706,7 +707,7 @@ async def get_alerting_system_status(
             error=e,
             context="get_alerting_status"
         )
-        raise HTTPException(status_code=500, detail=error_response["user_message"])
+        raise BusinessLogicException(error_response["user_message"], status_code=500)
 
 
 # Health and Status Endpoints

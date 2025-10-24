@@ -5,7 +5,7 @@
 [![CI Tests](https://github.com/itzcole03/A1Betting7-13.2/actions/workflows/ci.yml/badge.svg)](https://github.com/itzcole03/A1Betting7-13.2/actions/workflows/ci.yml)
 ![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey)
 
-```text
+````text
 Load Time:       PropFinder 3.2s  →  A1Betting 0.3s (10x faster)
 Search Speed:    PropFinder 1.8s  →  A1Betting 0.1s (debounced, 18x faster)
 Data Handling:   PropFinder 1,000 →  A1Betting 10,000+ props (virtual scrolling)
@@ -49,7 +49,7 @@ CI & local tests
 pytest -q
 
 # Note: CI sets `USE_FREE_INGESTION=false` to avoid starting background ingestion during automated runs.
-```
+````
 
 Ingestion-focused CI and local tests
 
@@ -119,6 +119,16 @@ The app includes demo fallbacks so you can run many features without external AP
 
 ---
 
+## Secure local storage & secrets
+
+- Never commit databases, cookies, logs, or other sensitive artefacts. All developer datasets belong in the local-only `data/` directory, which is covered by `.gitignore`.
+- Review `data/README.md` for the sanctioned layout and hygiene checklist. Only store the minimal snapshots you actively need, and regenerate fixtures via scripts when possible.
+- Follow the remediation tracker in `SECURITY_ACTIONS.md` (Rotate PrizePicks tokens, scrub git history, configure scanners). Update the checklist as soon as mitigation steps are complete, and consult `docs/security/secret_scanning_plan.md` for enabling automated detection.
+- Keep runtime logs out of git; follow `docs/security/log_redaction_policy.md` for masking guidance, storage locations, and verification cadence.
+- Before opening a PR, run `git status` to confirm no `*.db`, `*.jsonl`, or log files have been staged. If sensitive files were committed in the past, coordinate a history rewrite per the audit notes (`PROJECT_GLOBAL_AUDIT.md`).
+
+---
+
 ## Testing notes & best practices
 
 - Run pytest from the repository root to ensure fixtures set environment variables correctly:
@@ -179,7 +189,6 @@ curl http://127.0.0.1:8000/metrics
 
 If `prometheus-client` is not available the `/metrics` endpoint will return an empty body or a JSON message indicating metrics are disabled. The app's `USE_FREE_INGESTION` environment variable controls whether free-provider ingestion background tasks start (default is `true`). CI workflows should set `USE_FREE_INGESTION=false` to avoid starting background ingestion during tests.
 
-
 ---
 
 ## Contributing
@@ -238,14 +247,14 @@ GET  /api/propfinder/filters          # Available filter options and metadata
 
 #### 📊 **PropFinder vs A1Betting Clone Comparison**
 
-| Feature | PropFinder Original | A1Betting Clone | Advantage |
-|---------|-------------------|-----------------|-----------|
-| **Data Loading** | 3-5 seconds | <0.3 seconds | **15x faster** |
-| **Filtering** | Basic search | Advanced multi-criteria | **Professional-grade** |
-| **Performance** | Standard pagination | Virtual scrolling + React 19 | **10x more props** |
-| **Error Handling** | Basic | Comprehensive with retry | **Enterprise-grade** |
-| **Real-time Updates** | Limited | Live data with timestamps | **Always current** |
-| **Cost** | $29+/month | Free forever | **Save $348+ annually** |
+| Feature               | PropFinder Original | A1Betting Clone              | Advantage               |
+| --------------------- | ------------------- | ---------------------------- | ----------------------- |
+| **Data Loading**      | 3-5 seconds         | <0.3 seconds                 | **15x faster**          |
+| **Filtering**         | Basic search        | Advanced multi-criteria      | **Professional-grade**  |
+| **Performance**       | Standard pagination | Virtual scrolling + React 19 | **10x more props**      |
+| **Error Handling**    | Basic               | Comprehensive with retry     | **Enterprise-grade**    |
+| **Real-time Updates** | Limited             | Live data with timestamps    | **Always current**      |
+| **Cost**              | $29+/month          | Free forever                 | **Save $348+ annually** |
 
 ### ✅ **NEW: Stabilization Patch - Enhanced Development Experience**
 
@@ -267,7 +276,7 @@ GET  /api/propfinder/filters          # Available filter options and metadata
 
 #### 🔌 **WebSocket & API Enhancements**
 
-- **Unified Configuration**: Standardized WebSocket URL derivation from host/port configuration  
+- **Unified Configuration**: Standardized WebSocket URL derivation from host/port configuration
 - **CORS Preflight**: Enhanced OPTIONS handling for cross-origin requests
 - **UnifiedDataService**: Added missing `cacheData()` and `getCachedData()` methods to prevent runtime errors
 
@@ -421,10 +430,10 @@ Example (enriched):
   "avg_margin": 0.42,
   "max_margin": 1.31,
   "median_margin": 0.39,
-  "top_books": [{"pair": "FanDuel|DraftKings", "count": 5}],
+  "top_books": [{ "pair": "FanDuel|DraftKings", "count": 5 }],
   "book_pair_counts": [
-    {"pair": "FanDuel|DraftKings", "count": 5},
-    {"pair": "Caesars|BetMGM", "count": 3}
+    { "pair": "FanDuel|DraftKings", "count": 5 },
+    { "pair": "Caesars|BetMGM", "count": 3 }
   ],
   "top_opportunity": {
     "selection_key": "player:MLB:AaronJudge:HR",
@@ -464,7 +473,12 @@ Combines:
 Props:
 
 ```tsx
-<ValuePanel sport="MLB" market="player_props" includeEV={false} refreshMs={30000} />
+<ValuePanel
+  sport="MLB"
+  market="player_props"
+  includeEV={false}
+  refreshMs={30000}
+/>
 ```
 
 Resilient to both wrapped `{status,data}` and flattened summary responses. Displays count, average %, max %, (placeholder median when available), and top bookmaker pairs.
@@ -538,23 +552,23 @@ export SPORTRADAR_API_KEY=your_api_key_here
 
 ## 🏆 **A1Betting vs PropFinder**
 
-| Feature             | PropFinder  | A1Betting                               | Advantage                                |
-| ------------------- | ----------- | --------------------------------------- | ---------------------------------------- |
-| **Cost**            | $29+/month  | Free Forever                            | **Save $348+ annually**                  |
-| **PropFinder Clone** | Original    | Superior implementation complete        | **15x faster with advanced filtering**   |
-| **Data Loading**    | 3-5 seconds | <0.3 seconds                           | **15x faster performance**               |
-| **Filtering System**| Basic search| Advanced multi-criteria + real-time   | **Professional-grade filtering**         |
-| **Data Source**     | Limited     | SportRadar (19 APIs)                    | **Official sports data provider**        |
-| **AI Engine**       | None        | Quantum-Inspired Optimization           | **Advanced mathematical algorithms**     |
-| **Performance**     | Standard    | React 19 + Virtual Scrolling            | **10x faster, handles 10,000+ props**    |
-| **Error Handling**  | Basic       | Enterprise error boundaries + retry    | **Comprehensive failure recovery**       |
-| **Testing**         | Unknown     | Enterprise testing framework            | **90%+ coverage with E2E validation**    |
-| **Documentation**   | Limited     | 200+ pages comprehensive guides         | **Complete developer resources**         |
-| **Response Time**   | 2-5 seconds | <0.3 seconds                            | **15x faster performance**               |
-| **Analytics**       | Basic       | 6 analysis types + Bayesian modeling    | **Professional-grade statistical tools** |
-| **Risk Management** | Limited     | Kelly Criterion + Advanced optimization | **Mathematically optimal bet sizing**    |
-| **Cloud Support**   | Limited     | Advanced cloud deployment ready         | **Enterprise-grade scalability**         |
-| **API Integration** | Basic       | 19 SportRadar APIs + Smart Management   | **Professional data infrastructure**     |
+| Feature              | PropFinder   | A1Betting                               | Advantage                                |
+| -------------------- | ------------ | --------------------------------------- | ---------------------------------------- |
+| **Cost**             | $29+/month   | Free Forever                            | **Save $348+ annually**                  |
+| **PropFinder Clone** | Original     | Superior implementation complete        | **15x faster with advanced filtering**   |
+| **Data Loading**     | 3-5 seconds  | <0.3 seconds                            | **15x faster performance**               |
+| **Filtering System** | Basic search | Advanced multi-criteria + real-time     | **Professional-grade filtering**         |
+| **Data Source**      | Limited      | SportRadar (19 APIs)                    | **Official sports data provider**        |
+| **AI Engine**        | None         | Quantum-Inspired Optimization           | **Advanced mathematical algorithms**     |
+| **Performance**      | Standard     | React 19 + Virtual Scrolling            | **10x faster, handles 10,000+ props**    |
+| **Error Handling**   | Basic        | Enterprise error boundaries + retry     | **Comprehensive failure recovery**       |
+| **Testing**          | Unknown      | Enterprise testing framework            | **90%+ coverage with E2E validation**    |
+| **Documentation**    | Limited      | 200+ pages comprehensive guides         | **Complete developer resources**         |
+| **Response Time**    | 2-5 seconds  | <0.3 seconds                            | **15x faster performance**               |
+| **Analytics**        | Basic        | 6 analysis types + Bayesian modeling    | **Professional-grade statistical tools** |
+| **Risk Management**  | Limited      | Kelly Criterion + Advanced optimization | **Mathematically optimal bet sizing**    |
+| **Cloud Support**    | Limited      | Advanced cloud deployment ready         | **Enterprise-grade scalability**         |
+| **API Integration**  | Basic        | 19 SportRadar APIs + Smart Management   | **Professional data infrastructure**     |
 
 ---
 
@@ -653,7 +667,7 @@ Advanced sports prediction pipeline: - Transformer-based models for sequential s
 
 **Example Usage:**
 
-```python
+````python
 from backend.services.modern_ml_service import modern_ml_service, PredictionRequest
 
 request = PredictionRequest(
@@ -743,7 +757,7 @@ npm run lint             # ESLint checking
 npm run type-check       # TypeScript validation
 npm run format           # Prettier formatting
 npm run analyze          # Bundle analysis and optimization
-```
+````
 
 ### **Backend Development**
 

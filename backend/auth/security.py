@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # OAuth2PasswordBearer for token extraction
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
 # JWT Configuration
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-super-secret-jwt-key-change-in-production")
@@ -260,16 +260,18 @@ def extract_user_from_token(token: str) -> TokenData:
     """Extract user data from token"""
     return security_manager.extract_user_from_token(token)
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
+async def get_current_user(token: Optional[str] = Depends(oauth2_scheme)) -> TokenData:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    if not token:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Missing authorization token")
     try:
         payload = security_manager.verify_token(token)
-        username: Optional[str] = payload.get("sub")
-        user_id: Optional[str] = payload.get("user_id")
+        username = payload.get("sub")
+        user_id = payload.get("user_id")
         scopes: List[str] = payload.get("scopes", [])
 
         # Ensure username and user_id are not None
@@ -283,7 +285,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
         # Ensure scopes is a list of strings, default to empty list if not
         if not isinstance(scopes, list) or not all(isinstance(s, str) for s in scopes):
             logger.warning("Token scopes are not a list of strings; defaulting to empty list.")
-            scopes = [] # Default to empty list if invalid type or content
+            scopes = []  # Default to empty list if invalid type or content
 
         token_data = TokenData(username=username, user_id=user_id, scopes=scopes)
     except JWTError as e:

@@ -14,16 +14,17 @@ interface PropFiltersProps {
   sports: string[];
   statTypes: string[];
   upcomingGames: Array<{
-    game_id?: number;
+    game_id?: string;
     home: string;
     away: string;
     time: string;
     event_name: string;
     status?: string;
     venue?: string;
+    start_time?: string;
   }>;
-  selectedGame: { game_id: number; home: string; away: string } | null;
-  onGameSelect: (game: { game_id: number; home: string; away: string } | null) => void;
+  selectedGame: { game_id: string; home: string; away: string } | null;
+  onGameSelect: (game: { game_id: string; home: string; away: string } | null) => void;
   className?: string;
 }
 
@@ -37,7 +38,6 @@ const PropFiltersComponent: React.FC<PropFiltersProps> = ({
   onGameSelect,
   className = '',
 }) => {
-  console.count('[PropFilters] RENDER');
   return (
     <div
       className={`flex flex-wrap gap-4 p-4 bg-slate-800/50 backdrop-blur-sm rounded-lg border border-slate-600 mb-4 space-y-4 ${className}`}
@@ -163,7 +163,7 @@ const PropFiltersComponent: React.FC<PropFiltersProps> = ({
             onChange={e => {
               const gameId = e.target.value;
               if (gameId) {
-                const game = upcomingGames.find(g => g.game_id?.toString() === gameId);
+                const game = upcomingGames.find(g => g.game_id === gameId);
                 if (game) {
                   onGameSelect({
                     game_id: game.game_id!,
@@ -178,11 +178,25 @@ const PropFiltersComponent: React.FC<PropFiltersProps> = ({
             className='w-full p-2 bg-slate-700 border border-slate-600 rounded-md text-white focus:ring-purple-500 focus:border-purple-500'
           >
             <option value=''>All Games</option>
-            {upcomingGames.map(game => (
-              <option key={game.game_id} value={game.game_id} className='text-white bg-slate-700'>
-                {game.event_name} - {new Date(game.time).toLocaleDateString()}
-              </option>
-            ))}
+            {upcomingGames.map(game => {
+              if (!game.game_id) {
+                return null;
+              }
+              const scheduled = game.start_time || game.time;
+              const formattedTime = scheduled
+                ? new Date(scheduled).toLocaleString(undefined, {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    month: 'short',
+                    day: 'numeric',
+                  })
+                : 'TBD';
+              return (
+                <option key={game.game_id} value={game.game_id} className='text-white bg-slate-700'>
+                  {game.event_name} · {formattedTime}
+                </option>
+              );
+            })}
           </select>
         </div>
       )}

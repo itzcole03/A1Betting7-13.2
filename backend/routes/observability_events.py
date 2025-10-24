@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 from ..services.observability.event_bus import get_event_bus, EventType
 from ..services.websocket.ws_registry import get_registry_stats
 from ..utils.response_envelope import ok, fail
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -98,9 +99,7 @@ async def get_observability_events(
         
     except Exception as e:
         logger.error(f"Failed to get observability events: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve observability events: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve observability events: {str(e, status_code=500)}"
         )
 
 
@@ -155,9 +154,7 @@ async def get_event_types() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Failed to get event types: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve event types: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve event types: {str(e, status_code=500)}"
         )
 
 
@@ -216,9 +213,7 @@ async def get_observability_stats() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Failed to get observability stats: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve observability statistics: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve observability statistics: {str(e, status_code=500)}"
         )
 
 
@@ -246,9 +241,7 @@ async def clear_event_buffer() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Failed to clear event buffer: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to clear event buffer: {str(e)}"
+        raise BusinessLogicException(f"Failed to clear event buffer: {str(e, status_code=500)}"
         )
 
 
@@ -310,7 +303,5 @@ async def observability_health_check() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Observability health check failed: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Observability health check failed: {str(e)}"
+        raise BusinessLogicException(f"Observability health check failed: {str(e, status_code=500)}"
         )

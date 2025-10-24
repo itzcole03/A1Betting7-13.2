@@ -82,8 +82,17 @@ export interface MLBGame {
   game_id: string;
   home_team: string;
   away_team: string;
-  game_date: string;
-  status: 'scheduled' | 'live' | 'final' | 'postponed';
+  game_date?: string;
+  start_time?: string;
+  status?: string;
+  venue?: string;
+  home_id?: number | string;
+  away_id?: number | string;
+  probable_pitchers?: {
+    home?: string;
+    away?: string;
+  };
+  matchup?: string;
   scores?: {
     home: number;
     away: number;

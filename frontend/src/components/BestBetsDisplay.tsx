@@ -1,6 +1,7 @@
+import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { discoverBackend } from '../services/backendDiscovery';
+import { createTimeoutSignal } from '../utils/createTimeoutSignal';
 
 interface BestBet {
   id: string;
@@ -39,9 +40,15 @@ const BestBetsDisplay: React.FC<BestBetsDisplayProps> = () => {
         new Promise((_, reject) => setTimeout(() => reject(new Error('Discovery timeout')), 3000)),
       ])) as string;
 
-      const response = await fetch(`${backendUrl}/api/prizepicks/props?min_confidence=70`, {
-        signal: AbortSignal.timeout(5000), // 5 second timeout
-      });
+      const timeout = createTimeoutSignal(5000);
+      let response: Response;
+      try {
+        response = await fetch(`${backendUrl}/api/prizepicks/props?min_confidence=70`, {
+          signal: timeout.signal,
+        });
+      } finally {
+        timeout.cleanup();
+      }
 
       if (response.ok) {
         const data = await response.json();
@@ -188,4 +195,4 @@ const BestBetCard: React.FC<BestBetCardProps> = ({ bet, index }) => {
       )}
     </motion.div>
   );
-}; 
+};

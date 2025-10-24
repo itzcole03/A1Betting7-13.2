@@ -97,6 +97,7 @@ class CacheServiceExt:
             cached_value = await self._base_cache.get(cache_key)
             
             if cached_value is not None:
+                hit_ctx.mark_hit()
                 logger.debug(f"✅ Cache hit for key: {cache_key}")
                 return cached_value
         
@@ -109,11 +110,13 @@ class CacheServiceExt:
         
         async with lock:
             # Check cache again in case another coroutine built it while we waited
-            cached_value = await self._base_cache.get(cache_key)
-            if cached_value is not None:
-                self._instrumentation.record_stampede_prevention(cache_key)
-                logger.debug(f"🛡️ Stampede prevented for key: {cache_key}")
-                return cached_value
+            with instrument_get_hit(cache_key, metrics_namespace, tier_str) as retry_hit_ctx:
+                cached_value = await self._base_cache.get(cache_key)
+                if cached_value is not None:
+                    retry_hit_ctx.mark_hit()
+                    self._instrumentation.record_stampede_prevention(cache_key)
+                    logger.debug(f"🛡️ Stampede prevented for key: {cache_key}")
+                    return cached_value
             
             # Build the value
             try:
@@ -177,6 +180,7 @@ class CacheServiceExt:
                 value = await self._base_cache.get(cache_key, default)
                 
                 if value != default:
+                    hit_ctx.mark_hit()
                     logger.debug(f"✅ Cache hit for key: {cache_key}")
                     return value
             

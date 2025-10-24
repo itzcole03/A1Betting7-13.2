@@ -1,3 +1,14 @@
+# Project Status Tracker
+
+## PropFinder Dashboard Outage (2025-10-06)
+
+- Live PropFinder dashboards remain unable to load opportunities in the current environment.
+- `/` (PropFinder) shows “No opportunities match your current filters” with a reported server total of 0 opportunities.
+- `/ev-feed` responds with “Failed to fetch opportunities: Service Unavailable.”
+- `/arbitrage` returns “Failed to load arbitrage data: API returned 404: Not Found.”
+- WebSocket indicators stay disconnected across the affected pages.
+- No code modifications were introduced alongside these observations; investigation should focus on backend availability or proxy configuration issues so the feeds can populate again.
+
 ## MLB Pipeline Lessons Learned (2025-07-28)
 
 - End-to-end MLB data ingestion, ETL, feature engineering, model prediction, and frontend integration are functional and validated.
@@ -6,7 +17,7 @@
 - Unified API returns `BetAnalysisResponse` for MLB, and the frontend displays all required fields.
 - Next steps: Gather real MLB stat distributions, tune model parameters, and further document MLB-specific edge cases and best practices.
 
-# PropOllama Project Status Report
+## PropOllama Project Status Report
 
 **Report Date**: January 20, 2025  
 **Report Type**: Current Status & Health Check  

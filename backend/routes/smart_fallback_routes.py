@@ -11,6 +11,7 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 from pydantic import BaseModel, Field
 
 from ..services.smart_fallback_priority_service import (
+from backend.core.exceptions import BusinessLogicException
     get_smart_fallback_service,
     SmartFallbackPriorityService,
     FallbackConfiguration,
@@ -98,7 +99,7 @@ async def health_check():
         }
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        raise HTTPException(status_code=503, detail=f"Service unhealthy: {str(e)}")
+        raise BusinessLogicException(f"Service unhealthy: {str(e, status_code=503)}")
 
 
 @router.get("/priorities/{context}")
@@ -116,7 +117,7 @@ async def get_provider_priorities(
     provider_list = [p.strip() for p in available_providers.split(",") if p.strip()]
     
     if not provider_list:
-        raise HTTPException(status_code=400, detail="No providers specified")
+        raise BusinessLogicException("No providers specified", status_code=400)
     
     try:
         priorities = await service.get_provider_priorities(context, provider_list, force_refresh)
@@ -137,7 +138,7 @@ async def get_provider_priorities(
         
     except Exception as e:
         logger.error(f"Error getting provider priorities for {context}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get priorities: {str(e)}")
+        raise BusinessLogicException(f"Failed to get priorities: {str(e, status_code=500)}")
 
 
 @router.post("/primary-provider")
@@ -158,7 +159,7 @@ async def set_primary_provider(
         
     except Exception as e:
         logger.error(f"Error setting primary provider: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to set primary provider: {str(e)}")
+        raise BusinessLogicException(f"Failed to set primary provider: {str(e, status_code=500)}")
 
 
 @router.post("/select-provider")
@@ -207,7 +208,7 @@ async def select_optimal_provider(
         
     except Exception as e:
         logger.error(f"Error selecting optimal provider: {e}")
-        raise HTTPException(status_code=500, detail=f"Provider selection failed: {str(e)}")
+        raise BusinessLogicException(f"Provider selection failed: {str(e, status_code=500)}")
 
 
 @router.get("/analytics")
@@ -228,7 +229,7 @@ async def get_fallback_analytics(
         
     except Exception as e:
         logger.error(f"Error getting fallback analytics: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get analytics: {str(e)}")
+        raise BusinessLogicException(f"Failed to get analytics: {str(e, status_code=500)}")
 
 
 @router.get("/configuration")
@@ -253,7 +254,7 @@ async def get_fallback_configuration(
         
     except Exception as e:
         logger.error(f"Error getting fallback configuration: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get configuration: {str(e)}")
+        raise BusinessLogicException(f"Failed to get configuration: {str(e, status_code=500)}")
 
 
 @router.get("/contexts")
@@ -266,7 +267,7 @@ async def get_active_contexts(
         
     except Exception as e:
         logger.error(f"Error getting active contexts: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get contexts: {str(e)}")
+        raise BusinessLogicException(f"Failed to get contexts: {str(e, status_code=500)}")
 
 
 @router.delete("/cache")
@@ -301,7 +302,7 @@ async def clear_priority_cache(
             
     except Exception as e:
         logger.error(f"Error clearing cache: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to clear cache: {str(e)}")
+        raise BusinessLogicException(f"Failed to clear cache: {str(e, status_code=500)}")
 
 
 @router.post("/cleanup")
@@ -311,7 +312,7 @@ async def cleanup_old_data(
 ):
     """Clean up old fallback events and cache entries"""
     if max_age_hours <= 0:
-        raise HTTPException(status_code=400, detail="max_age_hours must be positive")
+        raise BusinessLogicException("max_age_hours must be positive", status_code=400)
     
     try:
         history_count_before = len(service.fallback_history)
@@ -339,7 +340,7 @@ async def cleanup_old_data(
         
     except Exception as e:
         logger.error(f"Error during cleanup: {e}")
-        raise HTTPException(status_code=500, detail=f"Cleanup failed: {str(e)}")
+        raise BusinessLogicException(f"Cleanup failed: {str(e, status_code=500)}")
 
 
 @router.get("/status")
@@ -384,7 +385,7 @@ async def get_system_status(
         
     except Exception as e:
         logger.error(f"Error getting system status: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get status: {str(e)}")
+        raise BusinessLogicException(f"Failed to get status: {str(e, status_code=500)}")
 
 
 # Add router to the main application

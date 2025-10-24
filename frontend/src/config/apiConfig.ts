@@ -5,8 +5,27 @@
 
 import { getEnvVar } from '../bootstrap/getEnv';
 
+const resolveApiBaseUrl = (): string => {
+  const explicit = getEnvVar('VITE_API_BASE_URL');
+  if (typeof explicit === 'string' && explicit.trim().length > 0) {
+    return explicit.trim();
+  }
+
+  if (typeof window !== 'undefined') {
+    const { protocol, hostname, port } = window.location;
+    const devPorts = new Set(['5173', '5174', '4173']);
+    const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+    if (isLocalHost && devPorts.has(port)) {
+      return `${protocol}//${window.location.host}`;
+    }
+  }
+
+  return 'http://127.0.0.1:8000';
+};
+
 // API Base URL configuration
-export const API_BASE_URL = getEnvVar('VITE_API_BASE_URL', 'http://localhost:8000') as string;
+export const API_BASE_URL = resolveApiBaseUrl();
 
 // WebSocket URL configuration with protocol derivation
 const deriveWSUrl = (apiBaseUrl: string): string => {

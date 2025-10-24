@@ -320,4 +320,6 @@ export const _useSmartAlerts = () => {
   };
 };
 
-export default useSmartAlerts;
+export const useSmartAlerts = _useSmartAlerts;
+
+export default _useSmartAlerts;

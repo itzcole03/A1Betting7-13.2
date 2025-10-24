@@ -44,13 +44,28 @@ def test_get_betting_opportunities(mock_get_games):
     mock_get_games.return_value = []
     response = client.get("/api/betting-opportunities")
     assert response.status_code == 200
-    assert isinstance(response.json(), list)
+    payload = response.json()
+    assert isinstance(payload, dict)
+    assert payload["success"] is True
+    assert isinstance(payload.get("data"), list)
 
 
 def test_get_arbitrage_opportunities():
+    client.post("/api/odds/refresh?sport=MLB&market=player_props")
     response = client.get("/api/arbitrage-opportunities")
     assert response.status_code == 200
-    assert isinstance(response.json(), list)
+    payload = response.json()
+    assert isinstance(payload, dict)
+    assert payload["success"] is True
+    assert isinstance(payload.get("data"), list)
+    if payload.get("data"):
+        first = payload["data"][0]
+        assert "bookmaker_a" in first
+        assert "bookmaker_b" in first
+        assert "profit_margin" in first
+        assert "selection_key" in first
+        assert "margin_pct" in first
+        assert "stake_over" in first
 
 
 def test_get_predictions_shim():

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * PropOllama Data Fetching Hook
  *
@@ -15,6 +16,13 @@ import {
 } from '../../services/unified/FeaturedPropsService';
 import { EnhancedApiClient } from '../../utils/enhancedApiClient';
 import { PropOllamaActions, PropOllamaState } from './usePropOllamaState';
+import { UpcomingGame } from '../shared/PropOllamaTypes';
+
+interface ApiEnvelope<T> {
+  success?: boolean;
+  data?: T;
+  error?: unknown;
+}
 
 const apiClient = new EnhancedApiClient();
 
@@ -54,10 +62,15 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
     try {
       console.log("[PropOllamaData] Fetching today's games for MLB...");
       const response = await apiClient.get('/mlb/todays-games');
+      const payload = Array.isArray(response.data)
+        ? (response.data as UpcomingGame[])
+        : Array.isArray((response.data as ApiEnvelope<UpcomingGame[]> | undefined)?.data)
+        ? ((response.data as ApiEnvelope<UpcomingGame[]>).data ?? null)
+        : null;
 
-      if (response.data && Array.isArray(response.data)) {
-        console.log(`[PropOllamaData] Found ${response.data.length} upcoming games`);
-        actions.setUpcomingGames(response.data);
+      if (payload) {
+        console.log(`[PropOllamaData] Found ${payload.length} upcoming games`);
+        actions.setUpcomingGames(payload);
       } else {
         console.warn('[PropOllamaData] No upcoming games data received');
         actions.setUpcomingGames([]);
@@ -277,12 +290,24 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
           });
 
           allProps = allProps.filter(prop => {
-            const propTeamName = prop.matchup || prop._originalData?.team_name || '';
-            return Array.from(upcomingTeamNames).some(
-              teamName =>
-                propTeamName.toLowerCase().includes(teamName.toLowerCase()) ||
-                teamName.toLowerCase().includes(propTeamName.toLowerCase())
-            );
+            const propTeamSource =
+              prop.matchup ??
+              (typeof prop._originalData?.team_name === 'string'
+                ? prop._originalData.team_name
+                : undefined);
+            const propTeamName = (propTeamSource ?? '').toString();
+            return Array.from(upcomingTeamNames).some(teamName => {
+              const normalizedTeam = teamName.toLowerCase();
+              if (!normalizedTeam) {
+                return false;
+              }
+
+              const normalizedProp = propTeamName.toLowerCase();
+              return (
+                normalizedProp.includes(normalizedTeam) ||
+                normalizedTeam.includes(normalizedProp)
+              );
+            });
           });
 
           console.log(`[PropOllamaData] Filtered to ${allProps.length} props for upcoming games`);
@@ -420,6 +445,7 @@ export function usePropOllamaData({ state, actions }: UsePropOllamaDataProps) {
     state.filters.propType,
     state.filters.selectedStatType,
     activateSportAndFetchData,
+    actions,
   ]);
 
   // Effect to fetch upcoming games when MLB is selected

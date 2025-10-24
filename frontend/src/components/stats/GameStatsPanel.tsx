@@ -2,16 +2,17 @@ import React from 'react';
 import LiveGameStats from '../LiveGameStats';
 
 export interface GameStatsPanelProps {
-  selectedGameId: number | null;
-  onGameSelect: (gameId: number) => void;
+  selectedGameId: string | null;
+  onGameSelect: (gameId: string) => void;
   games: Array<{
-    game_id?: number;
+    game_id?: string;
     home: string;
     away: string;
     time: string;
     event_name: string;
     status?: string;
     venue?: string;
+    start_time?: string;
   }>;
   loading: boolean;
 }
@@ -36,8 +37,8 @@ export const GameStatsPanel: React.FC<GameStatsPanelProps> = ({
           <select
             value={selectedGameId || ''}
             onChange={e => {
-              const gameId = parseInt(e.target.value);
-              if (!isNaN(gameId)) {
+              const gameId = e.target.value;
+              if (gameId) {
                 onGameSelect(gameId);
               }
             }}
@@ -45,15 +46,17 @@ export const GameStatsPanel: React.FC<GameStatsPanelProps> = ({
             disabled={loading}
           >
             <option value=''>Select a game...</option>
-            {games.map(game => (
-              <option
-                key={game.game_id || game.event_name}
-                value={game.game_id || ''}
-                className='bg-slate-700 text-white'
-              >
-                {game.event_name} - {game.time}
-              </option>
-            ))}
+            {games
+              .filter(game => Boolean(game.game_id))
+              .map(game => {
+                const optionId = game.game_id as string;
+                const scheduledTime = game.start_time || game.time;
+                return (
+                  <option key={optionId} value={optionId} className='bg-slate-700 text-white'>
+                    {game.event_name} - {scheduledTime}
+                  </option>
+                );
+              })}
           </select>
         </div>
       )}

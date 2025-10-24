@@ -21,6 +21,7 @@ from backend.models.ev_models import (
 )
 from backend.services.ev_feed_service import ev_feed_service
 from backend.core.response_models import ResponseBuilder, StandardAPIResponse
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger("ev_feed_routes")
 
@@ -45,13 +46,13 @@ async def get_ev_feed_meta():
     max_capacity, last_added_at, last_prune_at, max_edge.
     """
     if _ev_feed_disabled():
-        raise HTTPException(status_code=503, detail="EV feed disabled by feature flag")
+        raise BusinessLogicException("EV feed disabled by feature flag", status_code=503)
     try:
         meta = ev_feed_service.get_meta()
         return ResponseBuilder.success(data=meta, message="EV feed meta retrieved")
     except Exception as e:  # pragma: no cover - defensive
         logger.error(f"Error fetching EV feed meta: {e}")
-        raise HTTPException(status_code=500, detail="Failed to fetch meta")
+        raise BusinessLogicException("Failed to fetch meta", status_code=500)
 
 
 @router.get("/feed", response_model=EVFeedResponse)
@@ -73,7 +74,7 @@ async def get_ev_feed(
     """
     try:
         if _ev_feed_disabled():
-            raise HTTPException(status_code=503, detail="EV feed disabled by feature flag")
+            raise BusinessLogicException("EV feed disabled by feature flag", status_code=503)
         if os.getenv("DEBUG") or os.getenv("EV_FEED_DEBUG"):
             logger.debug(f"Fetching +EV feed with filters: min_ev={min_ev}, sport={sport}, limit={limit}")
         
@@ -106,9 +107,7 @@ async def get_ev_feed(
         raise
     except Exception as e:
         logger.error(f"Error fetching +EV feed: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch +EV feed: {str(e)}"
+        raise BusinessLogicException(f"Failed to fetch +EV feed: {str(e, status_code=500)}"
         )
 
 @router.get("/forecast", response_model=EVForecastResponse)
@@ -122,7 +121,7 @@ async def get_ev_forecast(
     """
     try:
         if _ev_feed_disabled():
-            raise HTTPException(status_code=503, detail="EV feed disabled by feature flag")
+            raise BusinessLogicException("EV feed disabled by feature flag", status_code=503)
         min_ev_val = min_ev if min_ev is not None else 2.0
         limit_val = limit if limit is not None else 50
         if os.getenv("DEBUG") or os.getenv("EV_FEED_DEBUG"):
@@ -143,9 +142,7 @@ async def get_ev_forecast(
         raise
     except Exception as e:
         logger.error(f"Error fetching +EV forecast: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch +EV forecast: {str(e)}"
+        raise BusinessLogicException(f"Failed to fetch +EV forecast: {str(e, status_code=500)}"
         )
 
 @router.get("/feed/stats", response_model=EVFeedStats)
@@ -161,17 +158,14 @@ async def get_ev_feed_stats():
     """
     try:
         if _ev_feed_disabled():
-            raise HTTPException(status_code=503, detail="EV feed disabled by feature flag")
+            raise BusinessLogicException("EV feed disabled by feature flag", status_code=503)
         if os.getenv("DEBUG") or os.getenv("EV_FEED_DEBUG"):
             logger.debug("Fetching +EV feed statistics")
         
         stats = await ev_feed_service.get_stats()
         
         if not stats:
-            raise HTTPException(
-                status_code=404,
-                detail="No statistics available"
-            )
+            raise BusinessLogicException("No statistics available", status_code=404)
         
         if os.getenv("DEBUG") or os.getenv("EV_FEED_DEBUG"):
             logger.debug(f"Returned stats for {stats.total_opportunities} opportunities")
@@ -181,9 +175,7 @@ async def get_ev_feed_stats():
         raise
     except Exception as e:
         logger.error(f"Error fetching +EV feed stats: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch +EV feed statistics: {str(e)}"
+        raise BusinessLogicException(f"Failed to fetch +EV feed statistics: {str(e, status_code=500)}"
         )
 
 
@@ -207,7 +199,7 @@ async def search_ev_feed(
     """
     try:
         if _ev_feed_disabled():
-            raise HTTPException(status_code=503, detail="EV feed disabled by feature flag")
+            raise BusinessLogicException("EV feed disabled by feature flag", status_code=503)
 
         # Lazy import pattern (protect against heavy init in future refactors)
         from backend.services.ev_feed_service import ev_feed_service as _svc  # noqa: F401
@@ -216,17 +208,17 @@ async def search_ev_feed(
         if min_edge is not None:
             try:
                 if min_edge < 0 or min_edge > 100:
-                    raise HTTPException(status_code=422, detail="min_edge must be between 0 and 100")
+                    raise BusinessLogicException("min_edge must be between 0 and 100", status_code=422)
             except TypeError:
-                raise HTTPException(status_code=422, detail="min_edge must be numeric")
+                raise BusinessLogicException("min_edge must be numeric", status_code=422)
         min_edge_val = float(min_edge if min_edge is not None else 3.0)
 
         if limit is not None:
             try:
                 if limit < 1:
-                    raise HTTPException(status_code=422, detail="limit must be >=1")
+                    raise BusinessLogicException("limit must be >=1", status_code=422)
             except TypeError:
-                raise HTTPException(status_code=422, detail="limit must be an integer")
+                raise BusinessLogicException("limit must be an integer", status_code=422)
         # Hard cap at 200 per requirements (even if query asked for more)
         limit_val = int(limit or 100)
         if limit_val > 200:
@@ -279,7 +271,7 @@ async def search_ev_feed(
         raise
     except Exception as e:
         logger.error(f"Error searching EV feed: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to search EV feed: {e}")
+        raise BusinessLogicException(f"Failed to search EV feed: {e}", status_code=500)
 
 
 @router.post("/feed/refresh")
@@ -292,7 +284,7 @@ async def refresh_ev_feed():
     """
     try:
         if _ev_feed_disabled():
-            raise HTTPException(status_code=503, detail="EV feed disabled by feature flag")
+            raise BusinessLogicException("EV feed disabled by feature flag", status_code=503)
         if os.getenv("DEBUG") or os.getenv("EV_FEED_DEBUG"):
             logger.debug("Manual refresh of +EV feed requested")
         
@@ -320,9 +312,7 @@ async def refresh_ev_feed():
         raise
     except Exception as e:
         logger.error(f"Error refreshing +EV feed: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to refresh +EV feed: {str(e)}"
+        raise BusinessLogicException(f"Failed to refresh +EV feed: {str(e, status_code=500)}"
         )
 
 
@@ -381,7 +371,7 @@ async def search_ev_opportunities(
     """
     try:
         if _ev_feed_disabled():
-            raise HTTPException(status_code=503, detail="EV feed disabled by feature flag")
+            raise BusinessLogicException("EV feed disabled by feature flag", status_code=503)
         if os.getenv("DEBUG") or os.getenv("EV_FEED_DEBUG"):
             logger.debug(f"Searching +EV opportunities: query='{query}', sport={sport}")
         
@@ -427,9 +417,7 @@ async def search_ev_opportunities(
         raise
     except Exception as e:
         logger.error(f"Error searching +EV opportunities: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to search opportunities: {str(e)}"
+        raise BusinessLogicException(f"Failed to search opportunities: {str(e, status_code=500)}"
         )
 
 
@@ -443,7 +431,7 @@ async def get_ev_opportunity_details(opportunity_id: str):
     """
     try:
         if _ev_feed_disabled():
-            raise HTTPException(status_code=503, detail="EV feed disabled by feature flag")
+            raise BusinessLogicException("EV feed disabled by feature flag", status_code=503)
         if os.getenv("DEBUG") or os.getenv("EV_FEED_DEBUG"):
             logger.debug(f"Fetching details for opportunity: {opportunity_id}")
         
@@ -457,10 +445,7 @@ async def get_ev_opportunity_details(opportunity_id: str):
                 break
         
         if not opportunity:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Opportunity {opportunity_id} not found"
-            )
+            raise BusinessLogicException(f"Opportunity {opportunity_id} not found", status_code=404)
         
         # Calculate additional details
         from backend.models.ev_models import calculate_expected_value
@@ -500,7 +485,5 @@ async def get_ev_opportunity_details(opportunity_id: str):
         raise
     except Exception as e:
         logger.error(f"Error fetching opportunity details: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch opportunity details: {str(e)}"
+        raise BusinessLogicException(f"Failed to fetch opportunity details: {str(e, status_code=500)}"
         )

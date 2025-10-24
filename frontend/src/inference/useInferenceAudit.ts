@@ -176,6 +176,20 @@ export function useInferenceAudit(options?: {
       },
     });
 
+    // Guarded debug logging for tests. Avoid noisy logs unless explicitly enabled.
+    const _debugEnabled = Boolean(process.env.TEST_VERBOSE_LOGS === 'true' || (globalThis as any).__TEST_VERBOSE__);
+    if (_debugEnabled) {
+      try {
+        const isJestMock = typeof (fetch as any)?.mock === 'object';
+        const mockCalls = isJestMock ? (fetch as any).mock.calls.length : undefined;
+        // eslint-disable-next-line no-console
+        console.debug('[useInferenceAudit] fetch called:', endpoint, 'isJestMock:', isJestMock, 'mockCalls:', mockCalls);
+      } catch {
+        // eslint-disable-next-line no-console
+        console.debug('[useInferenceAudit] fetch called (no mock info):', endpoint);
+      }
+    }
+
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`API request failed: ${response.status} ${errorText}`);
@@ -215,8 +229,16 @@ export function useInferenceAudit(options?: {
       setError(null);
 
     } catch (err) {
-      if (err instanceof Error && err.name !== 'AbortError') {
-        const errorMessage = err.message || 'Failed to fetch audit data';
+      // Normalize error to string so tests and callers can inspect it regardless of error type
+      const isAbort = err instanceof Error && err.name === 'AbortError';
+      if (!isAbort) {
+        const errorMessage = err instanceof Error ? err.message : String(err || 'Failed to fetch audit data');
+        // Log error only when verbose logging is enabled
+        const _debugEnabled = Boolean(process.env.TEST_VERBOSE_LOGS === 'true' || (globalThis as any).__TEST_VERBOSE__);
+        if (_debugEnabled) {
+          // eslint-disable-next-line no-console
+          console.error('[useInferenceAudit] fetchAuditData error:', errorMessage);
+        }
         setError(errorMessage);
       }
     } finally {

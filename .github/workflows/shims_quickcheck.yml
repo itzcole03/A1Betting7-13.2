@@ -1,0 +1,91 @@
+name: Core Shims Quickcheck
+
+on:
+  push:
+    paths:
+      - ".github/workflows/shims_quickcheck.yml"
+      - "CI/smoke_runner_wrapper.sh"
+      - "frontend/src/core/**"
+  pull_request:
+    paths:
+      - ".github/workflows/shims_quickcheck.yml"
+      - "CI/smoke_runner_wrapper.sh"
+      - "frontend/src/core/**"
+
+jobs:
+  shims_quickcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci --silent
+
+      - name: Run shim smoke wrapper with metrics gate
+        run: |
+          chmod +x frontend/src/core/CI/smoke_runner_wrapper.sh
+          RUN_TS_SMOKE=1 RUN_TSC=1 RUN_METRICS_CHECK=1 ./frontend/src/core/CI/smoke_runner_wrapper.sh
+
+      - name: Upload shims quickcheck reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: shims_quickcheck_reports
+          path: reports/shims_quickcheck/*.json
+          if-no-files-found: warn
+
+      - name: Post quickcheck summary to PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const core = require('@actions/core');
+            const reportsDir = path.join(process.cwd(), 'reports', 'shims_quickcheck');
+            let files = [];
+            try {
+              files = fs.readdirSync(reportsDir)
+                .filter((f) => f.endsWith('.json'))
+                .map((f) => path.join(reportsDir, f));
+            } catch (error) {
+              core.info(`No reports directory found: ${error.message}`);
+            }
+
+            if (files.length === 0) {
+              core.info('No quickcheck reports found to summarize');
+              return;
+            }
+
+            const latest = files
+              .map((file) => ({ file, mtime: fs.statSync(file).mtimeMs }))
+              .sort((a, b) => b.mtime - a.mtime)[0].file;
+
+            const report = JSON.parse(fs.readFileSync(latest, 'utf8'));
+            const checks = Array.isArray(report.checks) ? report.checks : [];
+            const overallOk = checks.every((check) => check.ok !== false);
+            const jsResult = report.results?.js_quickcheck || {};
+            const durationMs = report.metrics?.quickcheck_duration_ms ?? (typeof jsResult.durationSeconds === 'number' ? jsResult.durationSeconds * 1000 : 'n/a');
+            const summaryLines = [];
+            summaryLines.push(`**Shims Quickcheck** — SHA ${report.sha || 'unknown'} — status: ${overallOk ? 'PASS ✅' : 'FAIL ❌'} — quickcheck duration: ${durationMs}`);
+            summaryLines.push('');
+            for (const check of checks) {
+              const status = check.ok === false ? '❌' : '✅';
+              const extra = check.value !== undefined ? ` (value: ${JSON.stringify(check.value)})` : '';
+              summaryLines.push(`- ${status} ${check.name}${extra}`);
+            }
+
+            const body = summaryLines.join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

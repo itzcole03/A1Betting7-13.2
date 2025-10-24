@@ -2,12 +2,13 @@
 API routes for data validation and monitoring.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from datetime import datetime
 from typing import Dict, Any
 import logging
 
 from ..validators.data_validator import get_validation_metrics, ValidationSummary
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger("propollama.routes.validation")
 
@@ -41,9 +42,7 @@ async def get_validation_summary(
         
     except Exception as e:
         logger.error(f"Error generating validation summary: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to generate validation summary: {str(e)}"
+        raise BusinessLogicException(f"Failed to generate validation summary: {str(e, status_code=500)}"
         )
 
 
@@ -80,3 +79,19 @@ async def get_validation_health() -> Dict[str, Any]:
                 "last_check": datetime.now().isoformat()
             }
         }
+
+
+@router.options("/validation/summary")
+async def options_validation_summary() -> Response:
+    """Respond to OPTIONS preflight for the validation summary endpoint.
+
+    Tests and some clients expect OPTIONS to be allowed and return 200/204.
+    Returning 204 No Content is appropriate for preflight/inspection requests.
+    """
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.options("/validation/health")
+async def options_validation_health() -> Response:
+    """Respond to OPTIONS preflight for the validation health endpoint."""
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

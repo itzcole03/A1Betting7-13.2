@@ -61,10 +61,11 @@ async def calculate_kelly_sizes(request_data: KellyCalculationRequest, request: 
     try:
         # Validate opportunities
         if not request_data.opportunities:
-            raise HTTPException(status_code=400, detail="At least one betting opportunity is required")
+            raise BusinessLogicException("At least one betting opportunity is required", status_code=400)
         
         # Convert opportunities to engine format and calculate
         from backend.services.advanced_kelly_engine import (
+from backend.core.exceptions import BusinessLogicException
             BettingOpportunity, BetType, KellyVariant
         )
         
@@ -119,10 +120,10 @@ async def calculate_kelly_sizes(request_data: KellyCalculationRequest, request: 
         }
         
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Validation error: {str(e)}")
+        raise BusinessLogicException(f"Validation error: {str(e, status_code=400)}")
     except Exception as e:
         logger.error(f"Error calculating Kelly sizes: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to calculate Kelly sizes: {str(e)}")
+        raise BusinessLogicException(f"Failed to calculate Kelly sizes: {str(e, status_code=500)}")
 
 
 @router.post("/optimize", summary="Optimize portfolio allocation")
@@ -133,7 +134,7 @@ async def optimize_portfolio(request_data: OptimizationRequest, request: Request
     """
     try:
         if not request_data.opportunities:
-            raise HTTPException(status_code=400, detail="At least one betting opportunity is required")
+            raise BusinessLogicException("At least one betting opportunity is required", status_code=400)
         
         from backend.services.advanced_kelly_engine import (
             BettingOpportunity, BetType
@@ -175,10 +176,10 @@ async def optimize_portfolio(request_data: OptimizationRequest, request: Request
         }
         
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Validation error: {str(e)}")
+        raise BusinessLogicException(f"Validation error: {str(e, status_code=400)}")
     except Exception as e:
         logger.error(f"Error optimizing portfolio: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to optimize portfolio: {str(e)}")
+        raise BusinessLogicException(f"Failed to optimize portfolio: {str(e, status_code=500)}")
 
 
 @router.get("/variants", summary="List available Kelly variants")
@@ -211,7 +212,7 @@ async def list_kelly_variants(request: Request) -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error listing Kelly variants: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to list variants: {str(e)}")
+        raise BusinessLogicException(f"Failed to list variants: {str(e, status_code=500)}")
 
 
 @router.get("/health", summary="Check Kelly engine health")
@@ -239,7 +240,7 @@ async def check_health(request: Request) -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error checking Kelly engine health: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to check health: {str(e)}")
+        raise BusinessLogicException(f"Failed to check health: {str(e, status_code=500)}")
 
 
 @router.post("/reset", summary="Reset Kelly engine state")
@@ -268,7 +269,7 @@ async def reset_engine(request: Request) -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error resetting Kelly engine: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to reset engine: {str(e)}")
+        raise BusinessLogicException(f"Failed to reset engine: {str(e, status_code=500)}")
 
 
 @router.get("/metrics", summary="Get Kelly engine metrics")
@@ -299,4 +300,4 @@ async def get_engine_metrics(request: Request) -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error getting Kelly engine metrics: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get metrics: {str(e)}")
+        raise BusinessLogicException(f"Failed to get metrics: {str(e, status_code=500)}")

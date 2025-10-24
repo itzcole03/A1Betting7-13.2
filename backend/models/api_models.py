@@ -166,6 +166,43 @@ class ArbitrageOpportunity(BaseModel):
     profit_margin: float
     required_stake: float
 
+    # Extended arbitrage metadata consumed by institutional dashboard flows
+    selection_key: Optional[str] = Field(
+        default=None, description="Canonical selection identifier from odds ingestion"
+    )
+    market: Optional[str] = Field(default=None, description="Market category for the arbitrage")
+    player: Optional[str] = Field(default=None, description="Player associated with the market")
+    line: Optional[float] = Field(default=None, description="Market line associated with the bet")
+    over_book: Optional[str] = Field(default=None, description="Sportsbook offering the over leg")
+    under_book: Optional[str] = Field(default=None, description="Sportsbook offering the under leg")
+    over_american: Optional[int] = Field(
+        default=None, description="American odds for the over leg"
+    )
+    under_american: Optional[int] = Field(
+        default=None, description="American odds for the under leg"
+    )
+    margin_pct: Optional[float] = Field(
+        default=None, description="Arbitrage margin expressed as percentage"
+    )
+    stake_over: Optional[float] = Field(
+        default=None, description="Stake allocation for the over leg"
+    )
+    stake_under: Optional[float] = Field(
+        default=None, description="Stake allocation for the under leg"
+    )
+    total_stake: Optional[float] = Field(
+        default=None, description="Total stake required to execute the opportunity"
+    )
+    guaranteed_return: Optional[float] = Field(
+        default=None, description="Guaranteed return amount when executing both legs"
+    )
+    guaranteed_profit: Optional[float] = Field(
+        default=None, description="Guaranteed profit from the arbitrage pair"
+    )
+    last_updated: Optional[str] = Field(
+        default=None, description="ISO8601 timestamp representing the freshest odds snapshot"
+    )
+
 
 # ============================================================================
 # PERFORMANCE MODELS

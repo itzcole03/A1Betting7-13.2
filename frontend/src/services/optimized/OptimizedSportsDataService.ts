@@ -5,6 +5,8 @@
  * Implements intelligent caching, request deduplication, and performance optimizations.
  */
 
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any */
+
 import { useCallback, useRef } from 'react';
 import { FeaturedProp, fetchFeaturedProps } from '../../services/unified/FeaturedPropsService';
 import { EnhancedBetsResponse } from '../../types/enhancedBetting';
@@ -160,7 +162,17 @@ export class OptimizedSportsDataService {
       async () => {
         try {
           const response = await this.apiClient.get(`/${sport.toLowerCase()}/todays-games`);
-          return response.data.games || [];
+          const rawData = response.data;
+          if (Array.isArray(rawData)) {
+            return rawData;
+          }
+          if (rawData && typeof rawData === 'object' && Array.isArray((rawData as any).data)) {
+            return [...((rawData as { data: any[] }).data)];
+          }
+          if (rawData && typeof rawData === 'object' && Array.isArray((rawData as any).games)) {
+            return [...((rawData as { games: any[] }).games)];
+          }
+          return [];
         } catch (error) {
           console.warn(`[OptimizedSportsDataService] Failed to fetch games for ${sport}:`, error);
           return [];
@@ -173,7 +185,7 @@ export class OptimizedSportsDataService {
   /**
    * Fetch comprehensive props with optimization
    */
-  async fetchComprehensiveProps(gameId: number, optimizePerformance: boolean = true): Promise<any> {
+  async fetchComprehensiveProps(gameId: string, optimizePerformance: boolean = true): Promise<any> {
     const cacheKey = `comprehensive-props:${gameId}:${optimizePerformance}`;
 
     return this.cachedFetch(
@@ -183,7 +195,11 @@ export class OptimizedSportsDataService {
           const response = await this.apiClient.get(
             `/mlb/comprehensive-props/${gameId}?optimize_performance=${optimizePerformance}`
           );
-          return response.data;
+          const rawData = response.data;
+          if (rawData && typeof rawData === 'object' && 'data' in (rawData as Record<string, any>)) {
+            return (rawData as { data: any }).data;
+          }
+          return rawData;
         } catch (error) {
           console.warn(
             `[OptimizedSportsDataService] Failed to fetch comprehensive props for game ${gameId}:`,
@@ -382,7 +398,7 @@ export function useOptimizedSportsData() {
   );
 
   const fetchComprehensiveProps = useCallback(
-    (gameId: number, optimizePerformance: boolean = true) =>
+  (gameId: string, optimizePerformance: boolean = true) =>
       serviceRef.current.fetchComprehensiveProps(gameId, optimizePerformance),
     []
   );

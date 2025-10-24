@@ -27,6 +27,7 @@ class CacheMetricsHook:
     def __init__(self):
         self.metrics_collector = get_metrics_collector()
         self._hooked_methods = []  # Track what we've hooked for cleanup
+        self._hooked_method_ids = set()
         
     def wrap_cache_get(self, original_get: Callable) -> Callable:
         """
@@ -162,29 +163,46 @@ class CacheMetricsHook:
             # Hook common cache method names
             for method_name in ['get', 'get_cached', 'retrieve']:
                 if _has_explicit_attr(cache_service, method_name):
+                    key = (id(cache_service), method_name)
+                    if key in self._hooked_method_ids:
+                        logger.debug(f"Cache method already hooked: {method_name}")
+                        hooked_any = True
+                        continue
                     original_method = getattr(cache_service, method_name)
                     wrapped_method = self.wrap_cache_get(original_method)
                     setattr(cache_service, method_name, wrapped_method)
                     self._hooked_methods.append((cache_service, method_name, original_method))
+                    self._hooked_method_ids.add(key)
                     hooked_any = True
                     logger.debug(f"Hooked cache method: {method_name}")
             
             # Hook set methods (do not by themselves mark service as 'hooked')
             for method_name in ['set', 'put', 'store']:
                 if _has_explicit_attr(cache_service, method_name):
+                    key = (id(cache_service), method_name)
+                    if key in self._hooked_method_ids:
+                        logger.debug(f"Cache method already hooked: {method_name}")
+                        continue
                     original_method = getattr(cache_service, method_name)
                     wrapped_method = self.wrap_cache_set(original_method)
                     setattr(cache_service, method_name, wrapped_method)
                     self._hooked_methods.append((cache_service, method_name, original_method))
+                    self._hooked_method_ids.add(key)
                     logger.debug(f"Hooked cache method: {method_name}")
             
             # Hook delete methods
             for method_name in ['delete', 'remove', 'evict']:
                 if _has_explicit_attr(cache_service, method_name):
+                    key = (id(cache_service), method_name)
+                    if key in self._hooked_method_ids:
+                        logger.debug(f"Cache method already hooked: {method_name}")
+                        hooked_any = True
+                        continue
                     original_method = getattr(cache_service, method_name)
                     wrapped_method = self.wrap_cache_delete(original_method)
                     setattr(cache_service, method_name, wrapped_method)
                     self._hooked_methods.append((cache_service, method_name, original_method))
+                    self._hooked_method_ids.add(key)
                     hooked_any = True
                     logger.debug(f"Hooked cache method: {method_name}")
             
@@ -204,6 +222,8 @@ class CacheMetricsHook:
         for cache_service, method_name, original_method in self._hooked_methods:
             try:
                 setattr(cache_service, method_name, original_method)
+                key = (id(cache_service), method_name)
+                self._hooked_method_ids.discard(key)
             except Exception as e:
                 logger.warning(f"Failed to unhook {method_name}: {e}")
         

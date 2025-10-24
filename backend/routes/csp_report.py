@@ -18,6 +18,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from ..middleware.prometheus_metrics_middleware import get_metrics_middleware
 from ..config.settings import get_settings
+from backend.core.exceptions import BusinessLogicException
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -98,14 +99,14 @@ async def receive_csp_report(
         # Check if CSP reporting is enabled
         if not settings.security.csp_report_endpoint_enabled:
             logger.debug("CSP report received but endpoint is disabled")
-            raise HTTPException(status_code=404, detail="CSP reporting not enabled")
+            raise BusinessLogicException("CSP reporting not enabled", status_code=404)
         
         # Get raw request body
         raw_body = await request.body()
         
         if not raw_body:
             logger.warning("CSP report received with empty body")
-            raise HTTPException(status_code=400, detail="Empty CSP report")
+            raise BusinessLogicException("Empty CSP report", status_code=400)
         
         # Parse JSON payload
         try:
@@ -113,7 +114,7 @@ async def receive_csp_report(
         except (json.JSONDecodeError, UnicodeDecodeError) as e:
             logger.error(f"Failed to parse CSP report JSON: {e}")
             logger.debug(f"Raw body: {raw_body[:500]}")  # Log first 500 chars for debugging
-            raise HTTPException(status_code=400, detail="Invalid JSON in CSP report")
+            raise BusinessLogicException("Invalid JSON in CSP report", status_code=400)
         
         # Validate CSP report structure
         try:
@@ -122,7 +123,7 @@ async def receive_csp_report(
         except ValidationError as e:
             logger.error(f"CSP report validation failed: {e}")
             logger.debug(f"Payload data: {payload_data}")
-            raise HTTPException(status_code=400, detail="Invalid CSP report structure")
+            raise BusinessLogicException("Invalid CSP report structure", status_code=400)
         
         # Extract key information for logging and metrics
         violated_directive = csp_report.violated_directive
@@ -178,7 +179,7 @@ async def receive_csp_report(
         
     except Exception as e:
         logger.error(f"Unexpected error processing CSP report: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error processing CSP report")
+        raise BusinessLogicException("Internal server error processing CSP report", status_code=500)
 
 
 # Compatibility alias - maintains backwards compatibility with /api/security path
@@ -195,9 +196,6 @@ async def receive_csp_report_alias(
     backwards compatibility. Delegates to the main endpoint handler.
     """
     return await receive_csp_report(request, settings, metrics_client)
-
-
-@router.get("/csp/report/stats")
 
 
 def _analyze_violation_patterns(csp_report: CSPViolationReport, logger: logging.Logger) -> None:
@@ -266,7 +264,7 @@ async def get_csp_stats(
     try:
         # Check if CSP reporting is enabled
         if not settings.security.csp_report_endpoint_enabled:
-            raise HTTPException(status_code=404, detail="CSP reporting not enabled")
+            raise BusinessLogicException("CSP reporting not enabled", status_code=404)
         
         stats = {
             "csp_enabled": settings.security.csp_enabled,
@@ -294,7 +292,7 @@ async def get_csp_stats(
         raise
     except Exception as e:
         logger.error(f"Error retrieving CSP stats: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise BusinessLogicException("Internal server error", status_code=500)
 
 
 # Health check for CSP report endpoint

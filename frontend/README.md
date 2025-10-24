@@ -1,6 +1,6 @@
 # PropOllama Frontend - AI-Powered Sports Analytics Interface
 
-## 🚀 Current Status (January 2025)
+## 🚀 Current Status (October 2025)
 
 **✅ FULLY FUNCTIONAL FRONTEND APPLICATION**
 
@@ -64,9 +64,19 @@ npm run build
 ### Testing
 
 ```bash
-npm run test      # Run Jest tests
+npm run test       # Run Jest unit/integration tests
 npm run test:watch # Run tests in watch mode
 ```
+
+#### Optimized App E2E Harness
+
+The comprehensive `App.e2e.test.tsx` suite now ships with lightweight service and UI shims, keeping memory usage low while still exercising navigation, permission guards, and prop rendering. Run it directly without extra heap flags:
+
+```bash
+npm run test -- --runTestsByPath src/__tests__/App.e2e.test.tsx
+```
+
+The stubbed providers live alongside the test and do not affect production builds. If you add new UI assertions, extend the local mock rather than the production `UserFriendlyApp` to retain the fast, deterministic harness.
 
 ### WebSocket Connection Test Coverage
 
@@ -350,10 +360,10 @@ npm install  # Clean reinstall
 
 **HMR WebSocket Errors (Port Mismatch)**
 
-If you see errors like "WebSocket connection to 'ws://localhost:8174/_hmr' failed":
+If you see errors like "WebSocket connection to 'ws://localhost:8174/\_hmr' failed":
 
 1. **Clear Browser Cache**: Hard refresh (Ctrl+Shift+R) or clear browser cache
-2. **Close All Tabs**: Close all tabs with the application and reopen  
+2. **Close All Tabs**: Close all tabs with the application and reopen
 3. **Restart Dev Server**: Stop (`Ctrl+C`) and restart (`npm run dev`)
 4. **Check Port Configuration**: Ensure consistent port usage:
    - Package.json: `--port 5173`
@@ -377,4 +387,4 @@ This project is licensed under the MIT License.
 
 **Built with ⚡ by the PropOllama Team**
 
-_Last Updated: January 2025_
+_Last Updated: October 2025_

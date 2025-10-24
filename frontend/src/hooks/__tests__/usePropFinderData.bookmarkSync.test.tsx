@@ -1,5 +1,5 @@
+import { act, render } from '@testing-library/react';
 import React from 'react';
-import { render, act } from '@testing-library/react';
 import usePropFinderData from '../usePropFinderData';
 
 // Mock enhancedLogger to avoid noisy logs
@@ -9,16 +9,23 @@ jest.mock('@/utils/enhancedLogger', () => ({
   info: jest.fn(),
 }));
 
+// Mock HttpClient so bookmark sync can run without hitting real network logic
+jest.mock('../../services/HttpClient', () => ({
+  httpFetch: jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: async () => ({ success: true }),
+    })
+  ),
+}));
+
+import { httpFetch } from '../../services/HttpClient';
+
 describe('usePropFinderData bookmark sync', () => {
-  const ORIGINAL_FETCH = global.fetch;
   const ORIGINAL_LOCALSTORAGE = global.localStorage;
 
   beforeEach(() => {
     jest.resetAllMocks();
-    // mock fetch
-    global.fetch = jest.fn(() =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true }) })
-    ) as any;
 
     // mock localStorage
     let store: Record<string, string> = {};
@@ -39,12 +46,12 @@ describe('usePropFinderData bookmark sync', () => {
   });
 
   afterEach(() => {
-    global.fetch = ORIGINAL_FETCH;
     global.localStorage = ORIGINAL_LOCALSTORAGE;
   });
 
-  it('posts local bookmarks to server when userId becomes available and clears local stash', async () => {
-    // Seed local bookmarks
+  it('does not attempt backend bookmark sync when userId becomes available', async () => {
+    // Seed legacy local bookmarks queue (pre-Phase 4.2 format) to ensure the hook
+    // gracefully ignores backend sync until the API is implemented.
     const localBookmarks = ['prop-1', 'prop-2'];
     global.localStorage.setItem('local_propfinder_bookmarks', JSON.stringify(localBookmarks));
 
@@ -63,17 +70,17 @@ describe('usePropFinderData bookmark sync', () => {
       await Promise.resolve();
     });
 
-    // Expect fetch to have been called for the two bookmark POSTs
-    const calls = (global.fetch as jest.Mock).mock.calls;
-    const bookmarkCalls = calls.filter((call: any[]) => {
-      const url = typeof call[0] === 'string' ? call[0] : call[0]?.url ?? '';
-      const opts = call[1] ?? {};
-      return url.includes('/api/propfinder/bookmark') || (opts.method || '').toUpperCase() === 'POST';
+    // Expect no POST attempts because backend sync is intentionally deferred.
+    const calls = (httpFetch as jest.Mock).mock.calls;
+    const bookmarkCalls = calls.filter(([url, options]: [string, RequestInit]) => {
+      const requestUrl = typeof url === 'string' ? url : '';
+      const method = (options?.method || 'GET').toUpperCase();
+      return requestUrl.includes('/api/propfinder/bookmark') && method === 'POST';
     });
 
-    expect(bookmarkCalls.length).toBe(2);
+    expect(bookmarkCalls.length).toBe(0);
 
-    // local_propfinder_bookmarks should be cleared
-    expect(global.localStorage.getItem('local_propfinder_bookmarks')).toBe(null);
+    // local_propfinder_bookmarks should remain untouched until backend sync ships.
+    expect(global.localStorage.getItem('local_propfinder_bookmarks')).toBe(JSON.stringify(localBookmarks));
   });
 });

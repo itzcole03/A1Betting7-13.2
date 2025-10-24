@@ -4,13 +4,26 @@ Syntax errors resolved to enable consolidated route registration
 Includes HEAD method support for readiness checks.
 """
 
+import logging
 from fastapi import APIRouter, HTTPException
 from typing import Any, Dict, List, Optional
 
 # Metrics instrumentation
 from backend.services.metrics.instrumentation import instrument_route
+from backend.services.mlb_stats_api_client import MLBStatsAPIClient
+from backend.core.exceptions import BusinessLogicException
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+_mlb_client: Optional[MLBStatsAPIClient] = None
+
+
+def _get_client() -> MLBStatsAPIClient:
+    global _mlb_client
+    if _mlb_client is None:
+        _mlb_client = MLBStatsAPIClient()
+    return _mlb_client
 
 # ---------------------------------------------------------------------------
 # Module-level helpers (tests patch these helpers). Keep simple defaults so
@@ -19,23 +32,53 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 
 async def get_todays_games() -> List[Dict[str, Any]]:
-    """Fetch today's MLB games (default: empty list). Tests patch this."""
-    return []
+    """Fetch today's MLB games via the Stats API client."""
+
+    client = _get_client()
+    try:
+        games = await client.get_todays_games()
+        if not isinstance(games, list):
+            return []
+        return games
+    except Exception as exc:  # pragma: no cover - defensive around upstream
+        logger.error("Failed to load today's MLB games: %s", exc)
+        return []
 
 
 async def get_filtered_prizepicks_props() -> List[Dict[str, Any]]:
-    """Fetch PrizePicks props (default: empty list). Tests patch this."""
-    return []
+    """Generate PrizePicks-style props using the MLB stats client."""
+
+    client = _get_client()
+    try:
+        props = await client.generate_player_props_data()
+        if not isinstance(props, list):
+            return []
+        return props
+    except Exception as exc:  # pragma: no cover - fallback to empty list
+        logger.error("Failed to generate MLB props data: %s", exc)
+        return []
 
 
 async def get_live_game_data(game_id: str) -> Optional[Dict[str, Any]]:
-    """Fetch live game data for `game_id` (default: None). Tests patch this."""
-    return None
+    """Fetch live game data snapshot for `game_id`."""
+
+    client = _get_client()
+    try:
+        return await client.get_live_game_snapshot(game_id)
+    except Exception as exc:  # pragma: no cover
+        logger.error("Failed to fetch live game snapshot for %s: %s", game_id, exc)
+        return None
 
 
 async def get_play_by_play_data(game_id: str) -> Optional[Dict[str, Any]]:
-    """Fetch play-by-play data (default: None). Tests patch this."""
-    return None
+    """Fetch play-by-play data for the given MLB game."""
+
+    client = _get_client()
+    try:
+        return await client.get_play_by_play(game_id)
+    except Exception as exc:  # pragma: no cover
+        logger.error("Failed to fetch play-by-play for %s: %s", game_id, exc)
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -90,7 +133,7 @@ async def todays_games_endpoint():
         result = await get_todays_games()
         return {"success": True, "data": result, "error": None}
     except Exception:
-        raise HTTPException(status_code=500, detail="MLB games service error")
+        raise BusinessLogicException("MLB games service error", status_code=500)
 
 
 @router.get("/prizepicks-props/")
@@ -114,10 +157,15 @@ async def comprehensive_props_endpoint(game_id: str, optimize_performance: bool 
 
         generator = ComprehensivePropGenerator()
         # generator.generate_game_props is expected to be awaitable in tests
-        props = await generator.generate_game_props(game_id, optimize_performance=optimize_performance)
+        try:
+            normalized_game_id = int(str(game_id))
+        except (TypeError, ValueError):
+            raise BusinessLogicException("Invalid MLB game identifier", status_code=400)
+
+        props = await generator.generate_game_props(normalized_game_id, optimize_performance=optimize_performance)
         return {"success": True, "data": props, "error": None}
     except Exception:
-        raise HTTPException(status_code=500, detail="Comprehensive props service unavailable")
+        raise BusinessLogicException("Comprehensive props service unavailable", status_code=500)
 
 
 @router.get("/live-game-stats/{game_id}")
@@ -127,15 +175,15 @@ async def live_game_stats_endpoint(game_id: str):
     try:
         result = await get_live_game_data(game_id)
         if result is None:
-            raise HTTPException(status_code=404, detail="Game not found")
+            raise BusinessLogicException("Game not found", status_code=404)
 
         return {"success": True, "data": result, "error": None}
     except TimeoutError:
-        raise HTTPException(status_code=500, detail="Timeout fetching live game data")
+        raise BusinessLogicException("Timeout fetching live game data", status_code=500)
     except HTTPException:
         raise
     except Exception:
-        raise HTTPException(status_code=500, detail="Live game stats service error")
+        raise BusinessLogicException("Live game stats service error", status_code=500)
 
 
 @router.get("/play-by-play/{game_id}")
@@ -143,7 +191,7 @@ async def play_by_play_endpoint(game_id: str):
     # Allow helper to determine presence; return 404 when helper returns None
     result = await get_play_by_play_data(game_id)
     if result is None:
-        raise HTTPException(status_code=404, detail="Play-by-play not found")
+        raise BusinessLogicException("Play-by-play not found", status_code=404)
 
     return {"success": True, "data": result, "error": None}
 

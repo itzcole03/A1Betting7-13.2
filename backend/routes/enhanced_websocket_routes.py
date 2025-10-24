@@ -229,6 +229,7 @@ async def shutdown():
     import os, sys
     try:
         from unittest.mock import AsyncMock
+from backend.core.exceptions import BusinessLogicException
     except Exception:
         AsyncMock = None
 
@@ -448,7 +449,7 @@ async def broadcast_test_message(
     Only works if WebSocket service is initialized
     """
     if not enhanced_websocket_service.is_initialized:
-        return {"error": "WebSocket service not initialized"}
+        raise BusinessLogicException("Handler error")
     
     try:
         sub_type = SubscriptionType(subscription_type)
@@ -471,16 +472,16 @@ async def broadcast_test_message(
         }
         
     except ValueError:
-        return {"error": f"Invalid subscription type: {subscription_type}"}
+        raise BusinessLogicException("Handler error")"}
     except Exception as e:
-        return {"error": f"Broadcast failed: {str(e)}"}
+        raise BusinessLogicException("Handler error")"}
 
 
 @router.get("/rooms")
 async def get_active_rooms():
     """Get information about active subscription rooms"""
     if not enhanced_websocket_service.is_initialized:
-        return {"error": "WebSocket service not initialized"}
+        raise BusinessLogicException("Handler error")
     
     sm = enhanced_websocket_service.connection_manager.subscription_manager
     
@@ -505,7 +506,7 @@ async def get_active_rooms():
 async def get_active_connections():
     """Get information about active WebSocket connections with detailed logging info"""
     if not enhanced_websocket_service.is_initialized:
-        return {"error": "WebSocket service not initialized"}
+        raise BusinessLogicException("Handler error")
     
     cm = enhanced_websocket_service.connection_manager
     

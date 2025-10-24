@@ -1,7 +1,7 @@
 /**
  * Customizable Dashboard System
  * Phase 3: Advanced UI Features - User-configurable dashboard with drag-and-drop widgets
- * 
+ *
  * Features:
  * - Drag and drop layout customization
  * - Widget library with various chart types
@@ -11,34 +11,28 @@
  * - Save/load dashboard layouts
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { 
-  Grid,
-  Plus,
-  Settings,
-  Save,
-  RefreshCw,
+import {
+  BarChart3,
+  Clock,
+  DollarSign,
   Eye,
   EyeOff,
-  Move,
-  X,
-  BarChart3,
+  Grid,
   LineChart,
-  PieChart,
-  TrendingUp,
-  Users,
-  Target,
-  DollarSign,
-  Clock,
-  Star,
-  Activity,
-  Zap,
-  Filter,
-  Download,
-  Share2,
   Maximize2,
-  Minimize2
+  Minimize2,
+  PieChart,
+  Plus,
+  RefreshCw,
+  Save,
+  Settings,
+  Star,
+  Target,
+  TrendingUp,
+  X,
 } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { PropOpportunity, usePropFinderData } from '../../hooks/usePropFinderData';
 import { enhancedLogger } from '../../services/EnhancedLogger';
 
 // Widget types
@@ -56,9 +50,9 @@ export interface Widget {
   refreshInterval?: number; // in seconds
 }
 
-export type WidgetType = 
+export type WidgetType =
   | 'line_chart'
-  | 'bar_chart' 
+  | 'bar_chart'
   | 'pie_chart'
   | 'stats_card'
   | 'recent_bets'
@@ -98,255 +92,360 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
   initialLayout,
   onLayoutChange,
   readOnly = false,
-  className = ''
+  className = '',
 }) => {
   // State management
-  const [layout, setLayout] = useState<DashboardLayout>(
-    initialLayout || createDefaultLayout()
-  );
+  const [layout, setLayout] = useState<DashboardLayout>(initialLayout || createDefaultLayout());
   const [isEditing, setIsEditing] = useState(false);
   const [selectedWidget, setSelectedWidget] = useState<string | null>(null);
   const [showWidgetLibrary, setShowWidgetLibrary] = useState(false);
   const [draggedWidget, setDraggedWidget] = useState<Widget | null>(null);
   const [widgetData, setWidgetData] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const {
+    opportunities: propFinderOpportunities = [],
+    loading: propFinderLoading,
+    refreshData: refreshPropFinderData,
+  } = usePropFinderData({ autoRefresh: true, includeCLV: true });
+  const combinedLoading = isLoading || propFinderLoading;
 
   // Widget library configuration
-  const widgetLibrary = useMemo(() => [
-    {
-      type: 'stats_card' as WidgetType,
-      name: 'Stats Card',
-      icon: BarChart3,
-      description: 'Display key metrics and KPIs',
-      defaultConfig: { metric: 'total_profit', format: 'currency' },
-      defaultSize: { width: 2, height: 1 }
+  const widgetLibrary = useMemo(
+    () => [
+      {
+        type: 'stats_card' as WidgetType,
+        name: 'Stats Card',
+        icon: BarChart3,
+        description: 'Display key metrics and KPIs',
+        defaultConfig: { metric: 'total_profit', format: 'currency' },
+        defaultSize: { width: 2, height: 1 },
+      },
+      {
+        type: 'line_chart' as WidgetType,
+        name: 'Line Chart',
+        icon: LineChart,
+        description: 'Show trends over time',
+        defaultConfig: { dataSource: 'bankroll_history', timeframe: '30d' },
+        defaultSize: { width: 4, height: 2 },
+      },
+      {
+        type: 'bar_chart' as WidgetType,
+        name: 'Bar Chart',
+        icon: BarChart3,
+        description: 'Compare categories',
+        defaultConfig: { dataSource: 'sport_performance', groupBy: 'sport' },
+        defaultSize: { width: 3, height: 2 },
+      },
+      {
+        type: 'pie_chart' as WidgetType,
+        name: 'Pie Chart',
+        icon: PieChart,
+        description: 'Show proportions',
+        defaultConfig: { dataSource: 'bet_distribution', groupBy: 'outcome' },
+        defaultSize: { width: 2, height: 2 },
+      },
+      {
+        type: 'recent_bets' as WidgetType,
+        name: 'Recent Bets',
+        icon: Clock,
+        description: 'Latest betting activity',
+        defaultConfig: { limit: 10, showStatus: true },
+        defaultSize: { width: 4, height: 3 },
+      },
+      {
+        type: 'live_odds' as WidgetType,
+        name: 'Live Odds',
+        icon: TrendingUp,
+        description: 'Real-time odds comparison',
+        defaultConfig: { sports: ['NBA', 'NFL'], markets: ['moneyline', 'spread'] },
+        defaultSize: { width: 3, height: 2 },
+      },
+      {
+        type: 'bankroll_tracker' as WidgetType,
+        name: 'Bankroll Tracker',
+        icon: DollarSign,
+        description: 'Monitor your bankroll',
+        defaultConfig: { showProjection: true, timeframe: '7d' },
+        defaultSize: { width: 3, height: 2 },
+      },
+      {
+        type: 'performance_metrics' as WidgetType,
+        name: 'Performance Metrics',
+        icon: Target,
+        description: 'Track betting performance',
+        defaultConfig: { metrics: ['roi', 'win_rate', 'avg_odds'] },
+        defaultSize: { width: 4, height: 2 },
+      },
+      {
+        type: 'prop_opportunities' as WidgetType,
+        name: 'Prop Opportunities',
+        icon: Star,
+        description: 'High-value prop bets',
+        defaultConfig: { minConfidence: 0.8, minEV: 0.05 },
+        defaultSize: { width: 4, height: 3 },
+      },
+    ],
+    []
+  );
+
+  // Load stats card data from API
+  const loadStatsCardData = useCallback(
+    async (config: Record<string, unknown>): Promise<Record<string, unknown>> => {
+      const metric = (config.metric as string) || 'total_profit';
+
+      try {
+        const response = await fetch(`/api/dashboard/stats/${metric}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch stats: ${response.status}`);
+        }
+        const data = await response.json();
+        return {
+          value: data.value || 0,
+          change: data.change || 0,
+          label: data.label || metric,
+        };
+      } catch (error) {
+        enhancedLogger.warn(
+          'CustomizableDashboard',
+          'loadStatsCardData',
+          `Failed to load stats for metric ${metric}`,
+          { metric, error: error instanceof Error ? error.message : 'Unknown error' }
+        );
+        // Return default values
+        return {
+          value: 0,
+          change: 0,
+          label: metric,
+        };
+      }
     },
-    {
-      type: 'line_chart' as WidgetType,
-      name: 'Line Chart',
-      icon: LineChart,
-      description: 'Show trends over time',
-      defaultConfig: { dataSource: 'bankroll_history', timeframe: '30d' },
-      defaultSize: { width: 4, height: 2 }
+    []
+  );
+
+  // Load line chart data from API
+  const loadLineChartData = useCallback(
+    async (config: Record<string, unknown>): Promise<Record<string, unknown>> => {
+      const dataSource = (config.dataSource as string) || 'bankroll_history';
+      const timeframe = (config.timeframe as string) || '30d';
+
+      try {
+        const response = await fetch(`/api/dashboard/charts/${dataSource}?timeframe=${timeframe}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch chart data: ${response.status}`);
+        }
+        const data = await response.json();
+        return { data: data.points || [] };
+      } catch (error) {
+        enhancedLogger.warn(
+          'CustomizableDashboard',
+          'loadLineChartData',
+          `Failed to load chart data for ${dataSource}`,
+          { dataSource, timeframe, error: error instanceof Error ? error.message : 'Unknown error' }
+        );
+        // Return empty data array
+        return { data: [] };
+      }
     },
-    {
-      type: 'bar_chart' as WidgetType,
-      name: 'Bar Chart',
-      icon: BarChart3,
-      description: 'Compare categories',
-      defaultConfig: { dataSource: 'sport_performance', groupBy: 'sport' },
-      defaultSize: { width: 3, height: 2 }
+    []
+  );
+
+  // Load recent bets data from API
+  const loadRecentBetsData = useCallback(
+    async (config: Record<string, unknown>): Promise<Record<string, unknown>> => {
+      const limit = (config.limit as number) || 10;
+
+      try {
+        const response = await fetch(`/api/bets/recent?limit=${limit}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch recent bets: ${response.status}`);
+        }
+        const data = await response.json();
+        return { bets: data.bets || [] };
+      } catch (error) {
+        enhancedLogger.warn(
+          'CustomizableDashboard',
+          'loadRecentBetsData',
+          `Failed to load recent bets`,
+          { limit, error: error instanceof Error ? error.message : 'Unknown error' }
+        );
+        // Return empty bets array
+        return { bets: [] };
+      }
     },
-    {
-      type: 'pie_chart' as WidgetType,
-      name: 'Pie Chart',
-      icon: PieChart,
-      description: 'Show proportions',
-      defaultConfig: { dataSource: 'bet_distribution', groupBy: 'outcome' },
-      defaultSize: { width: 2, height: 2 }
+    []
+  );
+
+  // Load prop opportunities using shared PropFinder hook data
+  const loadPropOpportunitiesData = useCallback(
+    async (config: Record<string, unknown>): Promise<{ opportunities: PropOpportunity[] }> => {
+      const minConfidence = typeof config.minConfidence === 'number' ? config.minConfidence : 0.7;
+      const minEV = typeof config.minEV === 'number' ? config.minEV : 0.05;
+      const limit = typeof config.limit === 'number' ? config.limit : undefined;
+
+      const normalizeFraction = (value?: number | null): number => {
+        if (value === null || value === undefined || Number.isNaN(value)) return 0;
+        if (value > 1) return value / 100;
+        if (value < -1) return value / 100;
+        return value;
+      };
+
+      const normalizedConfidenceThreshold = normalizeFraction(minConfidence);
+      const normalizedEvThreshold = normalizeFraction(minEV);
+
+      const filtered = propFinderOpportunities
+        .filter(opp => {
+          const confidenceValue = normalizeFraction(opp.confidence ?? 0);
+          return confidenceValue >= normalizedConfidenceThreshold;
+        })
+        .filter(opp => {
+          const evValue =
+            typeof opp.evPercent === 'number'
+              ? normalizeFraction(opp.evPercent)
+              : typeof opp.evValue === 'number'
+              ? normalizeFraction(opp.evValue)
+              : typeof opp.edge === 'number'
+              ? normalizeFraction(opp.edge)
+              : 0;
+          return evValue >= normalizedEvThreshold;
+        });
+
+      const limited = typeof limit === 'number' ? filtered.slice(0, limit) : filtered;
+
+      return {
+        opportunities: limited,
+      };
     },
-    {
-      type: 'recent_bets' as WidgetType,
-      name: 'Recent Bets',
-      icon: Clock,
-      description: 'Latest betting activity',
-      defaultConfig: { limit: 10, showStatus: true },
-      defaultSize: { width: 4, height: 3 }
+    [propFinderOpportunities]
+  );
+
+  // Load data for a specific widget
+  const loadWidgetData = useCallback(
+    async (widget: Widget): Promise<Record<string, unknown>> => {
+      try {
+        switch (widget.type) {
+          case 'stats_card':
+            return await loadStatsCardData(widget.config);
+
+          case 'line_chart':
+            return await loadLineChartData(widget.config);
+
+          case 'recent_bets':
+            return await loadRecentBetsData(widget.config);
+
+          case 'prop_opportunities':
+            return await loadPropOpportunitiesData(widget.config);
+
+          default:
+            return { message: 'Widget data loading...' };
+        }
+      } catch (error) {
+        enhancedLogger.error(
+          'CustomizableDashboard',
+          'loadWidgetData',
+          `Failed to load data for widget ${widget.id} (${widget.type})`,
+          {
+            widgetId: widget.id,
+            widgetType: widget.type,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          },
+          error instanceof Error ? error : undefined
+        );
+        // Return empty data instead of throwing to prevent widget crashes
+        return { error: 'Failed to load data' };
+      }
     },
-    {
-      type: 'live_odds' as WidgetType,
-      name: 'Live Odds',
-      icon: TrendingUp,
-      description: 'Real-time odds comparison',
-      defaultConfig: { sports: ['NBA', 'NFL'], markets: ['moneyline', 'spread'] },
-      defaultSize: { width: 3, height: 2 }
-    },
-    {
-      type: 'bankroll_tracker' as WidgetType,
-      name: 'Bankroll Tracker',
-      icon: DollarSign,
-      description: 'Monitor your bankroll',
-      defaultConfig: { showProjection: true, timeframe: '7d' },
-      defaultSize: { width: 3, height: 2 }
-    },
-    {
-      type: 'performance_metrics' as WidgetType,
-      name: 'Performance Metrics',
-      icon: Target,
-      description: 'Track betting performance',
-      defaultConfig: { metrics: ['roi', 'win_rate', 'avg_odds'] },
-      defaultSize: { width: 4, height: 2 }
-    },
-    {
-      type: 'prop_opportunities' as WidgetType,
-      name: 'Prop Opportunities',
-      icon: Star,
-      description: 'High-value prop bets',
-      defaultConfig: { minConfidence: 0.8, minEV: 0.05 },
-      defaultSize: { width: 4, height: 3 }
-    }
-  ], []);
+    [loadStatsCardData, loadLineChartData, loadRecentBetsData, loadPropOpportunitiesData]
+  );
 
   // Load dashboard data
-  const loadDashboardData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data: Record<string, unknown> = {};
-      
-      // Load data for each widget
-      for (const widget of layout.widgets) {
-        if (widget.visible) {
-          data[widget.id] = await loadWidgetData(widget);
+  const loadDashboardData = useCallback(
+    async (options?: { skipLoadingState?: boolean }) => {
+      const shouldManageLoading = !options?.skipLoadingState;
+      if (shouldManageLoading) {
+        setIsLoading(true);
+      }
+
+      try {
+        const data: Record<string, unknown> = {};
+
+        for (const widget of layout.widgets) {
+          if (widget.visible) {
+            data[widget.id] = await loadWidgetData(widget);
+          }
+        }
+
+        setWidgetData(data);
+      } catch (error) {
+        enhancedLogger.error(
+          'CustomizableDashboard',
+          'loadDashboardData',
+          'Failed to load dashboard data',
+          { error: error instanceof Error ? error.message : 'Unknown error' },
+          error instanceof Error ? error : undefined
+        );
+      } finally {
+        if (shouldManageLoading) {
+          setIsLoading(false);
         }
       }
-      
-      setWidgetData(data);
+    },
+    [layout.widgets, loadWidgetData]
+  );
+
+  const handleRefresh = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      if (refreshPropFinderData) {
+        await refreshPropFinderData();
+      }
+
+      await loadDashboardData({ skipLoadingState: true });
     } catch (error) {
       enhancedLogger.error(
         'CustomizableDashboard',
-        'loadDashboardData',
-        'Failed to load dashboard data',
+        'handleRefresh',
+        'Dashboard refresh failed',
         { error: error instanceof Error ? error.message : 'Unknown error' },
         error instanceof Error ? error : undefined
       );
     } finally {
       setIsLoading(false);
     }
-  }, [layout.widgets, loadWidgetData]);
+  }, [loadDashboardData, refreshPropFinderData]);
 
-  // Load stats card data from API
-  const loadStatsCardData = useCallback(async (config: Record<string, unknown>): Promise<Record<string, unknown>> => {
-    const metric = config.metric as string || 'total_profit';
-    
-    try {
-      const response = await fetch(`/api/dashboard/stats/${metric}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch stats: ${response.status}`);
-      }
-      const data = await response.json();
-      return {
-        value: data.value || 0,
-        change: data.change || 0,
-        label: data.label || metric
-      };
-    } catch (error) {
-      enhancedLogger.warn(
-        'CustomizableDashboard',
-        'loadStatsCardData',
-        `Failed to load stats for metric ${metric}`,
-        { metric, error: error instanceof Error ? error.message : 'Unknown error' }
-      );
-      // Return default values
-      return {
-        value: 0,
-        change: 0,
-        label: metric
-      };
-    }
-  }, []);
+  useEffect(() => {
+    let isCancelled = false;
 
-  // Load line chart data from API
-  const loadLineChartData = useCallback(async (config: Record<string, unknown>): Promise<Record<string, unknown>> => {
-    const dataSource = config.dataSource as string || 'bankroll_history';
-    const timeframe = config.timeframe as string || '30d';
-    
-    try {
-      const response = await fetch(`/api/dashboard/charts/${dataSource}?timeframe=${timeframe}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch chart data: ${response.status}`);
-      }
-      const data = await response.json();
-      return { data: data.points || [] };
-    } catch (error) {
-      enhancedLogger.warn(
-        'CustomizableDashboard',
-        'loadLineChartData',
-        `Failed to load chart data for ${dataSource}`,
-        { dataSource, timeframe, error: error instanceof Error ? error.message : 'Unknown error' }
+    const updatePropWidgets = async () => {
+      const propWidgets = layout.widgets.filter(
+        widget => widget.visible && widget.type === 'prop_opportunities'
       );
-      // Return empty data array
-      return { data: [] };
-    }
-  }, []);
+      if (propWidgets.length === 0) return;
 
-  // Load recent bets data from API
-  const loadRecentBetsData = useCallback(async (config: Record<string, unknown>): Promise<Record<string, unknown>> => {
-    const limit = config.limit as number || 10;
-    
-    try {
-      const response = await fetch(`/api/bets/recent?limit=${limit}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch recent bets: ${response.status}`);
-      }
-      const data = await response.json();
-      return { bets: data.bets || [] };
-    } catch (error) {
-      enhancedLogger.warn(
-        'CustomizableDashboard',
-        'loadRecentBetsData',
-        `Failed to load recent bets`,
-        { limit, error: error instanceof Error ? error.message : 'Unknown error' }
+      const entries = await Promise.all(
+        propWidgets.map(async widget => {
+          const data = await loadPropOpportunitiesData(widget.config);
+          return [widget.id, data] as const;
+        })
       );
-      // Return empty bets array
-      return { bets: [] };
-    }
-  }, []);
 
-  // Load prop opportunities data from API
-  const loadPropOpportunitiesData = useCallback(async (config: Record<string, unknown>): Promise<Record<string, unknown>> => {
-    const minConfidence = config.minConfidence as number || 0.7;
-    const minEV = config.minEV as number || 0.05;
-    
-    try {
-      const response = await fetch(`/api/propfinder/opportunities?minConfidence=${minConfidence}&minEV=${minEV}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch prop opportunities: ${response.status}`);
-      }
-      const data = await response.json();
-      return { opportunities: data.opportunities || [] };
-    } catch (error) {
-      enhancedLogger.warn(
-        'CustomizableDashboard',
-        'loadPropOpportunitiesData',
-        `Failed to load prop opportunities`,
-        { minConfidence, minEV, error: error instanceof Error ? error.message : 'Unknown error' }
-      );
-      // Return empty opportunities array
-      return { opportunities: [] };
-    }
-  }, []);
+      if (isCancelled) return;
 
-  // Load data for a specific widget
-  const loadWidgetData = useCallback(async (widget: Widget): Promise<Record<string, unknown>> => {
-    try {
-      switch (widget.type) {
-        case 'stats_card':
-          return await loadStatsCardData(widget.config);
-          
-        case 'line_chart':
-          return await loadLineChartData(widget.config);
-          
-        case 'recent_bets':
-          return await loadRecentBetsData(widget.config);
-          
-        case 'prop_opportunities':
-          return await loadPropOpportunitiesData(widget.config);
-          
-        default:
-          return { message: 'Widget data loading...' };
-      }
-    } catch (error) {
-      enhancedLogger.error(
-        'CustomizableDashboard',
-        'loadWidgetData',
-        `Failed to load data for widget ${widget.id} (${widget.type})`,
-        { widgetId: widget.id, widgetType: widget.type, error: error instanceof Error ? error.message : 'Unknown error' },
-        error instanceof Error ? error : undefined
-      );
-      // Return empty data instead of throwing to prevent widget crashes
-      return { error: 'Failed to load data' };
-    }
-  }, [loadStatsCardData, loadLineChartData, loadRecentBetsData, loadPropOpportunitiesData]);
+      setWidgetData(prev => {
+        const next = { ...prev };
+        for (const [id, data] of entries) {
+          next[id] = data;
+        }
+        return next;
+      });
+    };
+
+    void updatePropWidgets();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [layout.widgets, loadPropOpportunitiesData]);
 
   // Handle widget drag and drop
   const handleWidgetDragStart = (widget: Widget) => {
@@ -367,7 +466,7 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
       widgets: prev.widgets.map(widget =>
         widget.id === widgetId ? { ...widget, ...updates } : widget
       ),
-      lastModified: new Date().toISOString()
+      lastModified: new Date().toISOString(),
     }));
   };
 
@@ -386,13 +485,13 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
       height: widgetConfig.defaultSize.height,
       config: widgetConfig.defaultConfig,
       visible: true,
-      refreshInterval: 30
+      refreshInterval: 30,
     };
 
     setLayout(prev => ({
       ...prev,
       widgets: [...prev.widgets, newWidget],
-      lastModified: new Date().toISOString()
+      lastModified: new Date().toISOString(),
     }));
 
     setShowWidgetLibrary(false);
@@ -403,7 +502,7 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
     setLayout(prev => ({
       ...prev,
       widgets: prev.widgets.filter(widget => widget.id !== widgetId),
-      lastModified: new Date().toISOString()
+      lastModified: new Date().toISOString(),
     }));
   };
 
@@ -411,12 +510,10 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
   const saveLayout = async () => {
     try {
       // Mock save - in production, save to backend
-      enhancedLogger.info(
-        'CustomizableDashboard',
-        'saveLayout',
-        'Saving dashboard layout',
-        { layoutId: layout.id, widgetCount: layout.widgets.length }
-      );
+      enhancedLogger.info('CustomizableDashboard', 'saveLayout', 'Saving dashboard layout', {
+        layoutId: layout.id,
+        widgetCount: layout.widgets.length,
+      });
       if (onLayoutChange) {
         onLayoutChange(layout);
       }
@@ -433,20 +530,20 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
 
   // Load dashboard data on mount and when layout changes
   useEffect(() => {
-    loadDashboardData();
+    void loadDashboardData();
   }, [loadDashboardData]);
 
   // Set up auto-refresh for widgets
   useEffect(() => {
     const intervals: NodeJS.Timeout[] = [];
-    
+
     layout.widgets.forEach(widget => {
       if (widget.visible && widget.refreshInterval) {
         const interval = setInterval(async () => {
           const data = await loadWidgetData(widget);
           setWidgetData(prev => ({ ...prev, [widget.id]: data }));
         }, widget.refreshInterval * 1000);
-        
+
         intervals.push(interval);
       }
     });
@@ -459,51 +556,51 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
   return (
     <div className={`customizable-dashboard h-full ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          <Grid className="w-6 h-6 text-blue-600" />
-          <h1 className="text-xl font-semibold text-gray-800">{layout.name}</h1>
+      <div className='flex items-center justify-between p-4 bg-white border-b border-gray-200'>
+        <div className='flex items-center space-x-3'>
+          <Grid className='w-6 h-6 text-blue-600' />
+          <h1 className='text-xl font-semibold text-gray-800'>{layout.name}</h1>
           {layout.description && (
-            <span className="text-sm text-gray-600">- {layout.description}</span>
+            <span className='text-sm text-gray-600'>- {layout.description}</span>
           )}
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className='flex items-center space-x-2'>
           <button
             onClick={() => setShowWidgetLibrary(!showWidgetLibrary)}
-            className="flex items-center space-x-1 px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className='flex items-center space-x-1 px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700'
           >
-            <Plus className="w-4 h-4" />
+            <Plus className='w-4 h-4' />
             <span>Add Widget</span>
           </button>
-          
+
           <button
             onClick={() => setIsEditing(!isEditing)}
             className={`flex items-center space-x-1 px-3 py-1 text-sm rounded-md ${
-              isEditing 
-                ? 'bg-green-600 text-white hover:bg-green-700' 
+              isEditing
+                ? 'bg-green-600 text-white hover:bg-green-700'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            <Settings className="w-4 h-4" />
+            <Settings className='w-4 h-4' />
             <span>{isEditing ? 'Done' : 'Edit'}</span>
           </button>
 
           {isEditing && (
             <button
               onClick={saveLayout}
-              className="flex items-center space-x-1 px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+              className='flex items-center space-x-1 px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700'
             >
-              <Save className="w-4 h-4" />
+              <Save className='w-4 h-4' />
               <span>Save</span>
             </button>
           )}
 
           <button
-            onClick={loadDashboardData}
-            className="flex items-center space-x-1 px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+            onClick={handleRefresh}
+            className='flex items-center space-x-1 px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300'
           >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${combinedLoading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
         </div>
@@ -511,18 +608,18 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
 
       {/* Widget Library */}
       {showWidgetLibrary && (
-        <div className="p-4 bg-gray-50 border-b border-gray-200">
-          <h3 className="text-sm font-medium text-gray-800 mb-3">Add Widget</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {widgetLibrary.map((widgetConfig) => (
+        <div className='p-4 bg-gray-50 border-b border-gray-200'>
+          <h3 className='text-sm font-medium text-gray-800 mb-3'>Add Widget</h3>
+          <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3'>
+            {widgetLibrary.map(widgetConfig => (
               <button
                 key={widgetConfig.type}
                 onClick={() => addWidget(widgetConfig.type)}
-                className="p-3 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 text-left"
+                className='p-3 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 text-left'
               >
-                <widgetConfig.icon className="w-6 h-6 text-blue-600 mb-2" />
-                <h4 className="font-medium text-gray-800 text-sm">{widgetConfig.name}</h4>
-                <p className="text-xs text-gray-600 mt-1">{widgetConfig.description}</p>
+                <widgetConfig.icon className='w-6 h-6 text-blue-600 mb-2' />
+                <h4 className='font-medium text-gray-800 text-sm'>{widgetConfig.name}</h4>
+                <p className='text-xs text-gray-600 mt-1'>{widgetConfig.description}</p>
               </button>
             ))}
           </div>
@@ -530,14 +627,17 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
       )}
 
       {/* Dashboard Grid */}
-      <div className="flex-1 p-4 overflow-auto">
-        <div className={`grid gap-4 h-full`} style={{
-          gridTemplateColumns: `repeat(${layout.gridCols || 6}, minmax(0, 1fr))`,
-          gridAutoRows: '200px'
-        }}>
+      <div className='flex-1 p-4 overflow-auto'>
+        <div
+          className={`grid gap-4 h-full`}
+          style={{
+            gridTemplateColumns: `repeat(${layout.gridCols || 6}, minmax(0, 1fr))`,
+            gridAutoRows: '200px',
+          }}
+        >
           {layout.widgets
             .filter(widget => widget.visible)
-            .map((widget) => (
+            .map(widget => (
               <DashboardWidget
                 key={widget.id}
                 widget={widget}
@@ -545,7 +645,7 @@ const CustomizableDashboard: React.FC<CustomizableDashboardProps> = ({
                 isEditing={isEditing}
                 isSelected={selectedWidget === widget.id}
                 onSelect={() => setSelectedWidget(widget.id)}
-                onUpdate={(updates) => updateWidget(widget.id, updates)}
+                onUpdate={updates => updateWidget(widget.id, updates)}
                 onRemove={() => removeWidget(widget.id)}
                 onDragStart={() => handleWidgetDragStart(widget)}
               />
@@ -576,20 +676,20 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
   onSelect,
   onUpdate,
   onRemove,
-  onDragStart
+  onDragStart,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const gridStyle = {
     gridColumn: `span ${widget.width}`,
-    gridRow: `span ${widget.height}`
+    gridRow: `span ${widget.height}`,
   };
 
   const renderWidgetContent = () => {
     if (!data) {
       return (
-        <div className="flex items-center justify-center h-full">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className='flex items-center justify-center h-full'>
+          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
         </div>
       );
     }
@@ -605,7 +705,7 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
         return <PropOpportunitiesWidget data={data} config={widget.config} />;
       default:
         return (
-          <div className="flex items-center justify-center h-full text-gray-500">
+          <div className='flex items-center justify-center h-full text-gray-500'>
             Widget: {widget.type}
           </div>
         );
@@ -623,38 +723,38 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
       onDragStart={onDragStart}
     >
       {/* Widget Header */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-200">
-        <h3 className="font-medium text-gray-800 truncate">{widget.title}</h3>
-        
-        <div className="flex items-center space-x-1">
+      <div className='flex items-center justify-between p-3 border-b border-gray-200'>
+        <h3 className='font-medium text-gray-800 truncate'>{widget.title}</h3>
+
+        <div className='flex items-center space-x-1'>
           {isEditing && (
             <>
               <button
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   onUpdate({ visible: !widget.visible });
                 }}
-                className="p-1 hover:bg-gray-100 rounded"
+                className='p-1 hover:bg-gray-100 rounded'
               >
-                {widget.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                {widget.visible ? <Eye className='w-4 h-4' /> : <EyeOff className='w-4 h-4' />}
               </button>
               <button
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   setIsExpanded(!isExpanded);
                 }}
-                className="p-1 hover:bg-gray-100 rounded"
+                className='p-1 hover:bg-gray-100 rounded'
               >
-                {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                {isExpanded ? <Minimize2 className='w-4 h-4' /> : <Maximize2 className='w-4 h-4' />}
               </button>
               <button
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   onRemove();
                 }}
-                className="p-1 hover:bg-red-100 text-red-600 rounded"
+                className='p-1 hover:bg-red-100 text-red-600 rounded'
               >
-                <X className="w-4 h-4" />
+                <X className='w-4 h-4' />
               </button>
             </>
           )}
@@ -662,32 +762,31 @@ const DashboardWidget: React.FC<DashboardWidgetProps> = ({
       </div>
 
       {/* Widget Content */}
-      <div className="p-3 h-full overflow-auto">
-        {renderWidgetContent()}
-      </div>
+      <div className='p-3 h-full overflow-auto'>{renderWidgetContent()}</div>
     </div>
   );
 };
 
 // Widget Content Components
 const StatsCardWidget: React.FC<{ data: any; config: any }> = ({ data }) => (
-  <div className="text-center">
-    <p className="text-3xl font-bold text-blue-600">${data.value?.toFixed(0)}</p>
+  <div className='text-center'>
+    <p className='text-3xl font-bold text-blue-600'>${data.value?.toFixed(0)}</p>
     <p className={`text-sm ${data.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-      {data.change >= 0 ? '+' : ''}{data.change?.toFixed(1)}%
+      {data.change >= 0 ? '+' : ''}
+      {data.change?.toFixed(1)}%
     </p>
-    <p className="text-gray-600 text-sm mt-1">{data.label}</p>
+    <p className='text-gray-600 text-sm mt-1'>{data.label}</p>
   </div>
 );
 
 const LineChartWidget: React.FC<{ data: any; config: any }> = ({ data }) => (
-  <div className="h-full">
-    <p className="text-sm text-gray-600 mb-2">Trend over time</p>
-    <div className="h-24 bg-gradient-to-r from-blue-100 to-purple-100 rounded flex items-end justify-between px-2">
+  <div className='h-full'>
+    <p className='text-sm text-gray-600 mb-2'>Trend over time</p>
+    <div className='h-24 bg-gradient-to-r from-blue-100 to-purple-100 rounded flex items-end justify-between px-2'>
       {data.data?.slice(-10).map((point: any, index: number) => (
         <div
           key={index}
-          className="bg-blue-500 w-2 rounded-t"
+          className='bg-blue-500 w-2 rounded-t'
           style={{ height: `${(point.value / 1000) * 80}%` }}
         />
       ))}
@@ -696,19 +795,25 @@ const LineChartWidget: React.FC<{ data: any; config: any }> = ({ data }) => (
 );
 
 const RecentBetsWidget: React.FC<{ data: any; config: any }> = ({ data }) => (
-  <div className="space-y-2">
+  <div className='space-y-2'>
     {data.bets?.slice(0, 5).map((bet: any) => (
-      <div key={bet.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+      <div key={bet.id} className='flex justify-between items-center p-2 bg-gray-50 rounded'>
         <div>
-          <p className="font-medium text-sm">{bet.player}</p>
-          <p className="text-xs text-gray-600">{bet.prop} {bet.line}</p>
+          <p className='font-medium text-sm'>{bet.player}</p>
+          <p className='text-xs text-gray-600'>
+            {bet.prop} {bet.line}
+          </p>
         </div>
-        <div className="text-right">
-          <span className={`px-2 py-1 text-xs rounded-full ${
-            bet.status === 'won' ? 'bg-green-100 text-green-800' :
-            bet.status === 'lost' ? 'bg-red-100 text-red-800' :
-            'bg-yellow-100 text-yellow-800'
-          }`}>
+        <div className='text-right'>
+          <span
+            className={`px-2 py-1 text-xs rounded-full ${
+              bet.status === 'won'
+                ? 'bg-green-100 text-green-800'
+                : bet.status === 'lost'
+                ? 'bg-red-100 text-red-800'
+                : 'bg-yellow-100 text-yellow-800'
+            }`}
+          >
             {bet.status}
           </span>
         </div>
@@ -718,21 +823,19 @@ const RecentBetsWidget: React.FC<{ data: any; config: any }> = ({ data }) => (
 );
 
 const PropOpportunitiesWidget: React.FC<{ data: any; config: any }> = ({ data }) => (
-  <div className="space-y-2">
+  <div className='space-y-2'>
     {data.opportunities?.slice(0, 4).map((opp: any) => (
-      <div key={opp.id} className="p-2 border border-gray-200 rounded">
-        <div className="flex justify-between items-start">
+      <div key={opp.id} className='p-2 border border-gray-200 rounded'>
+        <div className='flex justify-between items-start'>
           <div>
-            <p className="font-medium text-sm">{opp.player}</p>
-            <p className="text-xs text-gray-600">{opp.prop} {opp.line}</p>
+            <p className='font-medium text-sm'>{opp.player}</p>
+            <p className='text-xs text-gray-600'>
+              {opp.prop} {opp.line}
+            </p>
           </div>
-          <div className="text-right">
-            <p className="text-sm font-medium text-green-600">
-              +{(opp.ev * 100).toFixed(1)}% EV
-            </p>
-            <p className="text-xs text-gray-600">
-              {Math.round(opp.confidence * 100)}% conf
-            </p>
+          <div className='text-right'>
+            <p className='text-sm font-medium text-green-600'>+{(opp.ev * 100).toFixed(1)}% EV</p>
+            <p className='text-xs text-gray-600'>{Math.round(opp.confidence * 100)}% conf</p>
           </div>
         </div>
       </div>
@@ -751,36 +854,45 @@ function createDefaultLayout(): DashboardLayout {
         id: 'widget_1',
         type: 'stats_card',
         title: 'Total Profit',
-        x: 0, y: 0, width: 2, height: 1,
+        x: 0,
+        y: 0,
+        width: 2,
+        height: 1,
         config: { metric: 'total_profit', format: 'currency' },
         visible: true,
-        refreshInterval: 30
+        refreshInterval: 30,
       },
       {
         id: 'widget_2',
         type: 'recent_bets',
         title: 'Recent Activity',
-        x: 2, y: 0, width: 4, height: 2,
+        x: 2,
+        y: 0,
+        width: 4,
+        height: 2,
         config: { limit: 8, showStatus: true },
         visible: true,
-        refreshInterval: 10
+        refreshInterval: 10,
       },
       {
         id: 'widget_3',
         type: 'prop_opportunities',
         title: 'Top Opportunities',
-        x: 0, y: 1, width: 4, height: 2,
+        x: 0,
+        y: 1,
+        width: 4,
+        height: 2,
         config: { minConfidence: 0.8, minEV: 0.05 },
         visible: true,
-        refreshInterval: 60
-      }
+        refreshInterval: 60,
+      },
     ],
     gridCols: 6,
     createdAt: new Date().toISOString(),
     lastModified: new Date().toISOString(),
     isDefault: true,
     isPublic: false,
-    tags: ['default']
+    tags: ['default'],
   };
 }
 

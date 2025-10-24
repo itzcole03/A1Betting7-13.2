@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "strict": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "bundler"
+  },
+  "include": [
+    "src/core/GuardedImport/**/*",
+    "src/core/UnifiedLogger.ts",
+    "src/core/UnifiedCache.ts",
+    "src/core/ClientHealthProbe.ts",
+    "src/core/tests/smoke/**/*",
+    "src/core/metrics/**/*"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

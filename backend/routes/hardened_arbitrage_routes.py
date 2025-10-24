@@ -22,6 +22,7 @@ from backend.services.hardened_arbitrage_service import (
 )
 from backend.services.unified_logging import unified_logging
 from backend.services.ev_engine import ev_engine, compute_ev_details
+from backend.core.exceptions import BusinessLogicException
 
 logger = unified_logging.get_logger("hardened_arbitrage_routes")
 
@@ -172,7 +173,7 @@ async def get_arbitrage_config(
         
     except Exception as e:
         logger.error(f"Failed to get arbitrage config: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve arbitrage configuration: {str(e)}"
         )
@@ -200,7 +201,7 @@ async def update_arbitrage_config(
         config_updates = config_request.dict(exclude_none=True)
         
         if not config_updates:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="No valid configuration updates provided"
             )
@@ -221,7 +222,7 @@ async def update_arbitrage_config(
         raise
     except Exception as e:
         logger.error(f"Failed to update arbitrage config: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update arbitrage configuration: {str(e)}"
         )
@@ -371,7 +372,7 @@ async def detect_arbitrage_opportunities(
         
     except Exception as e:
         logger.error(f"Arbitrage detection failed: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Arbitrage detection failed: {str(e)}"
         )
@@ -415,7 +416,7 @@ async def get_arbitrage_opportunities(
         
     except Exception as e:
         logger.error(f"Failed to get arbitrage opportunities: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve arbitrage opportunities: {str(e)}"
         )
@@ -446,7 +447,7 @@ async def get_arbitrage_metrics(
         
     except Exception as e:
         logger.error(f"Failed to get arbitrage metrics: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve arbitrage metrics: {str(e)}"
         )
@@ -471,7 +472,7 @@ async def arbitrage_health_check(
         
     except Exception as e:
         logger.error(f"Arbitrage health check failed: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Arbitrage service health check failed: {str(e)}"
         )
@@ -519,7 +520,7 @@ async def validate_arbitrage_opportunity(
         
     except Exception as e:
         logger.error(f"Arbitrage validation failed: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Arbitrage validation failed: {str(e)}"
         )

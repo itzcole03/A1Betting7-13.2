@@ -3,6 +3,7 @@ Containerized ML model serving with ensemble predictions, model versioning, and 
 """
 
 import asyncio
+import os
 import json
 import logging
 import random
@@ -981,7 +982,14 @@ if __name__ == "__main__":
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        await model_service.initialize()
+        # If tests or the environment request skipping heavy startup work,
+        # schedule initialization in background so the HTTP server becomes
+        # available immediately. Otherwise, perform the initialize() await.
+        if os.environ.get("DISABLE_STARTUP_HOOKS", "").lower() == "true":
+            asyncio.create_task(model_service.initialize())
+        else:
+            await model_service.initialize()
+
         yield
 
     app.router.lifespan_context = lifespan

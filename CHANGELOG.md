@@ -7,6 +7,7 @@ and clarify maintenance status.
 -->
 
 <!-- markdownlint-disable MD024 -->
+
 ## [Unreleased] - Observer Centralization & Bootstrap Reliability Log
 
 <!-- ARCHIVE NOTE:
@@ -18,11 +19,13 @@ All sections below are historical (Archived). Only correct factual errors if nee
 - Centralized PerformanceObserver usage via `frontend/src/utils/safePerformanceObserver.ts`.
 - Documentation: `frontend/docs/observability.md` (safe observer API, guarantees, verification).
 - One-time bootstrap reliability start log: "🛡️ Reliability monitoring started (bootstrap)" (suppressed in test).
+- Line Shopping Optimizer page (`frontend/src/components/features/betting/LineShopping.tsx`) wired into the dashboard for multi-book odds comparisons, summary metrics, and sportsbook leaderboards powered by PropFinder data.
 
 ### Changed
 
 - All direct `new PerformanceObserver()` calls replaced with `safeObserve` + `disconnectObserver`.
 - Bootstrap tests extended to assert single emission and test-environment suppression.
+- Navigation updated to surface "Line Shopping" in quick links and tools tab, plus dashboard E2E suite extended to cover the new route.
 
 ### Verification
 
@@ -42,19 +45,23 @@ All sections below are historical (Archived). Only correct factual errors if nee
 ### Added
 
 - EV Hardening
+
   - Endpoint: `POST /api/ev/calc` with instrumentation hooks
   - Observability timing: `ev_ms_avg`
 
 - Odds Provider Status
+
   - Router: `/api/odds/providers/*` (status, statistics, confidence-scores, health dashboard)
   - Backed by `provider_statistics_integration`; system health dashboard available
 
 - Hardened Arbitrage Validation
+
   - Router: `/api/arbitrage/*`
   - Validation warnings visible under `/api/data/validation/summary` with keys like `arbitrage_probability_violation`, `arbitrage_missing_sides`
   - Observability timing: `arbitrage_ms_avg`
 
 - Line Movement Subsystem
+
   - Router: `/api/lines/*` (snapshot, metrics, recent-significant, health)
   - Operation metric: `line_movement_snapshot`; timing: `line_movement_ms_avg`
 
@@ -103,7 +110,7 @@ Comprehensive implementation of CLV metrics instrumentation for PropFinder oppor
 ```text
 # CLV Performance Metrics
 clv_success_rate_total{endpoint="propfinder_opportunities"}  # Success rate counter
-clv_failure_rate_total{endpoint="propfinder_opportunities"}  # Failure rate counter  
+clv_failure_rate_total{endpoint="propfinder_opportunities"}  # Failure rate counter
 clv_latency_ms{endpoint="propfinder_opportunities",quantile="0.5"}  # Response latency percentiles
 clv_diagnostic_requests_total  # Total diagnostic requests
 clv_opportunities_generated_total  # Total opportunities with CLV data
@@ -133,17 +140,17 @@ clv_cache_hits_total / clv_cache_misses_total  # CLV-specific cache performance
 
 #### 🔍 Monitoring & Alerting
 
-* **Alert Thresholds**: 
-  * CLV failure rate >5% for 5 minutes (Warning)
-  * CLV P95 latency >500ms for 2 minutes (Warning)
-  * CLV cache hit rate <70% for 10 minutes (Warning)
-* **Grafana Dashboards**: Ready-to-use PromQL queries for CLV performance visualization
-* **Escalation Procedures**: Defined escalation paths from Platform Team → Engineering Team → Architecture Team
+- **Alert Thresholds**:
+  - CLV failure rate >5% for 5 minutes (Warning)
+  - CLV P95 latency >500ms for 2 minutes (Warning)
+  - CLV cache hit rate <70% for 10 minutes (Warning)
+- **Grafana Dashboards**: Ready-to-use PromQL queries for CLV performance visualization
+- **Escalation Procedures**: Defined escalation paths from Platform Team → Engineering Team → Architecture Team
 
 #### 🚀 Optional Enhancement
 
-* **Internal Metrics Endpoint**: `/api/propfinder/opportunities/metrics-summary` for lightweight CLV metrics access
-* **Real-time Monitoring**: CLV system status available through existing health and diagnostics endpoints
+- **Internal Metrics Endpoint**: `/api/propfinder/opportunities/metrics-summary` for lightweight CLV metrics access
+- **Real-time Monitoring**: CLV system status available through existing health and diagnostics endpoints
 
 **Impact**: Enterprise-grade CLV metrics system enabling data-driven optimization of PropFinder opportunities with comprehensive observability and operational procedures.
 
@@ -153,37 +160,37 @@ clv_cache_hits_total / clv_cache_misses_total  # CLV-specific cache performance
 
 ### Added
 
-* **PR10: Drift Monitoring & Calibration Baseline**
-  * **DriftMonitor Service**: Rolling window analysis (w50, w200, wall) with comprehensive drift metrics computation
-  * **Drift Status Classification**: NORMAL/WATCH/DRIFTING status with configurable thresholds (`A1_DRIFT_WARN`, `A1_DRIFT_ALERT`)
-  * **Shadow Promotion Readiness**: Automated scoring with PROMOTE/MONITOR/HOLD recommendations and latency penalty factors
-  * **Calibration System**: Outcome ingestion via `/api/v2/models/outcomes` with MAE tracking and distribution buckets
-  * **Schema Versioning**: v1.1 audit entries with backward compatibility for existing v1.0 entries
-  * **Enhanced API Endpoints**: Extended `/api/v2/models/audit/summary` and new `/api/v2/models/audit/status` endpoint
-  * **Frontend Integration**: Drift status visualization, readiness gauge, and outcome recording in InferenceAuditPanel
-  * **Comprehensive Testing**: 20+ test cases covering drift classification, readiness calculation, and calibration metrics
-  * **Documentation**: Complete `docs/ml/model_drift_and_calibration.md` with architecture, configuration, and troubleshooting
+- **PR10: Drift Monitoring & Calibration Baseline**
+  - **DriftMonitor Service**: Rolling window analysis (w50, w200, wall) with comprehensive drift metrics computation
+  - **Drift Status Classification**: NORMAL/WATCH/DRIFTING status with configurable thresholds (`A1_DRIFT_WARN`, `A1_DRIFT_ALERT`)
+  - **Shadow Promotion Readiness**: Automated scoring with PROMOTE/MONITOR/HOLD recommendations and latency penalty factors
+  - **Calibration System**: Outcome ingestion via `/api/v2/models/outcomes` with MAE tracking and distribution buckets
+  - **Schema Versioning**: v1.1 audit entries with backward compatibility for existing v1.0 entries
+  - **Enhanced API Endpoints**: Extended `/api/v2/models/audit/summary` and new `/api/v2/models/audit/status` endpoint
+  - **Frontend Integration**: Drift status visualization, readiness gauge, and outcome recording in InferenceAuditPanel
+  - **Comprehensive Testing**: 20+ test cases covering drift classification, readiness calculation, and calibration metrics
+  - **Documentation**: Complete `docs/ml/model_drift_and_calibration.md` with architecture, configuration, and troubleshooting
 
 #### PR10 Drift Detection Features
 
-* **Multi-Window Analysis**: Statistical analysis across 50, 200, and full buffer windows
-* **Threshold Configuration**: Environment-driven drift sensitivity (`A1_DRIFT_WARN=0.08`, `A1_DRIFT_ALERT=0.15`)
-* **Incremental Aggregation**: O(1) performance with circular buffer optimization
-* **Status Tracking**: Timestamp tracking for drift state transitions with alert activation
+- **Multi-Window Analysis**: Statistical analysis across 50, 200, and full buffer windows
+- **Threshold Configuration**: Environment-driven drift sensitivity (`A1_DRIFT_WARN=0.08`, `A1_DRIFT_ALERT=0.15`)
+- **Incremental Aggregation**: O(1) performance with circular buffer optimization
+- **Status Tracking**: Timestamp tracking for drift state transitions with alert activation
 
 #### PR10 Readiness Scoring Algorithm
 
-* **Base Score Calculation**: `1 - clamp(mean_abs_diff / A1_DRIFT_ALERT, 0..1)`
-* **Latency Penalty**: 20% reduction for shadow models >25% slower than primary
-* **Recommendation Logic**: Automated PROMOTE/MONITOR/HOLD decisions based on drift and latency
-* **Contextual Reasoning**: Human-readable explanations for each recommendation
+- **Base Score Calculation**: `1 - clamp(mean_abs_diff / A1_DRIFT_ALERT, 0..1)`
+- **Latency Penalty**: 20% reduction for shadow models >25% slower than primary
+- **Recommendation Logic**: Automated PROMOTE/MONITOR/HOLD decisions based on drift and latency
+- **Contextual Reasoning**: Human-readable explanations for each recommendation
 
 #### PR10 Calibration Pipeline
 
-* **Outcome Ingestion**: POST endpoint for recording observed outcomes matched by feature hash
-* **Error Calculation**: Mean Absolute Error (MAE) computation for matched prediction-outcome pairs
-* **Distribution Analysis**: Quartile-based outcome distribution tracking (lt_0_25, lt_0_5, lt_0_75, gte_0_75)
-* **Synthetic Support**: Placeholder calibration system ready for real ground-truth integration
+- **Outcome Ingestion**: POST endpoint for recording observed outcomes matched by feature hash
+- **Error Calculation**: Mean Absolute Error (MAE) computation for matched prediction-outcome pairs
+- **Distribution Analysis**: Quartile-based outcome distribution tracking (lt_0_25, lt_0_5, lt_0_75, gte_0_75)
+- **Synthetic Support**: Placeholder calibration system ready for real ground-truth integration
 
 ## [2025-08-15] - PR9 Model Inference Observability & Safe Shadow Rollout
 
@@ -195,31 +202,31 @@ Implemented comprehensive model inference observability system with safe shadow 
 
 #### Core Features
 
-* **Model Registry**: Environment-driven model version management with active/shadow configuration
-* **Inference Service**: Wrapped ML predictions with timing, shadow execution, and audit integration
-* **Audit System**: Ring buffer storage with real-time metrics aggregation and drift detection
-* **REST API**: Complete /api/v2/models/* endpoint suite for inference and observability
-* **Frontend Integration**: React hooks and diagnostic panels for real-time monitoring
+- **Model Registry**: Environment-driven model version management with active/shadow configuration
+- **Inference Service**: Wrapped ML predictions with timing, shadow execution, and audit integration
+- **Audit System**: Ring buffer storage with real-time metrics aggregation and drift detection
+- **REST API**: Complete /api/v2/models/\* endpoint suite for inference and observability
+- **Frontend Integration**: React hooks and diagnostic panels for real-time monitoring
 
 #### Backend Implementation
 
-* **ModelRegistry Service**: `A1_ACTIVE_MODEL_VERSION` and `A1_SHADOW_MODEL_VERSION` configuration with model loading and version management
-* **InferenceService**: PredictionResult wrapper with feature hashing, shadow mode execution, and tracing integration using existing PR8 infrastructure
-* **InferenceAuditService**: Thread-safe ring buffer (`A1_INFERENCE_AUDIT_CAP`) with rolling statistics and confidence distribution tracking
-* **API Endpoints**: Four endpoints under /api/v2/models/* for prediction, audit summary/recent, registry info, and health checks
+- **ModelRegistry Service**: `A1_ACTIVE_MODEL_VERSION` and `A1_SHADOW_MODEL_VERSION` configuration with model loading and version management
+- **InferenceService**: PredictionResult wrapper with feature hashing, shadow mode execution, and tracing integration using existing PR8 infrastructure
+- **InferenceAuditService**: Thread-safe ring buffer (`A1_INFERENCE_AUDIT_CAP`) with rolling statistics and confidence distribution tracking
+- **API Endpoints**: Four endpoints under /api/v2/models/\* for prediction, audit summary/recent, registry info, and health checks
 
 #### Frontend Implementation
 
-* **useInferenceAudit Hook**: Configurable polling (30s dev/60s prod) with state management for audit data, recent entries, and registry information
-* **InferenceAuditPanel Component**: Real-time dashboard with performance metrics, confidence histograms, shadow comparisons, and optional recent inference table
-* **TypeScript Integration**: Full type safety with proper error handling and responsive Tailwind CSS styling
+- **useInferenceAudit Hook**: Configurable polling (30s dev/60s prod) with state management for audit data, recent entries, and registry information
+- **InferenceAuditPanel Component**: Real-time dashboard with performance metrics, confidence histograms, shadow comparisons, and optional recent inference table
+- **TypeScript Integration**: Full type safety with proper error handling and responsive Tailwind CSS styling
 
 #### Shadow Mode Semantics
 
-* **Deterministic Execution**: Feature hash computation for consistent tracking across requests
-* **Non-Blocking Design**: Shadow failures never impact primary inference results
-* **Drift Detection**: Automatic calculation of prediction differences with rolling averages
-* **Safety Guarantees**: Complete isolation between primary and shadow model execution paths
+- **Deterministic Execution**: Feature hash computation for consistent tracking across requests
+- **Non-Blocking Design**: Shadow failures never impact primary inference results
+- **Drift Detection**: Automatic calculation of prediction differences with rolling averages
+- **Safety Guarantees**: Complete isolation between primary and shadow model execution paths
 
 #### Validation Results
 
@@ -229,7 +236,7 @@ Implemented comprehensive model inference observability system with safe shadow 
 ✅ Ring buffer audit storage with capacity limits  
 ✅ Frontend polling and real-time dashboard functionality  
 ✅ Comprehensive backend and frontend test coverage  
-✅ Complete architecture documentation with extension roadmap  
+✅ Complete architecture documentation with extension roadmap
 
 Production-ready ML inference observability enabling safe model experimentation, drift monitoring, and performance analysis.
 
@@ -245,24 +252,24 @@ Implemented comprehensive request correlation system enabling seamless tracing f
 
 #### Core Features
 
-* **Request ID Middleware**: Automatic UUID generation or custom header acceptance for every request
-* **Context Variables**: Python contextvars for automatic request/span ID injection into logs
-* **Frontend Telemetry**: HttpTelemetry class with ring buffer for client-side request tracking
-* **Span Management**: Lightweight tracing with hierarchical span support and minimal overhead
-* **Cross-Layer Correlation**: End-to-end request tracking from browser to FastAPI backend
+- **Request ID Middleware**: Automatic UUID generation or custom header acceptance for every request
+- **Context Variables**: Python contextvars for automatic request/span ID injection into logs
+- **Frontend Telemetry**: HttpTelemetry class with ring buffer for client-side request tracking
+- **Span Management**: Lightweight tracing with hierarchical span support and minimal overhead
+- **Cross-Layer Correlation**: End-to-end request tracking from browser to FastAPI backend
 
 #### Backend Implementation
 
-* **RequestIdMiddleware**: Integrated into middleware stack with UUID generation, timing capture, and response header injection
-* **log_context.py**: Context variable management with ContextualLoggerAdapter for automatic log enrichment
-* **trace_utils.py**: TraceManager class with @traced decorator and span lifecycle management
-* **Middleware Order**: Positioned correctly after CORS, before logging for optimal request flow
+- **RequestIdMiddleware**: Integrated into middleware stack with UUID generation, timing capture, and response header injection
+- **log_context.py**: Context variable management with ContextualLoggerAdapter for automatic log enrichment
+- **trace_utils.py**: TraceManager class with @traced decorator and span lifecycle management
+- **Middleware Order**: Positioned correctly after CORS, before logging for optimal request flow
 
 #### Frontend Implementation
 
-* **HttpTelemetry Class**: 100-item ring buffer with request tracking, span summaries, and browser console access
-* **Enhanced HttpClient.ts**: Request correlation headers, span support, and TypeScript-compliant telemetry integration
-* **Global Access**: `window.httpTelemetry` for debugging and performance analysis
+- **HttpTelemetry Class**: 100-item ring buffer with request tracking, span summaries, and browser console access
+- **Enhanced HttpClient.ts**: Request correlation headers, span support, and TypeScript-compliant telemetry integration
+- **Global Access**: `window.httpTelemetry` for debugging and performance analysis
 
 #### Validation Results
 
@@ -270,7 +277,7 @@ Implemented comprehensive request correlation system enabling seamless tracing f
 ✅ Request state correlation working end-to-end  
 ✅ Structured logging with automatic context injection  
 ✅ Response headers include correlated request IDs  
-✅ Frontend telemetry ring buffer functioning  
+✅ Frontend telemetry ring buffer functioning
 
 All PR8 functionality validated with comprehensive test coverage enabling future performance optimization and incident correlation.
 
@@ -286,17 +293,17 @@ Enhanced cache test suite to align with implemented API patterns and improve sta
 
 #### Key Improvements
 
-* **Hit Ratio Precision**: Updated hit_ratio assertions to use threshold-based comparisons (<=0.01 difference) instead of exact equality to handle floating-point precision issues
-* **Version Invalidation Testing**: Added comprehensive test for `A1_CACHE_VERSION` environment variable handling and key invalidation behavior
-* **Flakiness Removal**: Removed strict latency assertions from performance tests to prevent CI environment timing sensitivity
-* **API Alignment**: Verified test imports align with current service structure (cache_service_ext, cache_instrumentation)
+- **Hit Ratio Precision**: Updated hit_ratio assertions to use threshold-based comparisons (<=0.01 difference) instead of exact equality to handle floating-point precision issues
+- **Version Invalidation Testing**: Added comprehensive test for `A1_CACHE_VERSION` environment variable handling and key invalidation behavior
+- **Flakiness Removal**: Removed strict latency assertions from performance tests to prevent CI environment timing sensitivity
+- **API Alignment**: Verified test imports align with current service structure (cache_service_ext, cache_instrumentation)
 
 #### Technical Changes
 
-* **TestCacheInstrumentation**: Updated `test_namespace_statistics` and `test_stats_snapshot` to use `abs(actual - expected) <= threshold` pattern
-* **TestCacheKeyBuilder**: Added `test_version_bump_invalidates_keys` to verify environment-driven version changes properly invalidate cache keys
-* **TestCachePerformance**: Removed strict timing constraint in concurrent performance test to prevent flaky failures in slow CI environments
-* **Logging Enhancement**: Added debug logging to performance test completion times for troubleshooting
+- **TestCacheInstrumentation**: Updated `test_namespace_statistics` and `test_stats_snapshot` to use `abs(actual - expected) <= threshold` pattern
+- **TestCacheKeyBuilder**: Added `test_version_bump_invalidates_keys` to verify environment-driven version changes properly invalidate cache keys
+- **TestCachePerformance**: Removed strict timing constraint in concurrent performance test to prevent flaky failures in slow CI environments
+- **Logging Enhancement**: Added debug logging to performance test completion times for troubleshooting
 
 All 30 cache tests now pass consistently with improved stability for CI/CD pipelines.
 
@@ -312,93 +319,98 @@ Implemented comprehensive cache observability dashboard with intelligent tiering
 
 #### Key Improvements
 
-* **Cache Instrumentation Service**: Comprehensive metrics aggregation with EWMA latency tracking, hit/miss ratios, and namespace breakdown
-* **Versioned Cache Keys**: Structured key patterns `{cache_version}:{tier}:{entity}:{id|hash}` with stable hashing for consistent invalidation
-* **Stampede Protection**: Async lock-based protection preventing concurrent cache rebuilds with intelligent queuing
-* **Cache Observability API**: RESTful endpoints under `/api/v2/meta/` for statistics, health monitoring, and pattern-based invalidation
-* **Interactive Dashboard**: React-based `CacheStatsPanel` with real-time metrics, hit ratio visualization, and namespace analysis
-* **Environment-Aware Polling**: Smart polling intervals (30s dev, 60s prod) with exponential backoff and retry logic
-* **Comprehensive Testing**: Full test coverage for backend (pytest) and frontend (Jest/React Testing Library) components
+- **Cache Instrumentation Service**: Comprehensive metrics aggregation with EWMA latency tracking, hit/miss ratios, and namespace breakdown
+- **Versioned Cache Keys**: Structured key patterns `{cache_version}:{tier}:{entity}:{id|hash}` with stable hashing for consistent invalidation
+- **Stampede Protection**: Async lock-based protection preventing concurrent cache rebuilds with intelligent queuing
+- **Cache Observability API**: RESTful endpoints under `/api/v2/meta/` for statistics, health monitoring, and pattern-based invalidation
+- **Interactive Dashboard**: React-based `CacheStatsPanel` with real-time metrics, hit ratio visualization, and namespace analysis
+- **Environment-Aware Polling**: Smart polling intervals (30s dev, 60s prod) with exponential backoff and retry logic
+- **Comprehensive Testing**: Full test coverage for backend (pytest) and frontend (Jest/React Testing Library) components
 
 #### Advanced Observability Features
 
-* **Performance Indicators**: Color-coded hit ratio indicators with performance thresholds (>90% excellent, 70-90% good, <70% needs attention)
-* **Latency Percentiles**: P50, P90, P95, P99 latency tracking with microsecond precision for sub-millisecond operations
-* **Namespace Breakdown**: Detailed cache utilization by namespace with sortable tables and percentage breakdowns
-* **Tier Analytics**: Cache tier performance analysis (raw_provider, analytics, temp) with active/total key metrics
-* **Uptime Tracking**: Formatted uptime display with days/hours/minutes precision
-* **Rebuild Events**: Monitoring of cache rebuilds and stampede prevention effectiveness
+- **Performance Indicators**: Color-coded hit ratio indicators with performance thresholds (>90% excellent, 70-90% good, <70% needs attention)
+- **Latency Percentiles**: P50, P90, P95, P99 latency tracking with microsecond precision for sub-millisecond operations
+- **Namespace Breakdown**: Detailed cache utilization by namespace with sortable tables and percentage breakdowns
+- **Tier Analytics**: Cache tier performance analysis (raw_provider, analytics, temp) with active/total key metrics
+- **Uptime Tracking**: Formatted uptime display with days/hours/minutes precision
+- **Rebuild Events**: Monitoring of cache rebuilds and stampede prevention effectiveness
 
 #### Backend Architecture
 
-* **Cache Instrumentation** (`backend/services/cache_instrumentation.py`):
-  * EWMA latency tracking with configurable alpha decay
-  * Thread-safe metrics collection with atomic operations
-  * Stampede protection with async locks and timeout handling
-  * Comprehensive snapshot generation for observability
+- **Cache Instrumentation** (`backend/services/cache_instrumentation.py`):
 
-* **Versioned Key Management** (`backend/services/cache_keys.py`):
-  * Environment-driven cache versioning with structured patterns
-  * Stable SHA-256 hashing for complex identifiers
-  * CacheTier and CacheEntity enums matching A1Betting domain model
-  * Parse and build utilities for key manipulation
+  - EWMA latency tracking with configurable alpha decay
+  - Thread-safe metrics collection with atomic operations
+  - Stampede protection with async locks and timeout handling
+  - Comprehensive snapshot generation for observability
 
-* **Service Extension** (`backend/services/cache_service_ext.py`):
-  * Wrapper around existing `unified_cache_service` with instrumentation
-  * Get-or-build pattern with stampede protection
-  * Pattern-based invalidation with wildcard support
-  * Health checks and operational status monitoring
+- **Versioned Key Management** (`backend/services/cache_keys.py`):
 
-* **Meta Cache API** (`backend/routes/meta_cache.py`):
-  * `/api/v2/meta/cache-stats` - Comprehensive cache statistics endpoint
-  * `/api/v2/meta/cache-health` - Cache operational health monitoring
-  * `/api/v2/meta/cache/invalidate` - Pattern-based cache invalidation
-  * `/api/v2/meta/cache-stats/namespace/{namespace}` - Namespace-specific metrics
+  - Environment-driven cache versioning with structured patterns
+  - Stable SHA-256 hashing for complex identifiers
+  - CacheTier and CacheEntity enums matching A1Betting domain model
+  - Parse and build utilities for key manipulation
+
+- **Service Extension** (`backend/services/cache_service_ext.py`):
+
+  - Wrapper around existing `unified_cache_service` with instrumentation
+  - Get-or-build pattern with stampede protection
+  - Pattern-based invalidation with wildcard support
+  - Health checks and operational status monitoring
+
+- **Meta Cache API** (`backend/routes/meta_cache.py`):
+  - `/api/v2/meta/cache-stats` - Comprehensive cache statistics endpoint
+  - `/api/v2/meta/cache-health` - Cache operational health monitoring
+  - `/api/v2/meta/cache/invalidate` - Pattern-based cache invalidation
+  - `/api/v2/meta/cache-stats/namespace/{namespace}` - Namespace-specific metrics
 
 #### Frontend Architecture
 
-* **Cache Statistics Hook** (`frontend/src/cache/useCacheStats.ts`):
-  * `useCacheStats`: Main statistics hook with environment-aware polling
-  * `useNamespaceCacheStats`: Namespace-specific statistics with filtering
-  * `useCacheHealth`: Cache health monitoring with automated retry logic
-  * `formatCacheStats`: Utility functions for human-readable formatting
+- **Cache Statistics Hook** (`frontend/src/cache/useCacheStats.ts`):
 
-* **Interactive Dashboard** (`frontend/src/diagnostics/CacheStatsPanel.tsx`):
-  * **PerformanceIndicator**: Color-coded hit ratio badges with status thresholds
-  * **HitRatioBar**: Visual progress bar with animated hit ratio display
-  * **NamespaceBreakdown**: Sortable table with namespace utilization analysis
-  * **LatencyMetrics**: Percentile display with appropriate unit conversion
-  * Real-time updates with configurable refresh intervals and error boundaries
+  - `useCacheStats`: Main statistics hook with environment-aware polling
+  - `useNamespaceCacheStats`: Namespace-specific statistics with filtering
+  - `useCacheHealth`: Cache health monitoring with automated retry logic
+  - `formatCacheStats`: Utility functions for human-readable formatting
+
+- **Interactive Dashboard** (`frontend/src/diagnostics/CacheStatsPanel.tsx`):
+  - **PerformanceIndicator**: Color-coded hit ratio badges with status thresholds
+  - **HitRatioBar**: Visual progress bar with animated hit ratio display
+  - **NamespaceBreakdown**: Sortable table with namespace utilization analysis
+  - **LatencyMetrics**: Percentile display with appropriate unit conversion
+  - Real-time updates with configurable refresh intervals and error boundaries
 
 #### Cache Intelligence Features
 
-* **Smart Polling**: Development (30s) vs Production (60s) intervals with environment detection
-* **Exponential Backoff**: Intelligent retry logic with jitter to prevent thundering herd
-* **Graceful Degradation**: Component-level error handling with manual retry capabilities
-* **Memory Efficiency**: Optimized data structures and cleanup on component unmount
-* **Type Safety**: Comprehensive TypeScript interfaces with proper null handling
+- **Smart Polling**: Development (30s) vs Production (60s) intervals with environment detection
+- **Exponential Backoff**: Intelligent retry logic with jitter to prevent thundering herd
+- **Graceful Degradation**: Component-level error handling with manual retry capabilities
+- **Memory Efficiency**: Optimized data structures and cleanup on component unmount
+- **Type Safety**: Comprehensive TypeScript interfaces with proper null handling
 
 #### Testing Coverage
 
-* **Backend Tests** (`tests/test_cache_pr6.py`):
-  * Cache instrumentation unit tests with concurrent access simulation
-  * Key pattern validation and hashing consistency tests
-  * Service extension integration tests with mock dependencies
-  * API endpoint testing with comprehensive response validation
+- **Backend Tests** (`tests/test_cache_pr6.py`):
 
-* **Frontend Tests** (`frontend/src/__tests__/cache-pr6.test.tsx`):
-  * React hook testing with mock fetch and async state management
-  * Component rendering tests with various data states and error conditions
-  * Utility function validation with edge cases and formatting tests
-  * Integration testing with full component interaction workflows
+  - Cache instrumentation unit tests with concurrent access simulation
+  - Key pattern validation and hashing consistency tests
+  - Service extension integration tests with mock dependencies
+  - API endpoint testing with comprehensive response validation
+
+- **Frontend Tests** (`frontend/src/__tests__/cache-pr6.test.tsx`):
+  - React hook testing with mock fetch and async state management
+  - Component rendering tests with various data states and error conditions
+  - Utility function validation with edge cases and formatting tests
+  - Integration testing with full component interaction workflows
 
 #### Cache Performance Insights
 
-* **Hit Ratio Optimization**: Continuous monitoring enables identification of cache-unfriendly patterns
-* **Latency Analysis**: Percentile tracking reveals performance bottlenecks and outliers
-* **Namespace Efficiency**: Understanding cache distribution helps optimize memory allocation
-* **Rebuild Intelligence**: Stampede protection reduces unnecessary computation and improves response times
-* **Invalidation Precision**: Pattern-based invalidation enables surgical cache updates
+- **Hit Ratio Optimization**: Continuous monitoring enables identification of cache-unfriendly patterns
+- **Latency Analysis**: Percentile tracking reveals performance bottlenecks and outliers
+- **Namespace Efficiency**: Understanding cache distribution helps optimize memory allocation
+- **Rebuild Intelligence**: Stampede protection reduces unnecessary computation and improves response times
+- **Invalidation Precision**: Pattern-based invalidation enables surgical cache updates
 
 ---
 
@@ -412,40 +424,40 @@ Implemented comprehensive health monitoring with structured responses, component
 
 #### Key Improvements
 
-* **Structured Health Endpoint**: New `/api/v2/diagnostics/health` endpoint with comprehensive system health information
-* **Component Health Monitoring**: Individual health tracking for WebSocket, Cache, and Model Inference components
-* **Legacy Compatibility**: Preserved `/api/health` with deprecation notices and forward routing
-* **Enhanced Frontend Validation**: Updated `CoreFunctionalityValidator` to wait for bootstrap completion and use new structured health endpoint
-* **Health Status Hook**: New `useHealthStatus` React hook with polling, exponential backoff, and error handling
-* **Health Badge Component**: Lightweight UI component for displaying health status with compact/detailed views
-* **Comprehensive Testing**: Complete test suites for both backend (pytest) and frontend (Jest/React Testing Library)
+- **Structured Health Endpoint**: New `/api/v2/diagnostics/health` endpoint with comprehensive system health information
+- **Component Health Monitoring**: Individual health tracking for WebSocket, Cache, and Model Inference components
+- **Legacy Compatibility**: Preserved `/api/health` with deprecation notices and forward routing
+- **Enhanced Frontend Validation**: Updated `CoreFunctionalityValidator` to wait for bootstrap completion and use new structured health endpoint
+- **Health Status Hook**: New `useHealthStatus` React hook with polling, exponential backoff, and error handling
+- **Health Badge Component**: Lightweight UI component for displaying health status with compact/detailed views
+- **Comprehensive Testing**: Complete test suites for both backend (pytest) and frontend (Jest/React Testing Library)
 
 #### Structured Health Response Format
 
-* **System Health**: Overall status (`ok`, `degraded`, `unhealthy`) with precise uptime tracking
-* **Component Monitoring**: Individual component health with response times and detailed status information
-* **Version Information**: API version tracking and build information
-* **Timestamp Precision**: ISO8601 timestamps for all health checks and component status
+- **System Health**: Overall status (`ok`, `degraded`, `unhealthy`) with precise uptime tracking
+- **Component Monitoring**: Individual component health with response times and detailed status information
+- **Version Information**: API version tracking and build information
+- **Timestamp Precision**: ISO8601 timestamps for all health checks and component status
 
 #### Backend Components
 
-* `backend/services/health_service.py` - Core health monitoring service with component status simulation
-* `backend/routes/diagnostics.py` - Enhanced diagnostics endpoints with structured health responses
-* `backend/core/app.py` - Updated legacy health endpoint with deprecation notices
-* Comprehensive health models with Pydantic validation
+- `backend/services/health_service.py` - Core health monitoring service with component status simulation
+- `backend/routes/diagnostics.py` - Enhanced diagnostics endpoints with structured health responses
+- `backend/core/app.py` - Updated legacy health endpoint with deprecation notices
+- Comprehensive health models with Pydantic validation
 
-#### Frontend Components  
+#### Frontend Components
 
-* `frontend/src/health/useHealthStatus.ts` - React hook with polling, retry logic, and legacy fallback
-* `frontend/src/health/HealthBadge.tsx` - UI component for health status display
-* `frontend/src/services/coreFunctionalityValidator.ts` - Updated validator with bootstrap completion detection
-* Complete TypeScript types and error handling
+- `frontend/src/health/useHealthStatus.ts` - React hook with polling, retry logic, and legacy fallback
+- `frontend/src/health/HealthBadge.tsx` - UI component for health status display
+- `frontend/src/services/coreFunctionalityValidator.ts` - Updated validator with bootstrap completion detection
+- Complete TypeScript types and error handling
 
 #### Migration Support
 
-* **Backward Compatibility**: Legacy endpoint preserved with deprecation warnings
-* **Migration Documentation**: Comprehensive guide for endpoint migration with examples
-* **Gradual Migration Path**: Support for phased rollout with rollback capabilities
+- **Backward Compatibility**: Legacy endpoint preserved with deprecation warnings
+- **Migration Documentation**: Comprehensive guide for endpoint migration with examples
+- **Gradual Migration Path**: Support for phased rollout with rollback capabilities
 
 ---
 
@@ -459,81 +471,83 @@ Implemented comprehensive WebSocket resilience to eliminate 1006 connection fail
 
 #### Key Improvements
 
-* **Fixed 1006 Connection Errors**: Resolved path mismatch issues causing repeated disconnects (`client_/ws` vs `/ws/client`)
-* **Structured Handshake Protocol**: New canonical `/ws/client` endpoint with versioned protocol negotiation
-* **Adaptive Reconnection**: Jittered exponential backoff strategy (1s→2s→4s→8s→12s cap) with graceful fallback
-* **State Machine Architecture**: Well-defined connection phases (idle→connecting→open→degraded→reconnecting→failed→fallback)
-* **Comprehensive Diagnostics**: Development-only panel with real-time connection monitoring, statistics, and manual controls
-* **Error Classification**: Automatic categorization of failures (network, handshake, server_error, abnormal, timeout, unknown)
-* **Structured Logging**: Duplicate suppression and performance-aware logging with comprehensive connection tracking
+- **Fixed 1006 Connection Errors**: Resolved path mismatch issues causing repeated disconnects (`client_/ws` vs `/ws/client`)
+- **Structured Handshake Protocol**: New canonical `/ws/client` endpoint with versioned protocol negotiation
+- **Adaptive Reconnection**: Jittered exponential backoff strategy (1s→2s→4s→8s→12s cap) with graceful fallback
+- **State Machine Architecture**: Well-defined connection phases (idle→connecting→open→degraded→reconnecting→failed→fallback)
+- **Comprehensive Diagnostics**: Development-only panel with real-time connection monitoring, statistics, and manual controls
+- **Error Classification**: Automatic categorization of failures (network, handshake, server_error, abnormal, timeout, unknown)
+- **Structured Logging**: Duplicate suppression and performance-aware logging with comprehensive connection tracking
 
 #### WebSocket Protocol v1
 
-* **Canonical Endpoint**: `ws://localhost:8000/ws/client?client_id=<uuid>&version=1&role=frontend`
-* **Handshake Flow**: Query param validation → Hello message → Heartbeat cycle (25s interval)
-* **Error Codes**: Custom codes for specific conditions (4400: unsupported version, 4401: invalid role, 4500: handshake error)
-* **Message Format**: Structured JSON with type and timestamp requirements
-* **Backward Compatibility**: Legacy `/ws/{client_id}` endpoint maintained
+- **Canonical Endpoint**: `ws://localhost:8000/ws/client?client_id=<uuid>&version=1&role=frontend`
+- **Handshake Flow**: Query param validation → Hello message → Heartbeat cycle (25s interval)
+- **Error Codes**: Custom codes for specific conditions (4400: unsupported version, 4401: invalid role, 4500: handshake error)
+- **Message Format**: Structured JSON with type and timestamp requirements
+- **Backward Compatibility**: Legacy `/ws/{client_id}` endpoint maintained
 
 #### Adaptive Backoff Strategy
 
-* **Production Delays**: `[1000, 2000, 4000, 8000, 12000]` ms with ±20% jitter
-* **Deterministic Testing**: Seeded RNG for predictable test behavior
-* **Strategy Variants**: Immediate (testing), aggressive (faster reconnection), production (robust)
-* **Max Attempts**: 8 attempts before fallback mode activation
+- **Production Delays**: `[1000, 2000, 4000, 8000, 12000]` ms with ±20% jitter
+- **Deterministic Testing**: Seeded RNG for predictable test behavior
+- **Strategy Variants**: Immediate (testing), aggressive (faster reconnection), production (robust)
+- **Max Attempts**: 8 attempts before fallback mode activation
 
 #### Frontend Architecture
 
-* **React Hook**: `useWebSocketConnection()` with singleton manager pattern
-* **State Management**: Comprehensive connection state with statistics tracking
-* **Event System**: Message listeners with automatic cleanup and type statistics
-* **Diagnostics Panel**: `WebSocketDiagnosticsPanel.tsx` with live updates and manual controls
-* **Configuration**: Runtime configuration with environment-driven behavior
+- **React Hook**: `useWebSocketConnection()` with singleton manager pattern
+- **State Management**: Comprehensive connection state with statistics tracking
+- **Event System**: Message listeners with automatic cleanup and type statistics
+- **Diagnostics Panel**: `WebSocketDiagnosticsPanel.tsx` with live updates and manual controls
+- **Configuration**: Runtime configuration with environment-driven behavior
 
 #### Technical Components
 
 **Backend:**
-* `backend/routes/ws_client.py` - Canonical WebSocket endpoint with structured handshake
-* Heartbeat ping/pong cycle with configurable intervals
-* Enhanced logging with connection lifecycle tracking
+
+- `backend/routes/ws_client.py` - Canonical WebSocket endpoint with structured handshake
+- Heartbeat ping/pong cycle with configurable intervals
+- Enhanced logging with connection lifecycle tracking
 
 **Frontend:**
-* `frontend/src/websocket/WebSocketManager.ts` - Core connection management with state machine
-* `frontend/src/websocket/BackoffStrategy.ts` - Adaptive reconnection with jittered exponential backoff
-* `frontend/src/websocket/ConnectionState.ts` - Comprehensive type definitions and error classification
-* `frontend/src/websocket/useWebSocketConnection.ts` - React hook providing WebSocket functionality
-* `frontend/src/diagnostics/WebSocketDiagnosticsPanel.tsx` - Development diagnostics interface
+
+- `frontend/src/websocket/WebSocketManager.ts` - Core connection management with state machine
+- `frontend/src/websocket/BackoffStrategy.ts` - Adaptive reconnection with jittered exponential backoff
+- `frontend/src/websocket/ConnectionState.ts` - Comprehensive type definitions and error classification
+- `frontend/src/websocket/useWebSocketConnection.ts` - React hook providing WebSocket functionality
+- `frontend/src/diagnostics/WebSocketDiagnosticsPanel.tsx` - Development diagnostics interface
 
 #### Testing & Quality
 
-* **Comprehensive Test Suite**: BackoffStrategy tests with deterministic jitter, WebSocketManager state machine tests, backend handshake validation
-* **Mock WebSocket Implementation**: Complete WebSocket API mocking for isolated testing
-* **Integration Tests**: Full connection lifecycle validation
-* **Documentation**: Complete architecture documentation with usage examples and troubleshooting guide
+- **Comprehensive Test Suite**: BackoffStrategy tests with deterministic jitter, WebSocketManager state machine tests, backend handshake validation
+- **Mock WebSocket Implementation**: Complete WebSocket API mocking for isolated testing
+- **Integration Tests**: Full connection lifecycle validation
+- **Documentation**: Complete architecture documentation with usage examples and troubleshooting guide
 
 #### Diagnostics & Debugging
 
-* **Real-time Monitoring**: Connection state, statistics, error classification, message counts
-* **Activation Methods**: URL parameter (`?wsDebug=1`), global flag, keyboard shortcut (Ctrl+Shift+W)
-* **Developer Tools**: Manual connection controls, heartbeat testing, fallback reason display
-* **Performance Metrics**: Uptime tracking, message statistics, connection attempt history
+- **Real-time Monitoring**: Connection state, statistics, error classification, message counts
+- **Activation Methods**: URL parameter (`?wsDebug=1`), global flag, keyboard shortcut (Ctrl+Shift+W)
+- **Developer Tools**: Manual connection controls, heartbeat testing, fallback reason display
+- **Performance Metrics**: Uptime tracking, message statistics, connection attempt history
 
 #### Migration & Configuration
 
-* **Seamless Migration**: Drop-in replacement for existing WebSocketContext usage
-* **Environment Variables**: `VITE_WS_URL`, `VITE_WEBSOCKET_ENABLED` for configuration
-* **Runtime Configuration**: Client ID persistence, debug mode toggle, custom strategies
+- **Seamless Migration**: Drop-in replacement for existing WebSocketContext usage
+- **Environment Variables**: `VITE_WS_URL`, `VITE_WEBSOCKET_ENABLED` for configuration
+- **Runtime Configuration**: Client ID persistence, debug mode toggle, custom strategies
 
 #### New Files
 
-* `backend/routes/ws_client.py` - Canonical WebSocket client endpoint
-* `frontend/src/websocket/ConnectionState.ts` - Type definitions and error classification  
-* `frontend/src/websocket/BackoffStrategy.ts` - Adaptive reconnection strategy
-* `frontend/src/websocket/WebSocketManager.ts` - Core WebSocket connection management
-* `frontend/src/websocket/useWebSocketConnection.ts` - React hook for WebSocket functionality
-* `frontend/src/diagnostics/WebSocketDiagnosticsPanel.tsx` - Development diagnostics interface
-* `docs/websockets/architecture.md` - Comprehensive WebSocket architecture documentation
-* Comprehensive test suite: `BackoffStrategy.test.ts`, `WebSocketManager.test.ts`, `test_ws_handshake.py`
+- `backend/routes/ws_client.py` - Canonical WebSocket client endpoint
+- `frontend/src/websocket/ConnectionState.ts` - Type definitions and error classification
+- `frontend/src/websocket/BackoffStrategy.ts` - Adaptive reconnection strategy
+- `frontend/src/websocket/WebSocketManager.ts` - Core WebSocket connection management
+- `frontend/src/websocket/useWebSocketConnection.ts` - React hook for WebSocket functionality
+- `frontend/src/diagnostics/WebSocketDiagnosticsPanel.tsx` - Development diagnostics interface
+- `docs/websockets/architecture.md` - Comprehensive WebSocket architecture documentation
+- Comprehensive test suite: `BackoffStrategy.test.ts`, `WebSocketManager.test.ts`, `test_ws_handshake.py`
 
 ## [2025-08-15] - PR3 CORS & Sports Activation Endpoint
 
@@ -545,39 +559,39 @@ Fixed failing preflight OPTIONS requests for `/api/v2/sports/activate` endpoint 
 
 #### Key Improvements
 
-* **Fixed OPTIONS Preflight**: Added explicit OPTIONS handler for `/api/v2/sports/activate` resolving 405 Method Not Allowed errors
-* **Environment-Driven CORS**: Configured allowed origins for development with production security considerations
-* **Comprehensive Testing**: 19 automated tests covering preflight, validation, security headers, and edge cases
-* **Frontend Resilience**: Enhanced SportsService detection logic with graceful error handling
-* **Security Header Preservation**: CORS integration maintains all existing security headers
+- **Fixed OPTIONS Preflight**: Added explicit OPTIONS handler for `/api/v2/sports/activate` resolving 405 Method Not Allowed errors
+- **Environment-Driven CORS**: Configured allowed origins for development with production security considerations
+- **Comprehensive Testing**: 19 automated tests covering preflight, validation, security headers, and edge cases
+- **Frontend Resilience**: Enhanced SportsService detection logic with graceful error handling
+- **Security Header Preservation**: CORS integration maintains all existing security headers
 
 #### CORS Configuration
 
-* **Allowed Origins**: `http://localhost:5173`, `http://127.0.0.1:5173`, `http://localhost:8000`
-* **Methods**: All methods supported (`DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT`)
-* **Headers**: `Content-Type`, `Authorization` and requested headers
-* **Credentials**: Enabled with explicit origin allow-listing (no wildcards)
-* **Cache**: 10-minute preflight cache (`Access-Control-Max-Age: 600`)
+- **Allowed Origins**: `http://localhost:5173`, `http://127.0.0.1:5173`, `http://localhost:8000`
+- **Methods**: All methods supported (`DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT`)
+- **Headers**: `Content-Type`, `Authorization` and requested headers
+- **Credentials**: Enabled with explicit origin allow-listing (no wildcards)
+- **Cache**: 10-minute preflight cache (`Access-Control-Max-Age: 600`)
 
 #### Sports Activation Endpoint
 
-* **Endpoint**: `POST /api/v2/sports/activate` with `OPTIONS` preflight support
-* **Validation**: Supports `MLB`, `NBA`, `NFL`, `NHL` with comprehensive error handling
-* **Response Format**: Standardized JSON envelope with success/error structure
-* **Security**: Input validation, content-type enforcement, structured error responses
+- **Endpoint**: `POST /api/v2/sports/activate` with `OPTIONS` preflight support
+- **Validation**: Supports `MLB`, `NBA`, `NFL`, `NHL` with comprehensive error handling
+- **Response Format**: Standardized JSON envelope with success/error structure
+- **Security**: Input validation, content-type enforcement, structured error responses
 
 #### Technical Details
 
-* **Explicit OPTIONS Handler**: `@app.options("/api/v2/sports/activate")` ensures preflight success
-* **FastAPI CORS Middleware**: Configured with `allow_credentials=True` and explicit origins
-* **Test Coverage**: Complete test suite in `backend/tests/test_sports_activation_cors.py`
-* **Documentation**: Comprehensive CORS and activation guide in `docs/api/cors_and_activation.md`
-* **Frontend Integration**: Enhanced version detection with improved logging and error handling
+- **Explicit OPTIONS Handler**: `@app.options("/api/v2/sports/activate")` ensures preflight success
+- **FastAPI CORS Middleware**: Configured with `allow_credentials=True` and explicit origins
+- **Test Coverage**: Complete test suite in `backend/tests/test_sports_activation_cors.py`
+- **Documentation**: Comprehensive CORS and activation guide in `docs/api/cors_and_activation.md`
+- **Frontend Integration**: Enhanced version detection with improved logging and error handling
 
 #### New Files
 
-* `backend/tests/test_sports_activation_cors.py` - Complete CORS and endpoint test suite
-* `docs/api/cors_and_activation.md` - CORS strategy and endpoint documentation
+- `backend/tests/test_sports_activation_cors.py` - Complete CORS and endpoint test suite
+- `docs/api/cors_and_activation.md` - CORS strategy and endpoint documentation
 
 ## [2025-08-15] - PR2 Environment & Bootstrap Deduplication
 
@@ -589,44 +603,44 @@ Eliminated duplicate bootstrap executions and environment detection issues with 
 
 #### Key Improvements
 
-* **Centralized Bootstrap Architecture**: New `frontend/src/bootstrap/bootstrapApp.ts` with global symbol guard preventing duplicate initialization
-* **Environment Abstraction**: `frontend/src/bootstrap/env.ts` provides accurate environment detection (development/production/test)
-* **Idempotent Service Coordination**:
-  * Auth restoration only occurs once (eliminates duplicate "Authentication restored" logs)
-  * ReliabilityOrchestrator singleton integration prevents multiple monitoring intervals
-  * Global error handlers registered only once
-  * Web Vitals service initialization deduplication
-* **React StrictMode Compatibility**: Guards protect against double-invocation in development
-* **Performance Instrumentation**: Bootstrap timing tracking with structured logging
+- **Centralized Bootstrap Architecture**: New `frontend/src/bootstrap/bootstrapApp.ts` with global symbol guard preventing duplicate initialization
+- **Environment Abstraction**: `frontend/src/bootstrap/env.ts` provides accurate environment detection (development/production/test)
+- **Idempotent Service Coordination**:
+  - Auth restoration only occurs once (eliminates duplicate "Authentication restored" logs)
+  - ReliabilityOrchestrator singleton integration prevents multiple monitoring intervals
+  - Global error handlers registered only once
+  - Web Vitals service initialization deduplication
+- **React StrictMode Compatibility**: Guards protect against double-invocation in development
+- **Performance Instrumentation**: Bootstrap timing tracking with structured logging
 
 #### Technical Details
 
-* **Global State Coordination**: Type-safe global property access using `Symbol.for('a1.bet.platform.bootstrapped')`
-* **Service Integration**: Seamless coordination between bootstrap and existing contexts (AuthContext)
-* **Environment Logging**: Fixed mismatched logs (no more "Production Mode" in development)
-* **Lean Mode Support**: Automatically bypasses heavy services when `DEV_LEAN_MODE=true`
-* **Comprehensive Error Handling**: Bootstrap failures handled gracefully with fallback UI
+- **Global State Coordination**: Type-safe global property access using `Symbol.for('a1.bet.platform.bootstrapped')`
+- **Service Integration**: Seamless coordination between bootstrap and existing contexts (AuthContext)
+- **Environment Logging**: Fixed mismatched logs (no more "Production Mode" in development)
+- **Lean Mode Support**: Automatically bypasses heavy services when `DEV_LEAN_MODE=true`
+- **Comprehensive Error Handling**: Bootstrap failures handled gracefully with fallback UI
 
 #### New Files
 
-* `frontend/src/bootstrap/env.ts` - Environment detection with Vite/Node.js support
-* `frontend/src/bootstrap/bootstrapApp.ts` - Main bootstrap orchestration with idempotency
-* `frontend/src/bootstrap/__tests__/bootstrapApp.test.ts` - Full test coverage (25+ test cases)
-* `docs/architecture/bootstrap.md` - Complete architecture documentation
+- `frontend/src/bootstrap/env.ts` - Environment detection with Vite/Node.js support
+- `frontend/src/bootstrap/bootstrapApp.ts` - Main bootstrap orchestration with idempotency
+- `frontend/src/bootstrap/__tests__/bootstrapApp.test.ts` - Full test coverage (25+ test cases)
+- `docs/architecture/bootstrap.md` - Complete architecture documentation
 
 #### Modified Files
 
-* `frontend/src/main.tsx` - Refactored to use centralized bootstrap
-* `frontend/src/contexts/AuthContext.tsx` - Coordinate with bootstrap to prevent duplicates
-* `CHANGELOG.md` - Updated with PR2 details
+- `frontend/src/main.tsx` - Refactored to use centralized bootstrap
+- `frontend/src/contexts/AuthContext.tsx` - Coordinate with bootstrap to prevent duplicates
+- `CHANGELOG.md` - Updated with PR2 details
 
 #### Testing Coverage
 
-* **Idempotency Tests**: Verify bootstrap only runs once despite multiple calls
-* **Environment Detection**: Test dev/prod/test mode resolution
-* **Service Coordination**: Mock integration testing for all services
-* **Error Scenarios**: Bootstrap failure handling and recovery
-* **Performance Tracking**: Timing and metrics validation
+- **Idempotency Tests**: Verify bootstrap only runs once despite multiple calls
+- **Environment Detection**: Test dev/prod/test mode resolution
+- **Service Coordination**: Mock integration testing for all services
+- **Error Scenarios**: Bootstrap failure handling and recovery
+- **Performance Tracking**: Timing and metrics validation
 
 #### API Reference
 
@@ -658,59 +672,62 @@ Implemented comprehensive legacy endpoint usage telemetry system with feature fl
 
 #### Key Improvements
 
-* **Legacy Registry Service**: In-memory usage tracking with per-endpoint counters, timestamps, and forwarding mappings
-* **Legacy Middleware**: Request interception with feature flag enforcement and automatic 410 Gone responses when disabled
-* **Migration Assessment**: Automated readiness scoring based on usage patterns with actionable recommendations
-* **Meta API Endpoints**: RESTful telemetry exposure under `/api/v2/meta/legacy-*` for usage statistics and migration readiness
-* **Frontend Integration**: React hook and diagnostic panel with real-time usage monitoring and color-coded warnings
-* **Feature Flag System**: Environment-driven controls (`A1_LEGACY_ENABLED`, `A1_LEGACY_SUNSET`) with graceful degradation
+- **Legacy Registry Service**: In-memory usage tracking with per-endpoint counters, timestamps, and forwarding mappings
+- **Legacy Middleware**: Request interception with feature flag enforcement and automatic 410 Gone responses when disabled
+- **Migration Assessment**: Automated readiness scoring based on usage patterns with actionable recommendations
+- **Meta API Endpoints**: RESTful telemetry exposure under `/api/v2/meta/legacy-*` for usage statistics and migration readiness
+- **Frontend Integration**: React hook and diagnostic panel with real-time usage monitoring and color-coded warnings
+- **Feature Flag System**: Environment-driven controls (`A1_LEGACY_ENABLED`, `A1_LEGACY_SUNSET`) with graceful degradation
 
 #### Legacy Endpoint Identification & Tracking
 
 All non-`/api/v2/*` endpoints automatically classified as legacy including:
 
-* Core API endpoints: `/api/health`, `/api/props`, `/api/predictions`, `/api/analytics`
-* Enhanced ML routes: `/api/enhanced-ml/*` prefix-based detection
-* Monitoring endpoints: `/metrics`, `/performance/stats`, `/dev/mode`
-* Production integration endpoints from various route files
+- Core API endpoints: `/api/health`, `/api/props`, `/api/predictions`, `/api/analytics`
+- Enhanced ML routes: `/api/enhanced-ml/*` prefix-based detection
+- Monitoring endpoints: `/metrics`, `/performance/stats`, `/dev/mode`
+- Production integration endpoints from various route files
 
 #### Backend Architecture
 
-* **Legacy Registry** (`backend/services/legacy_registry.py`):
-  * Thread-safe in-memory usage counters with automatic endpoint registration
-  * Migration readiness scoring algorithm with configurable thresholds
-  * Sunset date configuration and recommendation generation
-  * Optional Prometheus metrics integration (placeholder for future enhancement)
+- **Legacy Registry** (`backend/services/legacy_registry.py`):
 
-* **Legacy Middleware** (`backend/middleware/legacy_middleware.py`):
-  * Early request interception before routing with pattern-based endpoint detection
-  * Feature flag enforcement returning structured 410 Gone responses when disabled
-  * Request annotation for downstream logging with legacy context
-  * Response header injection for deprecation warnings and forwarding guidance
+  - Thread-safe in-memory usage counters with automatic endpoint registration
+  - Migration readiness scoring algorithm with configurable thresholds
+  - Sunset date configuration and recommendation generation
+  - Optional Prometheus metrics integration (placeholder for future enhancement)
 
-* **Meta Legacy API** (`backend/routes/meta_legacy.py`):
-  * `/api/v2/meta/legacy-usage` - Comprehensive usage statistics with per-endpoint breakdown
-  * `/api/v2/meta/migration-readiness` - Migration readiness assessment with threshold-based scoring
-  * `/api/v2/meta/legacy-config` - Current configuration and environment settings
-  * Optional `/api/v2/meta/legacy-usage` DELETE endpoint for testing data cleanup
+- **Legacy Middleware** (`backend/middleware/legacy_middleware.py`):
+
+  - Early request interception before routing with pattern-based endpoint detection
+  - Feature flag enforcement returning structured 410 Gone responses when disabled
+  - Request annotation for downstream logging with legacy context
+  - Response header injection for deprecation warnings and forwarding guidance
+
+- **Meta Legacy API** (`backend/routes/meta_legacy.py`):
+  - `/api/v2/meta/legacy-usage` - Comprehensive usage statistics with per-endpoint breakdown
+  - `/api/v2/meta/migration-readiness` - Migration readiness assessment with threshold-based scoring
+  - `/api/v2/meta/legacy-config` - Current configuration and environment settings
+  - Optional `/api/v2/meta/legacy-usage` DELETE endpoint for testing data cleanup
 
 #### Frontend Integration
 
-* **Legacy Usage Hook** (`frontend/src/legacy/useLegacyUsage.ts`):
-  * Configurable polling intervals with error handling and retry logic
-  * TypeScript interfaces for all telemetry data structures
-  * Loading states, error boundaries, and computed usage metrics
-  * Migration readiness integration with threshold configuration
+- **Legacy Usage Hook** (`frontend/src/legacy/useLegacyUsage.ts`):
 
-* **Legacy Usage Panel** (`frontend/src/diagnostics/LegacyUsagePanel.tsx`):
-  * Color-coded status indicators based on usage levels and migration readiness
-  * Expandable interface with endpoint details, forwarding information, and usage history
-  * Migration readiness scoring with recommendations display
-  * Real-time refresh capabilities with manual override controls
+  - Configurable polling intervals with error handling and retry logic
+  - TypeScript interfaces for all telemetry data structures
+  - Loading states, error boundaries, and computed usage metrics
+  - Migration readiness integration with threshold configuration
+
+- **Legacy Usage Panel** (`frontend/src/diagnostics/LegacyUsagePanel.tsx`):
+  - Color-coded status indicators based on usage levels and migration readiness
+  - Expandable interface with endpoint details, forwarding information, and usage history
+  - Migration readiness scoring with recommendations display
+  - Real-time refresh capabilities with manual override controls
 
 #### Deprecation Control System
 
-* **410 Gone Response Format**:
+- **410 Gone Response Format**:
 
   ```json
   {
@@ -721,22 +738,23 @@ All non-`/api/v2/*` endpoints automatically classified as legacy including:
   }
   ```
 
-* **Response Headers** (when enabled):
-  * `X-Legacy-Endpoint: true` - Identifies legacy endpoint usage
-  * `X-Forward-To: /api/v2/...` - Modern replacement endpoint
-  * `X-Deprecated-Warning: Use ... instead` - Human-readable guidance
+- **Response Headers** (when enabled):
+  - `X-Legacy-Endpoint: true` - Identifies legacy endpoint usage
+  - `X-Forward-To: /api/v2/...` - Modern replacement endpoint
+  - `X-Deprecated-Warning: Use ... instead` - Human-readable guidance
 
 #### Testing & Documentation
 
-* **Comprehensive Test Suite**:
-  * `backend/tests/test_legacy_usage.py` - Legacy registry functionality and migration readiness
-  * `backend/tests/test_legacy_disable_flag.py` - Feature flag behavior and 410 response validation
-  * Full coverage of usage tracking, endpoint detection, and configuration scenarios
+- **Comprehensive Test Suite**:
 
-* **Migration Documentation**:
-  * `docs/migration/legacy_deprecation_plan.md` - Complete deprecation timeline and procedures
-  * 4-phase migration plan with success criteria and rollback procedures
-  * Client migration guide with testing and validation instructions
+  - `backend/tests/test_legacy_usage.py` - Legacy registry functionality and migration readiness
+  - `backend/tests/test_legacy_disable_flag.py` - Feature flag behavior and 410 response validation
+  - Full coverage of usage tracking, endpoint detection, and configuration scenarios
+
+- **Migration Documentation**:
+  - `docs/migration/legacy_deprecation_plan.md` - Complete deprecation timeline and procedures
+  - 4-phase migration plan with success criteria and rollback procedures
+  - Client migration guide with testing and validation instructions
 
 #### Migration Readiness Algorithm
 
@@ -744,16 +762,16 @@ All non-`/api/v2/*` endpoints automatically classified as legacy including:
 score = 1.0 - min(1.0, (total_calls_last_24h / threshold_per_hour))
 ```
 
-* **Score ≥ 0.8**: Ready for deprecation (low usage)
-* **Score ≥ 0.5**: Proceed with caution (moderate usage)
-* **Score < 0.5**: Not ready for deprecation (high usage)
+- **Score ≥ 0.8**: Ready for deprecation (low usage)
+- **Score ≥ 0.5**: Proceed with caution (moderate usage)
+- **Score < 0.5**: Not ready for deprecation (high usage)
 
 #### Configuration Options
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `A1_LEGACY_ENABLED` | `true` (dev), `false` (prod) | Enable/disable legacy endpoints |
-| `A1_LEGACY_SUNSET` | `null` | ISO8601 sunset date for planning |
+| Variable            | Default                      | Description                      |
+| ------------------- | ---------------------------- | -------------------------------- |
+| `A1_LEGACY_ENABLED` | `true` (dev), `false` (prod) | Enable/disable legacy endpoints  |
+| `A1_LEGACY_SUNSET`  | `null`                       | ISO8601 sunset date for planning |
 
 ## [PR2 Complete] - 2024-12-19
 
@@ -762,23 +780,27 @@ score = 1.0 - min(1.0, (total_calls_last_24h / threshold_per_hour))
 **Major architectural refactor to eliminate duplicate bootstrap executions and correct environment logging**
 
 #### ✅ Core Achievements
+
 - **Eliminated Duplicate Bootstrap**: Global Symbol.for() guards prevent multiple initialization
 - **Corrected Environment Logging**: Fixed "Production Mode" showing in development
-- **Made Bootstrap Idempotent**: Multiple calls return cached results safely  
+- **Made Bootstrap Idempotent**: Multiple calls return cached results safely
 - **Added Comprehensive Testing**: 9/9 test cases passing with Jest/JSDOM compatibility
 - **Complete Documentation**: Architecture guide with migration patterns
 
 #### 🏗️ New Architecture Components
+
 - **`frontend/src/bootstrap/env.ts`** - Unified environment detection with Vite/Node.js fallback
 - **`frontend/src/bootstrap/bootstrapApp.ts`** - Central idempotent initialization orchestrator
 - **`frontend/src/bootstrap/__tests__/`** - Comprehensive test suite with DOM mocking
 - **`docs/architecture/bootstrap.md`** - Complete architecture documentation
 
-#### 🔧 Modified Components  
+#### 🔧 Modified Components
+
 - **`frontend/src/main.tsx`** - Refactored from inline logic to centralized bootstrap
 - **`frontend/src/contexts/AuthContext.tsx`** - Added bootstrap coordination flags
 
 #### ⚡ Key Technical Features
+
 - **React 18 StrictMode Compatible**: Handles double-invocation gracefully
 - **Type-Safe Global State**: `BootstrapGlobalState` interface for safe property access
 - **Service Coordination**: Global flags prevent duplicate auth restoration & ReliabilityOrchestrator init
@@ -786,19 +808,22 @@ score = 1.0 - min(1.0, (total_calls_last_24h / threshold_per_hour))
 - **Error Boundary Integration**: Comprehensive error handling with categorization
 
 #### 🧪 Testing Results
+
 - **Environment Detection**: 3/3 passing
-- **Bootstrap State Management**: 2/2 passing  
+- **Bootstrap State Management**: 2/2 passing
 - **Basic Functionality**: 2/2 passing
 - **Performance & DOM Mocks**: 2/2 passing
 - **Total: 9/9 tests passing** ✅
 
 #### 📈 Impact Assessment
+
 - **Zero Performance Regression**: O(1) symbol lookup for idempotency check
 - **Reduced Resource Usage**: Eliminates redundant service initialization
 - **Enhanced Reliability**: Prevents race conditions in service startup
 - **Developer Experience**: Clear bootstrap patterns with comprehensive documentation
 
 #### 🔗 Integration Status
+
 - **PR1 Performance Metrics**: No regressions, all monitoring intact
 - **Existing Services**: Full backwards compatibility maintained
 - **Future PR3**: Architecture ready for advanced feature integration
@@ -815,41 +840,41 @@ Initial stabilization PR delivering consistent performance metrics with comprehe
 
 #### Key Fixes
 
-* Eliminated negative `totalLoadTime` readings by normalizing via `PerformanceNavigationTiming.duration`
-* Removed duplicate LCP logging (now single-source guarded emission)
-* Added `frontend/src/perf/performanceMetrics.ts` providing:
-  * `getNavigationTiming()` with legacy fallback & non-negative clamping
-  * `initWebVitals()` idempotent initialization + single LCP emission
-* Refactored `performance.ts` to consume new utility instead of raw observers
-* Added comprehensive test coverage:
-  * `frontend/src/perf/__tests__/performanceMetrics.test.ts` - Core metrics testing
-  * `frontend/src/utils/__tests__/performance.test.ts` - Component tracking tests
-  * Mock Performance objects with edge cases (negative, NaN, Infinity values)
-* Enhanced documentation: `docs/observability/performance_metrics.md` with API reference
+- Eliminated negative `totalLoadTime` readings by normalizing via `PerformanceNavigationTiming.duration`
+- Removed duplicate LCP logging (now single-source guarded emission)
+- Added `frontend/src/perf/performanceMetrics.ts` providing:
+  - `getNavigationTiming()` with legacy fallback & non-negative clamping
+  - `initWebVitals()` idempotent initialization + single LCP emission
+- Refactored `performance.ts` to consume new utility instead of raw observers
+- Added comprehensive test coverage:
+  - `frontend/src/perf/__tests__/performanceMetrics.test.ts` - Core metrics testing
+  - `frontend/src/utils/__tests__/performance.test.ts` - Component tracking tests
+  - Mock Performance objects with edge cases (negative, NaN, Infinity values)
+- Enhanced documentation: `docs/observability/performance_metrics.md` with API reference
 
 #### Implementation Notes
 
-* Guard flags prevent redundant listeners and multi-LCP events
-* Navigation metrics emitted with stable naming: `navigation-total-load-time`, `navigation-dom-content-loaded`
-* Exception handling ensures performance monitoring never disrupts application functionality
-* Memory management with automatic cleanup (100 metrics limit per component)
-* Future-proofed for percentile aggregation in later PRs
+- Guard flags prevent redundant listeners and multi-LCP events
+- Navigation metrics emitted with stable naming: `navigation-total-load-time`, `navigation-dom-content-loaded`
+- Exception handling ensures performance monitoring never disrupts application functionality
+- Memory management with automatic cleanup (100 metrics limit per component)
+- Future-proofed for percentile aggregation in later PRs
 
 #### Testing Coverage
 
-* Single initialization prevents duplicate observers
-* LCP deduplication across multiple callback invocations
-* Robust value validation (handles undefined, null, negative, infinite values)
-* Component performance tracking lifecycle validation
-* HOC wrapper functionality with proper displayName setting
-* Performance warning system for slow components (>2000ms threshold)
+- Single initialization prevents duplicate observers
+- LCP deduplication across multiple callback invocations
+- Robust value validation (handles undefined, null, negative, infinite values)
+- Component performance tracking lifecycle validation
+- HOC wrapper functionality with proper displayName setting
+- Performance warning system for slow components (>2000ms threshold)
 
 #### Impact
 
-* Stable, well-tested baseline for subsequent observability PRs (logging unification, diagnostics panel)
-* Reduced console noise and metric skew risk
-* Comprehensive error handling prevents performance monitoring from affecting user experience
-* Clear API documentation for future development
+- Stable, well-tested baseline for subsequent observability PRs (logging unification, diagnostics panel)
+- Reduced console noise and metric skew risk
+- Comprehensive error handling prevents performance monitoring from affecting user experience
+- Clear API documentation for future development
 
 ---
 
@@ -1355,24 +1380,27 @@ src/styles/
 ### 🧹 Maintenance - Test Alignment & Validation
 
 #### Backend Test Fixes
-* **Cache Test Alignment**: Fixed test mismatches in `tests/test_cache_pr6.py` to align with actual implementation signatures
-  * Updated `CacheKeyBuilder.build_key()` tests to use correct parameters (tier, entity, identifier, sub_keys)
-  * Fixed method name expectations (`stable_hash` vs `_stable_hash`)
-  * Aligned `CacheServiceExt` test expectations with versioned key behavior and context manager instrumentation
-  * Updated async context manager mocking for stampede protection locks
-  * Corrected health check test scenarios to match actual implementation behavior
-  * Removed invalid key parsing tests for implementation-supported key patterns
+
+- **Cache Test Alignment**: Fixed test mismatches in `tests/test_cache_pr6.py` to align with actual implementation signatures
+  - Updated `CacheKeyBuilder.build_key()` tests to use correct parameters (tier, entity, identifier, sub_keys)
+  - Fixed method name expectations (`stable_hash` vs `_stable_hash`)
+  - Aligned `CacheServiceExt` test expectations with versioned key behavior and context manager instrumentation
+  - Updated async context manager mocking for stampede protection locks
+  - Corrected health check test scenarios to match actual implementation behavior
+  - Removed invalid key parsing tests for implementation-supported key patterns
 
 #### Test Coverage Validation
-* **Backend Tests**: 30/32 tests passing (2 skipped integration/performance tests)
-* **Frontend Tests**: 16/16 tests passing (React components and hooks)
-* **Total Coverage**: 100% for implemented features with proper mocking of dependencies
+
+- **Backend Tests**: 30/32 tests passing (2 skipped integration/performance tests)
+- **Frontend Tests**: 16/16 tests passing (React components and hooks)
+- **Total Coverage**: 100% for implemented features with proper mocking of dependencies
 
 #### Quality Improvements
-* **Parameter Alignment**: Fixed `ttl` vs `ttl_seconds` parameter mismatches
-* **Mock Behavior**: Improved async mock setup for context managers and side effects
-* **Error Handling**: Updated exception expectations to match actual implementation returns
-* **Instrumentation**: Aligned test expectations with context manager patterns vs direct method calls
+
+- **Parameter Alignment**: Fixed `ttl` vs `ttl_seconds` parameter mismatches
+- **Mock Behavior**: Improved async mock setup for context managers and side effects
+- **Error Handling**: Updated exception expectations to match actual implementation returns
+- **Instrumentation**: Aligned test expectations with context manager patterns vs direct method calls
 
 ---
 
@@ -1462,9 +1490,11 @@ Batch 2 establishes a robust, unified WebSocket contract across backend and fron
 **Audit performed by GitHub Copilot, August 2025.**
 
 <!-- markdownlint-disable MD053 -->
+
 [Unreleased]: https://github.com/your-org/your-repo/compare/v2025.09.0...HEAD
 [v2025.09.0]: https://github.com/your-org/your-repo/compare/v2025.08.15...v2025.09.0
 [v2025.08.15]: https://github.com/your-org/your-repo/compare/v2025.08.14...v2025.08.15
 [v2025.08.14]: https://github.com/your-org/your-repo/compare/v2025.01.20...v2025.08.14
 [v2025.01.20]: https://github.com/your-org/your-repo/releases/tag/v2025.01.20
+
 <!-- markdownlint-enable MD053 -->

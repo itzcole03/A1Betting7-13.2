@@ -1,0 +1,119 @@
+{
+  "ok": true,
+  "git_sha": "97760069",
+  "runtime": {
+    "node": "v24.4.1"
+  },
+  "duration_ms": 5,
+  "checks": [
+    {
+      "name": "UnifiedCache.set/get",
+      "ok": true,
+      "info": {
+        "got": "v"
+      }
+    },
+    {
+      "name": "UnifiedLogger.getLogger",
+      "ok": true,
+      "info": {
+        "hasSetLevel": true
+      }
+    },
+    {
+      "name": "GuardedImport",
+      "ok": true,
+      "info": null
+    },
+    {
+      "name": "ClientHealthProbe",
+      "ok": true,
+      "info": {
+        "ts_source": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\core\\ClientHealthProbe.ts"
+      }
+    },
+    {
+      "name": "FeatureFlags",
+      "ok": true,
+      "info": {
+        "hasSet": true,
+        "hasGet": true,
+        "hasIs": true,
+        "set": {
+          "ok": true
+        },
+        "get": {
+          "ok": true,
+          "result": true
+        },
+        "isEnabled": {
+          "ok": true,
+          "result": true
+        }
+      }
+    },
+    {
+      "name": "PredictionValidator",
+      "ok": true,
+      "info": {
+        "hasValidate": true,
+        "result": {
+          "ok": true,
+          "result": {
+            "valid": true,
+            "normalized": {
+              "prediction": {
+                "sample": "qc"
+              },
+              "confidence": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "PluginSystem",
+      "ok": true,
+      "info": {
+        "hasRegister": true,
+        "hasEnable": true,
+        "hasDisable": true,
+        "hasList": true,
+        "register": {
+          "ok": true,
+          "result": {
+            "id": "__qc_plugin_test",
+            "name": "qc",
+            "enabled": false
+          }
+        },
+        "list": {
+          "ok": true,
+          "result": [
+            {
+              "id": "__qc_plugin_test",
+              "name": "qc",
+              "enabled": false
+            }
+          ]
+        },
+        "enable": {
+          "ok": true,
+          "result": {
+            "id": "__qc_plugin_test",
+            "name": "qc",
+            "enabled": false
+          }
+        },
+        "disable": {
+          "ok": true,
+          "result": {
+            "id": "__qc_plugin_test",
+            "name": "qc",
+            "enabled": false
+          }
+        }
+      }
+    }
+  ]
+}

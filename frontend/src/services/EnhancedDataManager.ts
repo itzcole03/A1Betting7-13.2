@@ -75,6 +75,10 @@ class EnhancedDataManager {
   private batchTimeout = 100; // 100ms batch window
   private maxCacheSize = 1000;
   private compressionThreshold = 10240; // 10KB
+  private batchProcessorInterval: ReturnType<typeof setInterval> | null = null;
+  private cacheCleanupInterval: ReturnType<typeof setInterval> | null = null;
+  private websocketReconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private disposed = false;
 
   constructor() {
     this.startBatchProcessor();
@@ -1134,6 +1138,12 @@ class EnhancedDataManager {
   }
 
   private initializeWebSocket(): void {
+    if (this.disposed) {
+      return;
+    }
+
+    this.cleanupWebSocket();
+
     try {
       const wsUrl = this.getWebSocketUrl();
       this.websocket = new WebSocket(wsUrl);
@@ -1142,6 +1152,7 @@ class EnhancedDataManager {
       this.websocket.onopen = () => {
         enhancedLogger.info('DataManager', 'WebSocket', 'WebSocket connected');
         this.reconnectAttempts = 0;
+        this.clearReconnectTimer();
       };
 
       this.websocket.onmessage = event => {
@@ -1157,10 +1168,11 @@ class EnhancedDataManager {
       this.websocket.onclose = event => {
         enhancedLogger.warn('DataManager', 'WebSocket', `Disconnected (code ${event.code})`);
         this.websocket = null;
-        if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
+        if (!this.disposed && event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
           const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
           enhancedLogger.info('DataManager', 'WebSocket', `Attempting reconnection in ${delay}ms`);
-          setTimeout(() => {
+          this.clearReconnectTimer();
+          this.websocketReconnectTimer = setTimeout(() => {
             this.reconnectAttempts++;
             this.initializeWebSocket();
           }, delay);
@@ -1187,6 +1199,42 @@ class EnhancedDataManager {
         {},
         errObj
       );
+    }
+  }
+
+  private clearReconnectTimer(): void {
+    if (this.websocketReconnectTimer) {
+      clearTimeout(this.websocketReconnectTimer);
+      this.websocketReconnectTimer = null;
+    }
+  }
+
+  private cleanupWebSocket(isShuttingDown = false): void {
+    if (!this.websocket) {
+      this.clearReconnectTimer();
+      return;
+    }
+
+    try {
+      this.websocket.onopen = null;
+      this.websocket.onmessage = null;
+      this.websocket.onclose = null;
+      this.websocket.onerror = null;
+
+      const websocketGlobal = typeof WebSocket !== 'undefined' ? WebSocket : undefined;
+      const readyState = this.websocket.readyState;
+      const isOpen = websocketGlobal ? readyState === websocketGlobal.OPEN : readyState === 1;
+      const isConnecting = websocketGlobal ? readyState === websocketGlobal.CONNECTING : readyState === 0;
+
+      if (isOpen || isConnecting) {
+        this.websocket.close(isShuttingDown ? 1000 : 1012, isShuttingDown ? 'dispose' : 'reconnect');
+      }
+    } catch (error) {
+      const errObj = error instanceof Error ? error : new Error(String(error));
+      enhancedLogger.warn('DataManager', 'WebSocket', 'Cleanup error', {}, errObj);
+    } finally {
+      this.websocket = null;
+      this.clearReconnectTimer();
     }
   }
 
@@ -1255,7 +1303,11 @@ class EnhancedDataManager {
   }
 
   private startBatchProcessor(): void {
-    setInterval(() => {
+    if (this.batchProcessorInterval || this.disposed) {
+      return;
+    }
+
+    this.batchProcessorInterval = setInterval(() => {
       if (this.batchQueue.length > 0) {
         const batch = this.batchQueue.splice(0);
         this.processBatch(batch);
@@ -1275,8 +1327,12 @@ class EnhancedDataManager {
   }
 
   private startCacheCleanup(): void {
+    if (this.cacheCleanupInterval || this.disposed) {
+      return;
+    }
+
     // Clean up expired cache entries every 5 minutes
-    setInterval(() => {
+    this.cacheCleanupInterval = setInterval(() => {
       const now = Date.now();
       const keysToDelete: string[] = [];
 
@@ -1292,6 +1348,34 @@ class EnhancedDataManager {
         enhancedLogger.info('DataManager', 'cacheCleanup', `Cleaned up ${keysToDelete.length} expired cache entries`);
       }
     }, 300000); // 5 minutes
+  }
+
+  private clearBatchProcessor(): void {
+    if (this.batchProcessorInterval) {
+      clearInterval(this.batchProcessorInterval);
+      this.batchProcessorInterval = null;
+    }
+  }
+
+  private clearCacheCleanup(): void {
+    if (this.cacheCleanupInterval) {
+      clearInterval(this.cacheCleanupInterval);
+      this.cacheCleanupInterval = null;
+    }
+  }
+
+  public dispose(): void {
+    if (this.disposed) {
+      return;
+    }
+
+    this.disposed = true;
+    this.clearBatchProcessor();
+    this.clearCacheCleanup();
+    this.cleanupWebSocket(true);
+    this.pendingRequests.clear();
+    this.batchQueue = [];
+    this.subscriptions.clear();
   }
 
   /**
@@ -1402,5 +1486,19 @@ class EnhancedDataManager {
   }
 }
 
-// Global instance
-export const enhancedDataManager = new EnhancedDataManager();
+const globalScope = globalThis as typeof globalThis & {
+  __enhancedDataManager?: EnhancedDataManager;
+};
+
+if (!globalScope.__enhancedDataManager) {
+  globalScope.__enhancedDataManager = new EnhancedDataManager();
+}
+
+export const enhancedDataManager = globalScope.__enhancedDataManager;
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    enhancedDataManager.dispose();
+    delete globalScope.__enhancedDataManager;
+  });
+}

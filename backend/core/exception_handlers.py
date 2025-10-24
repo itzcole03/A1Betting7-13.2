@@ -114,7 +114,7 @@ async def general_exception_handler(
     """Handle unexpected exceptions and convert to standard format"""
     logger.error(
         f"Unexpected error: {str(exc)}",
-        exc_info=exc,
+        exc_info=True,
         extra={
             "path": request.url.path,
             "method": request.method,

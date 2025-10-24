@@ -19,8 +19,17 @@ import numpy as np
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Register new sports prediction/personalization API router
-from backend.api_sports_personalization import router as sports_router
+# Placeholder sports prediction router. The real router lives in
+# backend.api_sports_personalization and may import heavy ML libs.
+# We'll attempt to import and include it during the app lifespan so module
+# import-time doesn't block on optional dependencies.
+from fastapi import APIRouter
+
+sports_router = APIRouter()
+
+@sports_router.get("/health-check")
+async def _sports_health_check():
+    return {"status": "sports-router-unavailable", "note": "placeholder"}
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -147,6 +156,11 @@ ml_loader = LazyMLLoader()
 async def lifespan(app: FastAPI):
     """Enhanced lifespan with non-blocking ML initialization"""
     logger.info("🚀 A1Betting Backend starting (Production Fix + Phase 2 + Phase 3)...")
+
+    # Mount the lightweight placeholder sports router to keep startup deterministic.
+    # Importing the real sports router can pull heavy ML libs (tensorflow/torch)
+    # which we avoid during 'Option C' direct execution runs.
+    app.include_router(sports_router, prefix="/api/sports", tags=["Sports Prediction & Personalization"])
 
     # Start ML loading in background (non-blocking)
     ml_loader.start_background_loading()

@@ -1,0 +1,109 @@
+name: Smoke checks — frontend core
+
+on:
+  push:
+    branches: [main, master, chore/head-endpoints]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      run_tsc_smoke:
+        description: "Set to 1 to enable the focused TypeScript smoke check"
+        required: false
+        default: "0"
+
+jobs:
+  smoke-core:
+    name: Core shims smoke checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend/src/core/tests/smoke
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install smoke dev deps (local)
+        run: |
+          npm ci --prefix ./frontend/src/core/tests/smoke
+
+      - name: Run JS smoke runner
+        run: |
+          npm --prefix ./frontend/src/core/tests/smoke run smoke:js
+
+      - name: Optional TypeScript smoke check
+        if: env.RUN_TSC_SMOKE == '1' || github.event.inputs.run_tsc_smoke == '1'
+        env:
+          RUN_TSC_SMOKE: ${{ env.RUN_TSC_SMOKE }}
+        run: |
+          echo "Running focused tsc smoke check"
+          npx -y -p typescript tsc --noEmit -p ../../tsconfig.smoke.json
+
+      - name: Upload smoke artifacts (triage)
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-smoke-output
+          path: |
+            ./frontend/src/core/tests/smoke/unified_shims_runner.log
+            ./reports/ts_triage/**
+
+      - name: Fail workflow if quickcheck failed
+        run: |
+          node -e "const fs=require('fs'), glob=require('glob'); const files=glob.sync('reports/shims_quickcheck/*.json'); if(files.length===0){ console.error('No quickcheck report found'); process.exit(1);} const c=JSON.parse(fs.readFileSync(files[0],'utf8')); if(!c.ok){ console.error('Quickcheck reported failures'); console.error(JSON.stringify(c.checks.filter(x=>!x.ok),null,2)); process.exit(1);} console.log('Quickcheck passed');"
+        shell: bash
+      - name: Create quickcheck GitHub Check Run
+        if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const glob = require('glob');
+            const files = glob.sync('reports/shims_quickcheck/*.json');
+            if (!files || files.length === 0) {
+              core.info('No quickcheck report found to summarize.');
+              return;
+            }
+            const content = JSON.parse(fs.readFileSync(files[0], 'utf8'));
+            const ok = content.ok ? 'PASS' : 'FAIL';
+            const checks = (content.checks || []).map(c => `- ${c.name}: ${c.ok ? 'OK' : 'FAIL'}${c.info ? ' — '+JSON.stringify(c.info) : ''}` ).join('\n');
+            const summary = `Core shims quickcheck: **${ok}**\n\nDuration: ${content.duration_ms}ms\nNode: ${content.runtime?.node || 'unknown'}\n\nChecks:\n${checks}`;
+
+            // Create a Check Run for the commit/PR head
+            const head_sha = github.context.payload.pull_request ? github.context.payload.pull_request.head.sha : github.context.sha;
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'shims/quickcheck',
+              head_sha,
+              status: 'completed',
+              conclusion: content.ok ? 'success' : 'failure',
+              output: {
+                title: 'Core shims quickcheck',
+                summary,
+              },
+            });
+
+      - name: Optional: Post quickcheck summary to PR (legacy comment)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const glob = require('glob');
+            const files = glob.sync('reports/shims_quickcheck/*.json');
+            if (!files || files.length === 0) return;
+            const content = JSON.parse(fs.readFileSync(files[0], 'utf8'));
+            const ok = content.ok ? 'PASS' : 'FAIL';
+            const checks = (content.checks || []).map(c => `- ${c.name}: ${c.ok ? 'OK' : 'FAIL'}` ).join('\n');
+            const body = `Core shims quickcheck: **${ok}**\n\nDuration: ${content.duration_ms}ms\nNode: ${content.runtime?.node || 'unknown'}\n\nChecks:\n${checks}`;
+            await github.rest.issues.createComment({
+              issue_number: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });

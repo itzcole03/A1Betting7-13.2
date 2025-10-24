@@ -3,12 +3,15 @@ Smart Signals API Routes
 Provides endpoints for accessing smart signal analysis.
 """
 import logging
+from datetime import datetime
 from typing import List, Optional
 from fastapi import APIRouter, Query, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from prometheus_client import Counter
 
 from ..services.smart_signals import smart_signals_service, SmartSignal
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger("propollama.smart_signals_api")
 
@@ -90,12 +93,28 @@ async def get_smart_signals(
         logger.info(f"Getting smart signals for {sport} with min_score={min_score}")
         
         # Check if smart signals are enabled
-        if not smart_signals_service.enabled:
+        enabled = smart_signals_service.sync_feature_flag()
+        if not enabled:
             smart_signals_generated_total.labels(sport=sport, outcome="disabled").inc()
-            raise HTTPException(
-                status_code=503,
-                detail="Smart signals feature is disabled. Enable with ENABLE_SMART_SIGNALS=true"
+            message = (
+                "Smart signals feature is disabled. Enable with ENABLE_SMART_SIGNALS=true"
             )
+            payload = {
+                "success": False,
+                "data": None,
+                "error": {
+                    "code": "E2000_DEPENDENCY",
+                    "message": message,
+                },
+                "detail": message,
+                "meta": {
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "severity": "HIGH",
+                    "category": "DEPENDENCY",
+                    "retryable": True,
+                },
+            }
+            return JSONResponse(status_code=503, content=payload)
         
         # Get base opportunities from PropFinder
         from ..services.simple_propfinder_service import SimplePropFinderService
@@ -194,7 +213,7 @@ async def get_smart_signals(
     except Exception as e:
         logger.error(f"Error in get_smart_signals: {e}", exc_info=True)
         smart_signals_generated_total.labels(sport=sport, outcome="error").inc()
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise BusinessLogicException(f"Internal server error: {str(e, status_code=500)}")
 
 
 @router.get("/health")

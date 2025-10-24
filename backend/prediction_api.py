@@ -103,20 +103,31 @@ async def get_initialized_engine():
 
 
 from contextlib import asynccontextmanager
+import os
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
         logger.info("🚀 Starting Real-Time Prediction API...")
-        await get_initialized_engine()
+        # Respect environment flag to avoid blocking startup during tests
+        if os.environ.get("DISABLE_STARTUP_HOOKS", "").lower() == "true":
+            # Schedule initialization in background and let the server start
+            asyncio.create_task(get_initialized_engine())
+            logger.info("⚠️ Skipping blocking engine init (scheduled in background) due to DISABLE_STARTUP_HOOKS")
+        else:
+            await get_initialized_engine()
+
         logger.info("✅ Real-Time Prediction API started successfully")
         yield
     finally:
         try:
+            # Attempt graceful close; don't crash if engine isn't ready
             await real_time_prediction_engine.close()
             logger.info("✅ Real-Time Prediction API shutdown complete")
         except Exception as e:
             logger.error(f"❌ API shutdown error: {e}")
+
 
 app.router.lifespan_context = lifespan
 

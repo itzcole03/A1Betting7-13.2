@@ -5,7 +5,7 @@ Enhanced FastAPI routes for exposing Prometheus metrics from the odds aggregatio
 Includes proper guards and health checks for environments where Prometheus is not available.
 """
 
-from fastapi import APIRouter, Response, HTTPException
+from fastapi import APIRouter, Response
 from typing import Dict, Any
 import logging
 
@@ -17,10 +17,12 @@ except ImportError:
     get_adapter = None
 
 from backend.services.odds_aggregation_metrics import get_metrics, is_prometheus_available
+from backend.core.response_models import ResponseBuilder, StandardAPIResponse
 
 logger = logging.getLogger("odds_aggregation_metrics_routes")
 
 router = APIRouter(prefix="/metrics", tags=["metrics"])
+api_metrics_router = APIRouter(prefix="/api/metrics", tags=["metrics"])
 
 
 @router.get("/prometheus")
@@ -92,6 +94,12 @@ async def metrics():
             content=f"# Error generating metrics: {str(e)}\n",
             media_type="text/plain"
         )
+
+
+@router.get("")
+async def metrics_without_trailing_slash():
+    """Compatibility alias so `/metrics` responds without redirect."""
+    return await metrics()
 
 
 @router.get("/health")
@@ -171,3 +179,42 @@ async def get_metrics_status() -> Dict[str, Any]:
             "error": str(e),
             "status": "error"
         }
+
+
+@api_metrics_router.get(
+    "/summary",
+    response_model=StandardAPIResponse[Dict[str, Any]],
+    summary="Get consolidated metrics summary",
+)
+async def get_metrics_summary():
+    """Provide human-readable metrics subsystem status."""
+    try:
+        metrics_service = get_metrics()
+        health = metrics_service.get_health_summary()
+
+        summary_payload: Dict[str, Any] = {
+            "metrics_enabled": metrics_service.is_enabled(),
+            "prometheus_available": is_prometheus_available(),
+            "registry_initialized": bool(health.get("registry_initialized")) if health else False,
+            "endpoints": {
+                "prometheus": "/metrics/prometheus",
+                "legacy": "/metrics/",
+                "health": "/metrics/health",
+                "status": "/metrics/status",
+                "summary": "/api/metrics/summary",
+            },
+        }
+
+        if health:
+            summary_payload["health"] = health
+
+        if not summary_payload["prometheus_available"]:
+            summary_payload["notes"] = "Prometheus client not available; returning mock metrics"
+
+        return ResponseBuilder.success(summary_payload)
+    except Exception as exc:
+        logger.error("Failed to build metrics summary: %s", exc)
+        return ResponseBuilder.internal_error(
+            "Failed to build metrics summary",
+            details={"reason": str(exc)},
+        )

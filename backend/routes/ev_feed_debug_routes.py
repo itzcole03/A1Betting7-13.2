@@ -7,6 +7,7 @@ import os
 from fastapi import APIRouter, HTTPException, Query
 from backend.services.ev_feed_service import ev_feed_service
 from backend.core.response_models import ResponseBuilder
+from backend.core.exceptions import BusinessLogicException
 
 router = APIRouter(prefix="/api/ev/feed/debug", tags=["EV Feed Debug"])
 
@@ -18,7 +19,7 @@ def _debug_enabled() -> bool:
 @router.get("/latest")
 async def get_latest_ev_feed_entries(limit: int = Query(5, ge=1, le=50)):
     if not _debug_enabled():
-        raise HTTPException(status_code=404, detail="Not found")
+        raise BusinessLogicException("Not found", status_code=404)
     # Access internal ring safely
     ring = getattr(ev_feed_service, "_ring", [])
     effective_limit = min(limit, 20)

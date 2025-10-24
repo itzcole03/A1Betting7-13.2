@@ -103,6 +103,7 @@ async def get_comprehensive_projections():
 
 
 from fastapi.responses import JSONResponse
+from backend.core.exceptions import BusinessLogicException
 
 
 @router.post("/api/prizepicks/lineup/optimize", response_model=StandardAPIResponse[Dict[str, Any]])
@@ -113,19 +114,14 @@ async def optimize_lineup(request: Request):
         entries = request_data.get("entries", [])
 
         if len(entries) < 2:
-            return JSONResponse(
-                content={"error": "At least 2 entries required", "status": "error"},
-                status_code=400,
-            )
+            return raise BusinessLogicException("Service error")
 
         # Mock optimization for test compatibility
         return JSONResponse(
             content={"status": "success", "optimized_lineup": entries}, status_code=200
         )
     except Exception:
-        return JSONResponse(
-            content={"error": "No entries provided", "status": "error"}, status_code=400
-        )
+        return raise BusinessLogicException("Service error")
 
 
 @router.get("/api/prizepicks/health", response_model=StandardAPIResponse[Dict[str, Any]])

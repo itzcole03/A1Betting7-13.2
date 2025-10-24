@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from backend.ingestion.backfill_manager import BackfillManager
+from backend.core.exceptions import BusinessLogicException
 
 router = APIRouter(prefix="/api/ingestion/admin", tags=["ingestion-admin"])
 
@@ -31,7 +32,7 @@ async def enqueue_backfill(req: BackfillRequest):
     try:
         s, e = req.get_range()
     except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc))
+        raise BusinessLogicException(str(exc, status_code=422))
     job_id = await _manager.enqueue_backfill(s, e)
     return {"job_id": job_id}
 
@@ -40,5 +41,5 @@ async def enqueue_backfill(req: BackfillRequest):
 async def get_backfill_status(job_id: str):
     job = await _manager.get_status(job_id)
     if not job:
-        raise HTTPException(status_code=404, detail="job not found")
+        raise BusinessLogicException("job not found", status_code=404)
     return job

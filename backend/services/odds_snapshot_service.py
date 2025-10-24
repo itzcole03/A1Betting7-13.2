@@ -14,8 +14,8 @@ import os
 from datetime import datetime, timezone
 from typing import Any, List, Optional
 
-from sqlmodel import select
 from sqlalchemy import text
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from backend.database import async_engine
@@ -29,6 +29,13 @@ class OddsSnapshotService:
         self._disabled_logged = False
         # Test helper state
         self._test_mode_initialized = False
+
+    def _check_enabled(self) -> bool:
+        """Re-evaluate runtime flag to support tests toggling without reload."""
+        current = os.getenv("ENABLE_ODDS_SNAPSHOTS", "false").lower() == "true"
+        # Keep attribute updated for diagnostics
+        self.enabled = current
+        return current
 
     async def reset_for_tests(self) -> None:
         """Explicit helper for tests to purge snapshot table.
@@ -56,6 +63,7 @@ class OddsSnapshotService:
             return
         try:  # pragma: no cover - defensive guard
             from backend.database import create_tables_async
+
             await create_tables_async()
         except Exception:
             pass
@@ -73,10 +81,11 @@ class OddsSnapshotService:
         captured_at: Optional[datetime] = None,
         source_timestamp: Optional[datetime] = None,
     ) -> Optional[OddsSnapshotRecord]:
-        if not self.enabled:
+        if not self._check_enabled():
             # One-time debug to aid diagnostics when writes attempted while disabled
             if not self._disabled_logged:
                 import logging
+
                 logging.getLogger("odds_snapshot_service").debug(
                     "odds_snapshot:disabled_write_attempt"
                 )
@@ -91,18 +100,6 @@ class OddsSnapshotService:
         async with AsyncSession(async_engine) as session:
             await self._ensure_table()
 
-            # Test-only deterministic cleanup for synthetic props
-            if prop_id.startswith("synthetic:"):
-                try:
-                    await session.execute(
-                        text(
-                            "DELETE FROM oddssnapshotrecord WHERE prop_id = :pid AND sportsbook = :sb"
-                        ),
-                        {"pid": prop_id, "sb": sportsbook},
-                    )
-                    await session.commit()
-                except Exception:
-                    pass
             # Check for existing record in same minute bucket
             stmt = select(OddsSnapshotRecord).where(
                 OddsSnapshotRecord.prop_id == prop_id,
@@ -149,16 +146,20 @@ class OddsSnapshotService:
         end_time: datetime,
         limit: int = 100,
     ) -> List[dict[str, Any]]:
-        if not self.enabled:
+        if not self._check_enabled():
             return []
 
         async with AsyncSession(async_engine) as session:
-            stmt = select(OddsSnapshotRecord).where(
-                OddsSnapshotRecord.prop_id == prop_id,
-                OddsSnapshotRecord.sportsbook == sportsbook,
-                OddsSnapshotRecord.captured_at >= start_time,
-                OddsSnapshotRecord.captured_at <= end_time,
-            ).limit(limit)
+            stmt = (
+                select(OddsSnapshotRecord)
+                .where(
+                    OddsSnapshotRecord.prop_id == prop_id,
+                    OddsSnapshotRecord.sportsbook == sportsbook,
+                    OddsSnapshotRecord.captured_at >= start_time,
+                    OddsSnapshotRecord.captured_at <= end_time,
+                )
+                .limit(limit)
+            )
             res = await session.exec(stmt)
             rows = res.all()
 
@@ -173,7 +174,11 @@ class OddsSnapshotService:
                         "over_odds": r.over_odds,
                         "under_odds": r.under_odds,
                         "captured_at": r.captured_at.isoformat(),
-                        "source_timestamp": r.source_timestamp.isoformat() if r.source_timestamp else None,
+                        "source_timestamp": (
+                            r.source_timestamp.isoformat()
+                            if r.source_timestamp
+                            else None
+                        ),
                     }
                 )
             return out
@@ -183,4 +188,6 @@ _service = OddsSnapshotService()
 
 
 def get_odds_snapshot_service() -> OddsSnapshotService:
+    # Re-sync the runtime flag in case tests flip the env without re-importing.
+    _service._check_enabled()
     return _service

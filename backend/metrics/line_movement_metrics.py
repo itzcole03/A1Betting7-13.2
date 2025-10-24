@@ -9,6 +9,12 @@ import time
 from functools import wraps
 from typing import Callable, Any
 
+try:
+    from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+except ImportError:  # pragma: no cover - optional dependency guard
+    generate_latest = None
+    CONTENT_TYPE_LATEST = "text/plain"
+
 # Metrics definitions
 line_movement_snapshots_total = Counter(
     'line_movement_snapshots_total',
@@ -154,15 +160,20 @@ def instrument_line_movement_function(operation_name: str):
 # Metrics collection helper
 def get_current_metrics() -> dict:
     """Get current metrics values for debugging/monitoring"""
+    if generate_latest is None:
+        return {
+            "metrics_available": False,
+            "error": "prometheus_client.generate_latest unavailable",
+        }
+
     try:
-        from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
         return {
             "metrics_available": True,
-            "prometheus_format": generate_latest().decode('utf-8'),
-            "content_type": CONTENT_TYPE_LATEST
+            "prometheus_format": generate_latest().decode("utf-8"),
+            "content_type": CONTENT_TYPE_LATEST,
         }
     except Exception as e:
         return {
             "metrics_available": False,
-            "error": str(e)
+            "error": str(e),
         }

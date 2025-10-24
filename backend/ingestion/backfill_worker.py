@@ -1,5 +1,5 @@
 import asyncio
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta, datetime, timezone
 from typing import Callable, Iterable, List, Optional
 
 from ..services import cache
@@ -51,7 +51,7 @@ class BackfillWorker:
         snapshot = {
             "start": chunk_start.isoformat(),
             "end": chunk_end.isoformat(),
-            "fetched_at": datetime.utcnow().isoformat(),
+            "fetched_at": datetime.now(timezone.utc).isoformat(),
             "data": result,
         }
 

@@ -1,3 +1,12 @@
-﻿export interface DataSource<T = unknown> {
-  fetchData(): Promise<T>;
-}
+﻿export type {
+  CoreNormalizedDataSource,
+  DataSource,
+  DataSourceHealth,
+  DataSourceMetadata,
+  DataSourcePriority,
+  DataSourceRequestOptions,
+  DataSourceStatus,
+  NormalizedDataSource,
+} from '../core/DataSource';
+
+export { normalizeDataSource } from '../core/DataSource';

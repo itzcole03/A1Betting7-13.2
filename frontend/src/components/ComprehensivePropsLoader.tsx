@@ -1,15 +1,16 @@
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any, react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { FeaturedProp } from '../services/unified/FeaturedPropsService';
 import { EnhancedApiClient } from '../utils/enhancedApiClient';
 
 interface ComprehensivePropsLoaderProps {
-  gameId: number;
+  gameId: string;
   onPropsGenerated: (props: FeaturedProp[]) => void;
 }
 
 interface ComprehensivePropsResponse {
   status: string;
-  game_id: number;
+  game_id: string;
   props: any[];
   summary: {
     total_props: number;
@@ -20,6 +21,34 @@ interface ComprehensivePropsResponse {
   };
   message: string;
 }
+
+const extractPayload = <T,>(raw: unknown): { payload: T | null; message?: string } => {
+  if (raw && typeof raw === 'object') {
+    const envelope = raw as {
+      success?: boolean;
+      data?: T;
+      error?: unknown;
+      message?: string;
+    };
+
+    if ('data' in envelope || 'success' in envelope || 'error' in envelope) {
+      const payload = (envelope.data ?? null) as T | null;
+      if (envelope.success === false) {
+        const errorMessage =
+          typeof envelope.error === 'string'
+            ? envelope.error
+            : typeof envelope.error === 'object' && envelope.error !== null
+            ? String((envelope.error as { message?: unknown }).message ?? envelope.message ?? '')
+            : envelope.message;
+        return { payload, message: errorMessage };
+      }
+
+      return { payload, message: envelope.message };
+    }
+  }
+
+  return { payload: (raw as T) ?? null, message: undefined };
+};
 
 const ComprehensivePropsLoader: React.FC<ComprehensivePropsLoaderProps> = ({
   gameId,
@@ -62,23 +91,18 @@ const ComprehensivePropsLoader: React.FC<ComprehensivePropsLoaderProps> = ({
       });
 
       // Check if response was successful
-      if (response.status === 200 && response.data && response.data.status === 'success') {
+      const { payload, message } = extractPayload<ComprehensivePropsResponse>(response.data);
+
+      if (response.status === 200 && payload) {
         setGenerationStatus('Applying ML confidence scoring...');
 
         // Small delay to show final status
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        const comprehensiveResponse = response.data as ComprehensivePropsResponse;
+        const comprehensiveResponse = payload;
 
         // Transform raw props into FeaturedProp format using fetchFeaturedProps
         // Create a pseudo sport configuration that will use our generated props
-        const mockSportConfig = {
-          type: 'player' as const,
-          sport: 'MLB',
-          subType: 'comprehensive_generated',
-          date: new Date().toISOString().split('T')[0],
-        };
-
         // Convert the generated props to the format expected by the frontend
         const transformedProps: FeaturedProp[] = comprehensiveResponse.props.map(
           (prop: any, index: number) => ({
@@ -113,7 +137,7 @@ const ComprehensivePropsLoader: React.FC<ComprehensivePropsLoaderProps> = ({
           `✅ Generated ${comprehensiveResponse.summary.total_props} props for ${comprehensiveResponse.summary.unique_players} players`
         );
       } else {
-        throw new Error(response.data?.message || 'Failed to generate props');
+        throw new Error(message || 'Failed to generate props');
       }
     } catch (err: any) {
       console.error(`[ComprehensivePropsLoader] Error generating props:`, err);

@@ -24,8 +24,6 @@ jest.mock('../propOllamaService', () => {
   const actual = jest.requireActual('../propOllamaService');
   const mockInstance = {
     getAvailableModels: jest.fn(function (...args) {
-      console.log('[MOCK] getAvailableModels called, this:', this, 'args:', args);
-      console.trace('[MOCK] getAvailableModels stack trace');
       return Promise.resolve(['test-model']);
     }),
     getPropOllamaHealth: jest.fn(() => Promise.resolve({ status: 'ok', message: 'healthy' })),
@@ -54,19 +52,14 @@ jest.mock('../backendDiscovery', () => {
   return {
     discoverBackend: jest.fn(() => {
       const url = 'http://localhost:8000';
-      console.log('[INLINE MOCK] discoverBackend called, returning:', url);
       return Promise.resolve(url);
     }),
   };
 });
 jest.mock('axios');
 
-// [DEBUG] Top of test file
-console.log('[DEBUG] Top of PropOllama.test.tsx');
-
 jest.mock('../backendDiscovery');
 jest.mock('axios');
-console.log('[DEBUG] Top of PropOllama.test.tsx');
 // Mock matchMedia and scrollIntoView for jsdom and framer-motion requirements
 const matchMediaMock = (query: string) => ({
   matches: false,
@@ -147,11 +140,9 @@ test('displays health check status', async () => {
 test('displays AI response for valid message', async () => {
   const { propOllamaService } = require('../propOllamaService');
   propOllamaService.getAvailableModels.mockImplementation(() => {
-    console.log('[TEST] Explicit mock getAvailableModels called');
     return Promise.resolve(['test-model']);
   });
   propOllamaService.sendChatMessage.mockImplementation(() => {
-    console.log('[TEST] Explicit mock sendChatMessage called');
     return Promise.resolve({
       content: 'AI response',
       confidence: 0.99,
@@ -170,12 +161,10 @@ test('propOllamaService functions work correctly', async () => {
 
   // Setup mocks
   propOllamaService.getAvailableModels.mockImplementation(() => {
-    console.log('[TEST] Explicit mock getAvailableModels called');
     return Promise.resolve(['test-model']);
   });
 
   propOllamaService.sendChatMessage.mockImplementation(() => {
-    console.log('[TEST] Explicit mock sendChatMessage called');
     return Promise.resolve({
       content: 'AI response',
       confidence: 0.99,

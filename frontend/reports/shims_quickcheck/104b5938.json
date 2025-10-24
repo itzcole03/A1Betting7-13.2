@@ -1,0 +1,36 @@
+{
+  "ok": false,
+  "git_sha": "104b5938",
+  "runtime": {
+    "node": "v24.4.1"
+  },
+  "duration_ms": 5,
+  "checks": [
+    {
+      "name": "UnifiedCache",
+      "ok": true,
+      "info": {
+        "ts_source": "c:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\core\\UnifiedCache.ts"
+      }
+    },
+    {
+      "name": "UnifiedLogger",
+      "ok": true,
+      "info": {
+        "ts_source": "c:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\core\\UnifiedLogger.ts"
+      }
+    },
+    {
+      "name": "GuardedImport",
+      "ok": true,
+      "info": {
+        "ts_source": "c:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\core\\GuardedImport\\index.ts"
+      }
+    },
+    {
+      "name": "ClientHealthProbe",
+      "ok": false,
+      "info": "module not found (checked js and ts paths for c:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\core\\ClientHealthProbe)"
+    }
+  ]
+}

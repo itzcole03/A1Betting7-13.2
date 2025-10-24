@@ -370,4 +370,6 @@ export const _useUnifiedBetting = () => {
   };
 };
 
-export default useUnifiedBetting;
+export const useUnifiedBetting = _useUnifiedBetting;
+
+export default _useUnifiedBetting;

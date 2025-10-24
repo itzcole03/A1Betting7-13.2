@@ -18,6 +18,7 @@ from backend.version_coherence import (
     CURRENT_VERSION
 )
 from backend.services.unified_logging import unified_logger, LogContext, LogComponent
+from backend.core.exceptions import BusinessLogicException
 
 router = APIRouter(prefix="/api/version", tags=["Version & Compatibility"])
 logger = unified_logger
@@ -60,9 +61,7 @@ async def get_application_version_info():
         )
         
         logger.error(f"Error retrieving version info: {e}", context, exc_info=True)
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Failed to retrieve version information: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve version information: {str(e, status_code=500)}"
         )
 
 
@@ -127,9 +126,7 @@ async def check_compatibility(
         )
         
         logger.error(f"Invalid version format in compatibility check: {e}", context)
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid version format: {str(e)}"
+        raise BusinessLogicException(f"Invalid version format: {str(e, status_code=400)}"
         )
         
     except Exception as e:
@@ -143,9 +140,7 @@ async def check_compatibility(
         )
         
         logger.error(f"Error checking version compatibility: {e}", context, exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to check version compatibility: {str(e)}"
+        raise BusinessLogicException(f"Failed to check version compatibility: {str(e, status_code=500)}"
         )
 
 
@@ -186,9 +181,7 @@ async def get_build_information():
         )
         
         logger.error(f"Error retrieving build info: {e}", context, exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve build information: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve build information: {str(e, status_code=500)}"
         )
 
 
@@ -345,9 +338,7 @@ async def report_version_usage(
         )
         
         logger.error(f"Invalid version in usage report: {e}", context)
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid version format: {str(e)}"
+        raise BusinessLogicException(f"Invalid version format: {str(e, status_code=400)}"
         )
         
     except Exception as e:
@@ -361,9 +352,7 @@ async def report_version_usage(
         )
         
         logger.error(f"Error processing version usage report: {e}", context, exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to process version usage report: {str(e)}"
+        raise BusinessLogicException(f"Failed to process version usage report: {str(e, status_code=500)}"
         )
 
 
@@ -417,9 +406,7 @@ async def get_feature_compatibility():
         )
         
         logger.error(f"Error retrieving feature compatibility: {e}", context, exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve feature compatibility: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve feature compatibility: {str(e, status_code=500)}"
         )
 
 
@@ -448,4 +435,4 @@ async def version_health_check():
         get_version_info()
         return {"status": "healthy"}
     except Exception:
-        raise HTTPException(status_code=503, detail="Version system unhealthy")
+        raise BusinessLogicException("Version system unhealthy", status_code=503)

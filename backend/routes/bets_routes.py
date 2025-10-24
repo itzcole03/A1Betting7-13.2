@@ -15,6 +15,7 @@ from backend.services.unified_logging import get_logger, LogComponent, LogContex
 
 try:  # Attempt to import a helper for sample odds lookup if exists
     from backend.betting.ev_data_adapter import get_sample_market_odds_for_bet  # type: ignore
+from backend.core.exceptions import BusinessLogicException
 except Exception:  # pragma: no cover - optional helper
     get_sample_market_odds_for_bet = None  # type: ignore
 
@@ -69,7 +70,7 @@ async def place_bet(payload: BetCreate):
             context=LogContext(component=LogComponent.BUSINESS_LOGIC, operation="place_bet"),
             error=str(e),
         )
-        raise HTTPException(status_code=422, detail={"error": "validation_error", "message": str(e)})
+        raise BusinessLogicException({"error": "validation_error", "message": str(e, status_code=422)})
     except Exception as e:  # pragma: no cover - safety
         return unified_error_handler.handle_error(e)
 

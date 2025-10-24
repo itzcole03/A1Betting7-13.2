@@ -1,16 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 // @ts-expect-error TS(2307): Cannot find module '@/services/MLSimulationService... Remove this comment to see the full error message
 import { MLSimulationService } from '@/services/MLSimulationService';
-import {
-  Team,
-  Player,
-  Game,
-  Prediction,
-  PlayerStats,
-  PlayerForm,
-  //   InjuryStatus
-// @ts-expect-error TS(2307): Cannot find module '@/types/betting' or its corres... Remove this comment to see the full error message
-} from '@/types/betting';
+import { PlayerForm, PlayerStats, Prediction } from '@/types/betting';
 
 export const _useMLSimulation = () => {
   const [simulationService] = useState(() => new MLSimulationService());
@@ -98,3 +89,7 @@ export const _useMLSimulation = () => {
     //     updateInjuryStatus
   };
 };
+
+// Backwards-compatible alias
+export const useMLSimulation = _useMLSimulation;
+export default _useMLSimulation;

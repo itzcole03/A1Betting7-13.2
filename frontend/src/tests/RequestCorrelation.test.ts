@@ -1,13 +1,25 @@
-import { expect, test, vi } from 'vitest';
 import { httpFetch } from '../services/HttpClient';
 
-// Mock fetch for vitest
-global.fetch = vi.fn();
+// Mock fetch for Jest
+const originalFetch = global.fetch;
+beforeEach(() => {
+  global.fetch = jest.fn();
+});
+
+afterEach(() => {
+  jest.resetAllMocks();
+  if (originalFetch) {
+    global.fetch = originalFetch;
+  } else {
+    // @ts-expect-error allow cleanup when fetch undefined
+    delete global.fetch;
+  }
+});
 
 test('Request correlation IDs are properly generated and injected', async () => {
   // Setup
   const mockResponse = new Response(JSON.stringify({ success: true }), { status: 200 });
-  (global.fetch as any).mockResolvedValue(mockResponse);
+  (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
 
   // Execute
   const url = '/api/test-endpoint';
@@ -15,7 +27,7 @@ test('Request correlation IDs are properly generated and injected', async () => 
 
   // Verify
   expect(global.fetch).toHaveBeenCalledTimes(1);
-  const [calledUrl, options] = (global.fetch as any).mock.calls[0];
+  const [calledUrl, options] = (global.fetch as jest.Mock).mock.calls[0];
   expect(calledUrl).toBe(url);
   expect(options.headers).toBeDefined();
 

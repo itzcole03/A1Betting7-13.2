@@ -35,6 +35,7 @@ async def get_odds_history(
         try:
             if os.getenv("ENABLE_ODDS_SNAPSHOTS", "false").lower() == "true":
                 from backend.services.odds_snapshot_service import get_odds_snapshot_service
+from backend.core.exceptions import BusinessLogicException
 
                 svc = get_odds_snapshot_service()
                 historical_data = await svc.get_history(
@@ -93,4 +94,4 @@ async def get_odds_history(
         )
     except Exception as e:
         logger.error(f"Failed to retrieve odds history: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve odds history")
+        raise BusinessLogicException("Failed to retrieve odds history", status_code=500)

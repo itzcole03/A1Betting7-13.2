@@ -15,6 +15,7 @@ from backend.middleware.websocket_logging_middleware import (
     websocket_logging_middleware
 )
 from backend.services.unified_logging import unified_logger, LogContext, LogComponent
+from backend.core.exceptions import BusinessLogicException
 
 router = APIRouter(prefix="/api/websocket", tags=["WebSocket Logging"])
 logger = unified_logger
@@ -53,7 +54,7 @@ async def get_websocket_logging_statistics():
         )
         
         logger.error(f"Error retrieving WebSocket statistics: {e}", context, exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve statistics: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve statistics: {str(e, status_code=500)}")
 
 
 @router.get("/logging/connections")
@@ -121,7 +122,7 @@ async def get_active_websocket_connections_info(
         )
         
         logger.error(f"Error retrieving WebSocket connections: {e}", context, exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve connections: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve connections: {str(e, status_code=500)}")
 
 
 @router.get("/logging/connections/{connection_id}")
@@ -157,7 +158,7 @@ async def get_websocket_connection_details(
             )
             
             logger.warning(f"WebSocket connection not found: {connection_id}", context)
-            raise HTTPException(status_code=404, detail=f"Connection {connection_id} not found")
+            raise BusinessLogicException(f"Connection {connection_id} not found", status_code=404)
         
         context = LogContext(
             component=LogComponent.API,
@@ -187,7 +188,7 @@ async def get_websocket_connection_details(
         )
         
         logger.error(f"Error retrieving connection details for {connection_id}: {e}", context, exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve connection details: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve connection details: {str(e, status_code=500)}")
 
 
 @router.get("/logging/history")
@@ -253,7 +254,7 @@ async def get_websocket_connection_history(
         )
         
         logger.error(f"Error retrieving WebSocket connection history: {e}", context, exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve connection history: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve connection history: {str(e, status_code=500)}")
 
 
 @router.get("/logging/performance")
@@ -317,7 +318,7 @@ async def get_websocket_performance_metrics():
         )
         
         logger.error(f"Error retrieving WebSocket performance metrics: {e}", context, exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve performance metrics: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve performance metrics: {str(e, status_code=500)}")
 
 
 @router.post("/logging/clear-history")
@@ -359,7 +360,7 @@ async def clear_websocket_connection_history():
         )
         
         logger.error(f"Error clearing WebSocket connection history: {e}", context, exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to clear connection history: {str(e)}")
+        raise BusinessLogicException(f"Failed to clear connection history: {str(e, status_code=500)}")
 
 
 @router.get("/health")

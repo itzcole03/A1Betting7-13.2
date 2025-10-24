@@ -351,7 +351,7 @@ class HardenedArbitrageValidator:
                         consistency_scores.append(score)
             
             if consistency_scores:
-                avg_consistency = np.mean(consistency_scores)
+                avg_consistency = float(np.mean(consistency_scores))
                 result.triangle_consistency_score = avg_consistency
                 
                 # Flagging thresholds
@@ -370,6 +370,13 @@ class HardenedArbitrageValidator:
                         f"Moderate triangle consistency: {avg_consistency:.3f}"
                     )
                     result.confidence_score *= 0.9
+            else:
+                # Default neutral score when overlapping outcomes are sparse
+                result.triangle_consistency_score = 0.0
+                result.validation_notes.append(
+                    "Triangle consistency check executed but lacked overlapping outcomes; defaulting score to 0.0"
+                )
+                result.confidence_score *= 0.95
                     
         except Exception as e:
             logger.error(f"Triangle consistency validation failed: {e}")
@@ -396,11 +403,11 @@ class HardenedArbitrageValidator:
                 prob_differences.append(diff)
             
             # Calculate consistency score (lower difference = higher consistency)
-            avg_diff = np.mean(prob_differences)
+            avg_diff = float(np.mean(prob_differences))
             max_expected_diff = 0.1  # 10% probability difference is reasonable
             
             consistency_score = max(0.0, 1.0 - (avg_diff / max_expected_diff))
-            return min(1.0, consistency_score)
+            return float(min(1.0, consistency_score))
             
         except Exception as e:
             logger.error(f"Book consistency calculation failed: {e}")
@@ -445,24 +452,39 @@ class HardenedArbitrageValidator:
             for outcome, odds_list in outcomes.items():
                 if len(odds_list) >= 3:  # Need at least 3 for outlier detection
                     odds_array = np.array(odds_list)
-                    mean_odds = np.mean(odds_array)
-                    std_odds = np.std(odds_array)
+                    mean_odds = float(np.mean(odds_array))
+                    std_odds = float(np.std(odds_array))
                     
+                    flagged = False
+                    max_z_score_value = 0.0
+
                     if std_odds > 0:
                         z_scores = np.abs((odds_array - mean_odds) / std_odds)
-                        
-                        # Check for outliers
                         outlier_indices = np.where(
                             z_scores > self.config.odds_outlier_z_score_threshold
                         )[0]
-                        
                         if len(outlier_indices) > 0:
-                            result.anomaly_flags.append(AnomalyType.ODDS_OUTLIER)
-                            max_z_score = np.max(z_scores[outlier_indices])
+                            flagged = True
+                            max_z_score_value = float(np.max(z_scores[outlier_indices]))
                             result.validation_notes.append(
-                                f"Odds outlier detected for {outcome}: z-score {max_z_score:.2f}"
+                                f"Odds outlier detected for {outcome}: z-score {max_z_score_value:.2f}"
                             )
-                            result.confidence_score *= 0.7
+
+                    if not flagged:
+                        median_odds = float(np.median(odds_array))
+                        if median_odds > 0:
+                            max_ratio = max(odds_array) / median_odds
+                            min_ratio = median_odds / min(odds_array)
+                            ratio_threshold = 1.5  # 50% deviation from median
+                            if max_ratio >= ratio_threshold or min_ratio >= ratio_threshold:
+                                flagged = True
+                                result.validation_notes.append(
+                                    f"Odds outlier detected for {outcome}: ratio to median {max(max_ratio, min_ratio):.2f}"
+                                )
+
+                    if flagged:
+                        result.anomaly_flags.append(AnomalyType.ODDS_OUTLIER)
+                        result.confidence_score *= 0.7
                             
         except Exception as e:
             logger.error(f"Odds outlier detection failed: {e}")
@@ -875,15 +897,16 @@ class HardenedArbitrageService:
                 risk_factors.append(time_risk)
         
         # Source quality risk
-        quality_risk = 1 - np.mean([s.source_quality for s in odds_snapshots])
-        risk_factors.append(quality_risk)
+        if odds_snapshots:
+            quality_risk = 1.0 - float(np.mean([s.source_quality for s in odds_snapshots]))
+            risk_factors.append(quality_risk)
         
         # Number of books risk (more books = higher execution complexity)
         books_count = len(set(s.book_id for s in odds_snapshots))
         books_risk = min((books_count - 2) * 0.2, 1.0)  # Risk increases with more books
         risk_factors.append(books_risk)
         
-        return np.mean(risk_factors) if risk_factors else 0.5
+        return float(np.mean(risk_factors)) if risk_factors else 0.5
     
     def _calculate_time_sensitivity(self, odds_snapshots: List[OddsSnapshot]) -> float:
         """Calculate time sensitivity score (0-1, higher = more time sensitive)"""
@@ -899,9 +922,13 @@ class HardenedArbitrageService:
         # Calculate based on odds spread (higher spread = more volatile = more sensitive)
         all_odds = [s.odds for s in odds_snapshots]
         if len(all_odds) > 1:
-            odds_cv = np.std(all_odds) / np.mean(all_odds)  # Coefficient of variation
+            odds_std = float(np.std(all_odds))
+            odds_mean = float(np.mean(all_odds)) if np.mean(all_odds) != 0 else 0.0
+            if odds_mean == 0:
+                return 0.5
+            odds_cv = odds_std / odds_mean  # Coefficient of variation
             sensitivity = min(odds_cv * 5, 1.0)  # Scale to 0-1
-            return sensitivity
+            return float(sensitivity)
         
         return 0.5  # Default moderate sensitivity
     
@@ -939,7 +966,7 @@ class HardenedArbitrageService:
             'opportunity_count': opportunity_count,
             'time_window_minutes': self._runtime_config.alert_time_window_minutes,
             'threshold': self._runtime_config.alert_volume_threshold,
-            'avg_profit_pct': np.mean([opp['profit_pct'] for opp in recent_opportunities]),
+            'avg_profit_pct': float(np.mean([opp['profit_pct'] for opp in recent_opportunities])) if recent_opportunities else 0.0,
             'unique_books': len(set().union(*[opp['books'] for opp in recent_opportunities])),
             'timestamp': datetime.now(timezone.utc).isoformat()
         }

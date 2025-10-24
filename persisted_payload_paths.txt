@@ -1,0 +1,7 @@
+
+    Directory: C:\Users\bcmad\Downloads\A1Betting7-13.2
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          10/11/2025  3:22 AM          22969 tmp_propfinder_last_payload.json
+

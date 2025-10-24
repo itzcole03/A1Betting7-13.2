@@ -21,6 +21,7 @@ try:
         DegradedPolicy
     )
     from backend.services.unified_logging import unified_logger, LogComponent, LogContext
+from backend.core.exceptions import BusinessLogicException
     CAPABILITY_REGISTRY_AVAILABLE = True
 except ImportError as e:
     print(f"⚠️ Capability registry not available: {e}")
@@ -61,15 +62,7 @@ async def get_capabilities(
     start_time = time.time()
     
     if not CAPABILITY_REGISTRY_AVAILABLE or get_capability_registry is None:
-        return JSONResponse(
-            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
-            content={
-                "error": "Service capability registry not available",
-                "message": "The capability matrix system is not initialized",
-                "capabilities": None,
-                "timestamp": time.time()
-            }
-        )
+        return raise BusinessLogicException("Service error")
     
     try:
         # Get capability registry
@@ -135,15 +128,7 @@ async def get_capabilities(
             )
             logger.error(error_message, context)
         
-        return JSONResponse(
-            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={
-                "error": "Internal server error",
-                "message": error_message,
-                "capabilities": None,
-                "timestamp": time.time()
-            }
-        )
+        return raise BusinessLogicException("Service error")
 
 
 @router.get("/capabilities/{service_name}",
@@ -160,29 +145,14 @@ async def get_service_capability(service_name: str) -> JSONResponse:
         JSONResponse containing service capability information
     """
     if not CAPABILITY_REGISTRY_AVAILABLE or get_capability_registry is None:
-        return JSONResponse(
-            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
-            content={
-                "error": "Service capability registry not available",
-                "service_name": service_name,
-                "capability": None
-            }
-        )
+        return raise BusinessLogicException("Service error")
     
     try:
         registry = await get_capability_registry()
         capability = await registry.get_service_capability(service_name)
         
         if not capability:
-            return JSONResponse(
-                status_code=http_status.HTTP_404_NOT_FOUND,
-                content={
-                    "error": "Service not found",
-                    "service_name": service_name,
-                    "capability": None,
-                    "available_services": list((await registry.get_capabilities_matrix()).services.keys())
-                }
-            )
+            return raise BusinessLogicException("Service error")
         
         return JSONResponse(
             status_code=http_status.HTTP_200_OK,
@@ -204,15 +174,7 @@ async def get_service_capability(service_name: str) -> JSONResponse:
             )
             logger.error(error_message, context)
         
-        return JSONResponse(
-            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={
-                "error": "Internal server error",
-                "message": error_message,
-                "service_name": service_name,
-                "capability": None
-            }
-        )
+        return raise BusinessLogicException("Service error")
 
 
 @router.post("/capabilities/{service_name}/status",
@@ -235,41 +197,21 @@ async def update_service_status(
         JSONResponse confirming the status update
     """
     if not CAPABILITY_REGISTRY_AVAILABLE or get_capability_registry is None or ServiceStatus is None:
-        return JSONResponse(
-            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
-            content={
-                "error": "Service capability registry not available",
-                "service_name": service_name
-            }
-        )
+        return raise BusinessLogicException("Service error")
     
     # Validate status
     try:
         service_status = ServiceStatus(new_status.upper())
     except ValueError:
         valid_statuses = ["UP", "DEGRADED", "DOWN", "DEMO"]
-        return JSONResponse(
-            status_code=http_status.HTTP_400_BAD_REQUEST,
-            content={
-                "error": "Invalid status",
-                "message": f"Status must be one of: {valid_statuses}",
-                "provided_status": new_status
-            }
-        )
+        return raise BusinessLogicException("Service error")
     
     try:
         registry = await get_capability_registry()
         success = await registry.update_service_status(service_name, service_status, response_time_ms)
         
         if not success:
-            return JSONResponse(
-                status_code=http_status.HTTP_404_NOT_FOUND,
-                content={
-                    "error": "Service not found",
-                    "service_name": service_name,
-                    "available_services": list((await registry.get_capabilities_matrix()).services.keys())
-                }
-            )
+            return raise BusinessLogicException("Service error")
         
         # Get updated capability
         updated_capability = await registry.get_service_capability(service_name)
@@ -301,14 +243,7 @@ async def update_service_status(
             )
             logger.error(error_message, context)
         
-        return JSONResponse(
-            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={
-                "error": "Internal server error",
-                "message": error_message,
-                "service_name": service_name
-            }
-        )
+        return raise BusinessLogicException("Service error")
 
 
 @router.get("/capabilities/summary",
@@ -322,13 +257,7 @@ async def get_capabilities_summary() -> JSONResponse:
         JSONResponse containing capability matrix summary
     """
     if not CAPABILITY_REGISTRY_AVAILABLE or get_capability_registry is None:
-        return JSONResponse(
-            status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
-            content={
-                "error": "Service capability registry not available",
-                "summary": None
-            }
-        )
+        return raise BusinessLogicException("Service error")
     
     try:
         registry = await get_capability_registry()
@@ -357,14 +286,7 @@ async def get_capabilities_summary() -> JSONResponse:
             )
             logger.error(error_message, context)
         
-        return JSONResponse(
-            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={
-                "error": "Internal server error", 
-                "message": error_message,
-                "summary": None
-            }
-        )
+        return raise BusinessLogicException("Service error")
 
 
 @router.get("/health/extended",

@@ -48,6 +48,34 @@ async function globalSetup(config: FullConfig) {
     
     // Setup authentication tokens if needed
     await setupAuthTokens(page, baseURL);
+
+    // Set onboarding/demo localStorage keys so the SPA boots into dashboard
+    try {
+      console.log('🧭 Marking onboarding as complete for E2E tests...');
+      await page.evaluate(() => {
+        try {
+          localStorage.setItem('onboardingComplete', 'true');
+          // Minimal demo user info the frontend looks for in dev convenience flows
+          localStorage.setItem('demo_user', JSON.stringify({ id: 'e2e_demo', name: 'E2E Demo' }));
+          localStorage.setItem('e2e_demo_mode', 'true');
+        } catch (e) {
+          // ignore
+        }
+      });
+      console.log('✅ Onboarding flags set');
+
+      // Give the page a chance to persist the localStorage changes and stabilize.
+      try {
+        console.log('🔁 Reloading page to persist localStorage into storageState...');
+        await page.reload({ waitUntil: 'networkidle', timeout: 10000 });
+        await page.waitForSelector('[data-testid="app-container"], #root', { timeout: 10000 });
+        console.log('🔁 Reload complete');
+      } catch (reloadErr) {
+        console.log('⚠️  Page reload after localStorage set failed (continuing):', reloadErr?.message || reloadErr);
+      }
+    } catch (err) {
+      console.log('⚠️  Could not set onboarding flags:', err?.message || err);
+    }
     
     // Save application state
     await saveApplicationState(context);
@@ -120,8 +148,32 @@ async function setupAuthTokens(page: any, baseURL: string) {
 async function saveApplicationState(context: any) {
   try {
     // Save storage state for reuse in tests
-    await context.storageState({ path: 'tests/e2e/auth.json' });
-    console.log('💾 Application state saved');
+    const statePath = 'tests/e2e/auth.json';
+    await context.storageState({ path: statePath });
+    console.log('💾 Application state saved to', statePath);
+
+    // Quick verification of saved storageState contents to catch races early
+    try {
+      if (fs.existsSync(statePath)) {
+        const raw = fs.readFileSync(statePath, 'utf-8');
+        const parsed = JSON.parse(raw);
+        const origins = parsed.origins || [];
+        const originList = origins.map((o: any) => o.origin).join(', ');
+        const lsKeys = origins.flatMap((o: any) => (o.localStorage || []).map((kv: any) => kv.name));
+        console.log(`🔎 storageState origins: ${originList}`);
+        console.log(`� storageState localStorage keys: ${lsKeys.join(', ')}`);
+        const hasAuthOrOnboard = lsKeys.includes('auth_token') || lsKeys.includes('e2e_test_mode') || lsKeys.includes('onboardingComplete');
+        if (!hasAuthOrOnboard) {
+          console.log('⚠️  Saved storageState does not include expected auth/onboarding keys');
+        } else {
+          console.log('✅ storageState contains auth/onboarding keys');
+        }
+      } else {
+        console.log('⚠️  storageState file not found after save:', statePath);
+      }
+    } catch (verErr) {
+      console.log('⚠️  Could not read/verify storageState file:', verErr?.message || verErr);
+    }
   } catch (error) {
     console.log('⚠️  Could not save application state:', error.message);
   }

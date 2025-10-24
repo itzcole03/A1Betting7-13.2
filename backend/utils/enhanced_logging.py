@@ -5,12 +5,13 @@ Implements structured JSON logging with rotation, different log levels,
 and integration with monitoring systems.
 """
 
+import errno
 import json
 import logging
 import logging.handlers
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -29,7 +30,7 @@ class JSONFormatter(logging.Formatter):
         try:
             # Base log entry
             log_entry: Dict[str, Any] = {
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
                 "level": record.levelname,
                 "logger": record.name,
                 "message": record.getMessage(),
@@ -89,7 +90,30 @@ class JSONFormatter(logging.Formatter):
 
         except Exception as e:
             # Fallback to simple format if JSON serialization fails
-            return f'{{"timestamp": "{datetime.utcnow().isoformat()}Z", "level": "ERROR", "message": "Log formatting error: {str(e)}", "original_message": "{record.getMessage()}"}}'
+            return f'{{"timestamp": "{datetime.now(timezone.utc).isoformat()}Z", "level": "ERROR", "message": "Log formatting error: {str(e)}", "original_message": "{record.getMessage()}"}}'
+
+
+class SafeRotatingFileHandler(logging.handlers.RotatingFileHandler):
+    """Rotating file handler resilient to Windows file locking issues"""
+
+    def doRollover(self):
+        try:
+            super().doRollover()
+        except OSError as exc:
+            error_code = getattr(exc, "errno", None)
+            if error_code not in {errno.EACCES, errno.EPERM}:
+                raise
+
+            logging.getLogger("a1betting.logging").warning(
+                "Log rotation skipped due to locked file: %s", exc
+            )
+
+            if not self.delay and self.stream is None:
+                try:
+                    self.stream = self._open()
+                except Exception:
+                    # If we cannot reopen immediately, leave rotation deferred
+                    pass
 
 
 class EnhancedLogger:
@@ -136,11 +160,12 @@ class EnhancedLogger:
             if testing:
                 file_handler = logging.FileHandler(filename=self.log_file_path, encoding="utf-8")
             else:
-                file_handler = logging.handlers.RotatingFileHandler(
+                file_handler = SafeRotatingFileHandler(
                     filename=self.log_file_path,
                     maxBytes=self._parse_size(self.log_rotation_size),
                     backupCount=self.log_retention_days,
                     encoding="utf-8",
+                    delay=True,
                 )
             file_handler.setLevel(log_level)
             file_handler.setFormatter(formatter)
@@ -160,11 +185,12 @@ class EnhancedLogger:
                     datefmt="%H:%M:%S",
                 )
                 # Handle Unicode encoding errors on Windows
-                try:
-                    console_handler.stream.reconfigure(encoding='utf-8', errors='replace')
-                except AttributeError:
-                    # Fallback for streams that don't support reconfigure
-                    pass
+                stream = getattr(console_handler, "stream", None)
+                if stream is not None and hasattr(stream, "reconfigure"):
+                    try:
+                        stream.reconfigure(encoding="utf-8", errors="replace")
+                    except Exception:
+                        pass
             else:
                 console_formatter = formatter
 
@@ -301,12 +327,12 @@ class RequestLoggingMiddleware:
             )
 
             # Process request
-            start_time = datetime.utcnow()
+            start_time = datetime.now(timezone.utc)
 
             async def send_wrapper(message):
                 if message["type"] == "http.response.start":
                     status_code = message["status"]
-                    duration = (datetime.utcnow() - start_time).total_seconds()
+                    duration = (datetime.now(timezone.utc) - start_time).total_seconds()
 
                     api_logger.info(
                         f"Request completed: {scope['method']} {scope['path']} - {status_code}",

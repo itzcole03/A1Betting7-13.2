@@ -61,12 +61,15 @@ export interface TrendCacheStatus {
 
 export interface AvailableMetricsResponse {
   success: boolean;
-  metrics: Record<string, {
-    name: string;
-    description: string;
-    unit: string;
-    higherIsBetter: boolean;
-  }>;
+  metrics: Record<
+    string,
+    {
+      name: string;
+      description: string;
+      unit: string;
+      higherIsBetter: boolean;
+    }
+  >;
   sports: string[];
   marketTypes: string[];
 }
@@ -84,6 +87,10 @@ export interface FilterState {
   minSamples: number;
   periodDays: number;
   searchTerm: string;
+  minHitRate: number;
+  minAvgEv: number;
+  arbitrageOnly: boolean;
+  highConfidenceOnly: boolean;
 }
 
 export interface TrendsTableColumn {

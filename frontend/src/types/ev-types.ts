@@ -147,6 +147,10 @@ export interface EVFeedFilters {
   marketType?: MarketType;
   /** Selected sportsbook */
   sourceBook?: string;
+  /** Selected EV tiers */
+  tiers?: EVTier[];
+  /** Minimum confidence percentage */
+  minConfidence?: number;
 }
 
 export interface EVBadgeProps {
@@ -191,28 +195,28 @@ export interface EVFeedSettings {
  */
 export const EV_TIER_COLORS = {
   [EVTier.LOW]: {
-    bg: 'bg-green-100',
-    text: 'text-green-800',
-    border: 'border-green-200',
-    badge: 'bg-green-500'
+    bg: 'bg-emerald-500/10',
+    text: 'text-emerald-200',
+    border: 'border-emerald-500/30',
+    badge: 'bg-emerald-400'
   },
   [EVTier.MEDIUM]: {
-    bg: 'bg-yellow-100', 
-    text: 'text-yellow-800',
-    border: 'border-yellow-200',
-    badge: 'bg-yellow-500'
+    bg: 'bg-amber-400/10', 
+    text: 'text-amber-200',
+    border: 'border-amber-400/30',
+    badge: 'bg-amber-400'
   },
   [EVTier.HIGH]: {
-    bg: 'bg-orange-100',
-    text: 'text-orange-800', 
-    border: 'border-orange-200',
-    badge: 'bg-orange-500'
+    bg: 'bg-orange-500/10',
+    text: 'text-orange-200', 
+    border: 'border-orange-500/30',
+    badge: 'bg-orange-400'
   },
   [EVTier.EXTREME]: {
-    bg: 'bg-red-100',
-    text: 'text-red-800',
-    border: 'border-red-200', 
-    badge: 'bg-red-500'
+    bg: 'bg-rose-500/10',
+    text: 'text-rose-200',
+    border: 'border-rose-500/30', 
+    badge: 'bg-rose-400'
   }
 } as const;
 
@@ -223,27 +227,27 @@ export const SPORT_INFO = {
   [SportType.MLB]: {
     name: 'Baseball',
     icon: '⚾',
-    color: 'text-blue-600'
+    color: 'text-sky-300'
   },
   [SportType.NBA]: {
     name: 'Basketball',
     icon: '🏀',
-    color: 'text-orange-600'
+    color: 'text-orange-300'
   },
   [SportType.NFL]: {
     name: 'Football', 
     icon: '🏈',
-    color: 'text-green-600'
+    color: 'text-emerald-300'
   },
   [SportType.NHL]: {
     name: 'Hockey',
     icon: '🏒',
-    color: 'text-purple-600'
+    color: 'text-purple-300'
   },
   [SportType.ALL]: {
     name: 'All Sports',
     icon: '🏆',
-    color: 'text-gray-600'
+    color: 'text-slate-300'
   }
 } as const;
 

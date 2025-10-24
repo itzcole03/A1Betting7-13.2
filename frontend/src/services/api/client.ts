@@ -1,3 +1,5 @@
+import { createTimeoutSignal } from '../../utils/createTimeoutSignal';
+
 // Note: These imports may need adjustment based on actual file locations
 // For now, using mock implementations to prevent build errors
 class APIError extends Error {
@@ -17,7 +19,7 @@ class AppError extends Error {
 // Mock monitor for now
 const unifiedMonitor = {
   startTrace: (name: string, options: any) => ({ name, options, startTime: Date.now() }),
-  endTrace: (trace: any) => ({ ...trace, endTime: Date.now() })
+  endTrace: (trace: any) => ({ ...trace, endTime: Date.now() }),
 };
 
 export interface ApiResponse<T> {
@@ -66,13 +68,16 @@ class ApiClient {
       ...this.defaultHeaders,
       ...config.headers,
     };
+    const _timeout = config.timeout
+      ? createTimeoutSignal(config.timeout)
+      : { signal: undefined, cleanup: () => {} };
+
     try {
       const _response = await fetch(_url.toString(), {
         method,
         headers: _headers,
         body: data ? JSON.stringify(data) : undefined,
-        // @ts-expect-error TS(2339): Property 'timeout' does not exist on type '{ new (... Remove this comment to see the full error message
-        signal: config.timeout ? AbortSignal.timeout(config.timeout) : undefined,
+        signal: _timeout.signal,
       });
       const _responseData = await _response.json();
       // Utility to safely convert Headers to Record<string, string>
@@ -136,6 +141,8 @@ class ApiClient {
         );
       }
       throw new AppError('API request failed', { status: 500, endpoint, method }, error);
+    } finally {
+      _timeout.cleanup();
     }
   }
 

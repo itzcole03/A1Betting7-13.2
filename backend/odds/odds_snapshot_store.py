@@ -11,7 +11,8 @@ class OddsSnapshotStore:
 
     @staticmethod
     def _key(s: OddsSnapshot) -> str:
-        return f"{s.book}|{s.sport}|{s.market}|{s.selection_key}"
+        side = getattr(s, "side", "") or ""
+        return f"{s.book}|{s.sport}|{s.market}|{s.selection_key}|{side}"
 
     async def add_snapshots(self, snaps: List[OddsSnapshot]):
         async with self._lock:

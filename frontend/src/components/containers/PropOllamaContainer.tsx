@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/exhaustive-deps */
 import React from 'react';
 import { enhancedLogger } from '../../utils/enhancedLogger';
 import { httpFetch } from '../../services/HttpClient';
@@ -50,7 +51,7 @@ const PropOllamaContainer: React.FC = () => {
         potentialPayout: typeof sp.potentialPayout === 'number' ? sp.potentialPayout : 0,
         addedAt: sp.addedAt ?? Date.now(),
       }));
-    } catch (e) {
+    } catch {
       return [] as any[];
     }
   }, [state.selectedProps, state.entryAmount]);
@@ -65,11 +66,11 @@ const PropOllamaContainer: React.FC = () => {
     [actions]
   );
   const handleStatsGameSelect = React.useCallback(
-    (gameId: number) => {
+    (gameId: string) => {
       const game = state.upcomingGames.find((g: any) => g.game_id === gameId);
-      if (game) {
+      if (game && game.game_id) {
         actions.setSelectedGame({
-          game_id: gameId,
+          game_id: game.game_id,
           home: game.home,
           away: game.away,
         });

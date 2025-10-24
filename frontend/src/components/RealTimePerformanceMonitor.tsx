@@ -5,6 +5,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { connectionResilience } from '../utils/connectionResilience';
+import { createTimeoutSignal } from '../utils/createTimeoutSignal';
 import { apiClient } from '../utils/enhancedApiClient';
 
 interface PerformanceMetrics {
@@ -126,11 +127,16 @@ export const PerformanceMonitor: React.FC<{
     const start = performance.now();
     try {
       // Hit the backend health endpoint, not frontend
-      await fetch('http://localhost:8000/health', {
-        method: 'GET', // Use GET instead of HEAD for better compatibility
-        cache: 'no-cache',
-        signal: AbortSignal.timeout(5000),
-      });
+      const timeout = createTimeoutSignal(5000);
+      try {
+        await fetch('http://localhost:8000/health', {
+          method: 'GET', // Use GET instead of HEAD for better compatibility
+          cache: 'no-cache',
+          signal: timeout.signal,
+        });
+      } finally {
+        timeout.cleanup();
+      }
       return performance.now() - start;
     } catch {
       return -1; // Connection failed

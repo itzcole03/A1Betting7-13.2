@@ -210,7 +210,7 @@ async def get_correlation_matrix(request: CorrelationMatrixRequest):
             )
         )
         
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=ErrorResponse(
                 error=error_info.user_message or "Failed to compute correlation matrix",
@@ -267,7 +267,7 @@ async def get_correlation_clusters(request: CorrelationClustersRequest):
             )
         )
         
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=ErrorResponse(
                 error=error_info.user_message or "Failed to compute correlation clusters",
@@ -314,7 +314,7 @@ async def create_draft_ticket(request: TicketDraftRequest):
         
         status_code = status_code_map.get(e.error_code, status.HTTP_400_BAD_REQUEST)
         
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status_code,
             detail=ErrorResponse(
                 error=e.message,
@@ -336,7 +336,7 @@ async def create_draft_ticket(request: TicketDraftRequest):
             )
         )
         
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=ErrorResponse(
                 error=error_info.user_message or "Failed to create draft ticket",
@@ -373,7 +373,7 @@ async def submit_ticket(ticket_id: int, request: TicketSubmitRequest):
         
         status_code = status_code_map.get(e.error_code, status.HTTP_400_BAD_REQUEST)
         
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status_code,
             detail=ErrorResponse(
                 error=e.message,
@@ -391,7 +391,7 @@ async def submit_ticket(ticket_id: int, request: TicketSubmitRequest):
             )
         )
         
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=ErrorResponse(
                 error=error_info.user_message or "Failed to submit ticket",
@@ -418,7 +418,7 @@ async def get_ticket(ticket_id: int):
         
     except TicketValidationError as e:
         if e.error_code == "TICKET_NOT_FOUND":
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=ErrorResponse(
                     error=e.message,
@@ -427,7 +427,7 @@ async def get_ticket(ticket_id: int):
                 ).dict()
             )
         
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=ErrorResponse(
                 error=e.message,
@@ -445,7 +445,7 @@ async def get_ticket(ticket_id: int):
             )
         )
         
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=ErrorResponse(
                 error=error_info.user_message or "Failed to get ticket",
@@ -473,7 +473,7 @@ async def recalc_ticket(ticket_id: int):
         
     except TicketValidationError as e:
         if e.error_code == "TICKET_NOT_FOUND":
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=ErrorResponse(
                     error=e.message,
@@ -482,7 +482,7 @@ async def recalc_ticket(ticket_id: int):
                 ).dict()
             )
         
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=ErrorResponse(
                 error=e.message,
@@ -500,7 +500,7 @@ async def recalc_ticket(ticket_id: int):
             )
         )
         
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=ErrorResponse(
                 error=error_info.user_message or "Failed to recalculate ticket",
@@ -540,7 +540,7 @@ async def correlation_health():
             "test_result": "correlation_matrix_computed"
         }
     except Exception as e:
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail={
                 "status": "unhealthy",
@@ -555,6 +555,7 @@ async def ticketing_health():
     try:
         # Quick test of ticket service (without actual database operations)
         from backend.services.unified_config import get_ticketing_config
+from backend.core.exceptions import BusinessLogicException
         config = get_ticketing_config()
         
         return {
@@ -570,7 +571,7 @@ async def ticketing_health():
             }
         }
     except Exception as e:
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail={
                 "status": "unhealthy",

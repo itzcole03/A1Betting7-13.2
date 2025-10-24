@@ -98,7 +98,7 @@ async def get_model_registry(stage: Optional[ModelStage] = None):
         
     except Exception as e:
         logger.error(f"Error retrieving model registry: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve model registry"
         )
@@ -110,7 +110,7 @@ async def get_model(model_id: str):
     
     try:
         if model_id not in _model_registry:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Model {model_id} not found"
             )
@@ -121,7 +121,7 @@ async def get_model(model_id: str):
         raise
     except Exception as e:
         logger.error(f"Error retrieving model {model_id}: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve model"
         )
@@ -134,7 +134,7 @@ async def register_model(model: ModelRegistryEntry):
     try:
         # Check for duplicate model ID
         if model.model_id in _model_registry:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Model {model.model_id} already exists"
             )
@@ -161,7 +161,7 @@ async def register_model(model: ModelRegistryEntry):
         raise
     except Exception as e:
         logger.error(f"Error registering model: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to register model"
         )
@@ -173,7 +173,7 @@ async def promote_model(promotion: ModelPromotionRequest):
     
     try:
         if promotion.model_id not in _model_registry:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Model {promotion.model_id} not found"
             )
@@ -191,7 +191,7 @@ async def promote_model(promotion: ModelPromotionRequest):
         target_order = stage_order.get(promotion.target_stage, -1)
         
         if target_order <= current_order:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Cannot promote from {model.stage} to {promotion.target_stage}"
             )
@@ -229,7 +229,7 @@ async def promote_model(promotion: ModelPromotionRequest):
         raise
     except Exception as e:
         logger.error(f"Error promoting model: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to promote model"
         )
@@ -241,7 +241,7 @@ async def rollback_model(model_id: str, rollback_reason: str = ""):
     
     try:
         if model_id not in _model_registry:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Model {model_id} not found"
             )
@@ -255,7 +255,7 @@ async def rollback_model(model_id: str, rollback_reason: str = ""):
         elif model.stage == ModelStage.STAGING:
             model.stage = ModelStage.DEVELOPMENT
         else:
-            raise HTTPException(
+            raise BusinessLogicException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Cannot rollback from {model.stage}"
             )
@@ -277,7 +277,7 @@ async def rollback_model(model_id: str, rollback_reason: str = ""):
         raise
     except Exception as e:
         logger.error(f"Error rolling back model: {e}")
-        raise HTTPException(
+        raise BusinessLogicException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to rollback model"
         )
@@ -330,4 +330,16 @@ async def _initialize_demo_models():
 
 # Initialize demo models on startup
 import asyncio
-asyncio.create_task(_initialize_demo_models())
+from backend.core.exceptions import BusinessLogicException
+
+# Schedule demo models initialization only if an event loop is already running.
+# Creating tasks at module import time can raise "coroutine was never awaited" when
+# imported outside of an active asyncio loop (such as during test collection).
+try:
+    loop = asyncio.get_running_loop()
+    loop.create_task(_initialize_demo_models())
+except RuntimeError:
+    # No running event loop — defer initialization to the application's startup
+    # lifecycle. Tests that need the demo models should either call the
+    # initialization coroutine explicitly or rely on app startup hooks.
+    logger.info("Demo model initialization deferred (no running event loop)")

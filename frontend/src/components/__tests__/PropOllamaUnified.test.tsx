@@ -46,7 +46,7 @@ const mockUpcomingGames = () => {
             status: 'ok',
             games: [
               {
-                game_id: 123,
+                game_id: '123',
                 home: 'BOS',
                 away: 'NYY',
                 time: '2025-08-01T19:00:00Z',
@@ -74,7 +74,7 @@ describe('PropOllamaUnified', () => {
             status: 'ok',
             games: [
               {
-                game_id: 1,
+                game_id: '1',
                 away: 'New York Yankees',
                 home: 'Boston Red Sox',
                 time: '2025-08-07T19:00:00Z',
@@ -242,7 +242,7 @@ describe('PropOllamaUnified', () => {
             status: 'ok',
             games: [
               {
-                game_id: 1,
+                game_id: '1',
                 away: 'New York Yankees',
                 home: 'Boston Red Sox',
                 time: '2025-08-07T19:00:00Z',

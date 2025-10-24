@@ -107,119 +107,127 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
   };
 
   // Robust connect logic with exponential backoff and error tracking
-  const connectWebSocket = React.useCallback((isReconnection = false) => {
-    const _wsUrl = getWebSocketUrl();
+  const connectWebSocket = React.useCallback(
+    (isReconnection = false) => {
+      const _wsUrl = getWebSocketUrl();
 
-    // If WebSocket URL is null, it means WebSocket is disabled
-    if (!_wsUrl) {
-      setStatus('disconnected');
-      setConnected(false);
-      setLastError('WebSocket disabled in configuration');
-      if (verboseLogging) console.log('[WebSocket] Connection disabled via configuration');
-      return;
-    }
-
-    setStatus(reconnectAttempts.current > 0 || isReconnection ? 'reconnecting' : 'connecting');
-    setLastError(null);
-
-    if (verboseLogging) console.debug(`[WebSocket] Connecting to: ${_wsUrl}`);
-
-    try {
-      const _ws = new WebSocket(_wsUrl);
-      _wsRef.current = _ws;
-
-      _ws.onopen = () => {
-        if (verboseLogging) console.debug(`[WebSocket] Connected successfully to: ${_wsUrl}`);
-        setConnected(true);
-        setStatus('connected');
-        setLastError(null);
-        reconnectAttempts.current = 0;
-        // Send a ping to verify connection is working
-        if (_ws.readyState === WebSocket.OPEN) {
-          _ws.send(JSON.stringify({ event: 'ping', timestamp: Date.now() }));
-        }
-      };
-
-      _ws.onclose = event => {
-        if (verboseLogging)
-          console.debug(`[WebSocket] Connection closed:`, event.code, event.reason, event.wasClean);
-        setConnected(false);
+      // If WebSocket URL is null, it means WebSocket is disabled
+      if (!_wsUrl) {
         setStatus('disconnected');
-        if (!isUnmounted.current && event.code !== 1000) {
-          // Exponential backoff for reconnection with maximum attempts
-          if (reconnectAttempts.current < 10) {
-            const delay = Math.min(1000 * 2 ** reconnectAttempts.current, 30000);
-            reconnectAttempts.current += 1;
-            if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
-            reconnectTimeout.current = setTimeout(() => {
-              setStatus('reconnecting');
-              console.log(`[WebSocket] Reconnecting... (attempt ${reconnectAttempts.current})`);
-              connectWebSocket(true);
-            }, delay);
-            setLastError(
-              `Disconnected. Attempting to reconnect in ${delay / 1000}s (attempt ${
-                reconnectAttempts.current
-              })`
-            );
-          } else {
-            setLastError('Maximum reconnection attempts reached. Giving up.');
-            console.error('[WebSocket] Maximum reconnection attempts reached. Giving up.');
-          }
-        }
-      };
-
-      _ws.onerror = error => {
         setConnected(false);
-        setStatus('disconnected');
-        setLastError('WebSocket connection error');
-        if (verboseLogging)
-          console.warn(`[WebSocket] Connection error (non-critical, app will continue):`, error);
-
-        // Handle WebSocket errors gracefully to prevent unhandled promise rejections
-        try {
-          if (_ws.readyState === WebSocket.CONNECTING) {
-            // Close the connection if it's still trying to connect
-            _ws.close();
-          }
-        } catch (closeError) {
-          console.warn('[WebSocket] Error during cleanup:', closeError);
-        }
-      };
-
-      _ws.onmessage = event => {
-        try {
-          // Only parse if message looks like JSON
-          if (event.data && typeof event.data === 'string' && event.data.trim().startsWith('{')) {
-            const _data = JSON.parse(event.data);
-            // Support both 'event' and 'type' fields for compatibility
-            const eventType = _data.event || _data.type;
-            if (eventType && _handlers.current[eventType]) {
-              _handlers.current[eventType].forEach(fn => fn(_data.payload));
-            } else {
-              // Valid JSON but no handler for event/type
-              if (verboseLogging) console.warn('WebSocket received unhandled JSON message:', _data);
-            }
-          } else {
-            // Non-JSON message, log as warning and skip
-            if (verboseLogging) console.warn('WebSocket received non-JSON message:', event.data);
-          }
-        } catch (e) {
-          setLastError('WebSocket message error');
-          if (verboseLogging)
-            console.warn('WebSocket message parse error (non-critical):', e, event.data);
-        }
-      };
-    } catch (connectionError) {
-      // Handle WebSocket creation errors (e.g., mixed content issues)
-      setConnected(false);
-      setStatus('disconnected');
-      setLastError('WebSocket connection blocked - mixed content or security issue');
-      if (verboseLogging) {
-        console.warn('[WebSocket] Connection creation failed (non-critical):', connectionError);
+        setLastError('WebSocket disabled in configuration');
+        if (verboseLogging) console.log('[WebSocket] Connection disabled via configuration');
+        return;
       }
-      return;
-    }
-  }, [verboseLogging]);
+
+      setStatus(reconnectAttempts.current > 0 || isReconnection ? 'reconnecting' : 'connecting');
+      setLastError(null);
+
+      if (verboseLogging) console.debug(`[WebSocket] Connecting to: ${_wsUrl}`);
+
+      try {
+        const _ws = new WebSocket(_wsUrl);
+        _wsRef.current = _ws;
+
+        _ws.onopen = () => {
+          if (verboseLogging) console.debug(`[WebSocket] Connected successfully to: ${_wsUrl}`);
+          setConnected(true);
+          setStatus('connected');
+          reconnectAttempts.current = 0;
+          // Send a ping to verify connection is working
+          if (_ws.readyState === WebSocket.OPEN) {
+            _ws.send(JSON.stringify({ event: 'ping', timestamp: Date.now() }));
+          }
+        };
+
+        _ws.onclose = event => {
+          if (verboseLogging)
+            console.debug(
+              `[WebSocket] Connection closed:`,
+              event.code,
+              event.reason,
+              event.wasClean
+            );
+          setConnected(false);
+          setStatus('disconnected');
+          if (!isUnmounted.current && event.code !== 1000) {
+            // Exponential backoff for reconnection with maximum attempts
+            if (reconnectAttempts.current < 10) {
+              const delay = Math.min(1000 * 2 ** reconnectAttempts.current, 30000);
+              reconnectAttempts.current += 1;
+              if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
+              reconnectTimeout.current = setTimeout(() => {
+                setStatus('reconnecting');
+                console.log(`[WebSocket] Reconnecting... (attempt ${reconnectAttempts.current})`);
+                connectWebSocket(true);
+              }, delay);
+              setLastError(
+                `Disconnected. Attempting to reconnect in ${delay / 1000}s (attempt ${
+                  reconnectAttempts.current
+                })`
+              );
+            } else {
+              setLastError('Maximum reconnection attempts reached. Giving up.');
+              console.error('[WebSocket] Maximum reconnection attempts reached. Giving up.');
+            }
+          }
+        };
+
+        _ws.onerror = error => {
+          setConnected(false);
+          setStatus('disconnected');
+          setLastError('WebSocket connection error');
+          if (verboseLogging)
+            console.warn(`[WebSocket] Connection error (non-critical, app will continue):`, error);
+
+          // Handle WebSocket errors gracefully to prevent unhandled promise rejections
+          try {
+            if (_ws.readyState === WebSocket.CONNECTING) {
+              // Close the connection if it's still trying to connect
+              _ws.close();
+            }
+          } catch (closeError) {
+            console.warn('[WebSocket] Error during cleanup:', closeError);
+          }
+        };
+
+        _ws.onmessage = event => {
+          try {
+            // Only parse if message looks like JSON
+            if (event.data && typeof event.data === 'string' && event.data.trim().startsWith('{')) {
+              const _data = JSON.parse(event.data);
+              // Support both 'event' and 'type' fields for compatibility
+              const eventType = _data.event || _data.type;
+              if (eventType && _handlers.current[eventType]) {
+                _handlers.current[eventType].forEach(fn => fn(_data.payload));
+              } else {
+                // Valid JSON but no handler for event/type
+                if (verboseLogging)
+                  console.warn('WebSocket received unhandled JSON message:', _data);
+              }
+            } else {
+              // Non-JSON message, log as warning and skip
+              if (verboseLogging) console.warn('WebSocket received non-JSON message:', event.data);
+            }
+          } catch (e) {
+            setLastError('WebSocket message error');
+            if (verboseLogging)
+              console.warn('WebSocket message parse error (non-critical):', e, event.data);
+          }
+        };
+      } catch (connectionError) {
+        // Handle WebSocket creation errors (e.g., mixed content issues)
+        setConnected(false);
+        setStatus('disconnected');
+        setLastError('WebSocket connection blocked - mixed content or security issue');
+        if (verboseLogging) {
+          console.warn('[WebSocket] Connection creation failed (non-critical):', connectionError);
+        }
+        return;
+      }
+    },
+    [verboseLogging]
+  );
 
   // Setup and cleanup effect
   useEffect(() => {
@@ -266,6 +274,7 @@ export const _WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children
     };
     const handleOffline = () => {
       setStatus('disconnected');
+      setConnected(false);
       setLastError('Network offline');
       if (_wsRef.current) _wsRef.current.close();
     };
@@ -326,3 +335,7 @@ export const _useWebSocket = () => {
   if (!_ctx) throw new Error('useWebSocket must be used within WebSocketProvider');
   return _ctx;
 };
+
+// Non-underscored aliases (safe, reversible)
+export const WebSocketProvider = _WebSocketProvider;
+export const useWebSocket = _useWebSocket;

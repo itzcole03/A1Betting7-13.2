@@ -36,11 +36,13 @@ const RouteGuard: React.FC<RouteGuardProps> = ({
   showFallback = true,
   accessCheck,
 }) => {
-  const { isAuthenticated, requiresPasswordChange } = useAuth();
+  const { isAuthenticated, requiresPasswordChange, hydrated } = useAuth();
   const { canAccessAdminDashboard } = usePermissions();
 
   // Handle redirects
   useEffect(() => {
+    if (!hydrated) return;
+
     if (!isAuthenticated && requiresAuth && redirectTo) {
       getLocation().assign(redirectTo);
       return;
@@ -50,7 +52,23 @@ const RouteGuard: React.FC<RouteGuardProps> = ({
       getLocation().assign(redirectTo);
       return;
     }
-  }, [isAuthenticated, requiresAuth, requiresAdmin, canAccessAdminDashboard, redirectTo]);
+  }, [hydrated, isAuthenticated, requiresAuth, requiresAdmin, canAccessAdminDashboard, redirectTo]);
+
+  if (!hydrated) {
+    if (!showFallback) return null;
+
+    return (
+      <div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4'>
+        <div className='text-center max-w-md animate-pulse'>
+          <div className='w-16 h-16 mx-auto mb-4 bg-cyber-primary/10 rounded-full flex items-center justify-center text-cyber-primary text-2xl'>
+            ⏳
+          </div>
+          <h2 className='text-xl font-bold text-white mb-4'>Restoring your session…</h2>
+          <p className='text-gray-400'>Please hold tight while we reconnect you.</p>
+        </div>
+      </div>
+    );
+  }
 
   // If user needs to change password, handle that first
   if (isAuthenticated && requiresPasswordChange) {

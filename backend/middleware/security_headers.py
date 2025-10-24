@@ -107,10 +107,13 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             coep_value = getattr(s, 'coep_policy', None) or "require-corp"
             headers["Cross-Origin-Embedder-Policy"] = coep_value
 
-        # Cross-Origin-Resource-Policy: default to present unless legacy flag explicitly disables it
+        # Cross-Origin-Resource-Policy: present by default unless explicitly disabled
+        # Historically tests and browsers expect a CORP header; treat a missing
+        # configuration (None) as intent to enable the header. Only skip if
+        # the flag is explicitly False.
         enable_corp_flag = getattr(s, 'enable_corp', None)
-        if enable_corp_flag:
-            # When explicitly enabled, default to same-origin unless overridden
+        if enable_corp_flag is not False:
+            # Default to same-origin unless overridden
             headers["Cross-Origin-Resource-Policy"] = getattr(s, 'corp_policy', 'same-origin')
         
         # Permissions policy - baseline restrictions

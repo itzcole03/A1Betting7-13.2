@@ -648,7 +648,7 @@ async def arbitrage_mvp(
             from backend.services.unified_error_handler import unified_error_handler, ErrorContext  # type: ignore
             return unified_error_handler.handle_error(e, context=ErrorContext(endpoint="/api/odds-mvp/arbitrage", method="GET")).__dict__
         except Exception:
-            return {"error": str(e), "context": "arbitrage_mvp"}
+            raise BusinessLogicException("Handler error")
 
 @router.get("/api/odds-mvp/arbitrage/summary")
 async def arbitrage_summary_mvp(
@@ -705,7 +705,7 @@ async def arbitrage_summary_mvp(
             from backend.services.unified_error_handler import unified_error_handler, ErrorContext  # type: ignore
             return unified_error_handler.handle_error(e, context=ErrorContext(endpoint="/api/odds-mvp/arbitrage/summary", method="GET")).__dict__
         except Exception:
-            return {"error": str(e), "context": "arbitrage_summary_mvp"}
+            raise BusinessLogicException("Handler error")
 
 @router.get("/api/odds/arbitrage/summary")
 async def enriched_arbitrage_summary(
@@ -793,7 +793,7 @@ async def enriched_arbitrage_summary(
             from backend.services.unified_error_handler import unified_error_handler, ErrorContext  # type: ignore
             return unified_error_handler.handle_error(e, context=ErrorContext(endpoint="/api/odds/arbitrage/summary", method="GET")).__dict__
         except Exception:
-            return {"error": str(e), "context": "enriched_arbitrage_summary"}
+            raise BusinessLogicException("Handler error")
 
 @router.get("/api/odds-mvp/best-book")
 async def best_book_mvp(
@@ -848,6 +848,7 @@ async def best_book_mvp(
     except Exception as e:  # pragma: no cover
         try:
             from backend.services.unified_error_handler import unified_error_handler, ErrorContext  # type: ignore
+from backend.core.exceptions import BusinessLogicException
             return unified_error_handler.handle_error(e, context=ErrorContext(endpoint="/api/odds-mvp/best-book", method="GET")).__dict__
         except Exception:
-            return {"error": str(e), "context": "best_book_mvp"}
+            raise BusinessLogicException("Handler error")

@@ -59,3 +59,6 @@ export const _useAppContext = () => {
   if (!_ctx) throw new Error('useAppContext must be used within AppProvider');
   return _ctx;
 };
+// Non-underscored aliases (safe, reversible)
+export const AppProvider = _AppProvider;
+export const useAppContext = _useAppContext;

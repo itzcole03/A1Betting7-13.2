@@ -6,6 +6,8 @@ Core response models and builders for consistent API contract compliance
 from __future__ import annotations
 
 from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
+from datetime import datetime
+from backend.utils.log_context import get_request_id
 from pydantic import BaseModel, Field
 from fastapi.responses import JSONResponse
 
@@ -21,9 +23,26 @@ class APIError(BaseModel):
 
 class StandardAPIResponse(BaseModel, Generic[T]):
     """Standard response format for all API endpoints"""
+
     success: bool = Field(..., description="Whether the operation succeeded")
+    status: str = Field("success", description="Legacy status indicator for compatibility with older clients")
+    message: Optional[str] = Field(
+        None,
+        description="Human-readable message describing the result of the operation",
+    )
     data: Optional[T] = Field(None, description="Response data payload")
-    error: Optional[APIError] = Field(None, description="Error information if operation failed")
+    error: Optional[APIError] = Field(
+        None, description="Error information if operation failed"
+    )
+    # Meta block is required by tests and by our canonical builders. Include it
+    # here so FastAPI will include/validate it when response_model is used.
+    meta: Optional[Dict[str, Any]] = Field(
+        default_factory=lambda: {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "version": "1.0.0",
+        },
+        description="Response metadata including timestamp and version",
+    )
 
 
 class ResponseBuilder:
@@ -35,14 +54,33 @@ class ResponseBuilder:
         message: Optional[str] = None
     ) -> Dict[str, Any]:
         """Create a successful response"""
+        resolved_message = message or "Request completed successfully"
         response = {
             "success": True,
             "data": data,
-            "error": None
+            "error": None,
+            "status": "success",
+            "message": resolved_message,
+            # Compatibility meta block expected by standardized tests
+            "meta": {
+                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "version": "1.0.0",
+            },
         }
-        
-        if message and data is None:
-            response["data"] = {"message": message}
+
+        # Include request_id in meta when available from request context for
+        # better correlation in responses and to satisfy contract tests that
+        # expect meta.request_id to be present.
+        try:
+            req_id = get_request_id()
+            if req_id:
+                response["meta"]["request_id"] = req_id
+        except Exception:
+            # Be defensive: do not fail response building if context unavailable
+            pass
+
+        if data is None:
+            response["data"] = {"message": resolved_message}
 
         # Promote commonly expected auth/compat fields to top-level for
         # backward compatibility with older clients/tests that expect
@@ -53,6 +91,8 @@ class ResponseBuilder:
                 for k in promote_keys:
                     if k in data:
                         response[k] = data[k]
+                        if k == "message":
+                            response["message"] = data[k]
         except Exception:
             # Be defensive; don't let promotion break normal flows
             pass
@@ -74,13 +114,18 @@ class ResponseBuilder:
                 "code": code,
                 "message": message,
                 "details": details
-            }
+            },
+            "status": "error",
+            "message": message,
+            "meta": {
+                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "version": "1.0.0",
+            },
         }
         # Backwards-compatibility: promote a top-level message/detail
         # so older clients/tests that look for these keys at the root
         # continue to work.
         try:
-            error_response["message"] = message
             if details is not None:
                 # Some callers expect a `detail` key at top-level
                 error_response["detail"] = details

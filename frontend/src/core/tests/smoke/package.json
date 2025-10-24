@@ -1,0 +1,17 @@
+{
+  "name": "a1betting-core-smoke",
+  "version": "0.0.1",
+  "private": true,
+  "type": "commonjs",
+  "description": "Dev-only package for running core shim smoke tests",
+  "scripts": {
+    "test:smoke": "node ./unified_shims_runner.js",
+    "test:smoke:ts": "npx ts-node ./unified_shims_runner.ts",
+    "test:tsc": "npx tsc -p ../../tsconfig.smoke.json"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.0"
+  }
+}

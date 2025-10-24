@@ -15,6 +15,7 @@
 import { WS_URL } from '../config/apiConfig';
 
 import { Player } from '../components/player/PlayerDashboardContainer';
+import { createTimeoutSignal } from '../utils/createTimeoutSignal';
 import { enhancedLogger } from '../utils/enhancedLogger';
 
 interface CacheEntry<T> {
@@ -46,16 +47,19 @@ export class RealTimePlayerDataService {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private healthMetrics = new Map<string, APIHealthMetrics>();
-  private circuitBreakers = new Map<string, { isOpen: boolean; lastFailure: number; failures: number }>();
+  private circuitBreakers = new Map<
+    string,
+    { isOpen: boolean; lastFailure: number; failures: number }
+  >();
   private subscribers = new Map<string, Set<(data: unknown) => void>>();
-  
+
   // Configuration based on analysis recommendations
   private readonly config = {
     cacheTTL: {
       playerProfile: 5 * 60 * 1000, // 5 minutes
-      recentStats: 2 * 60 * 1000,   // 2 minutes  
-      liveData: 30 * 1000,          // 30 seconds
-      searchResults: 10 * 60 * 1000  // 10 minutes
+      recentStats: 2 * 60 * 1000, // 2 minutes
+      liveData: 30 * 1000, // 30 seconds
+      searchResults: 10 * 60 * 1000, // 10 minutes
     },
     apiTimeout: 5000,
     circuitBreakerThreshold: 5,
@@ -63,7 +67,7 @@ export class RealTimePlayerDataService {
     websocketReconnectDelay: 1000,
     maxConcurrentRequests: 10,
     rateLimitWindow: 60000, // 1 minute
-    rateLimitMaxRequests: 100
+    rateLimitMaxRequests: 100,
   };
 
   private pendingRequests = new Map<string, Promise<unknown>>();
@@ -95,35 +99,43 @@ export class RealTimePlayerDataService {
 
       this.websocket.onopen = () => {
         // eslint-disable-next-line no-console
-  enhancedLogger.info('RealTimePlayerData', 'WebSocket', 'WebSocket connected');
+        enhancedLogger.info('RealTimePlayerData', 'WebSocket', 'WebSocket connected');
         this.reconnectAttempts = 0;
       };
 
-      this.websocket.onmessage = (event) => {
+      this.websocket.onmessage = event => {
         try {
           const update: RealTimeUpdate = JSON.parse(event.data);
           this.handleRealTimeUpdate(update);
         } catch (error) {
           // eslint-disable-next-line no-console
-          enhancedLogger.error('RealTimePlayerData', 'WebSocket', 'Failed to parse WebSocket message', { error });
+          enhancedLogger.error(
+            'RealTimePlayerData',
+            'WebSocket',
+            'Failed to parse WebSocket message',
+            { error }
+          );
         }
       };
 
       this.websocket.onclose = () => {
         // eslint-disable-next-line no-console
-  enhancedLogger.info('RealTimePlayerData', 'WebSocket', 'WebSocket disconnected');
+        enhancedLogger.info('RealTimePlayerData', 'WebSocket', 'WebSocket disconnected');
         this.scheduleReconnect();
       };
 
-      this.websocket.onerror = (error) => {
+      this.websocket.onerror = error => {
         // eslint-disable-next-line no-console
-  enhancedLogger.warn('RealTimePlayerData', 'WebSocket', 'WebSocket error (non-critical)', { error });
+        enhancedLogger.warn('RealTimePlayerData', 'WebSocket', 'WebSocket error (non-critical)', {
+          error,
+        });
         // Don't throw error - WebSocket is optional enhancement
       };
-
     } catch (error) {
       // eslint-disable-next-line no-console
-  enhancedLogger.error('RealTimePlayerData', 'WebSocket', 'Failed to initialize WebSocket', { error });
+      enhancedLogger.error('RealTimePlayerData', 'WebSocket', 'Failed to initialize WebSocket', {
+        error,
+      });
       this.scheduleReconnect();
     }
   }
@@ -132,10 +144,14 @@ export class RealTimePlayerDataService {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       const delay = this.config.websocketReconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-      
+
       setTimeout(() => {
         // eslint-disable-next-line no-console
-  enhancedLogger.info('RealTimePlayerData', 'WebSocket', `Attempting WebSocket reconnection (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+        enhancedLogger.info(
+          'RealTimePlayerData',
+          'WebSocket',
+          `Attempting WebSocket reconnection (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+        );
         this.initializeWebSocket();
       }, delay);
     }
@@ -155,16 +171,18 @@ export class RealTimePlayerDataService {
       subscribers.forEach(callback => {
         try {
           callback(update);
-          } catch (error) {
+        } catch (error) {
           // eslint-disable-next-line no-console
-    enhancedLogger.error('RealTimePlayerData', 'Subscriber', 'Error in subscriber callback', { error });
+          enhancedLogger.error('RealTimePlayerData', 'Subscriber', 'Error in subscriber callback', {
+            error,
+          });
         }
       });
     }
 
     // Update cache with new data if applicable
     if (update.type === 'player_stats') {
-  this.updatePlayerStatsCache(update.playerId, update.data as Record<string, unknown>);
+      this.updatePlayerStatsCache(update.playerId, update.data as Record<string, unknown>);
     }
   }
 
@@ -179,7 +197,7 @@ export class RealTimePlayerDataService {
     if (!this.subscribers.has(playerId)) {
       this.subscribers.set(playerId, new Set());
     }
-    
+
     this.subscribers.get(playerId)!.add(callback);
 
     // Return unsubscribe function
@@ -200,7 +218,7 @@ export class RealTimePlayerDataService {
    */
   public async getPlayerData(playerId: string, sport: string = 'MLB'): Promise<Player | null> {
     const cacheKey = `player:${playerId}:${sport}`;
-    
+
     // Check cache first
     const cached = this.getCachedData<Player>(cacheKey);
     if (cached && this.isCacheValid(cached, this.config.cacheTTL.playerProfile)) {
@@ -221,7 +239,7 @@ export class RealTimePlayerDataService {
 
     try {
       const player = await request;
-      
+
       // Cache the result
       if (player) {
         this.setCachedData(cacheKey, player, this.config.cacheTTL.playerProfile, 'high');
@@ -230,15 +248,24 @@ export class RealTimePlayerDataService {
       return player;
     } catch (error) {
       // eslint-disable-next-line no-console
-  enhancedLogger.error('RealTimePlayerData', 'DataFetch', `Failed to get player data for ${playerId}`, { error });
-      
+      enhancedLogger.error(
+        'RealTimePlayerData',
+        'DataFetch',
+        `Failed to get player data for ${playerId}`,
+        { error }
+      );
+
       // Return stale cache data if available
       if (cached) {
         // eslint-disable-next-line no-console
-  enhancedLogger.warn('RealTimePlayerData', 'DataFetch', 'Returning stale cache data due to API failure');
+        enhancedLogger.warn(
+          'RealTimePlayerData',
+          'DataFetch',
+          'Returning stale cache data due to API failure'
+        );
         return cached.data;
       }
-      
+
       return null;
     } finally {
       this.pendingRequests.delete(cacheKey);
@@ -249,11 +276,15 @@ export class RealTimePlayerDataService {
    * Search players with optimized rate limiting and caching
    * Addresses analysis finding: "API call management and rate limiting issues"
    */
-  public async searchPlayers(query: string, sport: string = 'MLB', limit: number = 10): Promise<Player[]> {
+  public async searchPlayers(
+    query: string,
+    sport: string = 'MLB',
+    limit: number = 10
+  ): Promise<Player[]> {
     if (query.length < 2) return [];
 
     const cacheKey = `search:${query.toLowerCase()}:${sport}:${limit}`;
-    
+
     // Check cache first
     const cached = this.getCachedData<Player[]>(cacheKey);
     if (cached && this.isCacheValid(cached, this.config.cacheTTL.searchResults)) {
@@ -263,7 +294,7 @@ export class RealTimePlayerDataService {
     // Rate limiting check
     if (!this.checkRateLimit('search')) {
       // eslint-disable-next-line no-console
-  enhancedLogger.warn('RealTimePlayerData', 'Search', 'Search rate limit exceeded');
+      enhancedLogger.warn('RealTimePlayerData', 'Search', 'Search rate limit exceeded');
       return cached?.data || [];
     }
 
@@ -274,11 +305,11 @@ export class RealTimePlayerDataService {
 
       // Cache results
       this.setCachedData(cacheKey, results, this.config.cacheTTL.searchResults, 'medium');
-      
+
       return results;
     } catch (error) {
       // eslint-disable-next-line no-console
-  enhancedLogger.error('RealTimePlayerData', 'Search', 'Search failed', { error });
+      enhancedLogger.error('RealTimePlayerData', 'Search', 'Search failed', { error });
       return cached?.data || [];
     }
   }
@@ -288,13 +319,13 @@ export class RealTimePlayerDataService {
    * Addresses analysis finding: "Insufficient error handling and resilience mechanisms"
    */
   private async executeWithCircuitBreaker<T>(
-    serviceName: string, 
+    serviceName: string,
     operation: () => Promise<T>
   ): Promise<T> {
     const breaker = this.circuitBreakers.get(serviceName) || {
       isOpen: false,
       lastFailure: 0,
-      failures: 0
+      failures: 0,
     };
 
     // Check if circuit breaker is open
@@ -311,34 +342,35 @@ export class RealTimePlayerDataService {
 
     try {
       const startTime = Date.now();
-      const result = await Promise.race([
-        operation(),
-        this.timeoutPromise(this.config.apiTimeout)
-      ]);
-      
+      const result = await Promise.race([operation(), this.timeoutPromise(this.config.apiTimeout)]);
+
       // Success - reset failure count
       breaker.failures = 0;
       this.circuitBreakers.set(serviceName, breaker);
-      
+
       // Update health metrics
       this.updateHealthMetrics(serviceName, Date.now() - startTime, true);
-      
+
       return result;
-      } catch (error) {
+    } catch (error) {
       // Failure - increment failure count
       breaker.failures++;
       breaker.lastFailure = Date.now();
-      
+
       if (breaker.failures >= this.config.circuitBreakerThreshold) {
         breaker.isOpen = true;
         // eslint-disable-next-line no-console
-  enhancedLogger.warn('RealTimePlayerData', 'CircuitBreaker', `Circuit breaker opened for ${serviceName}`);
+        enhancedLogger.warn(
+          'RealTimePlayerData',
+          'CircuitBreaker',
+          `Circuit breaker opened for ${serviceName}`
+        );
       }
-      
+
       this.circuitBreakers.set(serviceName, breaker);
-  const errMsg = (error as unknown instanceof Error ? (error as Error).message : String(error));
+      const errMsg = (error as unknown) instanceof Error ? (error as Error).message : String(error);
       this.updateHealthMetrics(serviceName, this.config.apiTimeout, false, errMsg);
-      
+
       throw error;
     }
   }
@@ -349,19 +381,19 @@ export class RealTimePlayerDataService {
   private checkRateLimit(operation: string): boolean {
     const now = Date.now();
     const window = this.rateLimitWindow.get(operation);
-    
+
     if (!window || now > window.resetTime) {
       this.rateLimitWindow.set(operation, {
         count: 1,
-        resetTime: now + this.config.rateLimitWindow
+        resetTime: now + this.config.rateLimitWindow,
       });
       return true;
     }
-    
+
     if (window.count >= this.config.rateLimitMaxRequests) {
       return false;
     }
-    
+
     window.count++;
     return true;
   }
@@ -371,17 +403,23 @@ export class RealTimePlayerDataService {
    */
   private async fetchPlayerDataFromAPI(playerId: string, _sport: string): Promise<Player | null> {
     const apiUrl = `/api/v2/players/${playerId}/dashboard`;
-    
-    const response = await fetch(apiUrl, {
-      signal: AbortSignal.timeout(this.config.apiTimeout)
-    });
+
+    const timeout = createTimeoutSignal(this.config.apiTimeout);
+    let response: Response;
+    try {
+      response = await fetch(apiUrl, {
+        signal: timeout.signal,
+      });
+    } finally {
+      timeout.cleanup();
+    }
 
     if (!response.ok) {
       throw new Error(`API request failed: ${response.status}`);
     }
 
     const data = await response.json();
-    
+
     // Data quality validation
     const validatedPlayer = this.validateAndNormalizePlayerData(data);
     return validatedPlayer;
@@ -397,7 +435,11 @@ export class RealTimePlayerDataService {
 
       // Basic validation
       if (!raw.id || !raw.name) {
-        enhancedLogger.warn('RealTimePlayerData', 'validate', 'Invalid player data - missing required fields');
+        enhancedLogger.warn(
+          'RealTimePlayerData',
+          'validate',
+          'Invalid player data - missing required fields'
+        );
         return null;
       }
 
@@ -437,7 +479,7 @@ export class RealTimePlayerDataService {
           barrel_rate: this.normalizeNumeric(season.barrel_rate),
           hard_hit_rate: this.normalizeNumeric(season.hard_hit_rate),
           exit_velocity: this.normalizeNumeric(season.exit_velocity),
-          launch_angle: this.normalizeNumeric(season.launch_angle)
+          launch_angle: this.normalizeNumeric(season.launch_angle),
         },
 
         last_30_games: this.normalizeGameData((raw.last_30_games as unknown[]) || []),
@@ -447,7 +489,7 @@ export class RealTimePlayerDataService {
           last_30_days: {},
           home_vs_away: { home: {}, away: {} },
           vs_lefties: {},
-          vs_righties: {}
+          vs_righties: {},
         },
 
         advanced_metrics: {
@@ -456,36 +498,47 @@ export class RealTimePlayerDataService {
           injury_risk: this.normalizeNumeric(adv.injury_risk, 20, 0, 100),
           hot_streak: Boolean(adv.hot_streak),
           cold_streak: Boolean(adv.cold_streak),
-          breakout_candidate: Boolean(adv.breakout_candidate)
+          breakout_candidate: Boolean(adv.breakout_candidate),
         },
 
         projections: (raw.projections as Record<string, unknown>) || {
           next_game: {},
           rest_of_season: {},
-          confidence_intervals: { low: {}, high: {} }
-        }
+          confidence_intervals: { low: {}, high: {} },
+        },
       };
 
       return player;
     } catch (error) {
-  enhancedLogger.error('RealTimePlayerData', 'validate', 'Data validation failed', undefined, error as unknown as Error);
+      enhancedLogger.error(
+        'RealTimePlayerData',
+        'validate',
+        'Data validation failed',
+        undefined,
+        error as unknown as Error
+      );
       return null;
     }
   }
 
-  private normalizeNumeric(value: unknown, defaultValue?: number, min?: number, max?: number): number | undefined {
+  private normalizeNumeric(
+    value: unknown,
+    defaultValue?: number,
+    min?: number,
+    max?: number
+  ): number | undefined {
     if (value === null || value === undefined || value === '') {
       return defaultValue;
     }
-    
-  const num = typeof value === 'number' ? value : parseFloat(String(value));
+
+    const num = typeof value === 'number' ? value : parseFloat(String(value));
     if (isNaN(num)) {
       return defaultValue;
     }
-    
+
     if (min !== undefined && num < min) return min;
     if (max !== undefined && num > max) return max;
-    
+
     return num;
   }
 
@@ -493,7 +546,7 @@ export class RealTimePlayerDataService {
     if (!Array.isArray(games)) return [];
 
     return games.map((game: unknown) => {
-      const g = game as Record<string, unknown> || {};
+      const g = (game as Record<string, unknown>) || {};
       return {
         date: (g.date as string) || new Date().toISOString(),
         opponent: (g.opponent as string) || 'Unknown',
@@ -501,7 +554,7 @@ export class RealTimePlayerDataService {
         result: (g.result as string) || 'Unknown',
         stats: (g.stats as Record<string, unknown>) || {},
         game_score: this.normalizeNumeric(g.game_score),
-        weather: g.weather
+        weather: g.weather,
       };
     });
   }
@@ -509,19 +562,31 @@ export class RealTimePlayerDataService {
   /**
    * Search API implementation
    */
-  private async fetchSearchResultsFromAPI(query: string, sport: string, limit: number): Promise<Player[]> {
-    const apiUrl = `/api/v2/players/search?q=${encodeURIComponent(query)}&sport=${sport}&limit=${limit}`;
-    
-    const response = await fetch(apiUrl, {
-      signal: AbortSignal.timeout(this.config.apiTimeout)
-    });
+  private async fetchSearchResultsFromAPI(
+    query: string,
+    sport: string,
+    limit: number
+  ): Promise<Player[]> {
+    const apiUrl = `/api/v2/players/search?q=${encodeURIComponent(
+      query
+    )}&sport=${sport}&limit=${limit}`;
+
+    const timeout = createTimeoutSignal(this.config.apiTimeout);
+    let response: Response;
+    try {
+      response = await fetch(apiUrl, {
+        signal: timeout.signal,
+      });
+    } finally {
+      timeout.cleanup();
+    }
 
     if (!response.ok) {
       throw new Error(`Search API request failed: ${response.status}`);
     }
 
     const data = await response.json();
-    
+
     if (!Array.isArray(data)) {
       // eslint-disable-next-line no-console
       console.warn('[RealTimePlayerData] Invalid search response format');
@@ -537,12 +602,17 @@ export class RealTimePlayerDataService {
     return entry || null;
   }
 
-  private setCachedData<T>(key: string, data: T, ttl: number, quality: 'high' | 'medium' | 'low'): void {
+  private setCachedData<T>(
+    key: string,
+    data: T,
+    ttl: number,
+    quality: 'high' | 'medium' | 'low'
+  ): void {
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
       ttl,
-      quality
+      quality,
     });
   }
 
@@ -558,7 +628,10 @@ export class RealTimePlayerDataService {
         if (player && newStats) {
           // Ensure season_stats exists and both operands are objects for Object.assign
           if (!player.season_stats) player.season_stats = {} as Record<string, unknown>;
-          Object.assign(player.season_stats as Record<string, unknown>, newStats as Record<string, unknown>);
+          Object.assign(
+            player.season_stats as Record<string, unknown>,
+            newStats as Record<string, unknown>
+          );
           entry.timestamp = Date.now();
         }
       }
@@ -572,19 +645,24 @@ export class RealTimePlayerDataService {
     });
   }
 
-  private updateHealthMetrics(serviceName: string, responseTime: number, success: boolean, error?: string): void {
+  private updateHealthMetrics(
+    serviceName: string,
+    responseTime: number,
+    success: boolean,
+    error?: string
+  ): void {
     const current = this.healthMetrics.get(serviceName) || {
       responseTime: 0,
       successRate: 1,
-      consecutiveFailures: 0
+      consecutiveFailures: 0,
     };
 
     // Update response time (moving average)
-    current.responseTime = (current.responseTime * 0.8) + (responseTime * 0.2);
-    
+    current.responseTime = current.responseTime * 0.8 + responseTime * 0.2;
+
     // Update success rate (moving average)
-    current.successRate = (current.successRate * 0.9) + (success ? 1 : 0) * 0.1;
-    
+    current.successRate = current.successRate * 0.9 + (success ? 1 : 0) * 0.1;
+
     // Update consecutive failures
     if (success) {
       current.consecutiveFailures = 0;
@@ -613,10 +691,14 @@ export class RealTimePlayerDataService {
       // Log health metrics for monitoring
       for (const [service, metrics] of this.healthMetrics.entries()) {
         if (metrics.consecutiveFailures > 3) {
-          enhancedLogger.warn('RealTimePlayerData', 'healthMonitor', `Service ${service} health degraded: ${JSON.stringify(metrics)}`);
+          enhancedLogger.warn(
+            'RealTimePlayerData',
+            'healthMonitor',
+            `Service ${service} health degraded: ${JSON.stringify(metrics)}`
+          );
         }
       }
-  }, 30000); // Check every 30 seconds
+    }, 30000); // Check every 30 seconds
   }
 
   /**
@@ -640,8 +722,8 @@ export class RealTimePlayerDataService {
    */
   public clearCache(): void {
     this.cache.clear();
-  // eslint-disable-next-line no-console
-  enhancedLogger.info('RealTimePlayerData', 'Cache', 'Cache cleared');
+    // eslint-disable-next-line no-console
+    enhancedLogger.info('RealTimePlayerData', 'Cache', 'Cache cleared');
   }
 
   /**

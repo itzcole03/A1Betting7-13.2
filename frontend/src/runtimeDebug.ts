@@ -5,6 +5,109 @@
 
 // Only initialize in development environment
 if (process.env.NODE_ENV === 'development') {
+  const restoreNativeConsole = (() => {
+    let restored = false;
+
+    return () => {
+      if (restored) {
+        return;
+      }
+
+      try {
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.documentElement?.appendChild(iframe);
+
+        const iframeConsole = (iframe.contentWindow as unknown as { console?: Console | undefined })?.console;
+        if (iframeConsole) {
+          const methods = Object.keys(iframeConsole) as Array<keyof Console>;
+          methods.forEach((method) => {
+            const replacement = iframeConsole[method];
+            if (typeof replacement === 'function') {
+              const bound = (replacement as (...args: unknown[]) => unknown).bind(iframeConsole);
+              (console as unknown as Record<string, unknown>)[method as string] = bound;
+            } else {
+              (console as Console)[method] = replacement as never;
+            }
+          });
+
+          restored = true;
+        }
+
+        iframe.remove();
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn('[GlobalRuntimeError] Failed to restore native console', err);
+      }
+    };
+  })();
+
+  const disableConsoleNinja = () => {
+    try {
+      const globalAny = window as unknown as Record<string, unknown>;
+
+      Object.defineProperty(globalAny, '_consoleNinjaAllowedToStart', {
+        configurable: true,
+        get: () => false,
+        set: () => {
+          /* ignore attempts to re-enable */
+        },
+      });
+      (globalAny as { _consoleNinjaAllowedToStart?: boolean })._consoleNinjaAllowedToStart = false;
+
+      const existingNinja = (globalAny as { _console_ninja?: unknown })._console_ninja as
+        | Record<string, unknown>
+        | undefined;
+      if (existingNinja) {
+        if (typeof (existingNinja as { pauseNetworkLogging?: () => void }).pauseNetworkLogging === 'function') {
+          (existingNinja as { pauseNetworkLogging: () => void }).pauseNetworkLogging();
+        }
+        if (typeof (existingNinja as { _reconnectTimeout?: ReturnType<typeof setTimeout> })._reconnectTimeout !== 'undefined') {
+          clearTimeout((existingNinja as { _reconnectTimeout: ReturnType<typeof setTimeout> })._reconnectTimeout);
+        }
+      }
+
+      Reflect.deleteProperty(globalAny, '_console_ninja');
+      Object.defineProperty(globalAny, '_console_ninja', {
+        configurable: true,
+        get: () => undefined,
+        set: () => {
+          /* ignore attempts to re-register */
+        },
+      });
+
+      const pauseNetworkLogging = (globalAny as { pauseNetworkLogging?: () => void }).pauseNetworkLogging;
+      if (typeof pauseNetworkLogging === 'function') {
+        pauseNetworkLogging();
+      }
+
+      const ninjaSession = (globalAny as { _console_ninja_session?: unknown })._console_ninja_session as
+        | ({
+            _allowedToSend?: boolean;
+            _allowedToConnectOnSend?: boolean;
+            _connecting?: boolean;
+            _connected?: boolean;
+            [key: string]: unknown;
+          } & Record<string, unknown>)
+        | undefined;
+      if (ninjaSession) {
+        ninjaSession._allowedToSend = false;
+        ninjaSession._allowedToConnectOnSend = false;
+        ninjaSession._connecting = false;
+        ninjaSession._connected = false;
+      }
+
+      restoreNativeConsole();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn('[GlobalRuntimeError] Failed to disable Console Ninja overlay', err);
+    }
+  };
+
+  disableConsoleNinja();
+  const watchdog = setInterval(disableConsoleNinja, 1500);
+  setTimeout(() => clearInterval(watchdog), 20000);
+
   // Global error handler for synchronous errors
   window.onerror = (
     message: string | Event,

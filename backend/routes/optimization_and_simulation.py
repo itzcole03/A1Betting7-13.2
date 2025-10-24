@@ -35,6 +35,7 @@ from backend.models.portfolio_optimization import (
     OptimizationStatus, SimulationStatus
 )
 from backend.services.unified_logging import get_logger
+from backend.core.exceptions import BusinessLogicException
 
 router = APIRouter(prefix="/api/portfolio", tags=["Portfolio Optimization"])
 logger = get_logger("optimization_api")
@@ -157,10 +158,10 @@ async def optimize_portfolio(
     try:
         # Validate request
         if len(request.props) != len(set(p.prop_id for p in request.props)):
-            raise HTTPException(status_code=400, detail="Duplicate prop IDs not allowed")
+            raise BusinessLogicException("Duplicate prop IDs not allowed", status_code=400)
         
         if len(request.stakes) and len(request.stakes) != len(request.props):
-            raise HTTPException(status_code=400, detail="Stakes length must match props length")
+            raise BusinessLogicException("Stakes length must match props length", status_code=400)
         
         # Create optimization run record
         opt_run = OptimizationRun(
@@ -196,7 +197,7 @@ async def optimize_portfolio(
         
     except Exception as e:
         logger.error(f"Failed to start portfolio optimization: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Optimization failed: {str(e)}")
+        raise BusinessLogicException(f"Optimization failed: {str(e, status_code=500)}")
 
 
 @router.get("/optimization/portfolio/{run_id}", response_model=OptimizationResponse)
@@ -207,7 +208,7 @@ async def get_optimization_result(
     """Get portfolio optimization results"""
     opt_run = db.query(OptimizationRun).filter(OptimizationRun.id == run_id).first()
     if not opt_run:
-        raise HTTPException(status_code=404, detail="Optimization run not found")
+        raise BusinessLogicException("Optimization run not found", status_code=404)
     
     return OptimizationResponse(
         run_id=opt_run.id,
@@ -239,10 +240,10 @@ async def run_monte_carlo_simulation(
     try:
         # Validate request
         if len(request.props) != len(request.stakes):
-            raise HTTPException(status_code=400, detail="Props and stakes length must match")
+            raise BusinessLogicException("Props and stakes length must match", status_code=400)
         
         if any(stake <= 0 for stake in request.stakes):
-            raise HTTPException(status_code=400, detail="All stakes must be positive")
+            raise BusinessLogicException("All stakes must be positive", status_code=400)
         
         # Create simulation run record
         mc_run = MonteCarloRun(
@@ -276,7 +277,7 @@ async def run_monte_carlo_simulation(
         
     except Exception as e:
         logger.error(f"Failed to start Monte Carlo simulation: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Simulation failed: {str(e)}")
+        raise BusinessLogicException(f"Simulation failed: {str(e, status_code=500)}")
 
 
 @router.get("/simulation/monte-carlo/{run_id}", response_model=MonteCarloResponse)
@@ -287,7 +288,7 @@ async def get_monte_carlo_result(
     """Get Monte Carlo simulation results"""
     mc_run = db.query(MonteCarloRun).filter(MonteCarloRun.id == run_id).first()
     if not mc_run:
-        raise HTTPException(status_code=404, detail="Monte Carlo run not found")
+        raise BusinessLogicException("Monte Carlo run not found", status_code=404)
     
     return MonteCarloResponse(
         run_id=mc_run.id,
@@ -356,7 +357,7 @@ async def compute_correlation(
             copula_parameters = result["copula_parameters"]
             
         else:
-            raise HTTPException(status_code=400, detail=f"Unsupported method: {request.method}")
+            raise BusinessLogicException(f"Unsupported method: {request.method}", status_code=400)
         
         computation_time = (datetime.now() - start_time).total_seconds()
         
@@ -401,7 +402,7 @@ async def compute_correlation(
         
     except Exception as e:
         logger.error(f"Failed to compute correlation: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Correlation computation failed: {str(e)}")
+        raise BusinessLogicException(f"Correlation computation failed: {str(e, status_code=500)}")
 
 
 @router.get("/correlation/factor-model/{model_id}")
@@ -416,7 +417,7 @@ async def get_factor_model(
     ).first()
     
     if not cache_entry:
-        raise HTTPException(status_code=404, detail="Factor model not found")
+        raise BusinessLogicException("Factor model not found", status_code=404)
     
     return {
         "model_id": cache_entry.id,
@@ -437,7 +438,7 @@ async def get_task_status(task_id: str):
     status = await scheduler.get_task_status(task_id)
     
     if not status:
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise BusinessLogicException("Task not found", status_code=404)
     
     return status
 
@@ -482,7 +483,7 @@ async def invalidate_cache(request: CacheInvalidationRequest):
         
     except Exception as e:
         logger.error(f"Cache invalidation failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Cache invalidation failed: {str(e)}")
+        raise BusinessLogicException(f"Cache invalidation failed: {str(e, status_code=500)}")
 
 
 @router.get("/cache/stats")
@@ -493,7 +494,7 @@ async def get_cache_stats():
         return health
     except Exception as e:
         logger.error(f"Failed to get cache stats: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to get cache stats: {str(e)}")
+        raise BusinessLogicException(f"Failed to get cache stats: {str(e, status_code=500)}")
 
 
 # Background Task Functions

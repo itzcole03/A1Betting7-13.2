@@ -19,6 +19,11 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+try:
+    from backend.utils.enhanced_logging import SafeRotatingFileHandler
+except Exception:  # pragma: no cover - fallback alias if utility unavailable
+    SafeRotatingFileHandler = logging.handlers.RotatingFileHandler
+
 
 class LogLevel(Enum):
     """Log levels with numeric values"""
@@ -75,12 +80,9 @@ class StructuredFormatter(logging.Formatter):
         }
 
         # Add context if available
-        if hasattr(record, "context") and record.context:
-            context_dict = (
-                asdict(record.context)
-                if hasattr(record.context, "__dict__")
-                else record.context
-            )
+        record_context = getattr(record, "context", None)
+        if record_context:
+            context_dict = asdict(record_context) if hasattr(record_context, "__dict__") else record_context
             log_entry["context"] = context_dict
 
         # Add exception info if present
@@ -235,7 +237,7 @@ class UnifiedLogger:
             log_dir = Path("backend/logs")
             log_dir.mkdir(exist_ok=True)
 
-            file_handler = logging.handlers.RotatingFileHandler(
+            file_handler = SafeRotatingFileHandler(
                 log_dir / "unified.jsonl", maxBytes=50 * 1024 * 1024, backupCount=10, encoding="utf-8"  # 50MB
             )
             file_handler.setLevel(logging.DEBUG)
@@ -243,7 +245,7 @@ class UnifiedLogger:
             self.logger.addHandler(file_handler)
 
             # Error file handler
-            error_handler = logging.handlers.RotatingFileHandler(
+            error_handler = SafeRotatingFileHandler(
                 log_dir / "errors.jsonl", maxBytes=10 * 1024 * 1024, backupCount=5, encoding="utf-8"  # 10MB
             )
             error_handler.setLevel(logging.ERROR)
@@ -258,6 +260,14 @@ class UnifiedLogger:
         **kwargs,
     ) -> logging.LogRecord:
         """Create a log record with context"""
+        # Pull out any exc_info passed in kwargs so it isn't added to the
+        # LogRecord via the `extra` mapping. Some call sites pass exc_info=True
+        # and we want to handle that explicitly to avoid attempts to overwrite
+        # record.exc_info later in the flow (which can raise).
+        exc_info_val = None
+        if "exc_info" in kwargs:
+            exc_info_val = kwargs.pop("exc_info")
+
         record = self.logger.makeRecord(
             self.logger.name,
             level.value,
@@ -272,6 +282,25 @@ class UnifiedLogger:
 
         if context:
             record.context = context
+
+        # If an exc_info value was provided, set record.exc_info in a safe
+        # manner. Accept boolean True, an exception tuple, or an exception
+        # instance for convenience.
+        if exc_info_val:
+            try:
+                if exc_info_val is True:
+                    record.exc_info = sys.exc_info()
+                elif isinstance(exc_info_val, tuple) and len(exc_info_val) == 3:
+                    record.exc_info = exc_info_val
+                elif isinstance(exc_info_val, BaseException):
+                    record.exc_info = (type(exc_info_val), exc_info_val, exc_info_val.__traceback__)
+                else:
+                    # Fallback: treat truthy value as a signal to capture current
+                    # exception info.
+                    record.exc_info = sys.exc_info()
+            except Exception:
+                # Avoid allowing logging plumbing problems to bubble out.
+                pass
 
         return record
 
@@ -453,6 +482,9 @@ class OperationTracker:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.operation_id is None:
+            return
+
         success = exc_type is None
         self.logger.end_operation_tracking(
             self.operation_id, self.context, success=success

@@ -48,6 +48,7 @@ from backend.services.security.rate_limiter import rate_limit, get_client_ip, es
 from backend.services.security.rbac import require_permission, Permission
 from backend.services.security.data_redaction import get_redaction_service, RedactionLevel
 from backend.services.security.security_integration import secure_rationale_endpoint
+from backend.core.exceptions import BusinessLogicException
 
 logger = get_logger("streaming_api")
 
@@ -139,7 +140,7 @@ async def list_providers(request: Request) -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error listing providers: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to list providers: {str(e)}")
+        raise BusinessLogicException(f"Failed to list providers: {str(e, status_code=500)}")
 
 
 @router.get("/providers/{provider_name}", summary="Get provider details")
@@ -152,7 +153,7 @@ async def get_provider(provider_name: str, request: Request) -> Dict[str, Any]:
         # Check if provider exists
         provider = provider_registry.get_provider(provider_name)
         if not provider:
-            raise HTTPException(status_code=404, detail=f"Provider {provider_name} not found")
+            raise BusinessLogicException(f"Provider {provider_name} not found", status_code=404)
             
         # Create mock provider state
         mock_provider = MockProviderState(provider_name)
@@ -181,7 +182,7 @@ async def get_provider(provider_name: str, request: Request) -> Dict[str, Any]:
         raise
     except Exception as e:
         logger.error(f"Error getting provider {provider_name}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get provider: {str(e)}")
+        raise BusinessLogicException(f"Failed to get provider: {str(e, status_code=500)}")
 
 
 @router.post("/control", summary="Control streaming operations")
@@ -211,7 +212,7 @@ async def control_streaming(control_request: StreamingControlRequest, request: R
             message = "Streaming resumed successfully"
             
         else:
-            raise HTTPException(status_code=400, detail=f"Unknown action: {action}")
+            raise BusinessLogicException(f"Unknown action: {action}", status_code=400)
         
         # Get updated status
         status = market_streamer.get_status()
@@ -225,7 +226,7 @@ async def control_streaming(control_request: StreamingControlRequest, request: R
         raise
     except Exception as e:
         logger.error(f"Error controlling streaming: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to control streaming: {str(e)}")
+        raise BusinessLogicException(f"Failed to control streaming: {str(e, status_code=500)}")
 
 
 @router.post("/rationale/generate", summary="Generate portfolio rationale")
@@ -257,15 +258,15 @@ async def generate_rationale(request_data: RationaleGenerationRequest, request: 
                 message="Portfolio rationale generated successfully"
             )
         else:
-            raise HTTPException(status_code=429, detail="Rate limit exceeded or generation failed")
+            raise BusinessLogicException("Rate limit exceeded or generation failed", status_code=429)
         
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid rationale type: {request_data.rationale_type}")
+        raise BusinessLogicException(f"Invalid rationale type: {request_data.rationale_type}", status_code=400)
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error generating rationale: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to generate rationale: {str(e)}")
+        raise BusinessLogicException(f"Failed to generate rationale: {str(e, status_code=500)}")
 
 
 @router.get("/status", summary="Get streaming system status")
@@ -302,7 +303,7 @@ async def get_system_status(request: Request) -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error getting system status: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get system status: {str(e)}")
+        raise BusinessLogicException(f"Failed to get system status: {str(e, status_code=500)}")
 
 
 @router.get("/health", summary="Health check for streaming system")

@@ -4,6 +4,7 @@
  */
 
 import EventEmitter from 'eventemitter3';
+import { createTimeoutSignal } from '../../utils/createTimeoutSignal';
 import { discoverBackend } from '../backendDiscovery';
 
 // Add missing ApiConfig interface
@@ -179,17 +180,16 @@ export class ApiService {
       _finalConfig = _interceptor(_finalConfig);
     }
 
-    const _requestOptions: RequestInit = {
+    const _baseRequestOptions: RequestInit = {
       method,
       headers: {
         'Content-Type': 'application/json',
         ..._finalConfig.headers,
       },
-      signal: AbortSignal.timeout(_finalConfig.timeout || this.config.timeout),
     };
 
     if (data) {
-      _requestOptions.body = JSON.stringify(data);
+      _baseRequestOptions.body = JSON.stringify(data);
     }
 
     const _maxRetries = _finalConfig.retries || this.config.retryAttempts;
@@ -197,7 +197,18 @@ export class ApiService {
 
     for (let _attempt = 0; _attempt <= _maxRetries; _attempt++) {
       try {
-        const _response = await fetch(_fullUrl, _requestOptions);
+        const _timeout = createTimeoutSignal(_finalConfig.timeout || this.config.timeout);
+        const _requestOptions: RequestInit = {
+          ..._baseRequestOptions,
+          signal: _timeout.signal,
+        };
+
+        let _response: Response;
+        try {
+          _response = await fetch(_fullUrl, _requestOptions);
+        } finally {
+          _timeout.cleanup();
+        }
 
         if (!_response.ok) {
           throw new Error(`HTTP ${_response.status}: ${_response.statusText}`);

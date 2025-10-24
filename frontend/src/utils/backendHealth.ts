@@ -3,6 +3,7 @@
  * Helps diagnose and resolve backend connectivity issues
  */
 
+import { createTimeoutSignal } from './createTimeoutSignal';
 import { logger } from './logger';
 
 export interface BackendHealthInfo {
@@ -142,11 +143,17 @@ export class BackendHealthChecker {
 
       const url = port ? `http://localhost:${port}${endpoint}` : endpoint;
 
-      const response = await fetch(url, {
-        method: 'GET',
-        signal: AbortSignal.timeout(3000),
-        mode: port ? 'cors' : 'same-origin',
-      });
+      const timeout = createTimeoutSignal(3000);
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          method: 'GET',
+          signal: timeout.signal,
+          mode: port ? 'cors' : 'same-origin',
+        });
+      } finally {
+        timeout.cleanup();
+      }
 
       const responseTime = Date.now() - startTime;
 

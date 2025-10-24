@@ -135,7 +135,6 @@ class AlertRule(Base):
     __tablename__ = "alert_rules"
     __table_args__ = (
         Index('ix_alert_rules_user', 'user_id'),
-        Index('ix_alert_rules_active', 'active'),
     )
     
     id = Column(Integer, primary_key=True, index=True)

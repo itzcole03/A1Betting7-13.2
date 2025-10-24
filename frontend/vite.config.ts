@@ -21,11 +21,18 @@ export default defineConfig(({ mode, command }) => {
   // Map the VITE_* variables to keys without the prefix
   const processEnv = Object.keys(env)
     .filter(key => key.startsWith('VITE_'))
-    .reduce((acc, key) => {
+    .reduce<Record<string, string>>((acc, key) => {
       const newKey = key.replace(/^VITE_/, '');
       acc[`process.env.${newKey}`] = JSON.stringify(env[key]);
       return acc;
     }, {});
+
+  const serverPort = Number.parseInt(env.VITE_PORT || '5173', 10);
+  const hmrPort = env.VITE_HMR_PORT ? Number.parseInt(env.VITE_HMR_PORT, 10) : undefined;
+  const hmrClientPort = env.VITE_HMR_CLIENT_PORT
+    ? Number.parseInt(env.VITE_HMR_CLIENT_PORT, 10)
+    : hmrPort ?? serverPort;
+  const hmrHost = env.VITE_HMR_HOST || 'localhost';
 
   return {
     base: isElectron ? './' : '/', // Important for Electron compatibility
@@ -79,14 +86,13 @@ export default defineConfig(({ mode, command }) => {
     },
 
     server: {
-      port: parseInt(env.VITE_PORT || '5173', 10),
+      port: serverPort,
       host: '0.0.0.0',
       hmr: {
         overlay: false,
-        clientPort: parseInt(env.VITE_PORT || '5173', 10),
-        port: 24878,
-        // Explicitly set HMR host to prevent stale port references (fixes ws://localhost:8174 errors)
-        host: 'localhost',
+        host: hmrHost,
+        clientPort: hmrClientPort,
+        port: hmrPort,
       },
       strictPort: false,
       // Allow serving files from the workspace root (helps Windows setups)
@@ -109,28 +115,30 @@ export default defineConfig(({ mode, command }) => {
         mode === 'development' && !isElectron
           ? {
               '/api': {
-                target: env.VITE_BACKEND_URL || 'http://localhost:8000',
+                target: env.VITE_BACKEND_URL || 'http://127.0.0.1:8000',
                 changeOrigin: true,
                 secure: false,
                 ws: false,
               },
               '/auth': {
-                target: env.VITE_BACKEND_URL || 'http://localhost:8000',
+                target: env.VITE_BACKEND_URL || 'http://127.0.0.1:8000',
                 changeOrigin: true,
                 secure: false,
               },
               '/mlb': {
-                target: env.VITE_BACKEND_URL || 'http://localhost:8000',
+                target: env.VITE_BACKEND_URL || 'http://127.0.0.1:8000',
                 changeOrigin: true,
                 secure: false,
               },
               '/health': {
-                target: env.VITE_BACKEND_URL || 'http://localhost:8000',
+                target: env.VITE_BACKEND_URL || 'http://127.0.0.1:8000',
                 changeOrigin: true,
                 secure: false,
               },
               '/ws': {
-                target: 'ws://localhost:8000',
+                // Use VITE_BACKEND_URL if provided, converting http(s) -> ws(s). Fallback to 127.0.0.1 to avoid localhost/IPv6 resolution issues.
+                target:
+                  env.VITE_BACKEND_URL?.replace(/^http/, 'ws') || 'ws://127.0.0.1:8000',
                 ws: true,
                 changeOrigin: true,
               },
@@ -184,10 +192,16 @@ export default defineConfig(({ mode, command }) => {
         'axios',
         'react',
         'react-dom',
-        '@tanstack/react-query',
-        'framer-motion',
+  '@tanstack/react-query',
+  'framer-motion',
+  'lucide-react',
       ],
-      exclude: isElectron ? ['electron'] : [],
+      exclude: [
+  ...(isElectron ? ['electron'] : []),
+        'web-vitals',
+        'chart.js',
+        'react-chartjs-2',
+      ],
       force: true,
     },
   };

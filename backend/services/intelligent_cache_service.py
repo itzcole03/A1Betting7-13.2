@@ -7,13 +7,15 @@ import asyncio
 import hashlib
 import json
 import logging
+import os
 import time
 from collections import defaultdict, deque
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timedelta, timezone
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 import redis.asyncio as redis
+from redis import exceptions as redis_exceptions
 
 from backend.config_manager import A1BettingConfig
 from backend.utils.enhanced_logging import get_logger
@@ -67,6 +69,15 @@ class IntelligentCacheService:
         self._memory_cache: Dict[str, Any] = {}
         self._memory_cache_ttl: Dict[str, float] = {}
         self._use_memory_fallback = False
+        self._initialization_attempted = False
+        self._memory_tasks_started = False
+        self._init_lock: asyncio.Lock = asyncio.Lock()
+        self._lean_mode = (
+            os.environ.get("APP_DEV_LEAN_MODE", "").lower() == "true"
+            or os.environ.get("DISABLE_STARTUP_HOOKS", "").lower() == "true"
+        )
+        if self._lean_mode:
+            self._use_memory_fallback = True
 
         # Enhanced metrics and patterns
         self.metrics = CacheMetrics()
@@ -85,37 +96,54 @@ class IntelligentCacheService:
         self._pipeline_task: Optional[asyncio.Task] = None
         self._warming_task: Optional[asyncio.Task] = None
         self._pattern_analysis_task: Optional[asyncio.Task] = None
+        self._reconnect_task: Optional[asyncio.Task] = None
+        self._reconnect_attempts: int = 0
 
     async def initialize(self) -> None:
         """Initialize enhanced caching service with background tasks"""
-        try:
-            # Initialize Redis connection
-            self._redis_pool = redis.ConnectionPool.from_url(
-                self.config.redis_url,
-                max_connections=50,  # Increased for pipeline operations
-                retry_on_timeout=True,
-                socket_keepalive=True,
-                socket_keepalive_options={},
-                health_check_interval=30,
-            )
+        async with self._init_lock:
+            if self._initialization_attempted:
+                if self._use_memory_fallback:
+                    await self._ensure_memory_tasks()
+                return
 
-            # Test connection
-            redis_client = redis.Redis(connection_pool=self._redis_pool)
-            await redis_client.ping()
+            self._initialization_attempted = True
 
-            # Start background tasks
-            await self._start_background_tasks()
+            if self._lean_mode:
+                await self._switch_to_memory_fallback(
+                    "lean environment",
+                    log_level="info",
+                    schedule_reconnect=False,
+                )
+                logger.info("✅ Intelligent cache service running in memory-only mode (lean environment)")
+                return
 
-            logger.info("✅ Intelligent cache service initialized with Redis")
+            self._use_memory_fallback = False
 
-        except Exception as e:
-            logger.warning(f"⚠️ Redis not available, using memory fallback: {e}")
-            self._use_memory_fallback = True
+            try:
+                # Initialize Redis connection
+                redis_url = self.config.cache.redis_url or "redis://localhost:6379"
+                self._redis_pool = redis.ConnectionPool.from_url(
+                    redis_url,
+                    max_connections=50,  # Increased for pipeline operations
+                    retry_on_timeout=True,
+                    socket_keepalive=True,
+                    socket_keepalive_options={},
+                    health_check_interval=30,
+                )
 
-            # Start limited background tasks for memory cache
-            await self._start_memory_tasks()
+                # Test connection
+                redis_client = redis.Redis(connection_pool=self._redis_pool)
+                await redis_client.ping()
 
-            logger.info("✅ Intelligent cache service initialized with memory fallback")
+                # Start background tasks
+                await self._start_background_tasks()
+
+                logger.info("✅ Intelligent cache service initialized with Redis")
+
+            except Exception as e:
+                await self._switch_to_memory_fallback(f"Redis not available: {e}")
+                logger.info("✅ Intelligent cache service initialized with memory fallback")
 
     async def _start_background_tasks(self):
         """Start background processing tasks"""
@@ -129,9 +157,48 @@ class IntelligentCacheService:
 
     async def _start_memory_tasks(self):
         """Start limited tasks for memory-only mode"""
+        if self._memory_tasks_started:
+            return
+        self._memory_tasks_started = True
         if self.warming_enabled:
             self._warming_task = asyncio.create_task(self._cache_warming_processor())
         self._pattern_analysis_task = asyncio.create_task(self._pattern_analyzer())
+
+    async def _ensure_memory_tasks(self):
+        if self._use_memory_fallback and not self._memory_tasks_started:
+            await self._start_memory_tasks()
+
+    async def _ensure_initialized(self):
+        if not self._initialization_attempted:
+            await self.initialize()
+        elif self._use_memory_fallback:
+            await self._ensure_memory_tasks()
+
+    async def _switch_to_memory_fallback(
+        self,
+        reason: str,
+        log_level: str = "warning",
+        schedule_reconnect: bool = True,
+    ) -> None:
+        """Switch service to in-memory mode safely."""
+        if self._use_memory_fallback:
+            return
+
+        self._use_memory_fallback = True
+        self._redis_pool = None
+
+        if self._pipeline_task is not None and not self._pipeline_task.done():
+            self._pipeline_task.cancel()
+        self._pipeline_task = None
+
+        await self._ensure_memory_tasks()
+
+        log_func = logger.warning if log_level != "info" else logger.info
+        prefix = "⚠️" if log_level != "info" else "ℹ️"
+        log_func(f"{prefix} Switching intelligent cache to memory fallback: {reason}")
+
+        if schedule_reconnect and not self._lean_mode:
+            self._schedule_redis_reconnect()
 
     def get_redis(self) -> redis.Redis:
         """Get Redis client from pool"""
@@ -141,11 +208,86 @@ class IntelligentCacheService:
             raise RuntimeError("Cache service not initialized")
         return redis.Redis(connection_pool=self._redis_pool)
 
-    async def get(self, key: str, default: Any = None, user_context: str = None) -> Any:
+    def _should_switch_to_memory(self, exc: Exception) -> bool:
+        """Detect connection failures that should trigger the memory fallback."""
+        redis_error_types = (
+            redis_exceptions.RedisError,
+            ConnectionError,
+            TimeoutError,
+            asyncio.TimeoutError,
+            OSError,
+            RuntimeError,
+        )
+
+        current = exc
+        visited: Set[int] = set()
+
+        while current and id(current) not in visited:
+            if isinstance(current, redis_error_types):
+                return True
+            visited.add(id(current))
+            current = getattr(current, "__cause__", None) or getattr(current, "__context__", None)
+
+        return False
+
+    @staticmethod
+    def _describe_error(exc: Exception) -> str:
+        message = str(exc).strip()
+        return message or exc.__class__.__name__
+
+    def _schedule_redis_reconnect(self) -> None:
+        """Spawn a background task that keeps trying to restore Redis connectivity."""
+        if self._lean_mode:
+            return
+
+        if self._reconnect_task and not self._reconnect_task.done():
+            return
+
+        self._reconnect_task = asyncio.create_task(self._redis_reconnect_loop())
+
+    async def _redis_reconnect_loop(self) -> None:
+        """Attempt to reconnect to Redis with exponential backoff."""
+        delay_seconds = 1
+
+        try:
+            while self._use_memory_fallback and not self._lean_mode:
+                await asyncio.sleep(delay_seconds)
+
+                if not self._use_memory_fallback:
+                    break
+
+                try:
+                    # Reset initialization so a fresh connection is attempted.
+                    self._redis_pool = None
+                    self._initialization_attempted = False
+                    await self.initialize()
+
+                    if not self._use_memory_fallback and self._redis_pool:
+                        self._reconnect_attempts = 0
+                        logger.info("🔄 Redis cache reconnected successfully")
+                        break
+
+                    # If we are still in fallback mode, increase delay and continue.
+                    self._reconnect_attempts += 1
+                    delay_seconds = min(delay_seconds * 2, 60)
+
+                except Exception as exc:
+                    self._reconnect_attempts += 1
+                    logger.debug(f"Redis reconnect attempt failed: {exc}")
+                    delay_seconds = min(delay_seconds * 2, 60)
+
+        finally:
+            self._reconnect_task = None
+
+    async def get(self, key: str, default: Any = None, user_context: Optional[str] = None) -> Any:
         """Enhanced get with pattern tracking"""
         start_time = time.time()
 
         try:
+            await self._ensure_initialized()
+            if not self._use_memory_fallback and self._redis_pool is None:
+                await self._switch_to_memory_fallback("Redis pool unavailable after initialization")
+                return await self._memory_get(key, default)
             # Track access pattern
             await self._track_access_pattern(key, user_context)
 
@@ -171,6 +313,10 @@ class IntelligentCacheService:
             return value
 
         except Exception as e:
+            if not self._use_memory_fallback and self._should_switch_to_memory(e):
+                await self._switch_to_memory_fallback(self._describe_error(e))
+                return await self._memory_get(key, default)
+
             logger.error(f"❌ Cache get error for key {key}", exc_info=e)
             self.metrics.misses += 1
             return default
@@ -181,11 +327,15 @@ class IntelligentCacheService:
         value: Any,
         ttl_seconds: int = 3600,
         priority: str = "normal",
-        user_context: str = None,
+        user_context: Optional[str] = None,
         use_pipeline: bool = True,
     ) -> bool:
         """Enhanced set with pipeline optimization and intelligent TTL"""
         try:
+            await self._ensure_initialized()
+            if not self._use_memory_fallback and self._redis_pool is None:
+                await self._switch_to_memory_fallback("Redis pool unavailable after initialization")
+                return await self._memory_set(key, value, ttl_seconds)
             # Calculate intelligent TTL based on patterns
             smart_ttl = await self._calculate_smart_ttl(key, ttl_seconds, user_context)
 
@@ -200,42 +350,62 @@ class IntelligentCacheService:
                 return await self._redis_set(key, value, smart_ttl)
 
         except Exception as e:
+            if not self._use_memory_fallback and self._should_switch_to_memory(e):
+                await self._switch_to_memory_fallback(self._describe_error(e))
+                return await self._memory_set(key, value, ttl_seconds)
+
             logger.error(f"❌ Cache set error for key {key}", exc_info=e)
             return False
 
     async def get_many(
-        self, keys: List[str], user_context: str = None
+        self, keys: List[str], user_context: Optional[str] = None
     ) -> Dict[str, Any]:
         """Optimized bulk get operation using Redis pipeline"""
         if not keys:
             return {}
 
         try:
+            await self._ensure_initialized()
+            if not self._use_memory_fallback and self._redis_pool is None:
+                await self._switch_to_memory_fallback("Redis pool unavailable after initialization")
+                return await self._memory_get_many(keys, user_context)
             if self._use_memory_fallback:
                 return await self._memory_get_many(keys, user_context)
             else:
                 return await self._redis_get_many(keys, user_context)
 
         except Exception as e:
+            if not self._use_memory_fallback and self._should_switch_to_memory(e):
+                await self._switch_to_memory_fallback(self._describe_error(e))
+                return await self._memory_get_many(keys, user_context)
+
             logger.error(f"❌ Bulk get error for {len(keys)} keys", exc_info=e)
             return {}
 
     async def set_many(
         self,
         items: Dict[str, Tuple[Any, int]],  # key -> (value, ttl)
-        user_context: str = None,
+        user_context: Optional[str] = None,
     ) -> int:
         """Optimized bulk set operation using Redis pipeline"""
         if not items:
             return 0
 
         try:
+            await self._ensure_initialized()
+            if not self._use_memory_fallback and self._redis_pool is None:
+                await self._switch_to_memory_fallback("Redis pool unavailable after initialization")
+                return await self._memory_set_many(items, user_context)
             if self._use_memory_fallback:
                 return await self._memory_set_many(items, user_context)
             else:
                 return await self._redis_set_many(items, user_context)
 
         except Exception as e:
+            if not self._use_memory_fallback and self._should_switch_to_memory(e):
+                await self._switch_to_memory_fallback(self._describe_error(e))
+                return await self._memory_set_many(items, user_context)
+
             logger.error(f"❌ Bulk set error for {len(items)} items", exc_info=e)
             return 0
 
@@ -246,6 +416,7 @@ class IntelligentCacheService:
         if not self.warming_enabled:
             return
 
+        await self._ensure_initialized()
         warming_request = {
             "patterns": patterns,
             "data_fetcher": data_fetcher,
@@ -259,6 +430,7 @@ class IntelligentCacheService:
     async def invalidate_pattern(self, pattern: str) -> int:
         """Intelligently invalidate cache entries matching pattern"""
         try:
+            await self._ensure_initialized()
             if self._use_memory_fallback:
                 return await self._memory_invalidate_pattern(pattern)
             else:
@@ -274,12 +446,13 @@ class IntelligentCacheService:
         data_category: str,
         key: str,
         value: Any,
-        game_id: str = None,
-        user_id: str = None,
-        base_ttl: int = None
+        game_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        base_ttl: Optional[int] = None,
     ) -> bool:
         """Set sport data with intelligent TTL based on volatility models"""
         try:
+            await self._ensure_initialized()
             from backend.services.sport_volatility_models import sport_volatility_models, SportType, DataCategory
 
             # Convert strings to enums
@@ -347,11 +520,12 @@ class IntelligentCacheService:
         sport: str,
         data_category: str,
         key: str,
-        user_id: str = None,
-        default: Any = None
+        user_id: Optional[str] = None,
+        default: Any = None,
     ) -> Any:
         """Get sport data with user tracking for volatility optimization"""
         try:
+            await self._ensure_initialized()
             from backend.services.sport_volatility_models import sport_volatility_models, SportType, DataCategory
 
             # Get the data
@@ -385,9 +559,10 @@ class IntelligentCacheService:
             logger.error(f"❌ Error in sport-aware cache get: {e}")
             return await self.get(key, default)
 
-    async def warm_sport_cache(self, sport: str, priority_data: List[str] = None) -> int:
+    async def warm_sport_cache(self, sport: str, priority_data: Optional[List[str]] = None) -> int:
         """Warm cache for sport-specific data based on volatility priorities"""
         try:
+            await self._ensure_initialized()
             from backend.services.sport_volatility_models import sport_volatility_models, SportType
 
             sport_enum = SportType(sport.lower()) if sport else None
@@ -464,10 +639,6 @@ class IntelligentCacheService:
                 "total_requests": 0,
                 "memory_usage_mb": 0,
             }
-
-        except Exception as e:
-            logger.error(f"❌ Error in sport cache warming: {e}")
-            return 0
 
     def _generate_warming_patterns(self, sport: str, data_category: str) -> List[str]:
         """Generate cache key patterns for warming based on sport and data category"""
@@ -644,7 +815,7 @@ class IntelligentCacheService:
         return bool(result)
 
     async def _redis_get_many(
-        self, keys: List[str], user_context: str
+        self, keys: List[str], user_context: Optional[str]
     ) -> Dict[str, Any]:
         """Bulk get using Redis pipeline"""
         redis_client = self.get_redis()
@@ -678,7 +849,7 @@ class IntelligentCacheService:
         return result
 
     async def _redis_set_many(
-        self, items: Dict[str, Tuple[Any, int]], user_context: str
+        self, items: Dict[str, Tuple[Any, int]], user_context: Optional[str]
     ) -> int:
         """Bulk set using Redis pipeline"""
         redis_client = self.get_redis()
@@ -767,7 +938,7 @@ class IntelligentCacheService:
         return True
 
     async def _memory_get_many(
-        self, keys: List[str], user_context: str
+        self, keys: List[str], user_context: Optional[str]
     ) -> Dict[str, Any]:
         """Memory cache bulk get"""
         result = {}
@@ -783,7 +954,7 @@ class IntelligentCacheService:
         return result
 
     async def _memory_set_many(
-        self, items: Dict[str, Tuple[Any, int]], user_context: str
+        self, items: Dict[str, Tuple[Any, int]], user_context: Optional[str]
     ) -> int:
         """Memory cache bulk set"""
         success_count = 0
@@ -950,7 +1121,7 @@ class IntelligentCacheService:
             # Queue warming requests (would need data fetcher registry in real implementation)
             # This is a placeholder for the prediction logic
 
-    async def _track_access_pattern(self, key: str, user_context: str = None):
+    async def _track_access_pattern(self, key: str, user_context: Optional[str] = None):
         """Track access patterns for predictive caching"""
         current_time = datetime.now()
 
@@ -984,7 +1155,7 @@ class IntelligentCacheService:
             pattern.peak_hours = pattern.peak_hours[-6:]
 
     async def _calculate_smart_ttl(
-        self, key: str, base_ttl: int, user_context: str = None
+        self, key: str, base_ttl: int, user_context: Optional[str] = None
     ) -> int:
         """Calculate intelligent TTL based on access patterns and sport volatility models"""
         # Try to use sport-specific volatility models first
@@ -1007,8 +1178,8 @@ class IntelligentCacheService:
                 dynamic_ttl = await sport_volatility_models.get_dynamic_ttl(
                     sport=sport_type,
                     data_category=data_category,
-                    game_id=game_id,
-                    user_id=user_id,
+                    game_id=game_id or "",
+                    user_id=user_id or "",
                     access_count=access_count
                 )
 
@@ -1043,7 +1214,7 @@ class IntelligentCacheService:
         # Ensure reasonable bounds
         return max(300, min(smart_ttl, 86400))  # 5 minutes to 24 hours
 
-    def _parse_cache_key_for_volatility(self, key: str, user_context: str = None) -> Tuple[Optional[any], Optional[any], Optional[str]]:
+    def _parse_cache_key_for_volatility(self, key: str, user_context: Optional[str] = None) -> Tuple[Optional[Any], Optional[Any], Optional[str]]:
         """Parse cache key to extract sport type and data category for volatility models"""
         try:
             from backend.services.sport_volatility_models import SportType, DataCategory

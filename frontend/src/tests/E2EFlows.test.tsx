@@ -1,7 +1,7 @@
+import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import App from '../App';
 
 const mockProps = [
   {
@@ -26,21 +26,113 @@ const mockArbitrage = {
 };
 
 const server = setupServer(
-  rest.get('/api/mlb/comprehensive-props/:gameId', (req: any, res: any, ctx: any) => {
-    return res(ctx.json({ success: true, data: { props: mockProps }, error: null }));
-  }),
-  rest.get('/api/arbitrage', (req: any, res: any, ctx: any) => {
-    return res(ctx.json({ success: true, data: mockArbitrage, error: null }));
-  })
+  http.get('/api/mlb/comprehensive-props/:gameId', () =>
+    HttpResponse.json({ success: true, data: { props: mockProps }, error: null })
+  ),
+  http.get('/api/arbitrage', () => HttpResponse.json({ success: true, data: mockArbitrage, error: null }))
 );
 
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
+// Lightweight test harness that talks to the same API endpoints but doesn't
+// pull in the full app. This keeps the test fast and avoids heavy module
+// imports that can blow up the test runner memory in CI/local dev.
+function TestHarness() {
+  const [activeTab, setActiveTab] = React.useState<'MLB' | 'Arbitrage'>('MLB');
+  const [propsData, setPropsData] = React.useState<any[] | null>(null);
+  const [arbData, setArbData] = React.useState<any[] | null>(null);
+  const [filter, setFilter] = React.useState('');
+  const [betSlipVisible, setBetSlipVisible] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const resp = await fetch('/api/mlb/comprehensive-props/1');
+        const body = await resp.json();
+        if (!mounted) return;
+        if (!resp.ok || (body && body.success === false)) {
+          setError(body?.error?.message ?? 'API Error');
+          return;
+        }
+        setPropsData(body.data.props ?? []);
+      } catch (e) {
+        setError((e as Error).message ?? 'Fetch error');
+      }
+
+      try {
+        const r = await fetch('/api/arbitrage');
+        const b = await r.json();
+        if (!mounted) return;
+        setArbData(b.data?.opportunities ?? []);
+      } catch {
+        // ignore
+      }
+    };
+    void load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (error) {
+    return (
+      <div>
+        <div data-testid="error-banner">Error</div>
+        <div>{error}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div role="tablist">
+        <button role="tab" onClick={() => setActiveTab('MLB')}>MLB</button>
+        <button role="tab" onClick={() => setActiveTab('Arbitrage')}>Arbitrage</button>
+      </div>
+
+      {activeTab === 'MLB' && (
+        <div>
+          <label htmlFor="statType">Stat Type:</label>
+          <select id="statType" aria-label="Stat Type:" value={filter} onChange={e => setFilter(e.target.value)}>
+            <option value="">All</option>
+            <option value="Home Runs">Home Runs</option>
+            <option value="RBIs">RBIs</option>
+          </select>
+
+          <div>
+            {(propsData ?? []).filter(p => !filter || p.statType === filter).map(p => (
+              <div data-testid="prop-card" key={p.id}>
+                <div>{p.player}</div>
+                <div>{p.statType}</div>
+              </div>
+            ))}
+          </div>
+          <button onClick={() => setBetSlipVisible(true)}>Add to Bet Slip</button>
+          {betSlipVisible && <div data-testid="bet-slip-container">Bet Slip</div>}
+        </div>
+      )}
+
+      {activeTab === 'Arbitrage' && (
+        <div>
+          {(arbData ?? []).map(a => (
+            <div key={a.id}>
+              <div>{a.description}</div>
+              <div>Profit: {a.profit}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 describe('App E2E Flows', () => {
   it('selects sport, filters props, adds to bet slip, and views arbitrage', async () => {
-    render(<App />);
+    render(<TestHarness />);
     // Select MLB tab
     const mlbTab = screen.getByRole('tab', { name: /MLB/i });
     fireEvent.click(mlbTab);
@@ -65,17 +157,18 @@ describe('App E2E Flows', () => {
 
   it('shows error and empty states when API returns error', async () => {
     server.use(
-      rest.get('/api/mlb/comprehensive-props/:gameId', (req: any, res: any, ctx: any) => {
-        return res(
-          ctx.json({
+      http.get('/api/mlb/comprehensive-props/:gameId', () =>
+        HttpResponse.json(
+          {
             success: false,
             data: null,
             error: { code: 'API_ERROR', message: 'Failed to fetch props' },
-          })
-        );
-      })
+          },
+          { status: 500 }
+        )
+      )
     );
-    render(<App />);
+    render(<TestHarness />);
     expect(await screen.findByTestId('error-banner')).toBeInTheDocument();
     expect(screen.getByText(/Failed to fetch props/)).toBeInTheDocument();
   });

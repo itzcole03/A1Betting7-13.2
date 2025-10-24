@@ -12,7 +12,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # Import components to test
@@ -69,12 +69,17 @@ def task_manager_instance():
     return AsyncTaskManager()
 
 
-@pytest.fixture
+import pytest_asyncio
+
+
+@pytest_asyncio.fixture
 async def async_client():
     """Create async HTTP client for testing"""
     from backend.main import app
 
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    # Use ASGITransport when running against the FastAPI app in-process
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
 
 

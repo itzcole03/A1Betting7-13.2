@@ -12,6 +12,7 @@ from ..services.line_movement_service import LineMovementService
 from ..services.simple_propfinder_service import SimplePropFinderService
 from ..core.exceptions import BusinessLogicException, ResourceNotFoundException
 from ..core.response_models import StandardAPIResponse
+from backend.core.exceptions import BusinessLogicException
 
 router = APIRouter(prefix="/api/clv-trends", tags=["CLV Trends"])
 
@@ -124,10 +125,7 @@ async def get_clv_trends(
         history = line_movement_service.get_history(prop_id, limit=100)
         
         if not history:
-            raise HTTPException(
-                status_code=404,
-                detail=f"No historical data found for prop {prop_id}"
-            )
+            raise BusinessLogicException(f"No historical data found for prop {prop_id}", status_code=404)
         
         # Build snapshots from history
         snapshots = []
@@ -309,10 +307,7 @@ async def get_clv_distribution(
                 clv_values.append(opp.get('clvPercent'))
         
         if not clv_values:
-            raise HTTPException(
-                status_code=404,
-                detail="No opportunities with CLV data found"
-            )
+            raise BusinessLogicException("No opportunities with CLV data found", status_code=404)
         
         # Calculate statistics
         total_opportunities = len(clv_values)

@@ -298,12 +298,9 @@ export const _usePredictionCacheManager = (options: CacheManagerOptions = {}) =>
   // Setup automatic cleanup and refresh
   useEffect(() => {
     if (autoRefresh) {
-      cleanupIntervalRef.current = setInterval(
-        () => {
-          performCleanup();
-        },
-        5 * 60 * 1000
-      ); // Cleanup every 5 minutes
+      cleanupIntervalRef.current = setInterval(() => {
+        performCleanup();
+      }, 5 * 60 * 1000); // Cleanup every 5 minutes
 
       refreshIntervalRef.current = setInterval(() => {
         updateCacheMetrics();
@@ -356,6 +353,10 @@ export const _usePredictionCacheManager = (options: CacheManagerOptions = {}) =>
     storageStats: StorageUtils.getStorageStats(),
   };
 };
+
+export const usePredictionCacheManager = _usePredictionCacheManager;
+
+export default _usePredictionCacheManager;
 
 /**
  * Helper function to determine recommendation from projection

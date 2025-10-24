@@ -234,7 +234,7 @@ class TestMLBExtrasRoutes:
             assert data["data"]["summary"]["total_props"] == 125
             
             # Verify optimization was requested
-            mock_instance.generate_game_props.assert_called_once_with("662253", optimize_performance=True)
+            mock_instance.generate_game_props.assert_called_once_with(662253, optimize_performance=True)
     
     
     @pytest.mark.asyncio 
@@ -253,7 +253,7 @@ class TestMLBExtrasRoutes:
             assert response.status_code == status.HTTP_200_OK
             
             # Verify optimization was not requested (default False)
-            mock_instance.generate_game_props.assert_called_once_with("662253", optimize_performance=False)
+            mock_instance.generate_game_props.assert_called_once_with(662253, optimize_performance=False)
     
     
     @pytest.mark.asyncio

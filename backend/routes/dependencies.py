@@ -14,6 +14,7 @@ from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
 
 from ..services.provider_resilience_manager import provider_resilience_manager
+from backend.core.exceptions import BusinessLogicException
 
 # Initialize router and logger
 router = APIRouter(prefix="/dependencies", tags=["dependencies"])
@@ -53,9 +54,7 @@ async def get_dependency_health() -> Dict[str, Any]:
             "error": str(e),
         })
         
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve dependency health: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve dependency health: {str(e, status_code=500)}"
         )
 
 
@@ -131,9 +130,7 @@ async def get_dependency_health_summary() -> Dict[str, Any]:
             "error": str(e),
         })
         
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve dependency health summary: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve dependency health summary: {str(e, status_code=500)}"
         )
 
 
@@ -178,9 +175,7 @@ async def trigger_integrity_verification() -> Dict[str, Any]:
             "error": str(e),
         })
         
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to trigger integrity verification: {str(e)}"
+        raise BusinessLogicException(f"Failed to trigger integrity verification: {str(e, status_code=500)}"
         )
 
 
@@ -240,9 +235,7 @@ async def run_synthetic_churn_test(
             "error": str(e),
         })
         
-        raise HTTPException(
-            status_code=500,
-            detail=f"Synthetic churn test failed: {str(e)}"
+        raise BusinessLogicException(f"Synthetic churn test failed: {str(e, status_code=500)}"
         )
 
 
@@ -305,9 +298,7 @@ async def get_dependency_metrics() -> Dict[str, Any]:
             "error": str(e),
         })
         
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve dependency metrics: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve dependency metrics: {str(e, status_code=500)}"
         )
 
 
@@ -322,10 +313,7 @@ async def get_nodes_by_type(
     """
     try:
         if entity_type not in ["prop", "edge", "ticket"]:
-            raise HTTPException(
-                status_code=400,
-                detail="entity_type must be one of: prop, edge, ticket"
-            )
+            raise BusinessLogicException("entity_type must be one of: prop, edge, ticket", status_code=400)
         
         # Access dependency index
         dependency_index = provider_resilience_manager.dependency_index
@@ -375,7 +363,5 @@ async def get_nodes_by_type(
             "error": str(e),
         })
         
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve nodes: {str(e)}"
+        raise BusinessLogicException(f"Failed to retrieve nodes: {str(e, status_code=500)}"
         )

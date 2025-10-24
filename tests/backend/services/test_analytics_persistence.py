@@ -34,29 +34,35 @@ from backend.services.analytics_scheduler import (
 
 # Test database setup
 @pytest_asyncio.fixture
-async def async_session():
-    """Create an async session for testing"""
+async def analytics_session_factory():
+    """Create an async session factory for testing"""
     engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
-    
+
     async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-    
-    async_session_factory = async_sessionmaker(
+
+    session_factory = async_sessionmaker(
         engine, class_=AsyncSession, expire_on_commit=False
     )
-    
-    async with async_session_factory() as session:
+
+    try:
+        yield session_factory
+    finally:
+        await engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def async_session(analytics_session_factory):
+    """Provide a scoped async session for tests that need direct DB access"""
+    async with analytics_session_factory() as session:
         yield session
-    
-    await engine.dispose()
 
 
 @pytest.fixture
-def analytics_service(async_session):
-    """Create analytics persistence service with test session"""
-    async def session_factory():
-        return async_session
-    return AnalyticsPersistenceService(session_factory)
+def analytics_service(analytics_session_factory):
+    """Create analytics persistence service with test session factory"""
+    return AnalyticsPersistenceService(analytics_session_factory)
 
 
 @pytest.fixture
@@ -138,11 +144,11 @@ class TestEVOpportunityPersistence:
         assert result is False
         
         # Verify no record was created
-        async with analytics_service.async_session_factory() as session:
+        async with analytics_service.session_scope() as session:
             from sqlalchemy import select
             result = await session.execute(select(EVOpportunityHistory))
             records = result.scalars().all()
-            
+
             assert len(records) == 0
     
     @pytest.mark.asyncio
@@ -159,11 +165,11 @@ class TestEVOpportunityPersistence:
         await analytics_service.wait_for_background_tasks()
         
         # Should only have one record due to deduplication
-        async with analytics_service.async_session_factory() as session:
+        async with analytics_service.session_scope() as session:
             from sqlalchemy import select
             result = await session.execute(select(EVOpportunityHistory))
             records = result.scalars().all()
-            
+
             assert len(records) == 1
     
     def test_ev_tier_classification(self):
@@ -198,11 +204,11 @@ class TestArbitrageOpportunityPersistence:
         await analytics_service.wait_for_background_tasks()
         
         # Verify record was created
-        async with analytics_service.async_session_factory() as session:
+        async with analytics_service.session_scope() as session:
             from sqlalchemy import select
             result = await session.execute(select(ArbitrageHistory))
             records = result.scalars().all()
-            
+
             assert len(records) == 1
             record = records[0]
             assert record.sport == "NBA"
@@ -227,11 +233,11 @@ class TestArbitrageOpportunityPersistence:
         assert result is False
         
         # Verify no record was created
-        async with analytics_service.async_session_factory() as session:
+        async with analytics_service.session_scope() as session:
             from sqlalchemy import select
             result = await session.execute(select(ArbitrageHistory))
             records = result.scalars().all()
-            
+
             assert len(records) == 0
     
     def test_arbitrage_hash_calculation(self):

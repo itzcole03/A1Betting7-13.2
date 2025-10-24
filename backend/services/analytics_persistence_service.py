@@ -7,10 +7,13 @@ and daily aggregation utilities.
 """
 
 import asyncio
+import inspect
 import logging
 import os
+from contextlib import AsyncExitStack, aclosing, asynccontextmanager
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Any
+from decimal import Decimal, ROUND_DOWN
+from typing import Dict, List, Optional, Any, AsyncIterator, AsyncContextManager
 from dataclasses import dataclass
 
 from sqlalchemy import and_, func, select, delete
@@ -26,6 +29,16 @@ EV_MIN_THRESHOLD = 3.0  # Minimum EV% to persist
 ARB_MIN_PROFIT_PCT = 1.0  # From ArbitrageConfig.min_profit_pct  
 EV_HISTORY_RETENTION_DAYS = int(os.getenv("EV_HISTORY_RETENTION_DAYS", "90"))
 ARB_HISTORY_RETENTION_DAYS = int(os.getenv("ARB_HISTORY_RETENTION_DAYS", "90"))
+
+
+def _truncate(value: Optional[float], decimals: int = 2) -> float:
+    """Truncate floating point value to a fixed number of decimals."""
+    if value is None:
+        return 0.0
+
+    quantize_pattern = "1." + ("0" * decimals)
+    decimal_value = Decimal(str(value)).quantize(Decimal(quantize_pattern), rounding=ROUND_DOWN)
+    return float(decimal_value)
 
 
 @dataclass
@@ -85,6 +98,56 @@ class AnalyticsPersistenceService:
     def __init__(self, async_session_factory):
         self.async_session_factory = async_session_factory
         self._background_tasks = set()
+        self._locks: Dict[str, asyncio.Lock] = {}
+
+    @asynccontextmanager
+    async def _session_scope(self) -> AsyncIterator[AsyncSession]:
+        """Resolve the configured session factory into a usable async session."""
+        stack = AsyncExitStack()
+        try:
+            resource = self.async_session_factory()
+
+            if inspect.isawaitable(resource):
+                resource = await resource
+
+            if inspect.isasyncgen(resource):
+                generator = resource
+                session = await generator.__anext__()
+                await stack.enter_async_context(aclosing(generator))
+                yield session
+                return
+
+            if hasattr(resource, "__aenter__") and hasattr(resource, "__aexit__"):
+                session = await stack.enter_async_context(resource)
+                yield session
+                return
+
+            session = resource
+
+            close_method = getattr(session, "close", None)
+            if close_method:
+                async def _close() -> None:
+                    result = close_method()
+                    if inspect.isawaitable(result):
+                        await result
+
+                stack.push_async_callback(_close)
+
+            yield session
+        finally:
+            await stack.aclose()
+
+    def session_scope(self) -> AsyncContextManager[AsyncSession]:
+        """Public helper so callers/tests can reuse the managed session scope."""
+        return self._session_scope()
+
+    def _get_lock(self, key: str) -> asyncio.Lock:
+        """Return a reusable async lock for the provided key."""
+        lock = self._locks.get(key)
+        if lock is None:
+            lock = asyncio.Lock()
+            self._locks[key] = lock
+        return lock
         
     async def persist_ev_opportunity(self, data: EVOpportunityData) -> bool:
         """
@@ -123,49 +186,51 @@ class AnalyticsPersistenceService:
     async def _persist_ev_opportunity_async(self, data: EVOpportunityData) -> None:
         """Internal async persistence of EV opportunity"""
         try:
-            async with self.async_session_factory() as session:
-                # Calculate hash for deduplication
-                opp_hash = EVOpportunityHistory.calculate_hash(
-                    data.sport, data.player, data.market, data.line, data.odds
-                )
-                
-                # Check if already exists (within last hour)
-                hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)
-                existing = await session.execute(
-                    select(EVOpportunityHistory).where(
-                        and_(
-                            EVOpportunityHistory.opp_hash == opp_hash,
-                            EVOpportunityHistory.detected_at >= hour_ago
+            opp_hash = EVOpportunityHistory.calculate_hash(
+                data.sport, data.player, data.market, data.line, data.odds
+            )
+
+            async with self._get_lock(opp_hash):
+                async with self._session_scope() as session:
+                    # Check if already exists (within last hour)
+                    hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)
+                    existing = await session.execute(
+                        select(EVOpportunityHistory).where(
+                            and_(
+                                EVOpportunityHistory.opp_hash == opp_hash,
+                                EVOpportunityHistory.detected_at >= hour_ago
+                            )
                         )
                     )
-                )
-                
-                if existing.scalar_one_or_none():
-                    logger.debug(f"EV opportunity already persisted: {opp_hash}")
-                    return
-                    
-                # Create new record
-                ev_tier = EVOpportunityHistory.determine_ev_tier(data.ev_percent)
-                record = EVOpportunityHistory(
-                    opp_hash=opp_hash,
-                    sport=data.sport,
-                    player=data.player,
-                    market=data.market,
-                    ev_percent=data.ev_percent,
-                    ev_tier=ev_tier,
-                    line=data.line,
-                    odds=data.odds,
-                    confidence=data.confidence,
-                    bookmaker=data.bookmaker,
-                    team=data.team,
-                    opponent=data.opponent,
-                    detected_at=datetime.now(timezone.utc)
-                )
-                
-                session.add(record)
-                await session.commit()
-                
-                logger.info(f"Persisted EV opportunity: {data.player} {data.market} {data.ev_percent:.1f}%")
+
+                    if existing.scalar_one_or_none():
+                        logger.debug(f"EV opportunity already persisted: {opp_hash}")
+                        return
+
+                    # Create new record
+                    ev_tier = EVOpportunityHistory.determine_ev_tier(data.ev_percent)
+                    record = EVOpportunityHistory(
+                        opp_hash=opp_hash,
+                        sport=data.sport,
+                        player=data.player,
+                        market=data.market,
+                        ev_percent=data.ev_percent,
+                        ev_tier=ev_tier,
+                        line=data.line,
+                        odds=data.odds,
+                        confidence=data.confidence,
+                        bookmaker=data.bookmaker,
+                        team=data.team,
+                        opponent=data.opponent,
+                        detected_at=datetime.now(timezone.utc)
+                    )
+
+                    session.add(record)
+                    await session.commit()
+
+                    logger.info(
+                        f"Persisted EV opportunity: {data.player} {data.market} {data.ev_percent:.1f}%"
+                    )
                 
         except Exception as e:
             logger.error(f"Failed to persist EV opportunity: {e}", exc_info=True)
@@ -173,47 +238,49 @@ class AnalyticsPersistenceService:
     async def _persist_arbitrage_opportunity_async(self, data: ArbitrageOpportunityData) -> None:
         """Internal async persistence of arbitrage opportunity"""
         try:
-            async with self.async_session_factory() as session:
-                # Calculate hash for deduplication
-                arb_hash = ArbitrageHistory.calculate_hash(
-                    data.sport, data.market, data.bookmakers, data.line or 0.0
-                )
-                
-                # Check if already exists (within last hour)
-                hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)
-                existing = await session.execute(
-                    select(ArbitrageHistory).where(
-                        and_(
-                            ArbitrageHistory.arb_hash == arb_hash,
-                            ArbitrageHistory.detected_at >= hour_ago
+            arb_hash = ArbitrageHistory.calculate_hash(
+                data.sport, data.market, data.bookmakers, data.line or 0.0
+            )
+
+            async with self._get_lock(arb_hash):
+                async with self._session_scope() as session:
+                    # Check if already exists (within last hour)
+                    hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)
+                    existing = await session.execute(
+                        select(ArbitrageHistory).where(
+                            and_(
+                                ArbitrageHistory.arb_hash == arb_hash,
+                                ArbitrageHistory.detected_at >= hour_ago
+                            )
                         )
                     )
-                )
-                
-                if existing.scalar_one_or_none():
-                    logger.debug(f"Arbitrage opportunity already persisted: {arb_hash}")
-                    return
-                    
-                # Create new record
-                record = ArbitrageHistory(
-                    arb_hash=arb_hash,
-                    sport=data.sport,
-                    market=data.market,
-                    profit_pct=data.profit_pct,
-                    bookmakers=data.bookmakers,  # Uses setter to convert to JSON
-                    player=data.player,
-                    line=data.line,
-                    total_stake_required=data.total_stake_required,
-                    num_bookmakers=len(data.bookmakers),
-                    team=data.team,
-                    opponent=data.opponent,
-                    detected_at=datetime.now(timezone.utc)
-                )
-                
-                session.add(record)
-                await session.commit()
-                
-                logger.info(f"Persisted arbitrage opportunity: {data.sport} {data.market} {data.profit_pct:.2f}%")
+
+                    if existing.scalar_one_or_none():
+                        logger.debug(f"Arbitrage opportunity already persisted: {arb_hash}")
+                        return
+
+                    # Create new record
+                    record = ArbitrageHistory(
+                        arb_hash=arb_hash,
+                        sport=data.sport,
+                        market=data.market,
+                        profit_pct=data.profit_pct,
+                        bookmakers=data.bookmakers,  # Uses setter to convert to JSON
+                        player=data.player,
+                        line=data.line,
+                        total_stake_required=data.total_stake_required,
+                        num_bookmakers=len(data.bookmakers),
+                        team=data.team,
+                        opponent=data.opponent,
+                        detected_at=datetime.now(timezone.utc)
+                    )
+
+                    session.add(record)
+                    await session.commit()
+
+                    logger.info(
+                        f"Persisted arbitrage opportunity: {data.sport} {data.market} {data.profit_pct:.2f}%"
+                    )
                 
         except Exception as e:
             logger.error(f"Failed to persist arbitrage opportunity: {e}", exc_info=True)
@@ -221,7 +288,7 @@ class AnalyticsPersistenceService:
     async def get_daily_ev_stats(self, days: int = 30) -> List[DailyEVStats]:
         """Get daily EV statistics for the last N days"""
         try:
-            async with self.async_session_factory() as session:
+            async with self._session_scope() as session:
                 # Calculate date range
                 end_date = datetime.now(timezone.utc).date()
                 start_date = end_date - timedelta(days=days-1)
@@ -260,6 +327,7 @@ class AnalyticsPersistenceService:
                     # Calculate statistics
                     total_opps = len(opportunities)
                     avg_ev = sum(opp.ev_percent for opp in opportunities) / total_opps
+                    avg_ev = _truncate(avg_ev, 2)
                     
                     # Tier counts
                     tier_counts = {}
@@ -302,7 +370,7 @@ class AnalyticsPersistenceService:
     async def get_daily_arbitrage_stats(self, days: int = 30) -> List[DailyArbitrageStats]:
         """Get daily arbitrage statistics for the last N days"""
         try:
-            async with self.async_session_factory() as session:
+            async with self._session_scope() as session:
                 # Calculate date range
                 end_date = datetime.now(timezone.utc).date()
                 start_date = end_date - timedelta(days=days-1)
@@ -341,6 +409,7 @@ class AnalyticsPersistenceService:
                     # Calculate statistics
                     total_opps = len(opportunities)
                     avg_profit = sum(opp.profit_pct for opp in opportunities) / total_opps
+                    avg_profit = _truncate(avg_profit, 2)
                     total_books = sum(opp.num_bookmakers for opp in opportunities)
                     
                     # Top sports
@@ -384,7 +453,7 @@ class AnalyticsPersistenceService:
             Dict[str, int]: Count of records removed for each table
         """
         try:
-            async with self.async_session_factory() as session:
+            async with self._session_scope() as session:
                 # Calculate cutoff dates
                 ev_cutoff = datetime.now(timezone.utc) - timedelta(days=EV_HISTORY_RETENTION_DAYS)
                 arb_cutoff = datetime.now(timezone.utc) - timedelta(days=ARB_HISTORY_RETENTION_DAYS)
@@ -421,7 +490,7 @@ class AnalyticsPersistenceService:
     async def get_summary_stats(self) -> Dict[str, Any]:
         """Get consolidated summary statistics for dashboard"""
         try:
-            async with self.async_session_factory() as session:
+            async with self._session_scope() as session:
                 # Last 24 hours
                 day_ago = datetime.now(timezone.utc) - timedelta(hours=24)
                 
@@ -433,7 +502,13 @@ class AnalyticsPersistenceService:
                         func.max(EVOpportunityHistory.ev_percent)
                     ).where(EVOpportunityHistory.detected_at >= day_ago)
                 )
-                ev_count, ev_avg, ev_max = ev_result.first()
+                ev_row = ev_result.first()
+                if ev_row:
+                    ev_count = ev_row[0] or 0
+                    ev_avg = ev_row[1] or 0
+                    ev_max = ev_row[2] or 0
+                else:
+                    ev_count, ev_avg, ev_max = 0, 0, 0
                 
                 # EV tier counts (last 24h)
                 ev_tier_result = await session.execute(
@@ -465,11 +540,16 @@ class AnalyticsPersistenceService:
                         func.avg(ArbitrageHistory.profit_pct)
                     ).where(ArbitrageHistory.detected_at >= day_ago)
                 )
-                arb_count, arb_avg = arb_result.first()
+                arb_row = arb_result.first()
+                if arb_row:
+                    arb_count = arb_row[0] or 0
+                    arb_avg = arb_row[1] or 0
+                else:
+                    arb_count, arb_avg = 0, 0
                 
                 return {
                     "ev": {
-                        "avg": round(ev_avg or 0, 2),
+                        "avg": _truncate(ev_avg, 2),
                         "pctHigh": round(pct_high, 1),
                         "tierCounts": tier_counts
                     },

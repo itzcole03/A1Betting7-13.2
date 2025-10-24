@@ -63,11 +63,13 @@ class VolatilityProfile:
     game_state_factors: Dict[GameState, float]  # TTL adjustments by game state
     update_frequency: int  # Expected update frequency in seconds
     
-    def calculate_ttl(self, 
-                     current_hour: int = None,
-                     game_state: GameState = None,
-                     user_context: str = None,
-                     access_frequency: int = 1) -> int:
+    def calculate_ttl(
+        self,
+        current_hour: Optional[int] = None,
+        game_state: Optional[GameState] = None,
+        user_context: Optional[str] = None,
+        access_frequency: int = 1,
+    ) -> int:
         """Calculate dynamic TTL based on current conditions"""
         
         if current_hour is None:
@@ -340,12 +342,14 @@ class SportVolatilityModels:
             update_frequency=25
         )
 
-    async def get_dynamic_ttl(self, 
-                            sport: SportType, 
-                            data_category: DataCategory,
-                            game_id: str = None,
-                            user_id: str = None,
-                            access_count: int = 1) -> int:
+    async def get_dynamic_ttl(
+        self,
+        sport: SportType,
+        data_category: DataCategory,
+        game_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        access_count: int = 1,
+    ) -> int:
         """Get dynamic TTL based on sport-specific volatility model"""
         
         profile_key = (sport, data_category)
@@ -407,7 +411,9 @@ class SportVolatilityModels:
         if self.user_access_patterns[user_id][data_key] > 1000:
             self.user_access_patterns[user_id][data_key] = 100  # Reset to reasonable number
 
-    async def get_cache_warming_priorities(self, sport: SportType, current_hour: int = None) -> List[Tuple[DataCategory, int]]:
+    async def get_cache_warming_priorities(
+        self, sport: SportType, current_hour: Optional[int] = None
+    ) -> List[Tuple[DataCategory, int]]:
         """Get cache warming priorities based on volatility and peak hours"""
         if current_hour is None:
             current_hour = datetime.now().hour

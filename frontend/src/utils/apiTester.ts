@@ -2,6 +2,8 @@
  * API Endpoint Tester - Direct API testing utilities for debugging
  */
 
+import { createTimeoutSignal } from './createTimeoutSignal';
+
 export interface APITestResult {
   success: boolean;
   status?: number;
@@ -19,6 +21,10 @@ export class APITester {
   static async testEndpoint(endpoint: string, options: RequestInit = {}): Promise<APITestResult> {
     const startTime = Date.now();
 
+    const timeout = options.signal
+      ? { signal: undefined, cleanup: () => {} }
+      : createTimeoutSignal(10000);
+
     try {
       const response = await fetch(endpoint, {
         method: 'GET',
@@ -27,7 +33,7 @@ export class APITester {
           'Content-Type': 'application/json',
           ...options.headers,
         },
-        signal: AbortSignal.timeout(10000), // 10 second timeout
+        signal: options.signal ?? timeout.signal,
         ...options,
       });
 
@@ -69,6 +75,8 @@ export class APITester {
         error: errorMessage,
         responseBody: null,
       };
+    } finally {
+      timeout.cleanup();
     }
   }
 

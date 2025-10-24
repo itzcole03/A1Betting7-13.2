@@ -16,11 +16,18 @@ from backend.services.security.security_integration import (
     secure_admin_endpoint
 )
 from backend.services.unified_logging import get_logger
+from backend.core.exceptions import BusinessLogicException
 
 logger = get_logger("security_test")
 
 # Create router
 router = APIRouter(prefix="/security-test", tags=["security-test"])
+
+# Prevent pytest from collecting this routes module as a test module. The
+# file contains helper endpoints named test_* which are route handlers,
+# not pytest test cases. Marking __test__ False stops pytest from treating
+# them as tests during discovery.
+__test__ = False
 
 # Test models
 class TestRequest(BaseModel):
@@ -47,7 +54,7 @@ async def get_security_status() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error getting security status: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get security status: {str(e)}")
+        raise BusinessLogicException(f"Failed to get security status: {str(e, status_code=500)}")
 
 
 @router.post("/rationale", summary="Test rationale endpoint security")
@@ -130,16 +137,13 @@ async def test_rate_limit(request: Request) -> Dict[str, Any]:
     )
     
     if not rate_status.allowed:
-        raise HTTPException(
-            status_code=429,
-            detail={
+        raise BusinessLogicException({
                 "error": "Rate limit exceeded",
                 "retry_after": rate_status.retry_after_seconds,
                 "current_usage": rate_status.current_usage,
                 "limits": rate_status.limits,
                 "message": "Test rate limit exceeded - this validates rate limiting is working"
-            }
-        )
+            }, status_code=429)
     
     return {
         "status": "success",

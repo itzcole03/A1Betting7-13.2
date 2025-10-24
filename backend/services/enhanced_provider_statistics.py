@@ -29,17 +29,21 @@ class TimeWindowStats:
     window_size_sec: int
     success_count: int = 0
     total_count: int = 0
-    latency_samples: Deque[float] = field(default_factory=lambda: deque(maxlen=1000))
-    request_timestamps: Deque[float] = field(default_factory=lambda: deque(maxlen=10000))
+    latency_samples: Deque[Tuple[float, float]] = field(
+        default_factory=lambda: deque(maxlen=1000)
+    )
+    request_timestamps: Deque[float] = field(default_factory=deque)
+    request_outcomes: Deque[bool] = field(default_factory=deque)
     
     def add_request(self, success: bool, latency_ms: float, timestamp: float):
         """Add request to window statistics"""
         self.total_count += 1
         if success:
             self.success_count += 1
-        
-        self.latency_samples.append(latency_ms)
+
+        self.latency_samples.append((timestamp, latency_ms))
         self.request_timestamps.append(timestamp)
+        self.request_outcomes.append(success)
         
         # Clean old data beyond window
         self._clean_old_data(timestamp)
@@ -51,15 +55,23 @@ class TimeWindowStats:
         # Clean request timestamps and adjust counts
         while self.request_timestamps and self.request_timestamps[0] < cutoff_time:
             self.request_timestamps.popleft()
-        
-        # Update counts based on remaining timestamps
+            if self.request_outcomes:
+                self.request_outcomes.popleft()
+
+        # Clean latency samples aligned to cutoff
+        while self.latency_samples and self.latency_samples[0][0] < cutoff_time:
+            self.latency_samples.popleft()
+
+        # Normalize counters after cleanup to ensure consistency
         self.total_count = len(self.request_timestamps)
-        # Note: success_count approximation - in production would track individual request outcomes
+        self.success_count = sum(1 for outcome in self.request_outcomes if outcome)
     
     @property
     def success_rate(self) -> float:
         """Calculate success rate for this window"""
-        return (self.success_count / self.total_count) if self.total_count > 0 else 1.0
+        if self.total_count <= 0:
+            return 1.0
+        return max(0.0, min(1.0, self.success_count / self.total_count))
     
     @property
     def request_rate_per_min(self) -> float:
@@ -70,19 +82,85 @@ class TimeWindowStats:
         window_duration_min = self.window_size_sec / 60.0
         return len(self.request_timestamps) / window_duration_min
     
+    def _normalize_fraction(self, fraction: float) -> float:
+        return min(1.0, max(0.0, fraction))
+
+    def _collect_latency_samples(self) -> List[float]:
+        return [latency for _, latency in self.latency_samples]
+
+    def _collect_recent_latency_samples(self, fraction: float) -> List[float]:
+        if not self.latency_samples:
+            return []
+
+        fraction = self._normalize_fraction(fraction)
+        if fraction == 0.0:
+            return []
+
+        latest_timestamp = self.latency_samples[-1][0]
+        cutoff = latest_timestamp - (self.window_size_sec * fraction)
+        return [latency for ts, latency in self.latency_samples if ts >= cutoff]
+
+    def _nearest_rank(self, sorted_samples: List[float], percentile: float) -> float:
+        if not sorted_samples:
+            return 0.0
+
+        index = max(0, min(len(sorted_samples) - 1, math.ceil(percentile * len(sorted_samples)) - 1))
+        return sorted_samples[index]
+
+    def _calculate_percentiles(self, samples: List[float]) -> Dict[str, float]:
+        if not samples:
+            return {"p50": 0.0, "p95": 0.0, "p99": 0.0}
+
+        sorted_samples = sorted(samples)
+        return {
+            "p50": self._nearest_rank(sorted_samples, 0.50),
+            "p95": self._nearest_rank(sorted_samples, 0.95),
+            "p99": self._nearest_rank(sorted_samples, 0.99),
+        }
+
     def get_latency_percentiles(self) -> Dict[str, float]:
         """Calculate latency percentiles"""
-        if not self.latency_samples:
-            return {"p50": 0.0, "p95": 0.0, "p99": 0.0}
-        
-        sorted_latencies = sorted(self.latency_samples)
-        count = len(sorted_latencies)
-        
-        return {
-            "p50": sorted_latencies[int(0.50 * count)] if count > 0 else 0.0,
-            "p95": sorted_latencies[int(0.95 * count)] if count > 0 else 0.0,
-            "p99": sorted_latencies[int(0.99 * count)] if count > 0 else 0.0,
-        }
+        return self._calculate_percentiles(self._collect_latency_samples())
+
+    def get_recent_latency_percentiles(self, fraction: float = 0.25) -> Dict[str, float]:
+        """Calculate latency percentiles for the most recent slice of the window"""
+        return self._calculate_percentiles(self._collect_recent_latency_samples(fraction))
+
+    def get_recent_latency_percentile(self, percentile: float, fraction: float = 0.25) -> float:
+        samples = self._collect_recent_latency_samples(fraction)
+        if not samples:
+            samples = self._collect_latency_samples()
+        if not samples:
+            return 0.0
+        return self._nearest_rank(sorted(samples), percentile)
+
+    def get_recent_success_rate(self, fraction: float = 0.25) -> float:
+        """Success rate over the most recent portion of the window"""
+        if not self.request_timestamps:
+            return 1.0
+
+        fraction = self._normalize_fraction(fraction)
+        if fraction == 0.0:
+            return 1.0
+
+        cutoff = self.request_timestamps[-1] - (self.window_size_sec * fraction)
+        timestamps = list(self.request_timestamps)
+        outcomes = list(self.request_outcomes)
+
+        successes = 0
+        total = 0
+
+        for ts, outcome in zip(reversed(timestamps), reversed(outcomes)):
+            if ts < cutoff:
+                break
+            total += 1
+            if outcome:
+                successes += 1
+
+        if total == 0:
+            return 1.0
+
+        return successes / total
 
 
 @dataclass
@@ -141,8 +219,8 @@ class EnhancedProviderMetrics:
     
     def _update_trend_analysis(self):
         """Update trend analysis based on recent performance"""
-        # Compare 1m vs 5m success rates for trend detection
-        recent_success_rate = self.window_1m.success_rate
+        # Compare recent (most recent quarter of 1m window) vs 5m success rates
+        recent_success_rate = self.window_1m.get_recent_success_rate(fraction=0.25)
         baseline_success_rate = self.window_5m.success_rate
         
         if recent_success_rate > baseline_success_rate + 0.05:  # 5% improvement
@@ -153,7 +231,7 @@ class EnhancedProviderMetrics:
             self.success_rate_trend = "stable"
         
         # Compare recent vs baseline latency for trend detection
-        recent_latency = self.window_1m.get_latency_percentiles()["p95"]
+        recent_latency = self.window_1m.get_recent_latency_percentile(0.95, fraction=0.25)
         baseline_latency = self.window_5m.get_latency_percentiles()["p95"]
         
         if recent_latency < baseline_latency * 0.9:  # 10% improvement
@@ -378,28 +456,34 @@ class EnhancedProviderStatisticsManager:
                 # Check for degradation indicators
                 success_rate_1m = summary["success_rates"]["1m"]
                 success_rate_5m = summary["success_rates"]["5m"]
-                
-                if (success_rate_5m - success_rate_1m) > threshold:
+                recent_success_rate = metrics.window_1m.get_recent_success_rate(fraction=0.25)
+                success_drop = success_rate_5m - min(success_rate_1m, recent_success_rate)
+
+                if success_drop > threshold:
                     degraded_providers.append({
                         "provider_id": provider_id,
                         "degradation_type": "success_rate",
                         "current_success_rate_1m": success_rate_1m,
+                        "recent_success_rate": recent_success_rate,
                         "baseline_success_rate_5m": success_rate_5m,
-                        "degradation_amount": success_rate_5m - success_rate_1m,
+                        "degradation_amount": success_drop,
                         "confidence_score": summary["confidence_score"],
                     })
                 
                 # Check for latency degradation
                 latency_1m_p95 = summary["latency_percentiles"]["1m"]["p95"]
+                recent_latency_p95 = metrics.window_1m.get_recent_latency_percentile(0.95, fraction=0.25)
                 latency_5m_p95 = summary["latency_percentiles"]["5m"]["p95"]
+                effective_latency = max(latency_1m_p95, recent_latency_p95)
                 
-                if latency_5m_p95 > 0 and (latency_1m_p95 / latency_5m_p95) > (1 + threshold):
+                if latency_5m_p95 > 0 and (effective_latency / latency_5m_p95) > (1 + threshold):
                     degraded_providers.append({
                         "provider_id": provider_id,
                         "degradation_type": "latency",
                         "current_latency_1m_p95": latency_1m_p95,
+                        "recent_latency_p95": recent_latency_p95,
                         "baseline_latency_5m_p95": latency_5m_p95,
-                        "degradation_ratio": latency_1m_p95 / latency_5m_p95,
+                        "degradation_ratio": effective_latency / latency_5m_p95,
                         "confidence_score": summary["confidence_score"],
                     })
         

@@ -158,7 +158,7 @@ export function useHealthStatus(options: HealthStatusOptions = {}): HealthHookSt
               }
             } as HealthStatus;
           }
-        } catch (_legacyError) {
+        } catch {
           // Fall through to original error
         }
       }
@@ -197,23 +197,24 @@ export function useHealthStatus(options: HealthStatusOptions = {}): HealthHookSt
       if (!isMountedRef.current) return;
 
       const errorObj = error instanceof Error ? error : new Error(String(error));
-      
+      let previousRetryCount = 0;
+
       setState(prev => {
-        const newRetryCount = prev.retryCount + 1;
+        previousRetryCount = prev.retryCount;
         
         return {
           ...prev,
           loading: false,
           error: errorObj,
           lastChecked: new Date(),
-          retryCount: newRetryCount
+          retryCount: prev.retryCount + 1
         };
       });
 
-      // Schedule retry if under max attempts
-      if (state.retryCount < maxRetries) {
-        const backoffDelay = calculateBackoffDelay(state.retryCount);
-        
+      // Schedule retry if under max attempts (based on pre-increment count)
+      if (previousRetryCount < maxRetries) {
+        const backoffDelay = calculateBackoffDelay(previousRetryCount);
+
         retryTimeoutRef.current = setTimeout(() => {
           if (isMountedRef.current) {
             performHealthCheck(true);
@@ -221,7 +222,7 @@ export function useHealthStatus(options: HealthStatusOptions = {}): HealthHookSt
         }, backoffDelay);
       }
     }
-  }, [fetchHealthStatus, maxRetries, calculateBackoffDelay, state.retryCount]);
+  }, [fetchHealthStatus, maxRetries, calculateBackoffDelay]);
 
   /**
    * Schedule next poll

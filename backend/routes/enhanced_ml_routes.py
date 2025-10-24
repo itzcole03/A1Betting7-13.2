@@ -24,6 +24,7 @@ from pydantic import BaseModel, Field
 try:
     from ..services.enhanced_prediction_integration import enhanced_prediction_integration
     from ..services.redis_cache_service import get_redis_cache
+from backend.core.exceptions import BusinessLogicException
 except ImportError as e:
     logging.warning(f"Enhanced ML services not available: {e}")
     # Provide a module-level shim so routes register and tests can patch this attribute
@@ -245,7 +246,7 @@ async def predict_single(request: PredictionRequest) -> Dict[str, Any]:
             if impl_result.get("success"):
                 return {"status": "success", "result": impl_result.get("data"), "timestamp": time.time()}
             else:
-                return {"status": "error", "error": impl_result.get("error", {"message": "An error occurred"}), "timestamp": time.time()}
+                raise BusinessLogicException("Handler status error"), "error": impl_result.get("error", {"message": "An error occurred"}), "timestamp": time.time()}
 
         # Fallback: wrap raw result into legacy envelope
         return {"status": "success", "result": impl_result, "timestamp": time.time()}
@@ -255,7 +256,7 @@ async def predict_single(request: PredictionRequest) -> Dict[str, Any]:
         raise
     except Exception as e:
         logger.error(f"Error in single prediction wrapper: {e}")
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+        raise BusinessLogicException(f"Prediction failed: {str(e, status_code=500)}")
 
 
 @router.post("/predict/batch")
@@ -354,7 +355,7 @@ async def predict_batch(request: BatchPredictionRequest) -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error in batch prediction: {e}")
-        raise HTTPException(status_code=500, detail=f"Batch prediction failed: {str(e)}")
+        raise BusinessLogicException(f"Batch prediction failed: {str(e, status_code=500)}")
 
 
 @router.post("/performance/metrics")
@@ -383,7 +384,7 @@ async def performance_metrics(query: PerformanceQuery) -> Dict[str, Any]:
         return {"status": "success", "metrics": metrics, "performance": metrics, "timestamp": time.time()}
     except Exception as e:
         logger.error(f"Error getting performance metrics: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.post("/performance/update-outcome")
@@ -412,7 +413,7 @@ async def performance_update_outcome(update: PredictionOutcomeUpdate) -> Dict[st
         return {"status": "success" if success else "failed", "result": success, "prediction_id": update.prediction_id, "message": message, "timestamp": time.time()}
     except Exception as e:
         logger.error(f"Error updating outcome via compatibility route: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.post("/models/compare")
@@ -436,7 +437,7 @@ async def models_compare(comparison: ModelComparison) -> Dict[str, Any]:
         return {"status": "success", "comparison": comparison_data, "timestamp": time.time()}
     except Exception as e:
         logger.error(f"Error comparing models via compatibility route: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.get("/models/list")
@@ -454,7 +455,7 @@ async def list_models() -> Dict[str, Any]:
         return {"status": "success", "models": models, "message": "models listed"}
     except Exception as e:
         logger.error(f"Error listing models: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.get("/models/{model_id}")
@@ -479,7 +480,7 @@ async def get_model_info(model_id: str) -> Dict[str, Any]:
         return {"status": "success", "model": model, "models": [model] if model else [], "message": "model fetched"}
     except Exception as e:
         logger.error(f"Error getting model info: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.get("/status")
@@ -500,7 +501,7 @@ async def get_system_status() -> Dict[str, Any]:
         return {"status": "success", "system_status": system_status, "timestamp": time.time(), "message": "system status"}
     except Exception as e:
         logger.error(f"Error getting system status: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
 
 
 @router.post("/models/register")
@@ -533,7 +534,7 @@ async def register_model(registration: ModelRegistration, background_tasks: Back
         
     except Exception as e:
         logger.error(f"Error registering model: {e}")
-        raise HTTPException(status_code=500, detail=f"Model registration failed: {str(e)}")
+        raise BusinessLogicException(f"Model registration failed: {str(e, status_code=500)}")
 
 
 @router.get("/models/registered")
@@ -553,7 +554,7 @@ async def get_registered_models() -> Dict[str, Any]:
         }
     except Exception as e:
         logger.error(f"Error getting registered models: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get models: {str(e)}")
+        raise BusinessLogicException(f"Failed to get models: {str(e, status_code=500)}")
 
 
 # Compatibility route expected by tests: /models/list
@@ -571,7 +572,7 @@ async def list_models() -> Dict[str, Any]:
         return {"status": "success", "models": models, "message": "models listed"}
     except Exception as e:
         logger.error(f"Error listing models: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise BusinessLogicException(str(e, status_code=500))
     
 
 
@@ -608,7 +609,7 @@ async def update_prediction_outcome(update: PredictionOutcomeUpdate) -> Dict[str
         
     except Exception as e:
         logger.error(f"Error updating prediction outcome: {e}")
-        raise HTTPException(status_code=500, detail=f"Outcome update failed: {str(e)}")
+        raise BusinessLogicException(f"Outcome update failed: {str(e, status_code=500)}")
 
 
 @router.post("/performance/query")
@@ -621,7 +622,7 @@ async def query_performance(query: PerformanceQuery) -> Dict[str, Any]:
         qdict = query.dict()
         if not any([v is not None for v in qdict.values()]):
             # return validation-style error consistent with other handlers
-            raise HTTPException(status_code=422, detail="At least one query parameter must be provided")
+            raise BusinessLogicException("At least one query parameter must be provided", status_code=422)
 
         summary_call = enhanced_prediction_integration.get_performance_summary(
             model_name=query.model_name,
@@ -641,7 +642,7 @@ async def query_performance(query: PerformanceQuery) -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error querying performance: {e}")
-        raise HTTPException(status_code=500, detail=f"Performance query failed: {str(e)}")
+        raise BusinessLogicException(f"Performance query failed: {str(e, status_code=500)}")
 
 
 @router.post("/performance/compare")
@@ -669,7 +670,7 @@ async def compare_models(comparison: ModelComparison) -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error comparing models: {e}")
-        raise HTTPException(status_code=500, detail=f"Model comparison failed: {str(e)}")
+        raise BusinessLogicException(f"Model comparison failed: {str(e, status_code=500)}")
 
 
 @router.get("/performance/alerts")
@@ -690,7 +691,7 @@ async def get_performance_alerts(limit: int = 20) -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error getting alerts: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get alerts: {str(e)}")
+        raise BusinessLogicException(f"Failed to get alerts: {str(e, status_code=500)}")
 
 
 @router.get("/performance/batch-stats")
@@ -712,7 +713,7 @@ async def get_batch_stats() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error getting batch stats: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get batch stats: {str(e)}")
+        raise BusinessLogicException(f"Failed to get batch stats: {str(e, status_code=500)}")
 
 
 @router.get("/performance/shap-stats")
@@ -733,7 +734,7 @@ async def get_shap_stats() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error getting SHAP stats: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get SHAP stats: {str(e)}")
+        raise BusinessLogicException(f"Failed to get SHAP stats: {str(e, status_code=500)}")
 
 
 @router.get("/health")
@@ -775,7 +776,7 @@ async def initialize_services() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error initializing services: {e}")
-        raise HTTPException(status_code=500, detail=f"Service initialization failed: {str(e)}")
+        raise BusinessLogicException(f"Service initialization failed: {str(e, status_code=500)}")
 
 
 @router.post("/shutdown")
@@ -794,7 +795,7 @@ async def shutdown_services() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error shutting down services: {e}")
-        raise HTTPException(status_code=500, detail=f"Service shutdown failed: {str(e)}")
+        raise BusinessLogicException(f"Service shutdown failed: {str(e, status_code=500)}")
 
 
 # Background task endpoints
@@ -817,7 +818,7 @@ async def reset_performance_stats(background_tasks: BackgroundTasks) -> Dict[str
         
     except Exception as e:
         logger.error(f"Error resetting performance stats: {e}")
-        raise HTTPException(status_code=500, detail=f"Stats reset failed: {str(e)}")
+        raise BusinessLogicException(f"Stats reset failed: {str(e, status_code=500)}")
 
 
 @router.get("/admin/export-performance")
@@ -842,7 +843,7 @@ async def export_performance_data(
         
     except Exception as e:
         logger.error(f"Error exporting performance data: {e}")
-        raise HTTPException(status_code=500, detail=f"Data export failed: {str(e)}")
+        raise BusinessLogicException(f"Data export failed: {str(e, status_code=500)}")
 
 
 # Real-time monitoring endpoint
@@ -881,7 +882,7 @@ async def get_real_time_metrics() -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error getting real-time metrics: {e}")
-        raise HTTPException(status_code=500, detail=f"Real-time metrics failed: {str(e)}")
+        raise BusinessLogicException(f"Real-time metrics failed: {str(e, status_code=500)}")
 
 
 # Utility function for integration with existing prediction engines

@@ -65,6 +65,7 @@ except ImportError:
 
 from backend.core.response_models import ResponseBuilder, StandardAPIResponse
 from backend.core.exceptions import BusinessLogicException
+from backend.core.exceptions import BusinessLogicException
 
 
 logger = logging.getLogger(__name__)
@@ -161,10 +162,7 @@ def get_registry():
     if MODEL_REGISTRY_AVAILABLE:
         return get_model_registry_service()
     else:
-        raise HTTPException(
-            status_code=503,
-            detail="Model registry service not available"
-        )
+        raise BusinessLogicException("Model registry service not available", status_code=503)
 
 
 def get_harness():
@@ -172,10 +170,7 @@ def get_harness():
     if MODEL_REGISTRY_AVAILABLE:
         return get_validation_harness()
     else:
-        raise HTTPException(
-            status_code=503,
-            detail="Validation harness service not available"
-        )
+        raise BusinessLogicException("Validation harness service not available", status_code=503)
 
 
 def get_feature_flags():
@@ -183,10 +178,7 @@ def get_feature_flags():
     if FEATURE_FLAGS_AVAILABLE:
         return FeatureFlags.get_instance()
     else:
-        raise HTTPException(
-            status_code=503,
-            detail="Feature flags service not available"
-        )
+        raise BusinessLogicException("Feature flags service not available", status_code=503)
 
 
 @enterprise_router.get("/registry", response_model=StandardAPIResponse[List[EnterpriseModelResponse]])
@@ -206,13 +198,13 @@ async def list_enterprise_models(
             try:
                 status_enum = ServiceModelStatus(status)
             except ValueError:
-                raise HTTPException(status_code=400, detail=f"Invalid status: {status}")
+                raise BusinessLogicException(f"Invalid status: {status}", status_code=400)
         
         if model_type and MODEL_REGISTRY_AVAILABLE:
             try:
                 model_type_enum = ServiceModelType(model_type)
             except ValueError:
-                raise HTTPException(status_code=400, detail=f"Invalid model type: {model_type}")
+                raise BusinessLogicException(f"Invalid model type: {model_type}", status_code=400)
         
         models = registry.list_models(status=status_enum, model_type=model_type_enum, sport=sport)
         

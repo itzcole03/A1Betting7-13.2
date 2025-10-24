@@ -351,3 +351,7 @@ export const _useBettingData = ({
     ],
   };
 };
+
+// Backwards-compatible alias for consumers expecting non-underscored name
+export const useBettingData = _useBettingData;
+export default _useBettingData;

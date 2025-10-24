@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { masterServiceRegistry } from '../services/MasterServiceRegistry';
 
 interface BettingEngineConfig {
   enabled: boolean;
@@ -68,28 +69,34 @@ export const _useEnhancedBettingEngine = () => {
       setError(null);
 
       const _bettingService = masterServiceRegistry.getService('betting');
+      const bettingService = _bettingService as any;
       if (!bettingService) {
         throw new Error('Betting service not available');
       }
 
       // Get engine configuration
       const _engineConfig = (await bettingService.getEngineConfig?.()) || config;
+      const engineConfig = _engineConfig as BettingEngineConfig;
       setConfig(engineConfig);
 
       // Get available strategies
       const _availableStrategies = (await bettingService.getStrategies?.()) || [];
+      const availableStrategies = _availableStrategies as BettingStrategy[];
       setStrategies(availableStrategies);
 
       // Get engine metrics
       const _engineMetrics = (await bettingService.getEngineMetrics?.()) || metrics;
+      const engineMetrics = _engineMetrics as EngineMetrics;
       setMetrics(engineMetrics);
 
       // Check if engine is running
       const _status = (await bettingService.getEngineStatus?.()) || false;
+      const status = _status as boolean;
       setIsRunning(status);
     } catch (err) {
       const _errorMessage =
         err instanceof Error ? err.message : 'Failed to initialize betting engine';
+      const errorMessage = _errorMessage;
       setError(errorMessage);
       console.error('Betting engine initialization error:', err);
     } finally {
@@ -100,11 +107,13 @@ export const _useEnhancedBettingEngine = () => {
   const _startEngine = useCallback(async () => {
     try {
       const _bettingService = masterServiceRegistry.getService('betting');
+      const bettingService = _bettingService as any;
       if (!bettingService?.startEngine) {
         throw new Error('Engine start not available');
       }
 
       const _success = await bettingService.startEngine(config);
+      const success = _success as boolean;
       if (success) {
         setIsRunning(true);
         setError(null);
@@ -113,6 +122,7 @@ export const _useEnhancedBettingEngine = () => {
       return success;
     } catch (err) {
       const _errorMessage = err instanceof Error ? err.message : 'Failed to start betting engine';
+      const errorMessage = _errorMessage;
       setError(errorMessage);
       console.error('Failed to start betting engine:', err);
       return false;
@@ -122,11 +132,13 @@ export const _useEnhancedBettingEngine = () => {
   const _stopEngine = useCallback(async () => {
     try {
       const _bettingService = masterServiceRegistry.getService('betting');
+      const bettingService = _bettingService as any;
       if (!bettingService?.stopEngine) {
         throw new Error('Engine stop not available');
       }
 
       const _success = await bettingService.stopEngine();
+      const success = _success as boolean;
       if (success) {
         setIsRunning(false);
         setError(null);
@@ -135,6 +147,7 @@ export const _useEnhancedBettingEngine = () => {
       return success;
     } catch (err) {
       const _errorMessage = err instanceof Error ? err.message : 'Failed to stop betting engine';
+      const errorMessage = _errorMessage;
       setError(errorMessage);
       console.error('Failed to stop betting engine:', err);
       return false;
@@ -145,8 +158,10 @@ export const _useEnhancedBettingEngine = () => {
     async (newConfig: Partial<BettingEngineConfig>) => {
       try {
         const _updatedConfig = { ...config, ...newConfig };
+        const updatedConfig = _updatedConfig as BettingEngineConfig;
 
         const _bettingService = masterServiceRegistry.getService('betting');
+        const bettingService = _bettingService as any;
         if (bettingService?.updateEngineConfig) {
           await bettingService.updateEngineConfig(updatedConfig);
         }
@@ -164,6 +179,7 @@ export const _useEnhancedBettingEngine = () => {
   const _enableStrategy = useCallback(async (strategyId: string) => {
     try {
       const _bettingService = masterServiceRegistry.getService('betting');
+      const bettingService = _bettingService as any;
       if (bettingService?.enableStrategy) {
         await bettingService.enableStrategy(strategyId);
       }
@@ -184,6 +200,7 @@ export const _useEnhancedBettingEngine = () => {
   const _disableStrategy = useCallback(async (strategyId: string) => {
     try {
       const _bettingService = masterServiceRegistry.getService('betting');
+      const bettingService = _bettingService as any;
       if (bettingService?.disableStrategy) {
         await bettingService.disableStrategy(strategyId);
       }
@@ -204,6 +221,7 @@ export const _useEnhancedBettingEngine = () => {
   const _updateStrategyConfig = useCallback(async (strategyId: string, newConfig: unknown) => {
     try {
       const _bettingService = masterServiceRegistry.getService('betting');
+      const bettingService = _bettingService as any;
       if (bettingService?.updateStrategyConfig) {
         await bettingService.updateStrategyConfig(strategyId, newConfig);
       }
@@ -224,6 +242,7 @@ export const _useEnhancedBettingEngine = () => {
   const _getEnginePerformance = useCallback(async (timeRange: '24h' | '7d' | '30d' = '24h') => {
     try {
       const _bettingService = masterServiceRegistry.getService('betting');
+      const bettingService = _bettingService as any;
       if (!bettingService?.getEnginePerformance) {
         return null;
       }
@@ -238,6 +257,7 @@ export const _useEnhancedBettingEngine = () => {
   const _getStrategyPerformance = useCallback(
     (strategyId: string) => {
       const _strategy = strategies.find(s => s.id === strategyId);
+      const strategy = _strategy;
       return strategy
         ? {
             successRate: strategy.successRate,
@@ -253,6 +273,7 @@ export const _useEnhancedBettingEngine = () => {
   const _simulateStrategy = useCallback(async (strategyId: string, params: unknown) => {
     try {
       const _bettingService = masterServiceRegistry.getService('betting');
+      const bettingService = _bettingService as any;
       if (!bettingService?.simulateStrategy) {
         return null;
       }
@@ -268,14 +289,17 @@ export const _useEnhancedBettingEngine = () => {
     async (strategyId: string) => {
       try {
         const _bettingService = masterServiceRegistry.getService('betting');
+        const bettingService = _bettingService as any;
         if (!bettingService?.optimizeStrategy) {
           return null;
         }
 
         const _optimizedConfig = await bettingService.optimizeStrategy(strategyId);
 
+        const optimizedConfig = _optimizedConfig;
+
         if (optimizedConfig) {
-          await updateStrategyConfig(strategyId, optimizedConfig);
+          await _updateStrategyConfig(strategyId, optimizedConfig);
         }
 
         return optimizedConfig;
@@ -290,11 +314,13 @@ export const _useEnhancedBettingEngine = () => {
   const _refreshMetrics = useCallback(async () => {
     try {
       const _bettingService = masterServiceRegistry.getService('betting');
+      const bettingService = _bettingService as any;
       if (!bettingService?.getEngineMetrics) {
         return;
       }
 
       const _newMetrics = await bettingService.getEngineMetrics();
+      const newMetrics = _newMetrics as EngineMetrics;
       setMetrics(newMetrics);
     } catch (err) {
       console.error('Failed to refresh engine metrics:', err);
@@ -313,6 +339,9 @@ export const _useEnhancedBettingEngine = () => {
   );
 
   useEffect(() => {
+    // Call the aliased initializer so the hook works with both underscored and non-underscored callers
+    const initializeEngine = _initializeEngine;
+    const refreshMetrics = _refreshMetrics;
     initializeEngine();
 
     // Refresh metrics every 30 seconds when engine is running
@@ -332,21 +361,26 @@ export const _useEnhancedBettingEngine = () => {
     isRunning,
     loading,
     error,
-    startEngine,
-    stopEngine,
-    updateConfig,
-    enableStrategy,
-    disableStrategy,
-    updateStrategyConfig,
-    getEnginePerformance,
-    getStrategyPerformance,
-    simulateStrategy,
-    optimizeStrategy,
-    refreshMetrics,
-    getActiveStrategies,
-    getStrategyByType,
-    initializeEngine,
+    // Provide non-underscored aliases for consumers
+    startEngine: _startEngine,
+    stopEngine: _stopEngine,
+    updateConfig: _updateConfig,
+    enableStrategy: _enableStrategy,
+    disableStrategy: _disableStrategy,
+    updateStrategyConfig: _updateStrategyConfig,
+    getEnginePerformance: _getEnginePerformance,
+    getStrategyPerformance: _getStrategyPerformance,
+    simulateStrategy: _simulateStrategy,
+    optimizeStrategy: _optimizeStrategy,
+    refreshMetrics: _refreshMetrics,
+    getActiveStrategies: _getActiveStrategies,
+    getStrategyByType: _getStrategyByType,
+    initializeEngine: _initializeEngine,
   };
 };
 
-export default useEnhancedBettingEngine;
+// Backwards-compatible named export expected by many consumers
+export const useEnhancedBettingEngine = _useEnhancedBettingEngine;
+
+// Keep default export compatible with existing import patterns
+export default _useEnhancedBettingEngine;

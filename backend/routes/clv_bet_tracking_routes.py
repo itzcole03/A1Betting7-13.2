@@ -18,6 +18,7 @@ from backend.utils.clv_utils import generate_bet_id, calculate_clv_percent, get_
 from backend.database import get_db
 from backend.auth.security import get_current_user
 from backend.tasks.clv_computation_task import clv_computation_task
+from backend.core.exceptions import BusinessLogicException
 
 router = APIRouter(prefix="/api/bets", tags=["CLV Tracking"])
 
@@ -147,7 +148,7 @@ async def track_bet(
         
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to track bet: {str(e)}")
+        raise BusinessLogicException(f"Failed to track bet: {str(e, status_code=500)}")
 
 
 @router.put("/track/{bet_id}/clv", response_model=Dict[str, Any])
@@ -171,7 +172,7 @@ async def update_bet_clv(
         ).first()
         
         if not bet_record:
-            raise HTTPException(status_code=404, detail="Bet not found")
+            raise BusinessLogicException("Bet not found", status_code=404)
         
         # Update closing odds
         setattr(bet_record, 'closing_odds', clv_data.closing_odds)
@@ -209,13 +210,13 @@ async def update_bet_clv(
         else:
             setattr(bet_record, 'clv_status', CLVComputationStatus.ERROR)
             db.commit()
-            raise HTTPException(status_code=400, detail="Unable to compute CLV with provided odds")
+            raise BusinessLogicException("Unable to compute CLV with provided odds", status_code=400)
             
     except HTTPException:
         raise
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to update CLV: {str(e)}")
+        raise BusinessLogicException(f"Failed to update CLV: {str(e, status_code=500)}")
 
 
 @router.get("/track", response_model=List[Dict[str, Any]])
@@ -280,7 +281,7 @@ async def get_user_bets(
         return result
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve bets: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve bets: {str(e, status_code=500)}")
 
 
 @router.get("/track/{bet_id}", response_model=Dict[str, Any])
@@ -299,7 +300,7 @@ async def get_bet_details(
         ).first()
         
         if not bet_record:
-            raise HTTPException(status_code=404, detail="Bet not found")
+            raise BusinessLogicException("Bet not found", status_code=404)
         
         return {
             "bet_id": getattr(bet_record, "bet_id"),
@@ -339,7 +340,7 @@ async def get_bet_details(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve bet details: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve bet details: {str(e, status_code=500)}")
 
 
 @router.delete("/track/{bet_id}")
@@ -358,7 +359,7 @@ async def delete_bet(
         ).first()
         
         if not bet_record:
-            raise HTTPException(status_code=404, detail="Bet not found")
+            raise BusinessLogicException("Bet not found", status_code=404)
         
         db.delete(bet_record)
         db.commit()
@@ -369,7 +370,7 @@ async def delete_bet(
         raise
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to delete bet: {str(e)}")
+        raise BusinessLogicException(f"Failed to delete bet: {str(e, status_code=500)}")
 
 
 @router.post("/track/{bet_id}/settle")
@@ -389,7 +390,7 @@ async def settle_bet(
         ).first()
         
         if not bet_record:
-            raise HTTPException(status_code=404, detail="Bet not found")
+            raise BusinessLogicException("Bet not found", status_code=404)
         
         # Update bet settlement
         setattr(bet_record, 'actual_result', result_data.get("actual_result"))
@@ -411,7 +412,7 @@ async def settle_bet(
         raise
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to settle bet: {str(e)}")
+        raise BusinessLogicException(f"Failed to settle bet: {str(e, status_code=500)}")
 
 
 @router.post("/clv/compute")
@@ -437,7 +438,7 @@ async def trigger_clv_computation(
             user_bet_ids = [row[0] for row in user_bet_ids]
             
             if not user_bet_ids:
-                raise HTTPException(status_code=404, detail="No matching bets found for user")
+                raise BusinessLogicException("No matching bets found for user", status_code=404)
             
             stats = await clv_computation_task.manual_computation_trigger(db, user_bet_ids)
         else:
@@ -461,7 +462,7 @@ async def trigger_clv_computation(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to compute CLV: {str(e)}")
+        raise BusinessLogicException(f"Failed to compute CLV: {str(e, status_code=500)}")
 
 
 @router.get("/clv/computation-status")
@@ -495,4 +496,4 @@ async def get_clv_computation_status(
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get computation status: {str(e)}")
+        raise BusinessLogicException(f"Failed to get computation status: {str(e, status_code=500)}")

@@ -243,31 +243,46 @@ class BootstrapValidator:
                 
                 # Determine endpoint type based on path
                 endpoint_type = self._classify_endpoint_type(path)
-                
-                resolution = EndpointResolution(
-                    path=path,
-                    methods=methods,
-                    endpoint_type=endpoint_type,
-                    found=True,
-                    route_name=route.name,
-                    middleware_applied=self._detect_middleware(route)
-                )
-                
-                resolved[path] = resolution
+
+                existing = resolved.get(path)
+                if existing:
+                    combined_methods = set(existing.methods)
+                    combined_methods.update(methods)
+                    existing.methods = sorted(combined_methods)
+                    existing.middleware_applied = list({*existing.middleware_applied, *self._detect_middleware(route)})
+                    existing.route_name = existing.route_name or route.name
+                else:
+                    resolution = EndpointResolution(
+                        path=path,
+                        methods=sorted(set(methods)),
+                        endpoint_type=endpoint_type,
+                        found=True,
+                        route_name=route.name,
+                        middleware_applied=self._detect_middleware(route)
+                    )
+
+                    resolved[path] = resolution
                 
             elif FASTAPI_AVAILABLE and APIWebSocketRoute and isinstance(route, APIWebSocketRoute):
                 # WebSocket route
                 path = route.path
-                
-                resolution = EndpointResolution(
-                    path=path,
-                    methods=["WEBSOCKET"],
-                    endpoint_type=EndpointType.WEBSOCKET,
-                    found=True,
-                    route_name=route.name
-                )
-                
-                resolved[path] = resolution
+
+                existing = resolved.get(path)
+                if existing:
+                    if "WEBSOCKET" not in existing.methods:
+                        existing.methods.append("WEBSOCKET")
+                    existing.route_name = existing.route_name or route.name
+                    existing.endpoint_type = EndpointType.WEBSOCKET
+                else:
+                    resolution = EndpointResolution(
+                        path=path,
+                        methods=["WEBSOCKET"],
+                        endpoint_type=EndpointType.WEBSOCKET,
+                        found=True,
+                        route_name=route.name
+                    )
+
+                    resolved[path] = resolution
                 
         return resolved
         

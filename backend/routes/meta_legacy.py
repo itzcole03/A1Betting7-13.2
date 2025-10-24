@@ -17,6 +17,7 @@ from fastapi import APIRouter, Query, HTTPException
 from pydantic import BaseModel, Field
 
 from backend.services.legacy_registry import get_legacy_registry
+from backend.core.exceptions import BusinessLogicException
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -103,7 +104,7 @@ async def get_legacy_usage():
         
     except Exception as e:
         logger.error(f"Failed to get legacy usage data: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve legacy usage data: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve legacy usage data: {str(e, status_code=500)}")
 
 
 @router.get("/migration-readiness", response_model=MigrationReadinessResponse,
@@ -148,7 +149,7 @@ async def get_migration_readiness(
         
     except Exception as e:
         logger.error(f"Failed to assess migration readiness: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to assess migration readiness: {str(e)}")
+        raise BusinessLogicException(f"Failed to assess migration readiness: {str(e, status_code=500)}")
 
 
 @router.get("/legacy-config", tags=["Legacy Telemetry"])
@@ -182,7 +183,7 @@ async def get_legacy_config():
         
     except Exception as e:
         logger.error(f"Failed to get legacy configuration: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get legacy configuration: {str(e)}")
+        raise BusinessLogicException(f"Failed to get legacy configuration: {str(e, status_code=500)}")
 
 
 # For debugging/testing - clear usage data
@@ -209,4 +210,4 @@ async def clear_legacy_usage():
         
     except Exception as e:
         logger.error(f"Failed to clear legacy usage data: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to clear legacy usage data: {str(e)}")
+        raise BusinessLogicException(f"Failed to clear legacy usage data: {str(e, status_code=500)}")

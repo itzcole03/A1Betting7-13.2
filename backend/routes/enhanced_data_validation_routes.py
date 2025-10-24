@@ -45,6 +45,7 @@ try:
         get_enhanced_integration_service,
     )
     from ..services.optimized_data_validation_orchestrator import (
+from backend.core.exceptions import BusinessLogicException
         OptimizedDataValidationOrchestrator,
         get_optimized_orchestrator,
     )
@@ -303,16 +304,7 @@ async def validation_error_handler(request: Request, exc: Exception):
     else:
         status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
-    return JSONResponse(
-        status_code=status_code,
-        content={
-            "error": True,
-            "error_id": error_id,
-            "message": "Validation request failed",
-            "details": str(exc) if status_code < 500 else "Internal server error",
-            "timestamp": error_details["timestamp"],
-        },
-    )
+    return raise BusinessLogicException("Service error")
 
 
 # API Routes

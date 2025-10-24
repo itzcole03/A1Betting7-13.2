@@ -4,6 +4,14 @@ import os
 import os
 import sys
 
+# Disable auto-loading third-party pytest plugins that inject fixtures we do not use.
+os.environ.setdefault("PYTEST_DISABLE_PLUGIN_AUTOLOAD", "1")
+
+
+def pytest_collection_modifyitems(items):
+    """Collection hook retained for compatibility; no custom behaviour."""
+    return
+
 # Ensure the test DB environment is configured as early as possible. This
 # module imports `tests.conftest_db` which sets `DATABASE_URL` to an
 # in-memory sqlite URL if not already configured.
@@ -35,9 +43,6 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
-
-# Top-level pytest configuration for the entire test suite
-pytest_plugins = ["pytest_asyncio"]
 
 # Optional SQLAlchemy imports
 try:

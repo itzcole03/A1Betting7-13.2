@@ -61,3 +61,7 @@ export const _useTheme = () => {
   if (!_ctx) throw new Error('useTheme must be used within ThemeProvider');
   return _ctx;
 };
+
+// Non-underscored aliases (safe, reversible):
+export const ThemeProvider = _ThemeProvider;
+export const useTheme = _useTheme;

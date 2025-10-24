@@ -1,3 +1,4 @@
+/* eslint-disable no-console, react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import Card from './Card';
 import PastMatchupTracker from './PastMatchupTracker';
@@ -20,7 +21,7 @@ interface GameState {
 
 interface LiveGameData {
   status: string;
-  game_id: number;
+  game_id: string;
   teams: {
     away: TeamStats;
     home: TeamStats;
@@ -42,7 +43,7 @@ interface PlayByPlayEvent {
 
 interface PlayByPlayData {
   status: string;
-  game_id: number;
+  game_id: string;
   events: PlayByPlayEvent[];
   last_updated: string;
 }
@@ -50,11 +51,39 @@ interface PlayByPlayData {
 type TabType = 'livestats' | 'playbyplay' | 'pastmatchups';
 
 interface LiveGameStatsProps {
-  gameId: number;
+  gameId: string;
   refreshInterval?: number; // in milliseconds, default 5 minutes
   awayTeam?: string;
   homeTeam?: string;
 }
+
+type ApiEnvelope<T> = {
+  success?: boolean;
+  data?: T;
+  error?: unknown;
+  message?: string;
+};
+
+const extractPayload = <T,>(raw: unknown): { payload: T | null; message?: string } => {
+  if (raw && typeof raw === 'object') {
+    const envelope = raw as ApiEnvelope<T>;
+    if ('data' in envelope || 'success' in envelope || 'error' in envelope) {
+      const payload = (envelope.data ?? null) as T | null;
+      if (envelope.success === false) {
+        const errorMessage =
+          typeof envelope.error === 'string'
+            ? envelope.error
+            : typeof envelope.error === 'object' && envelope.error !== null
+            ? String((envelope.error as { message?: unknown }).message ?? envelope.message ?? '')
+            : envelope.message;
+        return { payload, message: errorMessage };
+      }
+      return { payload, message: envelope.message };
+    }
+  }
+
+  return { payload: (raw as T) ?? null, message: undefined };
+};
 
 export const LiveGameStats: React.FC<LiveGameStatsProps> = ({
   gameId,
@@ -76,14 +105,20 @@ export const LiveGameStats: React.FC<LiveGameStatsProps> = ({
         setIsRefreshing(true);
       }
       const response = await fetch(`/mlb/live-game-stats/${gameId}`);
-      const data = await response.json();
+      if (!response.ok) {
+        setError(`Failed to fetch game stats (HTTP ${response.status})`);
+        return;
+      }
 
-      if (data.status === 'ok') {
-        setGameData(data);
+      const data = await response.json();
+      const { payload, message } = extractPayload<LiveGameData>(data);
+
+      if (payload) {
+        setGameData(payload);
         setError(null);
         setLastUpdate(new Date());
       } else {
-        setError(data.message || 'Failed to fetch game stats');
+        setError(message || 'Failed to fetch game stats');
       }
     } catch (err) {
       setError('Error fetching live game stats');
@@ -102,14 +137,20 @@ export const LiveGameStats: React.FC<LiveGameStatsProps> = ({
         setIsRefreshing(true);
       }
       const response = await fetch(`/mlb/play-by-play/${gameId}`);
-      const data = await response.json();
+      if (!response.ok) {
+        setError(`Failed to fetch play-by-play data (HTTP ${response.status})`);
+        return;
+      }
 
-      if (data.status === 'ok') {
-        setPlayByPlayData(data);
+      const data = await response.json();
+      const { payload, message } = extractPayload<PlayByPlayData>(data);
+
+      if (payload) {
+        setPlayByPlayData(payload);
         setError(null);
         setLastUpdate(new Date());
       } else {
-        setError(data.message || 'Failed to fetch play-by-play data');
+        setError(message || 'Failed to fetch play-by-play data');
       }
     } catch (err) {
       setError('Error fetching play-by-play data');
@@ -169,7 +210,8 @@ export const LiveGameStats: React.FC<LiveGameStatsProps> = ({
   }
 
   const { teams, game_state, venue } = gameData;
-  const isLive = game_state.status === 'In Progress';
+  const isLive = game_state?.status === 'In Progress';
+  const inningLabel = game_state ? `${game_state.inning_half} ${game_state.inning}`.trim() : '';
 
   return (
     <Card className='p-6 bg-gradient-to-br from-blue-50 to-green-50 border-2 border-blue-200'>
@@ -213,11 +255,11 @@ export const LiveGameStats: React.FC<LiveGameStatsProps> = ({
               variant={isLive ? 'destructive' : 'secondary'}
               className={isLive ? 'bg-red-500 animate-pulse' : ''}
             >
-              {isLive ? '🔴 LIVE' : game_state.status}
+              {isLive ? '🔴 LIVE' : game_state?.status ?? 'Unknown'}
             </Badge>
             {isLive && (
               <span className='text-sm text-gray-600'>
-                {game_state.inning_half} {game_state.inning}
+                {inningLabel}
               </span>
             )}
           </div>
@@ -260,7 +302,9 @@ export const LiveGameStats: React.FC<LiveGameStatsProps> = ({
                 </div>
                 <div>
                   <span className='text-gray-600'>Status:</span>
-                  <span className='ml-2 font-medium text-gray-800'>{game_state.status}</span>
+                  <span className='ml-2 font-medium text-gray-800'>
+                    {game_state?.status ?? 'Unknown'}
+                  </span>
                 </div>
               </div>
 

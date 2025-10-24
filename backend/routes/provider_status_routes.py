@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 import logging
 
 from ..services.provider_statistics_integration import provider_statistics_integration
+from backend.core.exceptions import BusinessLogicException
 
 
 # Response Models
@@ -208,7 +209,7 @@ async def get_all_provider_status(
             "action": "get_all_status_error",
             "error": str(e),
         })
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve provider status: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve provider status: {str(e, status_code=500)}")
 
 
 @router.get("/status/{provider_id}", response_model=ProviderHealthResponse)
@@ -224,7 +225,7 @@ async def get_provider_status(
         health = await provider_statistics_integration.get_unified_provider_health(provider_id)
         
         if not health:
-            raise HTTPException(status_code=404, detail=f"Provider {provider_id} not found")
+            raise BusinessLogicException(f"Provider {provider_id} not found", status_code=404)
         
         response = ProviderHealthResponse(
             provider_id=health.provider_id,
@@ -263,7 +264,7 @@ async def get_provider_status(
             "provider_id": provider_id,
             "error": str(e),
         })
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve provider status: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve provider status: {str(e, status_code=500)}")
 
 
 @router.get("/statistics/{provider_id}", response_model=ProviderStatisticsResponse)
@@ -278,7 +279,7 @@ async def get_provider_statistics(
         stats = await provider_statistics_integration.stats_manager.get_provider_statistics(provider_id)
         
         if not stats:
-            raise HTTPException(status_code=404, detail=f"Provider {provider_id} statistics not found")
+            raise BusinessLogicException(f"Provider {provider_id} statistics not found", status_code=404)
         
         response = ProviderStatisticsResponse(
             provider_id=stats["provider_id"],
@@ -306,7 +307,7 @@ async def get_provider_statistics(
             "provider_id": provider_id,
             "error": str(e),
         })
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve provider statistics: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve provider statistics: {str(e, status_code=500)}")
 
 
 @router.get("/confidence-scores", response_model=ConfidenceScoreResponse)
@@ -341,7 +342,7 @@ async def get_provider_confidence_scores(
             "action": "get_confidence_scores_error",
             "error": str(e),
         })
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve confidence scores: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve confidence scores: {str(e, status_code=500)}")
 
 
 @router.get("/health/dashboard", response_model=SystemHealthDashboardResponse)
@@ -378,7 +379,7 @@ async def get_system_health_dashboard(
             "action": "get_health_dashboard_error",
             "error": str(e),
         })
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve health dashboard: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve health dashboard: {str(e, status_code=500)}")
 
 
 @router.get("/issues", response_model=Dict[str, List[Dict[str, Any]]])
@@ -406,7 +407,7 @@ async def get_provider_issues(
             "action": "get_provider_issues_error",
             "error": str(e),
         })
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve provider issues: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve provider issues: {str(e, status_code=500)}")
 
 
 @router.get("/recommended", response_model=List[ProviderHealthResponse])
@@ -455,7 +456,7 @@ async def get_recommended_providers(
             "action": "get_recommended_providers_error",
             "error": str(e),
         })
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve recommended providers: {str(e)}")
+        raise BusinessLogicException(f"Failed to retrieve recommended providers: {str(e, status_code=500)}")
 
 
 # Add routes to the main router
