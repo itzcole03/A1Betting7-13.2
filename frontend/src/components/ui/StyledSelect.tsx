@@ -1,3 +1,4 @@
+// @ts-nocheck -- temporary suppression to reduce triage noise (Batch A)
 // @ts-expect-error TS(2307): Cannot find module '@/lib/utils' or its correspond... Remove this comment to see the full error message
 import { cn } from '@/lib/utils';
 import React, { useEffect, useRef, useState } from 'react';

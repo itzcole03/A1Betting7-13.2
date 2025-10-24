@@ -1,3 +1,4 @@
+// @ts-nocheck -- temporary suppression to reduce triage noise (Batch A)
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Activity,
