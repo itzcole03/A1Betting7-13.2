@@ -1,0 +1,220 @@
+"""
+API routes for betting tools and calculators.
+"""
+
+from fastapi import APIRouter, HTTPException
+from backend.models.tools_models import (
+from backend.core.exceptions import BusinessLogicException
+    FairOddsRequest, FairOddsResponse,
+    OddsComparisonRequest, OddsComparisonResponse,
+    KellyCriterionRequest, KellyCriterionResponse,
+    OddsConverterRequest, OddsConverterResponse
+)
+from backend.utils.odds_math import (
+    calculate_fair_odds,
+    odds_comparison,
+    kelly_criterion,
+    american_to_decimal,
+    decimal_to_american,
+    implied_probability_from_odds
+)
+import logging
+logger = logging.getLogger("tools_routes")
+router = APIRouter(prefix="/api/tools", tags=["tools"])
+
+
+@router.post("/fair-odds", response_model=FairOddsResponse)
+async def calculate_fair_odds_endpoint(request: FairOddsRequest):
+    """
+    Calculate fair odds from projection and market parameters.
+    
+    This endpoint performs comprehensive fair odds calculation using statistical
+    distributions and margin adjustments. Optionally compares with sportsbook odds.
+    """
+    try:
+        # Calculate fair odds using the math utilities
+        odds_result = calculate_fair_odds(
+            projection_value=request.projection_value,
+            market_line=request.market_line,
+            market_type=request.market_type,
+            distribution_type=request.distribution_type,
+            margin_percent=request.margin_percent,
+            std_dev=request.std_dev
+        )
+        
+        # Prepare response
+        response_data = {
+            **odds_result
+        }
+        
+        # Add comparison data if book odds provided
+        if request.book_odds_american is not None:
+            comparison_result = odds_comparison(
+                fair_odds_decimal=odds_result['fair_odds_decimal'],
+                book_odds_american=request.book_odds_american
+            )
+            response_data['comparison'] = comparison_result
+            
+            # Add Kelly sizing recommendations
+            kelly_result = kelly_criterion(
+                win_probability=odds_result['fair_probability'],
+                odds_decimal=american_to_decimal(request.book_odds_american)
+            )
+            response_data['kelly_sizing'] = kelly_result
+        
+        logger.info(f"Fair odds calculated: {request.projection_value} vs {request.market_line} -> {odds_result['fair_odds_american']}")
+        
+        return FairOddsResponse(**response_data)
+        
+    except Exception as e:
+        logger.error(f"Error calculating fair odds: {str(e)}")
+        raise BusinessLogicException(f"Calculation error: {str(e), status_code=400)}")
+
+
+@router.get("/fair-odds", response_model=FairOddsResponse)
+async def calculate_fair_odds_get(
+    projection_value: float,
+    market_line: float,
+    market_type: str = "over_under",
+    distribution_type: str = "normal",
+    margin_percent: float = 0.0,
+    std_dev: float | None = None,
+    book_odds_american: int | None = None,
+):
+    """
+    GET variant of fair odds calculation for convenience.
+
+    Mirrors the POST /api/tools/fair-odds endpoint using query parameters so
+    simple clients can compute fair odds without crafting a JSON body.
+    """
+    try:
+        odds_result = calculate_fair_odds(
+            projection_value=projection_value,
+            market_line=market_line,
+            market_type=market_type,
+            distribution_type=distribution_type,
+            margin_percent=margin_percent,
+            std_dev=std_dev,
+        )
+
+        response_data = {**odds_result}
+
+        if book_odds_american is not None:
+            comparison_result = odds_comparison(
+                fair_odds_decimal=odds_result["fair_odds_decimal"],
+                book_odds_american=book_odds_american,
+            )
+            response_data["comparison"] = comparison_result
+
+            kelly_result = kelly_criterion(
+                win_probability=odds_result["fair_probability"],
+                odds_decimal=american_to_decimal(book_odds_american),
+            )
+            response_data["kelly_sizing"] = kelly_result
+
+        logger.info(
+            f"[GET] Fair odds calculated: {projection_value} vs {market_line} -> {response_data['fair_odds_american']}"
+        )
+        return FairOddsResponse(**response_data)
+    except Exception as e:
+        logger.error(f"Error calculating fair odds (GET): {str(e)}")
+        raise BusinessLogicException(f"Calculation error: {str(e), status_code=400)}")
+
+
+@router.post("/odds-comparison", response_model=OddsComparisonResponse)
+async def compare_odds_endpoint(request: OddsComparisonRequest):
+    """
+    Compare fair odds with sportsbook odds to identify edge opportunities.
+    """
+    try:
+        comparison_result = odds_comparison(
+            fair_odds_decimal=request.fair_odds_decimal,
+            book_odds_american=request.book_odds_american
+        )
+        
+        logger.info(f"Odds comparison: Fair {request.fair_odds_decimal} vs Book {request.book_odds_american} -> Edge: {comparison_result['edge_percentage']}%")
+        
+        return OddsComparisonResponse(**comparison_result)
+        
+    except Exception as e:
+        logger.error(f"Error comparing odds: {str(e)}")
+        raise BusinessLogicException(f"Comparison error: {str(e), status_code=400)}")
+
+
+@router.post("/kelly-criterion", response_model=KellyCriterionResponse)
+async def kelly_criterion_endpoint(request: KellyCriterionRequest):
+    """
+    Calculate optimal bet sizing using Kelly Criterion.
+    """
+    try:
+        kelly_result = kelly_criterion(
+            win_probability=request.win_probability,
+            odds_decimal=request.odds_decimal,
+            bankroll=request.bankroll
+        )
+        
+        logger.info(f"Kelly calculation: P={request.win_probability}, Odds={request.odds_decimal} -> {kelly_result['recommended_percentage']}%")
+        
+        return KellyCriterionResponse(**kelly_result)
+        
+    except Exception as e:
+        logger.error(f"Error calculating Kelly: {str(e)}")
+        raise BusinessLogicException(f"Kelly calculation error: {str(e), status_code=400)}")
+
+
+@router.post("/odds-converter", response_model=OddsConverterResponse)
+async def convert_odds_endpoint(request: OddsConverterRequest):
+    """
+    Convert between different odds formats (American, Decimal, Implied Probability).
+    """
+    try:
+        # Determine which input was provided and convert
+        if request.american_odds is not None:
+            decimal = american_to_decimal(request.american_odds)
+            american = request.american_odds
+            probability = implied_probability_from_odds(decimal)
+            
+        elif request.decimal_odds is not None:
+            decimal = request.decimal_odds
+            american = decimal_to_american(decimal)
+            probability = implied_probability_from_odds(decimal)
+            
+        elif request.implied_probability is not None:
+            probability = request.implied_probability
+            decimal = 1 / probability
+            american = decimal_to_american(decimal)
+            
+        else:
+            raise ValueError("Must provide one of: american_odds, decimal_odds, or implied_probability")
+        
+        percentage_display = f"{probability * 100:.2f}%"
+        
+        result = {
+            'american_odds': american,
+            'decimal_odds': round(decimal, 3),
+            'implied_probability': round(probability, 4),
+            'percentage_display': percentage_display
+        }
+        
+        logger.info(f"Odds conversion: {request} -> {result}")
+        
+        return OddsConverterResponse(**result)
+        
+    except Exception as e:
+        logger.error(f"Error converting odds: {str(e)}")
+        raise BusinessLogicException(f"Conversion error: {str(e), status_code=400)}")
+
+
+@router.get("/health")
+async def tools_health_check():
+    """Health check for tools API."""
+    return {
+        "status": "healthy",
+        "service": "betting_tools",
+        "endpoints": [
+            "/api/tools/fair-odds",
+            "/api/tools/odds-comparison", 
+            "/api/tools/kelly-criterion",
+            "/api/tools/odds-converter"
+        ]
+    }

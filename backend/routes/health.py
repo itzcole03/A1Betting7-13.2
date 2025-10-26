@@ -2,20 +2,22 @@ import logging
 from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, HTTPException
-
-# Contract compliance imports
-from ..core.response_models import ResponseBuilder, StandardAPIResponse
-from ..core.exceptions import BusinessLogicException, AuthenticationException
 from pydantic import BaseModel
 
 from backend.auth.security import get_current_admin_user
+from backend.core.exceptions import BusinessLogicException
 from backend.services.comprehensive_prizepicks_service import (
     comprehensive_prizepicks_service,
 )  # Import scraper service
-from backend.utils.llm_engine import MODEL_STATE, llm_engine
 
 # Metrics instrumentation
 from backend.services.metrics.instrumentation import instrument_route
+from backend.utils.llm_engine import MODEL_STATE, llm_engine
+
+from ..core.exceptions import AuthenticationException, BusinessLogicException
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -69,30 +71,34 @@ async def health_check(
         # Get PrizePicks scraper health
         scraper_health_data = comprehensive_prizepicks_service.get_scraper_health()
 
-        return ResponseBuilder.success({
-            "status": (
-                "ok"
-                if models_ready and scraper_health_data.get("is_healthy")
-                else "initializing"
-            ),  # Overall status considers scraper
-            "initialized": MODEL_STATE["initialized"],
-            "models_loaded": models_ready,
-            "ready_for_requests": models_ready,
-            "request_queue_size": MODEL_STATE["request_queue_size"],
-            "model_health": MODEL_STATE["model_health"],
-            "metrics": {
-                "request_count": MODEL_STATE["request_count"],
-                "successful_requests": MODEL_STATE["successful_requests"],
-                "propollama_requests": MODEL_STATE["propollama_requests"],
-                "propollama_successes": MODEL_STATE["propollama_successes"],
-            },
-            "prizepicks_scraper_health": scraper_health_data,  # Include scraper health data
-        })
+        return ResponseBuilder.success(
+            {
+                "status": (
+                    "ok"
+                    if models_ready and scraper_health_data.get("is_healthy")
+                    else "initializing"
+                ),  # Overall status considers scraper
+                "initialized": MODEL_STATE["initialized"],
+                "models_loaded": models_ready,
+                "ready_for_requests": models_ready,
+                "request_queue_size": MODEL_STATE["request_queue_size"],
+                "model_health": MODEL_STATE["model_health"],
+                "metrics": {
+                    "request_count": MODEL_STATE["request_count"],
+                    "successful_requests": MODEL_STATE["successful_requests"],
+                    "propollama_requests": MODEL_STATE["propollama_requests"],
+                    "propollama_successes": MODEL_STATE["propollama_successes"],
+                },
+                "prizepicks_scraper_health": scraper_health_data,  # Include scraper health data
+            }
+        )
     except Exception as e:
         raise BusinessLogicException(f"Health check failed: {str(e)}")
 
 
-@router.get("/model/{model_name}/health", response_model=StandardAPIResponse[Dict[str, Any]])
+@router.get(
+    "/model/{model_name}/health", response_model=StandardAPIResponse[Dict[str, Any]]
+)
 @instrument_route
 async def model_health_check(
     model_name: str, current_user: Any = Depends(get_current_admin_user)
@@ -106,15 +112,17 @@ async def model_health_check(
         models = getattr(llm_engine, "models", [])
         status = "ready" if model_name in models else "unknown"
 
-        return ResponseBuilder.success({
-            "name": model_name,
-            "status": status,
-            "response_time": 0.0,
-            "error_count": 0,
-            "success_count": 0,
-            "last_error": None,
-            "last_check": None,
-        })
+        return ResponseBuilder.success(
+            {
+                "name": model_name,
+                "status": status,
+                "response_time": 0.0,
+                "error_count": 0,
+                "success_count": 0,
+                "last_error": None,
+                "last_check": None,
+            }
+        )
     except Exception as e:
         raise BusinessLogicException(f"Model health check failed: {str(e)}")
 
@@ -124,9 +132,11 @@ async def queue_status(
     current_user: Any = Depends(get_current_admin_user),
 ) -> Dict[str, Any]:
     """Get request queue status"""
-    return ResponseBuilder.success({
-        "size": MODEL_STATE["request_queue_size"],
-        "max_size": 100,  # MAX_QUEUE_SIZE constant
-        "processing": False,  # Default value
-        "ready_for_requests": MODEL_STATE["ready_for_requests"],
-    })
+    return ResponseBuilder.success(
+        {
+            "size": MODEL_STATE["request_queue_size"],
+            "max_size": 100,  # MAX_QUEUE_SIZE constant
+            "processing": False,  # Default value
+            "ready_for_requests": MODEL_STATE["ready_for_requests"],
+        }
+    )

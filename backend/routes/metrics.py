@@ -1,6 +1,7 @@
 """Performance metrics endpoints."""
 
 from typing import Dict, Any
+from backend.core.exceptions import BusinessLogicException
 
 from fastapi import APIRouter
 
@@ -46,7 +47,7 @@ async def get_system_stats() -> Dict[str, float]:
     return ResponseBuilder.success(metrics_collector.get_overall_stats())
 
 
-@router.get("/stats/endpoint/{endpoint}", response_model=EndpointStats)
+@router.get("/stats/endpoint/{endpoint}\", response_model=EndpointStats")
 async def get_endpoint_stats(endpoint: str) -> Dict[str, float]:
     """Get statistics for a specific endpoint"""
     return ResponseBuilder.success(metrics_collector.get_endpoint_stats(endpoint))

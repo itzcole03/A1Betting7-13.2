@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PropFinder Debug</title>
+    <style>
+      body {
+        background: #0b1220;
+        color: #e6eef8;
+        font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        padding: 16px;
+      }
+      pre {
+        background: #071021;
+        padding: 12px;
+        border-radius: 6px;
+        overflow: auto;
+        max-height: 60vh;
+      }
+      .panel {
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+      }
+      .muted {
+        color: #9fb3d0;
+        font-size: 13px;
+      }
+      .btn {
+        background: #2563eb;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>PropFinder Debug Snapshot</h1>
+    <p class="muted">
+      This page displays the latest propfinder JSON snapshot written by the local helper script.
+    </p>
+    <div class="panel">
+      <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px">
+        <button id="reloadBtn" class="btn">Reload JSON</button>
+        <button id="fetchBtn" class="btn" style="background: #059669">
+          Refetch from API (server)
+        </button>
+        <span id="status" class="muted">Status: idle</span>
+      </div>
+      <div>
+        <strong>Summary / Stats</strong>
+        <pre id="stats">(loading...)</pre>
+      </div>
+      <div>
+        <strong>Sample Opportunities (first 5)</strong>
+        <pre id="sample">(loading...)</pre>
+      </div>
+      <div>
+        <strong>Raw payload</strong>
+        <pre id="raw">(loading...)</pre>
+      </div>
+    </div>
+
+    <script>
+      async function loadSnapshot() {
+        const statusEl = document.getElementById('status');
+        statusEl.textContent = 'Status: loading snapshot';
+        try {
+          const resp = await fetch('./debug-propfinder.json', { cache: 'no-store' });
+          if (!resp.ok) throw new Error('Failed to load snapshot: ' + resp.status);
+          const payload = await resp.json();
+          const data = payload.data ?? payload;
+          const summary = data.summary ?? null;
+          const sample = Array.isArray(data.opportunities) ? data.opportunities.slice(0, 5) : [];
+          document.getElementById('stats').textContent = JSON.stringify(summary, null, 2);
+          document.getElementById('sample').textContent = JSON.stringify(sample, null, 2);
+          document.getElementById('raw').textContent = JSON.stringify(payload, null, 2);
+          statusEl.textContent = 'Status: snapshot loaded';
+        } catch (err) {
+          statusEl.textContent = 'Status: error loading snapshot';
+          document.getElementById('stats').textContent = String(err);
+          document.getElementById('sample').textContent = '';
+          document.getElementById('raw').textContent = '';
+          console.error(err);
+        }
+      }
+
+      document.getElementById('reloadBtn').addEventListener('click', loadSnapshot);
+      document.getElementById('fetchBtn').addEventListener('click', async () => {
+        const statusEl = document.getElementById('status');
+        statusEl.textContent = 'Status: requesting server refetch';
+        try {
+          const resp = await fetch('/__debug/refresh-propfinder', { method: 'POST' });
+          if (!resp.ok) throw new Error('Refetch failed: ' + resp.status);
+          statusEl.textContent = 'Status: refetch requested, reloading snapshot';
+          setTimeout(() => loadSnapshot(), 800);
+        } catch (err) {
+          statusEl.textContent = 'Status: refetch failed';
+          console.error(err);
+        }
+      });
+
+      // initial load
+      loadSnapshot();
+    </script>
+  </body>
+</html>

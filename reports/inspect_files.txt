@@ -1,0 +1,51 @@
+--- backend/routes/metrics_routes.py
+50         return Response(
+51             content=json.dumps({"detail": f"Failed to retrieve metrics: {str(e)}"}),
+52             status_code=500,
+53             media_type="application/json",
+54         )
+55 
+56 
+57 @router.get("/")
+58 async def metrics():
+59     try:
+60         if LEGACY_ADAPTER_AVAILABLE and get_adapter is not None:
+76         else:
+--- backend/routes/trends_routes.py
+50 ) -> TrendLeaderboardResponse:
+51     """
+52     Get trends leaderboard with specified filters and metrics.
+53 
+54     This endpoint provides prop performance leaderboards with various metrics:
+55     - **over_hit_rate**: Percentage of over bets that hit
+56     - **avg_ev**: Average expected value percentage
+57     - **arbitrage_count**: Number of arbitrage opportunities identified
+58     - **high_confidence_rate**: Rate of high confidence (>70%) predictions
+59 
+60     Results are cached for 5 minutes to improve performance.
+76         logger.info("Returning %d leaderboard entries", len(response.data))
+--- backend/routes/betting.py
+50 
+51 def _american_to_decimal(american: int) -> float:
+52     """Convert American odds to decimal odds."""
+53     return (american / 100) + 1 if american > 0 else (100 / abs(american)) + 1
+54 
+55 
+56 def _format_event_description(
+57     selection_key: str,
+58     player: Optional[str],
+59     market: str,
+60     line: Optional[float],
+76 
+--- backend/routes/consolidated_ml.py
+50 @router.post("/batch-predict", response_model=StandardAPIResponse[Dict[str, object]])
+51 async def batch_predict():
+52     """Stub batch predict endpoint."""
+53     return ResponseBuilder.success(
+54         {
+55             "message": "consolidated_ml_stub: batch predict is disabled in this environment",
+56             "timestamp": time.time(),
+57         }
+58     )
+--- backend/routes/diagnostics.py
+--- backend/routes/streaming/streaming_api.py

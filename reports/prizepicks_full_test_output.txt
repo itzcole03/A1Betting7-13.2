@@ -1,0 +1,135 @@
+....                                                                     [100%]
+============================== warnings summary ===============================
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\_internal\_config.py:323
+  C:\Users\bcmad\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\_internal\_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\_internal\_generate_schema.py:298
+  C:\Users\bcmad\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\_internal\_generate_schema.py:298: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.11/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(
+
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\pythonjsonlogger\jsonlogger.py:11
+  C:\Users\bcmad\AppData\Local\Programs\Python\Python312\Lib\site-packages\pythonjsonlogger\jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+backend\utils\structured_logging.py:68: 2838 warnings
+tests/test_prizepicks_compat_regression.py: 180 warnings
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\utils\structured_logging.py:68: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    log_record["timestamp"] = datetime.utcnow().isoformat() + "Z"
+
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\woodwork\__init__.py:2
+  C:\Users\bcmad\AppData\Local\Programs\Python\Python312\Lib\site-packages\woodwork\__init__.py:2: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    import pkg_resources
+
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\core\app.py:927: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @_app.on_event("startup")
+
+tests/test_prizepicks_compat_regression.py: 10 warnings
+  C:\Users\bcmad\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\core\app.py:941: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @_app.on_event("startup")
+
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\core\app.py:956: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @_app.on_event("startup")
+
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\core\app.py:968: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @_app.on_event("startup")
+
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\core\app.py:984: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @_app.on_event("startup")
+
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\core\app.py:1024: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @_app.on_event("startup")
+
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\core\app.py:1065: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @_app.on_event("shutdown")
+
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\core\app.py:1079: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @_app.on_event("shutdown")
+
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\core\app.py:3386: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @_app.on_event("startup")
+
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\core\app.py:3424: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @_app.on_event("startup")
+
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+tests/test_prizepicks_compat_regression.py::test_prizepicks_v1_and_legacy_compat
+tests/test_prizepicks_routes.py::test_prizepicks_health
+tests/test_prizepicks_routes.py::test_prizepicks_props_and_recommendations
+tests/test_prizepicks_routes.py::test_prizepicks_props_and_recommendations
+tests/test_prizepicks_routes.py::test_prizepicks_heal
+  C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\core\response_models.py:66: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow().isoformat() + "Z",
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+4 passed, 3050 warnings in 9.09s

@@ -1,0 +1,17 @@
+MODULE FILE: C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\feedback.py
+FEEDBACK_WRAPPER_VERSION: v2-triage
+
+SOURCE SNIPPET:
+"""Thin wrapper to expose feedback router from the import-safe stub.
+
+This file intentionally contains no runtime code to avoid import-time
+side-effects during pytest collection. The real implementation lives in
+`_feedback_stub.py` which is designed to compile cleanly for triage.
+"""
+
+from ._feedback_stub import router
+
+__all__ = ["router"]
+
+# Version marker to help triage which physical file Python imports during tests
+FEEDBACK_WRAPPER_VERSION = "v2-triage"

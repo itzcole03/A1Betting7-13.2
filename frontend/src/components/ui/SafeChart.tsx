@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 // @ts-expect-error TS(2307): Cannot find module '@/lib/utils' or its correspond... Remove this comment to see the full error message
 import { cn } from '@/lib/utils';
 
@@ -384,14 +384,16 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
         {loadingComponent || (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div className='flex flex-col items-center space-y-3'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div
               className={cn(
                 'animate-spin w-8 h-8 border-2 border-current border-t-transparent rounded-full',
                 variant === 'cyber' ? 'text-cyan-400' : 'text-blue-500'
               )}
             />
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className={cn('text-sm', variant === 'cyber' ? 'text-cyan-300' : 'text-gray-600')}>
               Loading chart data...
             </div>
@@ -416,9 +418,11 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
         {errorComponent || (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className='text-4xl mb-3'>📊</div>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div
               className={cn(
                 'text-lg font-medium mb-2',
@@ -427,7 +431,8 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
             >
               Chart Error
             </div>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div
               className={cn(
                 'text-sm text-center mb-4',
@@ -468,7 +473,8 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
             variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
           )}
         >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <h3
             className={cn(
               'text-lg font-semibold',
@@ -485,19 +491,22 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
                 variant === 'cyber' ? 'text-yellow-300' : 'text-yellow-600'
               )}
             >
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <span>⚠️</span>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <span>Showing partial data due to errors</span>
             </div>
           )}
         </div>
       )}
-
       {/* Chart */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div className='p-4'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <svg
           ref={svgRef}
           width={width}
@@ -543,7 +552,6 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
               })}
             </g>
           )}
-
           {/* Series */}
           {state.validatedData
             .filter(s => s.visible)
@@ -558,7 +566,9 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
                     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <path
                       // @ts-expect-error TS(2345): Argument of type 'string | number | Date' is not a... Remove this comment to see the full error message
-                      d={`${path} L ${scales.xScale(series.data[series.data.length - 1]?.x || 0)} ${height - 40} L ${scales.xScale(series.data[0]?.x || 0)} ${height - 40} Z`}
+                      d={`${path} L ${scales.xScale(series.data[series.data.length - 1]?.x || 0)} ${
+                        height - 40
+                      } L ${scales.xScale(series.data[0]?.x || 0)} ${height - 40} Z`}
                       fill={series.color}
                       opacity={0.3}
                     />
@@ -606,12 +616,13 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
                 </g>
               );
             })}
-
           {/* Axes */}
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <g className={cn(variant === 'cyber' ? 'text-cyan-300' : 'text-gray-600')}>
             {/* X-axis */}
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <line
               x1={40}
               y1={height - 40}
@@ -620,11 +631,10 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
               stroke='currentColor'
               strokeWidth='2'
             />
-
             {/* Y-axis */}
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <line x1={40} y1={40} x2={40} y2={height - 40} stroke='currentColor' strokeWidth='2' />
-
             {/* Axis labels */}
             {xAxisLabel && (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -637,7 +647,6 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
                 {xAxisLabel}
               </text>
             )}
-
             {yAxisLabel && (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <text
@@ -652,7 +661,6 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
             )}
           </g>
         </svg>
-
         {/* Tooltip */}
         {showTooltip && hoveredPoint && (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -668,16 +676,18 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
               top: hoveredPoint.position.y - 10,
             }}
           >
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className='font-medium'>{hoveredPoint.series.name}</div>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div>Value: {hoveredPoint.point.y}</div>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             {hoveredPoint.point.label && <div>{hoveredPoint.point.label}</div>}
           </div>
         )}
       </div>
-
       {/* Legend */}
       {showLegend && state.validatedData.length > 1 && (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -687,14 +697,17 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
             variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
           )}
         >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='flex flex-wrap gap-4'>
             {state.validatedData.map(series => (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div key={series.id} className='flex items-center space-x-2'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+                Remove this comment to see the full error message
                 <div className='w-4 h-2 rounded' style={{ backgroundColor: series.color }} />
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+                Remove this comment to see the full error message
                 <span
                   className={cn('text-sm', variant === 'cyber' ? 'text-cyan-300' : 'text-gray-700')}
                 >
@@ -705,14 +718,15 @@ export const _SafeChart: React.FC<SafeChartProps> = ({
           </div>
         </div>
       )}
-
       {/* Cyber Effects */}
       {variant === 'cyber' && (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 rounded-lg pointer-events-none' />
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='absolute inset-0 bg-grid-white/[0.02] rounded-lg pointer-events-none' />
         </>
       )}

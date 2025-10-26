@@ -2,13 +2,15 @@
 API routes for data validation and monitoring.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
-from datetime import datetime
-from typing import Dict, Any
 import logging
+from datetime import datetime
+from typing import Any, Dict
 
-from ..validators.data_validator import get_validation_metrics, ValidationSummary
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+
 from backend.core.exceptions import BusinessLogicException
+
+from ..validators.data_validator import ValidationSummary, get_validation_metrics
 
 logger = logging.getLogger("propollama.routes.validation")
 
@@ -17,32 +19,38 @@ router = APIRouter(prefix="/api/data", tags=["data-validation"])
 
 @router.get("/validation/summary", response_model=Dict[str, Any])
 async def get_validation_summary(
-    minutes: int = Query(default=15, ge=1, le=1440, description="Time window in minutes")
+    minutes: int = Query(
+        default=15, ge=1, le=1440, description="Time window in minutes"
+    )
 ) -> Dict[str, Any]:
     """
     Get validation summary for the specified time window.
-    
+
     Args:
         minutes: Time window in minutes (1-1440, default 15)
-        
+
     Returns:
         Validation summary with warning counts and metrics
     """
     try:
         metrics = get_validation_metrics()
         summary = await metrics.get_summary(minutes=minutes)
-        
-        logger.info(f"Generated validation summary for {minutes} minutes: {summary.total_warnings} warnings")
-        
+
+        logger.info(
+            f"Generated validation summary for {minutes} minutes: {summary.total_warnings} warnings"
+        )
+
         return {
             "success": True,
             "data": summary.to_dict(),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
-        logger.error(f"Error generating validation summary: {str(e)}")
-        raise BusinessLogicException(f"Failed to generate validation summary: {str(e, status_code=500)}"
+        logger.error(f"Error generating validation summary: {e}", exc_info=True)
+        # Provide a clear message and explicit status_code to the BusinessLogicException
+        raise BusinessLogicException(
+            "Failed to generate validation summary", status_code=500
         )
 
 
@@ -50,34 +58,34 @@ async def get_validation_summary(
 async def get_validation_health() -> Dict[str, Any]:
     """
     Get validation system health status.
-    
+
     Returns:
         Health status and basic metrics
     """
     try:
         metrics = get_validation_metrics()
         summary = await metrics.get_summary(minutes=5)  # Last 5 minutes
-        
+
         return {
             "success": True,
             "data": {
                 "status": "healthy",
                 "recent_warnings": summary.total_warnings,
                 "validation_active": True,
-                "last_check": datetime.now().isoformat()
-            }
+                "last_check": datetime.now().isoformat(),
+            },
         }
-        
+
     except Exception as e:
-        logger.error(f"Error checking validation health: {str(e)}")
+        logger.error(f"Error checking validation health: {e}", exc_info=True)
         return {
             "success": False,
             "data": {
                 "status": "degraded",
                 "error": str(e),
                 "validation_active": False,
-                "last_check": datetime.now().isoformat()
-            }
+                "last_check": datetime.now().isoformat(),
+            },
         }
 
 

@@ -1,0 +1,445 @@
+<testsuites id="" name="" tests="9" failures="9" skipped="0" errors="0" time="246.337065">
+<testsuite name="prediction-filtering.spec.ts" timestamp="2025-10-26T01:12:51.148Z" hostname="chromium" tests="9" failures="9" skipped="0" time="105.514" errors="0">
+<testcase name="Prediction Filtering › should display prop predictions with filtering options" classname="prediction-filtering.spec.ts" time="11.721">
+<failure message="prediction-filtering.spec.ts:19:3 should display prop predictions with filtering options" type="FAILURE">
+<![CDATA[  [chromium] › prediction-filtering.spec.ts:19:3 › Prediction Filtering › should display prop predictions with filtering options 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[data-testid="prop-list"]') to be visible
+
+
+      19 |   test('should display prop predictions with filtering options', async ({ page }) => {
+      20 |     // Wait for props to load
+    > 21 |     await page.waitForSelector('[data-testid="prop-list"]', { timeout: 10000 });
+         |                ^
+      22 |
+      23 |     // Check that props are displayed
+      24 |     const propCards = await page.locator('[data-testid="prop-card"]').count();
+        at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\tests\e2e\prediction-filtering.spec.ts:21:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\video.webm]]
+
+[[ATTACHMENT|prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\error-context.md]]
+
+[[ATTACHMENT|prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Prediction Filtering › should filter props by player name" classname="prediction-filtering.spec.ts" time="11.739">
+<failure message="prediction-filtering.spec.ts:31:3 should filter props by player name" type="FAILURE">
+<![CDATA[  [chromium] › prediction-filtering.spec.ts:31:3 › Prediction Filtering › should filter props by player name 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[data-testid="prop-list"]') to be visible
+
+
+      31 |   test('should filter props by player name', async ({ page }) => {
+      32 |     // Wait for props to load
+    > 33 |     await page.waitForSelector('[data-testid="prop-list"]', { timeout: 10000 });
+         |                ^
+      34 |
+      35 |     // Get initial prop count
+      36 |     const initialCount = await page.locator('[data-testid="prop-card"]').count();
+        at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\tests\e2e\prediction-filtering.spec.ts:33:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\video.webm]]
+
+[[ATTACHMENT|prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\error-context.md]]
+
+[[ATTACHMENT|prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Prediction Filtering › should filter props by sport type" classname="prediction-filtering.spec.ts" time="11.74">
+<failure message="prediction-filtering.spec.ts:56:3 should filter props by sport type" type="FAILURE">
+<![CDATA[  [chromium] › prediction-filtering.spec.ts:56:3 › Prediction Filtering › should filter props by sport type 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[data-testid="prop-list"]') to be visible
+
+
+      56 |   test('should filter props by sport type', async ({ page }) => {
+      57 |     // Wait for props to load
+    > 58 |     await page.waitForSelector('[data-testid="prop-list"]', { timeout: 10000 });
+         |                ^
+      59 |
+      60 |     // Look for sport filter dropdown or buttons
+      61 |     const sportFilter = page
+        at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\tests\e2e\prediction-filtering.spec.ts:58:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\video.webm]]
+
+[[ATTACHMENT|prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\error-context.md]]
+
+[[ATTACHMENT|prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Prediction Filtering › should filter props by confidence level" classname="prediction-filtering.spec.ts" time="11.717">
+<failure message="prediction-filtering.spec.ts:77:3 should filter props by confidence level" type="FAILURE">
+<![CDATA[  [chromium] › prediction-filtering.spec.ts:77:3 › Prediction Filtering › should filter props by confidence level 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[data-testid="prop-list"]') to be visible
+
+
+      77 |   test('should filter props by confidence level', async ({ page }) => {
+      78 |     // Wait for props to load
+    > 79 |     await page.waitForSelector('[data-testid="prop-list"]', { timeout: 10000 });
+         |                ^
+      80 |
+      81 |     // Look for confidence filter (slider, dropdown, etc.)
+      82 |     const confidenceFilter = page
+        at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\tests\e2e\prediction-filtering.spec.ts:79:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\video.webm]]
+
+[[ATTACHMENT|prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\error-context.md]]
+
+[[ATTACHMENT|prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Prediction Filtering › should sort props by different criteria" classname="prediction-filtering.spec.ts" time="11.686">
+<failure message="prediction-filtering.spec.ts:107:3 should sort props by different criteria" type="FAILURE">
+<![CDATA[  [chromium] › prediction-filtering.spec.ts:107:3 › Prediction Filtering › should sort props by different criteria 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[data-testid="prop-list"]') to be visible
+
+
+      107 |   test('should sort props by different criteria', async ({ page }) => {
+      108 |     // Wait for props to load
+    > 109 |     await page.waitForSelector('[data-testid="prop-list"]', { timeout: 10000 });
+          |                ^
+      110 |
+      111 |     const initialProps = await page.locator('[data-testid="prop-card"]').count();
+      112 |
+        at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\tests\e2e\prediction-filtering.spec.ts:109:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\video.webm]]
+
+[[ATTACHMENT|prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\error-context.md]]
+
+[[ATTACHMENT|prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Prediction Filtering › should handle empty filter results gracefully" classname="prediction-filtering.spec.ts" time="11.673">
+<failure message="prediction-filtering.spec.ts:131:3 should handle empty filter results gracefully" type="FAILURE">
+<![CDATA[  [chromium] › prediction-filtering.spec.ts:131:3 › Prediction Filtering › should handle empty filter results gracefully 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[data-testid="prop-list"]') to be visible
+
+
+      131 |   test('should handle empty filter results gracefully', async ({ page }) => {
+      132 |     // Wait for props to load
+    > 133 |     await page.waitForSelector('[data-testid="prop-list"]', { timeout: 10000 });
+          |                ^
+      134 |
+      135 |     // Apply a filter that should return no results
+      136 |     const searchInput = page
+        at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\tests\e2e\prediction-filtering.spec.ts:133:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\video.webm]]
+
+[[ATTACHMENT|prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\error-context.md]]
+
+[[ATTACHMENT|prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Prediction Filtering › should maintain filter state on page refresh" classname="prediction-filtering.spec.ts" time="11.784">
+<failure message="prediction-filtering.spec.ts:154:3 should maintain filter state on page refresh" type="FAILURE">
+<![CDATA[  [chromium] › prediction-filtering.spec.ts:154:3 › Prediction Filtering › should maintain filter state on page refresh 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[data-testid="prop-list"]') to be visible
+
+
+      154 |   test('should maintain filter state on page refresh', async ({ page }) => {
+      155 |     // Wait for props to load
+    > 156 |     await page.waitForSelector('[data-testid="prop-list"]', { timeout: 10000 });
+          |                ^
+      157 |
+      158 |     // Apply a filter
+      159 |     const searchInput = page.locator('input[placeholder*="search" i]').first();
+        at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\tests\e2e\prediction-filtering.spec.ts:156:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\video.webm]]
+
+[[ATTACHMENT|prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\error-context.md]]
+
+[[ATTACHMENT|prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Advanced Filtering Features › should support multiple simultaneous filters" classname="prediction-filtering.spec.ts" time="11.718">
+<failure message="prediction-filtering.spec.ts:184:3 should support multiple simultaneous filters" type="FAILURE">
+<![CDATA[  [chromium] › prediction-filtering.spec.ts:184:3 › Advanced Filtering Features › should support multiple simultaneous filters 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[data-testid="prop-list"]') to be visible
+
+
+      183 |
+      184 |   test('should support multiple simultaneous filters', async ({ page }) => {
+    > 185 |     await page.waitForSelector('[data-testid="prop-list"]', { timeout: 10000 });
+          |                ^
+      186 |
+      187 |     const initialCount = await page.locator('[data-testid="prop-card"]').count();
+      188 |
+        at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\tests\e2e\prediction-filtering.spec.ts:185:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\video.webm]]
+
+[[ATTACHMENT|prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\error-context.md]]
+
+[[ATTACHMENT|prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Advanced Filtering Features › should provide clear all filters functionality" classname="prediction-filtering.spec.ts" time="11.736">
+<failure message="prediction-filtering.spec.ts:210:3 should provide clear all filters functionality" type="FAILURE">
+<![CDATA[  [chromium] › prediction-filtering.spec.ts:210:3 › Advanced Filtering Features › should provide clear all filters functionality 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('[data-testid="prop-list"]') to be visible
+
+
+      209 |
+      210 |   test('should provide clear all filters functionality', async ({ page }) => {
+    > 211 |     await page.waitForSelector('[data-testid="prop-list"]', { timeout: 10000 });
+          |                ^
+      212 |
+      213 |     // Apply some filters
+      214 |     const playerFilter = page.locator('input[placeholder*="player" i]').first();
+        at C:\Users\bcmad\Downloads\A1Betting7-13.2\frontend\tests\e2e\prediction-filtering.spec.ts:211:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\test-results\prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\test-results\prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\video.webm]]
+
+[[ATTACHMENT|prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\error-context.md]]
+
+[[ATTACHMENT|prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\trace.zip]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

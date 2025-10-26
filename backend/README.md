@@ -1,3 +1,31 @@
+A1Betting backend - quick dev notes
+
+Dev startup (from repo root):
+
+1. Install backend deps into a Python 3.12 venv (optional but recommended):
+
+```bash
+python -m venv .venv
+source .venv/Scripts/activate    # on Windows use: .venv\Scripts\activate
+python -m pip install --upgrade pip
+pip install -r backend/requirements.txt
+```
+
+2. Start the backend (development):
+
+```bash
+# From repo root (matches VS Code task)
+python -m uvicorn backend.core.app:create_app --factory --app-dir . --host 127.0.0.1 --port 8000 --reload
+```
+
+Notes:
+
+- The project supplies a VS Code task `Run backend FastAPI server` that points to a specific Python executable; use that if you want identical behavior to the repo owner's environment.
+- Health endpoints expected: `/health`, `/api/health`, `/api/modern-ml/health`.
+- If you see route registration failures at startup, check `backend/routes/*` for syntax/indentation errors (common when editing route files).
+
+If you'd like, I can add a small script to bootstrap a venv and run a smoke check automatically.
+
 ## Testing & E2E Integration
 
 - Run backend tests with:

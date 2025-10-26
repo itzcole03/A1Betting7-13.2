@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from collections import deque
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from threading import Lock
 from typing import Deque, Dict, List, Optional
-from collections import deque
 
 
 @dataclass
@@ -42,10 +42,22 @@ class FeatureFlagsService:
         }
         self._audit: Deque[AuditEntry] = deque(maxlen=ring_size)
         self._db_enabled = False
+        # During test runs we prefer in-memory defaults to avoid sourcing
+        # persisted feature flag state from a developer DB. Pytest sets the
+        # PYTEST_CURRENT_TEST env var for tests; detect it and skip DB load.
+        try:
+            import os
+
+            if os.getenv("PYTEST_CURRENT_TEST"):
+                self._db_enabled = False
+                return
+        except Exception:
+            pass
         # Try to enable DB persistence if models and session are available
         try:
             from backend.database import SessionLocal, sync_engine  # type: ignore
             from backend.models.feature_flags import FeatureFlagSetting  # type: ignore
+
             self._SessionLocal = SessionLocal
             self._FeatureFlagSetting = FeatureFlagSetting
             self._sync_engine = sync_engine
@@ -53,9 +65,11 @@ class FeatureFlagsService:
             # Ensure table exists (best effort; no-op if already present)
             try:
                 from sqlalchemy import inspect
+
                 insp = inspect(self._sync_engine)
                 if not insp.has_table("feature_flags"):
                     from sqlmodel import SQLModel
+
                     # Use SQLAlchemy metadata from Base models where possible
                     # Fallback: issue CREATE TABLE via ORM mapper
                     with self._sync_engine.begin() as conn:
@@ -71,7 +85,9 @@ class FeatureFlagsService:
                             self._flags[row.name].enabled = bool(row.enabled)
                             self._flags[row.name].toggler = row.toggler
                             self._flags[row.name].last_changed = (
-                                row.last_changed.isoformat() if row.last_changed else None
+                                row.last_changed.isoformat()
+                                if row.last_changed
+                                else None
                             )
             except Exception:
                 # If any DB load error, continue with in-memory defaults
@@ -106,13 +122,20 @@ class FeatureFlagsService:
             flag.toggler = toggler
 
             self._audit.appendleft(
-                AuditEntry(timestamp=ts, flag=name, enabled=bool(enabled), toggler=toggler)
+                AuditEntry(
+                    timestamp=ts, flag=name, enabled=bool(enabled), toggler=toggler
+                )
             )
             # Persist to DB if enabled
             if self._db_enabled:
                 try:
                     from datetime import datetime as dt
-                    last_changed_dt = dt.fromisoformat(ts.replace("Z", "+00:00")) if "Z" in ts else dt.fromisoformat(ts)
+
+                    last_changed_dt = (
+                        dt.fromisoformat(ts.replace("Z", "+00:00"))
+                        if "Z" in ts
+                        else dt.fromisoformat(ts)
+                    )
                     with self._SessionLocal(self._sync_engine) as db:
                         existing = db.get(self._FeatureFlagSetting, name)
                         if existing is None:

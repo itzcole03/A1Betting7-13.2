@@ -7,21 +7,22 @@ Provides REST API access to real-time predictions, explanations, and system heal
 """
 
 import asyncio
+import json
 import logging
+from dataclasses import asdict
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, Header
+
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import json
-from dataclasses import asdict
 
 # Import our real-time prediction engine
 from services.real_time_prediction_engine import (
-    real_time_prediction_engine, 
-    RealTimePrediction, 
+    PredictionConfidence,
     PredictionSystemHealth,
-    PredictionConfidence
+    RealTimePrediction,
+    real_time_prediction_engine,
 )
 
 logger = logging.getLogger(__name__)
@@ -30,21 +31,30 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="A1Betting Real-Time Prediction API",
     description="PHASE 5: Real-time prediction engine with trained ML models",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["${process.env.REACT_APP_API_URL || "http://localhost:8000"}", "${process.env.REACT_APP_API_URL || "http://localhost:8000"}"],  # React dev servers
+    # Use a conservative, literal list of development origins. Do NOT evaluate
+    # environment-style JS templates at import-time; they break Python parsing.
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 # Pydantic models for API responses
 class PredictionResponse(BaseModel):
     """API response for predictions"""
+
     prop_id: str
     player_name: str
     stat_type: str
@@ -69,8 +79,10 @@ class PredictionResponse(BaseModel):
     data_freshness: float
     api_latency: float
 
+
 class SystemHealthResponse(BaseModel):
     """API response for system health"""
+
     status: str
     models_loaded: int
     active_predictions: int
@@ -79,13 +91,17 @@ class SystemHealthResponse(BaseModel):
     error_rate: float
     last_update: str
 
+
 class PredictionRequest(BaseModel):
     """API request for predictions"""
+
     sport: Optional[str] = None
     limit: int = 20
 
+
 # Global initialization flag
 _engine_initialized = False
+
 
 async def get_initialized_engine():
     """Dependency to ensure engine is initialized"""
@@ -97,13 +113,15 @@ async def get_initialized_engine():
             logger.info("✅ Prediction engine initialized for API")
         except Exception as e:
             logger.error(f"❌ Engine initialization failed: {e}")
-            raise HTTPException(status_code=503, detail="Prediction engine initialization failed")
-    
+            raise HTTPException(
+                status_code=503, detail="Prediction engine initialization failed"
+            )
+
     return real_time_prediction_engine
 
 
-from contextlib import asynccontextmanager
 import os
+from contextlib import asynccontextmanager
 
 
 @asynccontextmanager
@@ -114,7 +132,9 @@ async def lifespan(app: FastAPI):
         if os.environ.get("DISABLE_STARTUP_HOOKS", "").lower() == "true":
             # Schedule initialization in background and let the server start
             asyncio.create_task(get_initialized_engine())
-            logger.info("⚠️ Skipping blocking engine init (scheduled in background) due to DISABLE_STARTUP_HOOKS")
+            logger.info(
+                "⚠️ Skipping blocking engine init (scheduled in background) due to DISABLE_STARTUP_HOOKS"
+            )
         else:
             await get_initialized_engine()
 
@@ -131,6 +151,7 @@ async def lifespan(app: FastAPI):
 
 app.router.lifespan_context = lifespan
 
+
 @app.get("/")
 async def root():
     """Root endpoint"""
@@ -143,9 +164,10 @@ async def root():
             "predictions": "/api/predictions/prizepicks/live",
             "health": "/api/predictions/prizepicks/health",
             "explain": "/api/predictions/prizepicks/explain/{prop_id}",
-            "docs": "/docs"
-        }
+            "docs": "/docs",
+        },
     }
+
 
 @app.get("/health")
 async def health_check():
@@ -153,39 +175,42 @@ async def health_check():
     return {
         "status": "healthy",
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "service": "real-time-prediction-api"
+        "service": "real-time-prediction-api",
     }
+
 
 @app.post("/api/predictions/prizepicks/live", response_model=List[PredictionResponse])
 async def get_live_predictions(
     request: PredictionRequest,
-    engine = Depends(get_initialized_engine),
-    user_id: Optional[str] = Header(None)  # Accept user_id from header (or adapt to JWT/session as needed)
+    engine=Depends(get_initialized_engine),
+    user_id: Optional[str] = Header(
+        None
+    ),  # Accept user_id from header (or adapt to JWT/session as needed)
 ) -> List[PredictionResponse]:
     """
     Get real-time predictions for current props, personalized if user_id is provided
     """
     try:
         start_time = datetime.now(timezone.utc)
-        
-        logger.info(f"🎯 API request for live predictions: sport={request.sport}, limit={request.limit}, user_id={user_id}")
-        
+
+        logger.info(
+            f"🎯 API request for live predictions: sport={request.sport}, limit={request.limit}, user_id={user_id}"
+        )
+
         # Generate predictions using the real-time engine, passing user_id for personalization
         predictions = await engine.generate_real_time_predictions(
-            sport=request.sport,
-            limit=request.limit,
-            user_id=user_id
+            sport=request.sport, limit=request.limit, user_id=user_id
         )
-        
+
         # Calculate API latency
         api_latency = (datetime.now(timezone.utc) - start_time).total_seconds()
-        
+
         # Convert to API response format
         response_predictions = []
         for pred in predictions:
             # Update API latency
             pred.api_latency = api_latency
-            
+
             # Convert to response model
             response_pred = PredictionResponse(
                 prop_id=pred.prop_id,
@@ -210,23 +235,26 @@ async def get_live_predictions(
                 recommendation=pred.recommendation,
                 prediction_time=pred.prediction_time.isoformat(),
                 data_freshness=pred.data_freshness,
-                api_latency=pred.api_latency
+                api_latency=pred.api_latency,
             )
             response_predictions.append(response_pred)
-        
-        logger.info(f"✅ API response: {len(response_predictions)} predictions in {api_latency:.2f}s (user_id={user_id})")
-        
+
+        logger.info(
+            f"✅ API response: {len(response_predictions)} predictions in {api_latency:.2f}s (user_id={user_id})"
+        )
+
         return response_predictions
-        
+
     except Exception as e:
         logger.error(f"❌ API error generating predictions: {e}")
-        raise HTTPException(status_code=500, detail=f"Prediction generation failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Prediction generation failed: {str(e)}"
+        )
+
 
 @app.get("/api/predictions/prizepicks/live", response_model=List[PredictionResponse])
 async def get_live_predictions_get(
-    sport: Optional[str] = None,
-    limit: int = 20,
-    engine = Depends(get_initialized_engine)
+    sport: Optional[str] = None, limit: int = 20, engine=Depends(get_initialized_engine)
 ) -> List[PredictionResponse]:
     """
     Get real-time predictions (GET method for easier frontend integration)
@@ -234,14 +262,15 @@ async def get_live_predictions_get(
     request = PredictionRequest(sport=sport, limit=limit)
     return await get_live_predictions(request, engine)
 
+
 @app.get("/api/predictions/prizepicks/health", response_model=SystemHealthResponse)
 async def get_system_health(
-    engine = Depends(get_initialized_engine)
+    engine=Depends(get_initialized_engine),
 ) -> SystemHealthResponse:
     """Get system health and performance metrics"""
     try:
         health = await engine.get_system_health()
-        
+
         response = SystemHealthResponse(
             status=health.status,
             models_loaded=health.models_loaded,
@@ -249,149 +278,158 @@ async def get_system_health(
             api_latency_avg=health.api_latency_avg,
             data_freshness_avg=health.data_freshness_avg,
             error_rate=health.error_rate,
-            last_update=health.last_update.isoformat()
+            last_update=health.last_update.isoformat(),
         )
-        
+
         return response
-        
+
     except Exception as e:
         logger.error(f"❌ Error getting system health: {e}")
         raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
 
+
 @app.get("/api/predictions/prizepicks/explain/{prop_id}")
 async def get_prediction_explanation(
-    prop_id: str,
-    engine = Depends(get_initialized_engine)
+    prop_id: str, engine=Depends(get_initialized_engine)
 ):
     """Get detailed explanation for a specific prediction"""
     try:
         # This would retrieve a specific prediction explanation
         # For now, return a general explanation structure
-        
+
         explanation = {
             "prop_id": prop_id,
             "explanation_type": "SHAP",
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "message": "Detailed SHAP explanation for specific predictions",
-            "note": "This endpoint would provide detailed explanations for cached predictions"
+            "note": "This endpoint would provide detailed explanations for cached predictions",
         }
-        
+
         return explanation
-        
+
     except Exception as e:
         logger.error(f"❌ Error getting explanation for {prop_id}: {e}")
         raise HTTPException(status_code=500, detail=f"Explanation failed: {str(e)}")
 
+
 @app.get("/api/predictions/prizepicks/models")
-async def get_loaded_models(
-    engine = Depends(get_initialized_engine)
-):
+async def get_loaded_models(engine=Depends(get_initialized_engine)):
     """Get information about loaded models"""
     try:
         models_info = []
-        
+
         for model_id, metadata in engine.model_metadata.items():
-            models_info.append({
-                "model_id": model_id,
-                "model_name": metadata.get("model_name", "unknown"),
-                "loaded_at": metadata.get("loaded_at", datetime.now()).isoformat(),
-                "feature_count": len(metadata.get("feature_names", [])),
-                "status": "loaded"
-            })
-        
+            models_info.append(
+                {
+                    "model_id": model_id,
+                    "model_name": metadata.get("model_name", "unknown"),
+                    "loaded_at": metadata.get("loaded_at", datetime.now()).isoformat(),
+                    "feature_count": len(metadata.get("feature_names", [])),
+                    "status": "loaded",
+                }
+            )
+
         return {
             "models_loaded": len(models_info),
             "models": models_info,
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"❌ Error getting model info: {e}")
         raise HTTPException(status_code=500, detail=f"Model info failed: {str(e)}")
 
+
 @app.get("/api/predictions/prizepicks/stats")
-async def get_prediction_stats(
-    engine = Depends(get_initialized_engine)
-):
+async def get_prediction_stats(engine=Depends(get_initialized_engine)):
     """Get prediction statistics and performance metrics"""
     try:
         stats = {
-            "total_predictions": engine.health_metrics.get('predictions_generated', 0),
-            "total_api_calls": engine.health_metrics.get('api_calls', 0),
-            "total_errors": engine.health_metrics.get('errors', 0),
-            "uptime_seconds": (datetime.now(timezone.utc) - engine.health_metrics.get('start_time', datetime.now(timezone.utc))).total_seconds(),
+            "total_predictions": engine.health_metrics.get("predictions_generated", 0),
+            "total_api_calls": engine.health_metrics.get("api_calls", 0),
+            "total_errors": engine.health_metrics.get("errors", 0),
+            "uptime_seconds": (
+                datetime.now(timezone.utc)
+                - engine.health_metrics.get("start_time", datetime.now(timezone.utc))
+            ).total_seconds(),
             "models_loaded": len(engine.loaded_models),
             "cache_size": len(engine.prediction_cache),
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        
+
         # Calculate derived metrics
         if stats["total_api_calls"] > 0:
             stats["error_rate"] = stats["total_errors"] / stats["total_api_calls"]
-            stats["predictions_per_call"] = stats["total_predictions"] / stats["total_api_calls"]
+            stats["predictions_per_call"] = (
+                stats["total_predictions"] / stats["total_api_calls"]
+            )
         else:
             stats["error_rate"] = 0.0
             stats["predictions_per_call"] = 0.0
-        
+
         return stats
-        
+
     except Exception as e:
         logger.error(f"❌ Error getting prediction stats: {e}")
         raise HTTPException(status_code=500, detail=f"Stats failed: {str(e)}")
 
+
 @app.post("/api/predictions/prizepicks/train")
 async def trigger_model_training(
-    background_tasks: BackgroundTasks,
-    engine = Depends(get_initialized_engine)
+    background_tasks: BackgroundTasks, engine=Depends(get_initialized_engine)
 ):
     """Trigger model training in the background"""
     try:
         # Add model training task to background
         background_tasks.add_task(train_models_background)
-        
+
         return {
             "message": "Model training initiated in background",
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "status": "training_started"
+            "status": "training_started",
         }
-        
+
     except Exception as e:
         logger.error(f"❌ Error triggering training: {e}")
-        raise HTTPException(status_code=500, detail=f"Training trigger failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Training trigger failed: {str(e)}"
+        )
+
 
 async def train_models_background():
     """Background task for model training"""
     try:
         logger.info("🔄 Background model training started...")
-        
+
         # Import here to avoid circular imports
         from services.real_ml_training_service import real_ml_training_service
-        
+
         # Collect training data
         training_data = await real_ml_training_service.collect_real_training_data()
-        
+
         if training_data and training_data.samples_count > 0:
             # Train models
-            trained_models = await real_ml_training_service.train_real_models(training_data)
-            logger.info(f"✅ Background training completed: {len(trained_models)} models")
-            
+            trained_models = await real_ml_training_service.train_real_models(
+                training_data
+            )
+            logger.info(
+                f"✅ Background training completed: {len(trained_models)} models"
+            )
+
             # Reload models in the prediction engine
             await real_time_prediction_engine._load_trained_models()
         else:
             logger.warning("⚠️ No training data available for background training")
-        
+
     except Exception as e:
         logger.error(f"❌ Background training failed: {e}")
 
+
 if __name__ == "__main__":
     import uvicorn
-    
+
     logger.info("🚀 Starting Real-Time Prediction API server...")
-    
+
     uvicorn.run(
-        "prediction_api:app",
-        host="0.0.0.0",
-        port=8003,
-        reload=True,
-        log_level="info"
-    ) 
+        "prediction_api:app", host="0.0.0.0", port=8003, reload=True, log_level="info"
+    )

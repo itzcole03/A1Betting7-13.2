@@ -2,12 +2,16 @@
 
 Returns recent raw ring entries for inspection. Hidden (404) unless EV_FEED_DEBUG=1.
 """
+
 from __future__ import annotations
+
 import os
+
 from fastapi import APIRouter, HTTPException, Query
-from backend.services.ev_feed_service import ev_feed_service
-from backend.core.response_models import ResponseBuilder
+
 from backend.core.exceptions import BusinessLogicException
+from backend.core.response_models import ResponseBuilder
+from backend.services.ev_feed_service import ev_feed_service
 
 router = APIRouter(prefix="/api/ev/feed/debug", tags=["EV Feed Debug"])
 
@@ -24,4 +28,10 @@ async def get_latest_ev_feed_entries(limit: int = Query(5, ge=1, le=50)):
     ring = getattr(ev_feed_service, "_ring", [])
     effective_limit = min(limit, 20)
     subset = ring[-effective_limit:]
-    return ResponseBuilder.success(data={"entries": subset, "count": len(subset), "effective_limit": effective_limit})
+    return ResponseBuilder.success(
+        data={
+            "entries": subset,
+            "count": len(subset),
+            "effective_limit": effective_limit,
+        }
+    )

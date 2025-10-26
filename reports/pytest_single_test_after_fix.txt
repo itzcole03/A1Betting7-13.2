@@ -1,0 +1,376 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0
+rootdir: C:\Users\bcmad\Downloads\A1Betting7-13.2
+configfile: pytest.ini
+plugins: anyio-4.10.0, asyncio-1.1.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+18:34:40 [WARNING] backend.services.unified_data_fetcher: ⚠️ Intelligent ensemble system not available: No module named 'cachetools'
+18:34:40 [INFO] backend.core.app: Ingestion admin routes included (/api/ingestion/admin)
+18:34:40 [INFO] backend.core.app: Testing compat shims included
+18:34:40 [INFO] backend.core.app: Request ID correlation middleware added
+18:34:40 [INFO] backend.core.app: Distributed trace correlation middleware added
+18:34:40 [INFO] backend.core.app: Structured logging middleware added
+18:34:40 [INFO] backend.core.app: Prometheus metrics middleware added
+18:34:40 [INFO] backend.core.app: Payload guard middleware added: max_size=262144 bytes, enforce_json=True, enabled=True
+18:34:40 [INFO] backend.middleware.rate_limit: Rate limit metrics integration enabled
+18:34:40 [INFO] backend.middleware.rate_limit: Rate limiting enabled: 100/min, burst=200, cleanup_interval=300s
+18:34:40 [INFO] backend.core.app: Rate limiting middleware added: 100/min, burst=200, enabled=True
+18:34:40 [INFO] backend.core.app: Security headers middleware added: [HSTS, CSP(report-only), COOP, COEP], x_frame_options=DENY
+18:34:40 [INFO] backend.services.legacy_registry: Legacy registry connected to Prometheus metrics
+18:34:40 [INFO] backend.services.legacy_registry: Legacy registry initialized: enabled=True, sunset_date=None
+18:34:40 [INFO] backend.core.app: Legacy endpoint middleware added for usage telemetry and deprecation controls
+18:34:40 [INFO] backend.exceptions.handlers: ✅ PayloadRejectionError handler registered
+18:34:40 [INFO] backend.exceptions.handlers: ✅ All exception handlers registered with structured error taxonomy
+18:34:40 [INFO] backend.core.app: Centralized exception handlers registered
+18:34:40 [INFO] backend.simple_enhanced_setup: simple_enhanced_setup: routes included
+18:34:40 [INFO] backend.core.app: Simple enhanced API fallback registered (v1 routes)
+18:34:40 [INFO] backend.core.app: PR11 Enhanced WebSocket client route included (/ws/client)
+18:34:40 [INFO] backend.core.app: SUCCESS: Core compatibility router mounted for legacy endpoints
+18:34:40 [INFO] backend.core.app: SUCCESS: Dev mode compatibility router included (/dev/mode)
+18:34:40 [INFO] backend.core.app: MLB extras routes included in canonical app
+18:34:40 [INFO] backend.core.app: SUCCESS: Odds refresh stub included at /api/odds
+18:34:40 [INFO] backend.core.app: SUCCESS: Extended health/performance routes included (/api/health/extended, /performance/stats)
+18:34:40 [INFO] backend.services.comprehensive_prizepicks_service: PrizePicks database initialized successfully
+18:34:40 [INFO] backend.services.comprehensive_prizepicks_service: Initialized MLBStatsAPIClient for PrizePicks integration
+18:34:40 [INFO] backend.core.app: SUCCESS: Health routes included (/api/health/status)
+18:34:40 [INFO] backend.core.app: SUCCESS: Sports activation extras included (OPTIONS/HEAD for /api/sports/activate/{sport})
+18:34:40 [INFO] backend.core.app: Admin Feature Flags routes included (/api/admin/feature-flags)
+18:34:40 [INFO] backend.core.app: Tools routes included in canonical app (/api/tools)
+2025-10-21 18:34:40,947 - odds_store - INFO - OddsNormalizer initialized for odds storage
+2025-10-21 18:34:40,947 - odds_store - INFO - OddsNormalizer initialized for odds storage
+2025-10-21 18:34:40,947 - odds_store - INFO - Cache service initialized for odds storage
+2025-10-21 18:34:40,947 - odds_store - INFO - Cache service initialized for odds storage
+2025-10-21 18:34:40,950 - backend.services.cache - WARNING - aioredis not available or connection failed: module 'aioredis' has no attribute 'from_url'
+2025-10-21 18:34:40,968 - backend.core.app - INFO - SUCCESS: Auth routes also exposed at root (/auth/*) for compatibility
+2025-10-21 18:34:40,969 - backend.core.app - INFO - SUCCESS: Auth and users routes included (auth with /api prefix)
+2025-10-21 18:34:40,977 - propollama.alerts - INFO - AlertService initialized with in-memory storage
+2025-10-21 18:34:40,982 - backend.core.app - INFO - SUCCESS: Alert routes included (/api/alerts/*)
+2025-10-21 18:34:41,009 - backend.core.app - INFO - SUCCESS: Bankroll management routes included (/api/bankroll/*)
+2025-10-21 18:34:41,012 - propollama.smart_signals - INFO - SmartSignalsService initialized - enabled: False
+2025-10-21 18:34:41,017 - backend.core.app - INFO - SUCCESS: Smart Signals routes included (/api/signals/*)
+2025-10-21 18:34:41,023 - backend.core.app - INFO - SUCCESS: Data validation routes included (/api/data/validation/summary)
+2025-10-21 18:34:41,028 - backend.core.app - INFO - SUCCESS: Diagnostics routes included (/api/v2/diagnostics/health, /api/v2/diagnostics/system)
+2025-10-21 18:34:41,030 - backend.core.app - INFO - SUCCESS: Meta cache routes included (/api/v2/meta/cache-stats, /api/v2/meta/cache-health)
+2025-10-21 18:34:41,031 - backend.core.app - INFO - SUCCESS: Legacy meta routes included (/api/v2/meta/legacy-usage, /api/v2/meta/migration-readiness)
+2025-10-21 18:34:41,033 - backend.core.app - INFO - SUCCESS: CSP report routes included (/csp/report + /api/security/csp-report alias)
+2025-10-21 18:34:41,036 - backend.core.app - INFO - SUCCESS: Trace test routes included (/api/trace/* endpoints)
+2025-10-21 18:34:41,039 - backend.core.app - INFO - SUCCESS: Model inference routes included (/api/v2/models/* endpoints)
+2025-10-21 18:34:41,041 - backend.core.app - INFO - SUCCESS: Observability events routes included (/api/v2/observability/* endpoints)
+2025-10-21 18:34:41,043 - backend.services.model_registry - INFO - Model registry initialized
+2025-10-21 18:34:41,056 - backend.routes.admin_control - INFO - Model registry patched to use runtime shadow controller
+2025-10-21 18:34:41,056 - backend.routes.admin_control - INFO - Admin control endpoints initialized with runtime shadow mode support
+2025-10-21 18:34:41,057 - backend.core.app - INFO - SUCCESS: Admin control routes included (/api/v2/models/shadow/* and /api/v2/models/admin/* endpoints)
+2025-10-21 18:34:41,076 - backend.core.app - INFO - SUCCESS: Analytics routes included (/api/analytics/* endpoints)
+2025-10-21 18:34:41,078 - backend.core.app - INFO - SUCCESS: Unified API router included for legacy /api endpoints
+2025-10-21 18:34:41,096 - backend.core.app - INFO - SUCCESS: Enhanced WebSocket routes included (/ws/v2/* endpoints)
+2025-10-21 18:34:41,099 - backend.core.app - INFO - SUCCESS: WebSocket logging routes included (/api/websocket/* endpoints)
+2025-10-21 18:34:41,101 - backend.core.app - INFO - SUCCESS: Version routes included (/api/version/* endpoints)
+2025-10-21 18:34:41,104 - backend.core.app - INFO - SUCCESS: WebVitals pipeline routes included (/api/metrics/v1/* endpoints)
+2025-10-21 18:34:41,115 - backend.core.app - INFO - SUCCESS: Trends routes included (/api/trends/* endpoints)
+2025-10-21 18:34:41,124 - ev_feed_service - INFO - EVFeedService initialized MLBStatsAPIClient integration
+2025-10-21 18:34:41,128 - backend.core.app - INFO - SUCCESS: +EV Feed routes included (/api/ev/* endpoints)
+2025-10-21 18:34:41,130 - backend.core.app - INFO - SUCCESS: EV Feed debug routes included (/api/ev/feed/debug/* endpoints)
+2025-10-21 18:34:41,133 - backend.core.app - INFO - SUCCESS: Opportunities routes included (/api/opportunities/* endpoints)
+2025-10-21 18:34:41,134 - backend.core.app - INFO - SUCCESS: Enhanced ML routes included (/api/enhanced-ml/* endpoints)
+2025-10-21 18:34:41,135 - backend.core.app - INFO - SUCCESS: Fallback enhanced-ml compatibility router mounted at /api/enhanced-ml
+2025-10-21 18:34:41,140 - backend.core.app - INFO - SUCCESS: Supplementary Enhanced-ML compatibility endpoints mounted where missing
+2025-10-21 18:34:41,145 - backend.core.app - INFO - SUCCESS: Consolidated PrizePicks routes included (/api/v2/prizepicks/* endpoints)
+2025-10-21 18:34:41,149 - backend.core.app - INFO - SUCCESS: Consolidated ML routes included (/api/v2/ml/* endpoints)
+2025-10-21 18:34:41,150 - backend.core.app - INFO - SUCCESS: Consolidated Admin routes included (/api/v2/admin/* endpoints)
+2025-10-21 18:34:41,159 - backend.core.app - INFO - SUCCESS: Odds & Line Movement routes included (/v1/odds/* endpoints)
+2025-10-21 18:34:41,161 - backend.core.app - INFO - SUCCESS: Odds alias routes included (/api/odds/* endpoints)
+2025-10-21 18:34:41,164 - backend.core.app - WARNING - WARNING: Could not import Odds History routes: No module named 'aiohttp'
+2025-10-21 18:34:41,166 - backend.core.app - INFO - Included fallback Odds History routes for tests (/api/odds/history)
+2025-10-21 18:34:41,166 - backend.core.app - INFO - ENABLE_ODDS_SNAPSHOTS=false: snapshot persistence disabled
+2025-10-21 18:34:41,169 - backend.core.app - INFO - SUCCESS: Advanced-Kelly compatibility router mounted at /api/advanced-kelly
+2025-10-21 18:34:41,170 - backend.core.app - INFO - SUCCESS: Risk Management & Personalization routes included (/api/risk-personalization/* endpoints)
+2025-10-21 18:34:41,172 - backend.core.app - INFO - SUCCESS: Dependencies Health routes included (/api/dependencies/* endpoints)
+2025-10-21 18:34:41,173 - backend.core.app - INFO - SUCCESS: Provider Resilience routes included (/api/provider-resilience/* endpoints)
+2025-10-21 18:34:41,175 - backend.core.app - INFO - SUCCESS: System capabilities routes included (/api/system/* endpoints)
+2025-10-21 18:34:41,178 - backend.core.app - INFO - SUCCESS: Real-time market streaming routes included (/streaming/* endpoints)
+2025-10-21 18:34:41,183 - backend.core.app - INFO - SUCCESS: Unified sports routes included (/sports/* endpoints)
+2025-10-21 18:34:41,184 - backend.core.app - INFO - SUCCESS: Lazy sports routes included (/api/sports/* endpoints)
+2025-10-21 18:34:41,186 - a1betting.lazy_sport_manager - INFO - LazySportManager initialized with 4 sports
+2025-10-21 18:34:41,186 - a1betting.lazy_sport_manager - INFO - LazySportManager initialized with 4 sports
+2025-10-21 18:34:41,188 - backend.core.app - INFO - SUCCESS: Sports activation routes included (/api/v2/sports/* endpoints)
+2025-10-21 18:34:41,189 - backend.core.app - INFO - SUCCESS: Security HEAD endpoints included (/api/* HEAD endpoints)
+2025-10-21 18:34:41,192 - backend.core.app - INFO - SUCCESS: ML Model Registry routes included (/api/models/* endpoints)
+2025-10-21 18:34:41,195 - backend.ingestion.normalization.taxonomy_service - INFO - Loaded 48 prop mappings and 100 team mappings
+2025-10-21 18:34:41,195 - backend.ingestion.normalization.taxonomy_service - INFO - Loaded provider-specific mappings for 6 providers
+2025-10-21 18:34:41,202 - backend.core.app - INFO - SUCCESS: Data ingestion routes included (/api/v1/ingestion/* endpoints)
+2025-10-21 18:34:41,204 - odds_aggregation_metrics - INFO - Prometheus client available - metrics collection enabled
+2025-10-21 18:34:41,208 - backend.core.app - INFO - SUCCESS: Metrics routes included (/metrics)
+2025-10-21 18:34:41,208 - backend.core.app - INFO - SUCCESS: Metrics summary routes included (/api/metrics/* endpoints)
+2025-10-21 18:34:41,209 - backend.core.app - WARNING - Could not import enterprise model registry routes: cannot import name 'enterprise_router' from 'backend.routes.enterprise_model_registry_routes' (C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\enterprise_model_registry_routes.py)
+2025-10-21 18:34:41,211 - backend.core.app - INFO - SUCCESS: Alert engine routes included (/api/alert-engine/* endpoints)
+2025-10-21 18:34:41,212 - backend.core.app - INFO - SUCCESS: Player Performance routes included (/api/players/* endpoints)
+2025-10-21 18:34:41,216 - backend.core.app - INFO - SUCCESS: EV Calculation routes included (/api/ev/* endpoints)
+2025-10-21 18:34:41,221 - enhanced_ev_engine - INFO - Enhanced EV Engine initialized with hardening features
+2025-10-21 18:34:41,221 - enhanced_ev_engine - INFO - Enhanced EV Engine initialized with hardening features
+2025-10-21 18:34:41,230 - backend.core.app - INFO - SUCCESS: Enhanced EV Engine routes included (/api/ev/enhanced/* endpoints)
+2025-10-21 18:34:41,232 - backend.core.app - INFO - SUCCESS: CLV Trends routes included (/api/clv/* endpoints)
+2025-10-21 18:34:41,234 - backend.core.app - INFO - SUCCESS: Parlay Analytics routes included (/api/parlay/* endpoints)
+2025-10-21 18:34:41,248 - backend.core.app - INFO - SUCCESS: Line Movement routes included (/api/line-movement/* endpoints)
+2025-10-21 18:34:41,252 - backend.core.app - INFO - SUCCESS: Legacy Line Movement routes included (/api/lines/* endpoints)
+2025-10-21 18:34:41,257 - backend.core.app - INFO - SUCCESS: Hardened Arbitrage routes included (/api/arbitrage/* endpoints)
+2025-10-21 18:34:41,258 - backend.core.app - INFO - SUCCESS: Multiple Sportsbook routes included (/api/sportsbook/* endpoints)
+2025-10-21 18:34:41,261 - backend.core.app - INFO - Bootstrap validation scheduled on startup
+2025-10-21 18:34:41,261 - backend.core.app - INFO - Health endpoints normalized: /api/health, /health, /api/v2/health -> identical envelope format
+2025-10-21 18:34:41,268 - backend.core.app - INFO - FeatureRouters: PropFinder routers registered (primary=/api/propfinder/*, legacy=/api/props)
+2025-10-21 18:34:41,286 - backend.core.app - INFO - FeatureRouters: Betting routes registered (/api/betting-opportunities, /api/arbitrage-opportunities)
+2025-10-21 18:34:41,294 - backend.core.app - INFO - Compatibility shims router included (root-level aliases)
+2025-10-21 18:34:41,303 - backend.core.app - INFO - PrizePicks compatibility router included at /api/prizepicks/*
+2025-10-21 18:34:41,304 - backend.core.app - INFO - Health compatibility router included (legacy aliases)
+2025-10-21 18:34:41,304 - backend.core.app - INFO - A1Betting canonical app created successfully
+2025-10-21 18:34:41,304 - backend.core.app - INFO - Creating A1Betting canonical app...
+2025-10-21 18:34:41,304 - backend.core.app - INFO - Ingestion admin routes included (/api/ingestion)
+2025-10-21 18:34:41,305 - backend.core.app - INFO - Ingestion admin routes included (/api/ingestion/admin)
+2025-10-21 18:34:41,306 - backend.core.app - INFO - Testing compat shims included
+2025-10-21 18:34:41,306 - backend.core.app - INFO - Request ID correlation middleware added
+2025-10-21 18:34:41,306 - backend.core.app - INFO - Distributed trace correlation middleware added
+2025-10-21 18:34:41,306 - backend.core.app - INFO - Structured logging middleware added
+2025-10-21 18:34:41,306 - backend.core.app - INFO - Prometheus metrics middleware added
+2025-10-21 18:34:41,306 - backend.core.app - INFO - Payload guard middleware added: max_size=262144 bytes, enforce_json=True, enabled=True
+2025-10-21 18:34:41,306 - backend.middleware.rate_limit - INFO - Rate limit metrics integration enabled
+2025-10-21 18:34:41,306 - backend.middleware.rate_limit - INFO - Rate limiting enabled: 100/min, burst=200, cleanup_interval=300s
+2025-10-21 18:34:41,306 - backend.core.app - INFO - Rate limiting middleware added: 100/min, burst=200, enabled=True
+2025-10-21 18:34:41,306 - backend.core.app - INFO - Security headers middleware added: [HSTS, CSP(report-only), COOP, COEP], x_frame_options=DENY
+2025-10-21 18:34:41,306 - backend.core.app - INFO - Legacy endpoint middleware added for usage telemetry and deprecation controls
+2025-10-21 18:34:41,306 - backend.exceptions.handlers - INFO - \u2705 PayloadRejectionError handler registered
+2025-10-21 18:34:41,306 - backend.exceptions.handlers - INFO - \u2705 All exception handlers registered with structured error taxonomy
+2025-10-21 18:34:41,306 - backend.core.app - INFO - Centralized exception handlers registered
+2025-10-21 18:34:41,306 - backend.simple_enhanced_setup - INFO - simple_enhanced_setup: routes included
+2025-10-21 18:34:41,306 - backend.core.app - INFO - Simple enhanced API fallback registered (v1 routes)
+2025-10-21 18:34:41,308 - backend.core.app - INFO - PR11 Enhanced WebSocket client route included (/ws/client)
+2025-10-21 18:34:41,310 - backend.core.app - INFO - SUCCESS: Core compatibility router mounted for legacy endpoints
+2025-10-21 18:34:41,310 - backend.core.app - INFO - SUCCESS: Dev mode compatibility router included (/dev/mode)
+2025-10-21 18:34:41,312 - backend.core.app - INFO - MLB extras routes included in canonical app
+2025-10-21 18:34:41,312 - backend.core.app - INFO - SUCCESS: Odds refresh stub included at /api/odds
+2025-10-21 18:34:41,312 - backend.core.app - INFO - SUCCESS: Extended health/performance routes included (/api/health/extended, /performance/stats)
+2025-10-21 18:34:41,314 - backend.core.app - INFO - SUCCESS: Health routes included (/api/health/status)
+2025-10-21 18:34:41,314 - backend.core.app - INFO - SUCCESS: Sports activation extras included (OPTIONS/HEAD for /api/sports/activate/{sport})
+2025-10-21 18:34:41,315 - backend.core.app - INFO - Admin Feature Flags routes included (/api/admin/feature-flags)
+2025-10-21 18:34:41,316 - backend.core.app - INFO - Tools routes included in canonical app (/api/tools)
+2025-10-21 18:34:41,320 - backend.core.app - INFO - SUCCESS: Auth routes also exposed at root (/auth/*) for compatibility
+2025-10-21 18:34:41,320 - backend.core.app - INFO - SUCCESS: Auth and users routes included (auth with /api prefix)
+2025-10-21 18:34:41,321 - backend.core.app - INFO - SUCCESS: Alert routes included (/api/alerts/*)
+2025-10-21 18:34:41,328 - backend.core.app - INFO - SUCCESS: Bankroll management routes included (/api/bankroll/*)
+2025-10-21 18:34:41,328 - backend.core.app - INFO - SUCCESS: Smart Signals routes included (/api/signals/*)
+2025-10-21 18:34:41,329 - backend.core.app - INFO - SUCCESS: Data validation routes included (/api/data/validation/summary)
+2025-10-21 18:34:41,330 - backend.core.app - INFO - SUCCESS: Diagnostics routes included (/api/v2/diagnostics/health, /api/v2/diagnostics/system)
+2025-10-21 18:34:41,330 - backend.core.app - INFO - SUCCESS: Meta cache routes included (/api/v2/meta/cache-stats, /api/v2/meta/cache-health)
+2025-10-21 18:34:41,330 - backend.core.app - INFO - SUCCESS: Legacy meta routes included (/api/v2/meta/legacy-usage, /api/v2/meta/migration-readiness)
+2025-10-21 18:34:41,330 - backend.core.app - INFO - SUCCESS: CSP report routes included (/csp/report + /api/security/csp-report alias)
+2025-10-21 18:34:41,331 - backend.core.app - INFO - SUCCESS: Trace test routes included (/api/trace/* endpoints)
+2025-10-21 18:34:41,331 - backend.core.app - INFO - SUCCESS: Model inference routes included (/api/v2/models/* endpoints)
+2025-10-21 18:34:41,332 - backend.core.app - INFO - SUCCESS: Observability events routes included (/api/v2/observability/* endpoints)
+2025-10-21 18:34:41,333 - backend.core.app - INFO - SUCCESS: Admin control routes included (/api/v2/models/shadow/* and /api/v2/models/admin/* endpoints)
+2025-10-21 18:34:41,335 - backend.core.app - INFO - SUCCESS: Analytics routes included (/api/analytics/* endpoints)
+2025-10-21 18:34:41,336 - backend.core.app - INFO - SUCCESS: Unified API router included for legacy /api endpoints
+2025-10-21 18:34:41,338 - backend.core.app - INFO - SUCCESS: Enhanced WebSocket routes included (/ws/v2/* endpoints)
+2025-10-21 18:34:41,338 - backend.core.app - INFO - SUCCESS: WebSocket logging routes included (/api/websocket/* endpoints)
+2025-10-21 18:34:41,339 - backend.core.app - INFO - SUCCESS: Version routes included (/api/version/* endpoints)
+2025-10-21 18:34:41,339 - backend.core.app - INFO - SUCCESS: WebVitals pipeline routes included (/api/metrics/v1/* endpoints)
+2025-10-21 18:34:41,341 - backend.core.app - INFO - SUCCESS: Trends routes included (/api/trends/* endpoints)
+2025-10-21 18:34:41,343 - backend.core.app - INFO - SUCCESS: +EV Feed routes included (/api/ev/* endpoints)
+2025-10-21 18:34:41,343 - backend.core.app - INFO - SUCCESS: EV Feed debug routes included (/api/ev/feed/debug/* endpoints)
+2025-10-21 18:34:41,344 - backend.core.app - INFO - SUCCESS: Opportunities routes included (/api/opportunities/* endpoints)
+2025-10-21 18:34:41,344 - backend.core.app - INFO - SUCCESS: Enhanced ML routes included (/api/enhanced-ml/* endpoints)
+2025-10-21 18:34:41,345 - backend.core.app - INFO - SUCCESS: Fallback enhanced-ml compatibility router mounted at /api/enhanced-ml
+2025-10-21 18:34:41,349 - backend.core.app - INFO - SUCCESS: Supplementary Enhanced-ML compatibility endpoints mounted where missing
+2025-10-21 18:34:41,350 - backend.core.app - INFO - SUCCESS: Consolidated PrizePicks routes included (/api/v2/prizepicks/* endpoints)
+2025-10-21 18:34:41,351 - backend.core.app - INFO - SUCCESS: Consolidated ML routes included (/api/v2/ml/* endpoints)
+2025-10-21 18:34:41,351 - backend.core.app - INFO - SUCCESS: Consolidated Admin routes included (/api/v2/admin/* endpoints)
+2025-10-21 18:34:41,353 - backend.core.app - INFO - SUCCESS: Odds & Line Movement routes included (/v1/odds/* endpoints)
+2025-10-21 18:34:41,356 - backend.core.app - INFO - SUCCESS: Odds alias routes included (/api/odds/* endpoints)
+2025-10-21 18:34:41,358 - backend.core.app - WARNING - WARNING: Could not import Odds History routes: No module named 'aiohttp'
+2025-10-21 18:34:41,359 - backend.core.app - INFO - Included fallback Odds History routes for tests (/api/odds/history)
+2025-10-21 18:34:41,359 - backend.core.app - INFO - ENABLE_ODDS_SNAPSHOTS=false: snapshot persistence disabled
+2025-10-21 18:34:41,361 - backend.core.app - INFO - SUCCESS: Advanced-Kelly compatibility router mounted at /api/advanced-kelly
+2025-10-21 18:34:41,361 - backend.core.app - INFO - SUCCESS: Risk Management & Personalization routes included (/api/risk-personalization/* endpoints)
+2025-10-21 18:34:41,362 - backend.core.app - INFO - SUCCESS: Dependencies Health routes included (/api/dependencies/* endpoints)
+2025-10-21 18:34:41,362 - backend.core.app - INFO - SUCCESS: Provider Resilience routes included (/api/provider-resilience/* endpoints)
+2025-10-21 18:34:41,362 - backend.core.app - INFO - SUCCESS: System capabilities routes included (/api/system/* endpoints)
+2025-10-21 18:34:41,363 - backend.core.app - INFO - SUCCESS: Real-time market streaming routes included (/streaming/* endpoints)
+2025-10-21 18:34:41,364 - backend.core.app - INFO - SUCCESS: Unified sports routes included (/sports/* endpoints)
+2025-10-21 18:34:41,364 - backend.core.app - INFO - SUCCESS: Lazy sports routes included (/api/sports/* endpoints)
+2025-10-21 18:34:41,364 - backend.core.app - INFO - SUCCESS: Sports activation routes included (/api/v2/sports/* endpoints)
+2025-10-21 18:34:41,365 - backend.core.app - INFO - SUCCESS: Security HEAD endpoints included (/api/* HEAD endpoints)
+2025-10-21 18:34:41,365 - backend.core.app - INFO - SUCCESS: ML Model Registry routes included (/api/models/* endpoints)
+2025-10-21 18:34:41,366 - backend.core.app - INFO - SUCCESS: Data ingestion routes included (/api/v1/ingestion/* endpoints)
+2025-10-21 18:34:41,367 - backend.core.app - INFO - SUCCESS: Metrics routes included (/metrics)
+2025-10-21 18:34:41,367 - backend.core.app - INFO - SUCCESS: Metrics summary routes included (/api/metrics/* endpoints)
+2025-10-21 18:34:41,367 - backend.core.app - WARNING - Could not import enterprise model registry routes: cannot import name 'enterprise_router' from 'backend.routes.enterprise_model_registry_routes' (C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\enterprise_model_registry_routes.py)
+2025-10-21 18:34:41,368 - backend.core.app - INFO - SUCCESS: Alert engine routes included (/api/alert-engine/* endpoints)
+2025-10-21 18:34:41,368 - backend.core.app - INFO - SUCCESS: Player Performance routes included (/api/players/* endpoints)
+2025-10-21 18:34:41,369 - backend.core.app - INFO - SUCCESS: EV Calculation routes included (/api/ev/* endpoints)
+2025-10-21 18:34:41,372 - backend.core.app - INFO - SUCCESS: Enhanced EV Engine routes included (/api/ev/enhanced/* endpoints)
+2025-10-21 18:34:41,373 - backend.core.app - INFO - SUCCESS: CLV Trends routes included (/api/clv/* endpoints)
+2025-10-21 18:34:41,373 - backend.core.app - INFO - SUCCESS: Parlay Analytics routes included (/api/parlay/* endpoints)
+2025-10-21 18:34:41,376 - backend.core.app - INFO - SUCCESS: Line Movement routes included (/api/line-movement/* endpoints)
+2025-10-21 18:34:41,378 - backend.core.app - INFO - SUCCESS: Legacy Line Movement routes included (/api/lines/* endpoints)
+2025-10-21 18:34:41,380 - backend.core.app - INFO - SUCCESS: Hardened Arbitrage routes included (/api/arbitrage/* endpoints)
+2025-10-21 18:34:41,380 - backend.core.app - INFO - SUCCESS: Multiple Sportsbook routes included (/api/sportsbook/* endpoints)
+2025-10-21 18:34:41,380 - backend.core.app - INFO - Bootstrap validation scheduled on startup
+2025-10-21 18:34:41,380 - backend.core.app - INFO - Health endpoints normalized: /api/health, /health, /api/v2/health -> identical envelope format
+2025-10-21 18:34:41,380 - backend.core.app - INFO - FeatureRouters: PropFinder routers registered (primary=/api/propfinder/*, legacy=/api/props)
+2025-10-21 18:34:41,381 - backend.core.app - INFO - FeatureRouters: Betting routes registered (/api/betting-opportunities, /api/arbitrage-opportunities)
+2025-10-21 18:34:41,383 - backend.core.app - INFO - Compatibility shims router included (root-level aliases)
+2025-10-21 18:34:41,386 - backend.core.app - INFO - PrizePicks compatibility router included at /api/prizepicks/*
+2025-10-21 18:34:41,386 - backend.core.app - INFO - Health compatibility router included (legacy aliases)
+2025-10-21 18:34:41,386 - backend.core.app - INFO - A1Betting canonical app created successfully
+2025-10-21 18:34:41,386 - backend.main - INFO - \u2705 Using canonical app from backend.core.app.create_app()
+2025-10-21 18:34:41,389 - backend.main - INFO - \u26a0\ufe0f DEPRECATED: A1Betting Backend loaded via deprecated main.py
+2025-10-21 18:34:41,389 - backend.main - INFO - \U0001f504 Migrate to: from backend.core.app import app
+2025-10-21 18:34:41,675 - A1BettingAPI - WARNING - Real authentication services not available
+collected 1 item
+
+tests\backend\test_clv_response_consistency.py 2025-10-21 18:34:41,723 - backend.middleware.rate_limit - INFO - Rate limit metrics integration enabled
+2025-10-21 18:34:41,723 - backend.middleware.rate_limit - INFO - Rate limiting enabled: 100/min, burst=200, cleanup_interval=300s
+2025-10-21 18:34:41,723 - backend.middleware.security_headers - INFO - SUCCESS: Security headers middleware enabled: CSP=report-only, HSTS=True, strict_mode=False
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/health -> /api/v2/diagnostics/health
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /health -> /api/v2/diagnostics/health
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/metrics/summary -> /api/v2/meta/cache-stats
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /metrics -> /api/v2/meta/cache-stats
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /performance/stats -> /api/v2/diagnostics/system
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/props -> /api/v2/ml/predictions
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/predictions -> /api/v2/ml/predictions
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/analytics -> /api/v2/ml/analytics
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/enhanced-ml -> /api/v2/ml
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/enhanced-ml/performance/metrics -> /api/enhanced-ml/performance/metrics
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/enhanced-ml/performance/update-outcome -> /api/enhanced-ml/performance/update-outcome
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/enhanced-ml/models/compare -> /api/enhanced-ml/models/compare
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/enhanced-ml/models/list -> /api/enhanced-ml/models/list
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/enhanced-ml/models/ -> /api/enhanced-ml/models/
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/enhanced-ml/status -> /api/enhanced-ml/status
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /dev/mode -> /api/v2/diagnostics/system
+2025-10-21 18:34:41,723 - backend.middleware.legacy_middleware - INFO - Registered known legacy endpoints with forwarding paths
+2025-10-21 18:34:41,723 - backend.middleware.legacy_middleware - INFO - Legacy middleware initialized
+2025-10-21 18:34:41,723 - backend.middleware.legacy_middleware - INFO - [LegacyMiddleware] dispatch start method=GET path=/api/propfinder/opportunities
+2025-10-21 18:34:41,723 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/propfinder/opportunities -> None
+2025-10-21 18:34:41,723 - backend.middleware.legacy_middleware - INFO - Legacy endpoint accessed: GET /api/propfinder/opportunities (count: 1)
+2025-10-21 18:34:41,723 - backend.middleware.legacy_middleware - INFO - Legacy registry entry: path=/api/propfinder/opportunities, forward=None, entry=LegacyEndpointData(path='/api/propfinder/opportunities', count=1, forward=None, last_access_ts=1761089681.7239313, first_recorded_ts=1761089681.7239046)
+{"timestamp": "2025-10-21T23:34:41.724407+00:00", "level": "INFO", "logger": "a1betting", "message": "Request started", "module": "structured_logging_middleware", "function": "log_request_start", "line": 115, "request_id": "aa35587d-ce8d-42b5-ae7d-b1ecf02e7c93", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_start", "method": "GET", "url": "http://testserver/api/propfinder/opportunities?include_clv=true", "path": "/api/propfinder/opportunities", "query_params": {"include_clv": "true"}, "client_ip": "testclient", "user_agent": "testclient", "content_type": null}
+2025-10-21 18:34:41,724 - backend.middleware.request_id_middleware - INFO - Request started: GET /api/propfinder/opportunities
+2025-10-21 18:34:41,725 - backend.services.simple_propfinder_service - INFO - SimplePropFinderService initialized in lean/test mode (fast-path)
+2025-10-21 18:34:41,725 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_lebron_james_points_2, Vig: 0.97%, Low Juice: True
+2025-10-21 18:34:41,725 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_lebron_james_assists_4, Vig: 0.73%, Low Juice: True
+2025-10-21 18:34:41,725 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_lebron_james_rebounds_6, Vig: 0.97%, Low Juice: True
+2025-10-21 18:34:41,725 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_lebron_james_3pointers_made_8, Vig: 0.49%, Low Juice: True
+2025-10-21 18:34:41,725 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_stephen_curry_points_10, Vig: 0.73%, Low Juice: True
+2025-10-21 18:34:41,725 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_stephen_curry_assists_12, Vig: 1.20%, Low Juice: True
+2025-10-21 18:34:41,725 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_stephen_curry_rebounds_14, Vig: 0.25%, Low Juice: True
+2025-10-21 18:34:41,725 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_stephen_curry_3pointers_made_16, Vig: 0.73%, Low Juice: True
+2025-10-21 18:34:41,725 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_nikola_jokic_points_18, Vig: 0.49%, Low Juice: True
+2025-10-21 18:34:41,726 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_nikola_jokic_assists_20, Vig: 0.97%, Low Juice: True
+2025-10-21 18:34:41,726 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_nikola_jokic_rebounds_22, Vig: 1.44%, Low Juice: True
+2025-10-21 18:34:41,726 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_nikola_jokic_3pointers_made_24, Vig: 0.25%, Low Juice: True
+2025-10-21 18:34:41,726 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_jayson_tatum_points_26, Vig: 0.73%, Low Juice: True
+2025-10-21 18:34:41,726 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_jayson_tatum_assists_28, Vig: 0.97%, Low Juice: True
+2025-10-21 18:34:41,726 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_jayson_tatum_rebounds_30, Vig: 0.97%, Low Juice: True
+2025-10-21 18:34:41,726 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_jayson_tatum_3pointers_made_32, Vig: 0.97%, Low Juice: True
+2025-10-21 18:34:41,726 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_luka_doncic_points_34, Vig: 0.49%, Low Juice: True
+2025-10-21 18:34:41,726 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_luka_doncic_assists_36, Vig: 0.97%, Low Juice: True
+2025-10-21 18:34:41,726 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_luka_doncic_rebounds_38, Vig: 0.49%, Low Juice: True
+2025-10-21 18:34:41,726 - backend.arbitrage_engine - INFO - Low juice analysis - Event: nba_luka_doncic_3pointers_made_40, Vig: 1.20%, Low Juice: True
+2025-10-21 18:34:41,726 - backend.arbitrage_engine - INFO - Low juice analysis - Event: mlb_mookie_betts_hits_42, Vig: 1.66%, Low Juice: True
+2025-10-21 18:34:41,727 - backend.arbitrage_engine - INFO - Low juice analysis - Event: mlb_mookie_betts_total_bases_44, Vig: 1.66%, Low Juice: True
+2025-10-21 18:34:41,727 - backend.arbitrage_engine - INFO - Low juice analysis - Event: mlb_mookie_betts_rbis_46, Vig: 2.54%, Low Juice: True
+2025-10-21 18:34:41,727 - backend.arbitrage_engine - INFO - Low juice analysis - Event: mlb_aaron_judge_hits_48, Vig: 2.54%, Low Juice: True
+2025-10-21 18:34:41,727 - backend.arbitrage_engine - INFO - Low juice analysis - Event: mlb_aaron_judge_total_bases_50, Vig: 2.33%, Low Juice: True
+2025-10-21 18:34:41,727 - backend.arbitrage_engine - INFO - Low juice analysis - Event: mlb_aaron_judge_rbis_52, Vig: 2.11%, Low Juice: True
+2025-10-21 18:34:41,727 - backend.arbitrage_engine - INFO - Low juice analysis - Event: mlb_ronald_acuna_jr_hits_54, Vig: 2.33%, Low Juice: True
+2025-10-21 18:34:41,728 - backend.arbitrage_engine - INFO - Low juice analysis - Event: mlb_ronald_acuna_jr_total_bases_56, Vig: 1.89%, Low Juice: True
+2025-10-21 18:34:41,728 - backend.arbitrage_engine - INFO - Low juice analysis - Event: mlb_ronald_acuna_jr_rbis_58, Vig: 2.54%, Low Juice: True
+2025-10-21 18:34:41,728 - backend.services.simple_propfinder_service - INFO - Generated 29 test opportunities
+2025-10-21 18:34:41,729 - backend.services.simple_propfinder_service - INFO - SimplePropFinderService initialized in lean/test mode (fast-path)
+2025-10-21 18:34:41,730 - backend.services.clv_metrics - INFO - clv_metrics.get_metrics_service: CLVMetricsService constructor object=<class 'backend.services.clv_metrics.CLVMetricsService'>
+2025-10-21 18:34:41,924 - backend.services.clv_metrics - INFO - clv_metrics.get_metrics_service: constructed instance=<backend.services.clv_metrics.CLVMetricsService object at 0x000002179D5697F0>
+2025-10-21 18:34:41,924 - backend.services.simple_propfinder_service - INFO - Enriched 1 opportunities with CLV data
+2025-10-21 18:34:41,926 - backend.services.simple_propfinder_service - INFO - Analytics persistence: 25 EV + 19 arbitrage opportunities saved
+2025-10-21 18:34:41,940 - backend.middleware.request_id_middleware - INFO - Request completed: GET /api/propfinder/opportunities - 200
+2025-10-21 18:34:41,940 - backend.middleware.distributed_trace_middleware - INFO - Trace completed: dcfbf5bd-3c5c-45ee-95f8-437fb2dfe87c
+{"timestamp": "2025-10-21T23:34:41.941002+00:00", "level": "INFO", "logger": "a1betting", "message": "Request completed", "module": "structured_logging_middleware", "function": "log_request_success", "line": 130, "request_id": "aa35587d-ce8d-42b5-ae7d-b1ecf02e7c93", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_success", "method": "GET", "url": "http://testserver/api/propfinder/opportunities?include_clv=true", "path": "/api/propfinder/opportunities", "status_code": 200, "duration_ms": 216.62, "response_size": "551", "performance_category": "normal"}
+2025-10-21 18:34:41,941 - backend.middleware.legacy_middleware - INFO - Legacy response produced by handler=backend.routes.testing_compat_shims.shim_propfinder_opportunities for path=/api/propfinder/opportunities status_code=200
+DEBUG: CLVMetrics.record_success called, duration_ms=0.025510787963867188
+TRACE: get_metrics_service sees constructor object=<class 'backend.services.clv_metrics.CLVMetricsService'>
+TRACE: CLVMetricsService.__init__ called, cls_obj=<class 'backend.services.clv_metrics.CLVMetricsService'>, caller=get_metrics_service C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\clv_metrics.py:359
+TRACE: get_metrics_service constructed instance=<backend.services.clv_metrics.CLVMetricsService object at 0x000002179D5697F0>
+DEBUG: CLVMetrics.record_success obtained svc=<backend.services.clv_metrics.CLVMetricsService object at 0x000002179D5697F0>
+F
+
+================================== FAILURES ===================================
+_ TestCLVResponseConsistency.test_clv_enabled_success_response_schema_consistency _
+tests\backend\test_clv_response_consistency.py:300: in test_clv_enabled_success_response_schema_consistency
+    assert "closingLine" in opp, f"CLV field missing in enabled response: {opp.keys()}"
+E   AssertionError: CLV field missing in enabled response: dict_keys(['id', 'player', 'confidence', 'ev_pct', 'evPercent', 'evValue', 'edge', 'clvPercent', 'clv_metrics'])
+E   assert 'closingLine' in {'clvPercent': 10.6, 'clv_metrics': {'clv_estimate': 0.106, 'historical_edge': 0.09, 'line_movement_indicator': 'stable', 'market_efficiency': 0.76}, 'confidence': 72.0, 'edge': 0.0, ...}
+------------------------------ Captured log call ------------------------------
+INFO     backend.middleware.rate_limit:rate_limit.py:136 Rate limit metrics integration enabled
+INFO     backend.middleware.rate_limit:rate_limit.py:120 Rate limiting enabled: 100/min, burst=200, cleanup_interval=300s
+INFO     backend.middleware.security_headers:security_headers.py:70 SUCCESS: Security headers middleware enabled: CSP=report-only, HSTS=True, strict_mode=False
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/health -> /api/v2/diagnostics/health
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /health -> /api/v2/diagnostics/health
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/metrics/summary -> /api/v2/meta/cache-stats
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /metrics -> /api/v2/meta/cache-stats
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /performance/stats -> /api/v2/diagnostics/system
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/props -> /api/v2/ml/predictions
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/predictions -> /api/v2/ml/predictions
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/analytics -> /api/v2/ml/analytics
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/enhanced-ml -> /api/v2/ml
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/enhanced-ml/performance/metrics -> /api/enhanced-ml/performance/metrics
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/enhanced-ml/performance/update-outcome -> /api/enhanced-ml/performance/update-outcome
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/enhanced-ml/models/compare -> /api/enhanced-ml/models/compare
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/enhanced-ml/models/list -> /api/enhanced-ml/models/list
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/enhanced-ml/models/ -> /api/enhanced-ml/models/
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/enhanced-ml/status -> /api/enhanced-ml/status
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /dev/mode -> /api/v2/diagnostics/system
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:96 Registered known legacy endpoints with forwarding paths
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:45 Legacy middleware initialized
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:196 [LegacyMiddleware] dispatch start method=GET path=/api/propfinder/opportunities
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/propfinder/opportunities -> None
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:268 Legacy endpoint accessed: GET /api/propfinder/opportunities (count: 1)
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:272 Legacy registry entry: path=/api/propfinder/opportunities, forward=None, entry=LegacyEndpointData(path='/api/propfinder/opportunities', count=1, forward=None, last_access_ts=1761089681.7239313, first_recorded_ts=1761089681.7239046)
+INFO     backend.middleware.request_id_middleware:request_id_middleware.py:67 Request started: GET /api/propfinder/opportunities
+INFO     backend.services.simple_propfinder_service:simple_propfinder_service.py:336 SimplePropFinderService initialized in lean/test mode (fast-path)
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_lebron_james_points_2, Vig: 0.97%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_lebron_james_assists_4, Vig: 0.73%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_lebron_james_rebounds_6, Vig: 0.97%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_lebron_james_3pointers_made_8, Vig: 0.49%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_stephen_curry_points_10, Vig: 0.73%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_stephen_curry_assists_12, Vig: 1.20%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_stephen_curry_rebounds_14, Vig: 0.25%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_stephen_curry_3pointers_made_16, Vig: 0.73%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_nikola_jokic_points_18, Vig: 0.49%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_nikola_jokic_assists_20, Vig: 0.97%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_nikola_jokic_rebounds_22, Vig: 1.44%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_nikola_jokic_3pointers_made_24, Vig: 0.25%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_jayson_tatum_points_26, Vig: 0.73%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_jayson_tatum_assists_28, Vig: 0.97%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_jayson_tatum_rebounds_30, Vig: 0.97%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_jayson_tatum_3pointers_made_32, Vig: 0.97%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_luka_doncic_points_34, Vig: 0.49%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_luka_doncic_assists_36, Vig: 0.97%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_luka_doncic_rebounds_38, Vig: 0.49%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: nba_luka_doncic_3pointers_made_40, Vig: 1.20%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: mlb_mookie_betts_hits_42, Vig: 1.66%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: mlb_mookie_betts_total_bases_44, Vig: 1.66%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: mlb_mookie_betts_rbis_46, Vig: 2.54%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: mlb_aaron_judge_hits_48, Vig: 2.54%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: mlb_aaron_judge_total_bases_50, Vig: 2.33%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: mlb_aaron_judge_rbis_52, Vig: 2.11%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: mlb_ronald_acuna_jr_hits_54, Vig: 2.33%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: mlb_ronald_acuna_jr_total_bases_56, Vig: 1.89%, Low Juice: True
+INFO     backend.arbitrage_engine:arbitrage_engine.py:1124 Low juice analysis - Event: mlb_ronald_acuna_jr_rbis_58, Vig: 2.54%, Low Juice: True
+INFO     backend.services.simple_propfinder_service:simple_propfinder_service.py:1073 Generated 29 test opportunities
+INFO     backend.services.simple_propfinder_service:simple_propfinder_service.py:336 SimplePropFinderService initialized in lean/test mode (fast-path)
+INFO     backend.services.clv_metrics:clv_metrics.py:356 clv_metrics.get_metrics_service: CLVMetricsService constructor object=<class 'backend.services.clv_metrics.CLVMetricsService'>
+INFO     backend.services.clv_metrics:clv_metrics.py:362 clv_metrics.get_metrics_service: constructed instance=<backend.services.clv_metrics.CLVMetricsService object at 0x000002179D5697F0>
+INFO     backend.services.simple_propfinder_service:simple_propfinder_service.py:2226 Enriched 1 opportunities with CLV data
+INFO     backend.services.simple_propfinder_service:simple_propfinder_service.py:2456 Analytics persistence: 25 EV + 19 arbitrage opportunities saved
+INFO     backend.middleware.request_id_middleware:request_id_middleware.py:92 Request completed: GET /api/propfinder/opportunities - 200
+INFO     backend.middleware.distributed_trace_middleware:distributed_trace_middleware.py:224 Trace completed: dcfbf5bd-3c5c-45ee-95f8-437fb2dfe87c
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:392 Legacy response produced by handler=backend.routes.testing_compat_shims.shim_propfinder_opportunities for path=/api/propfinder/opportunities status_code=200
+=========================== short test summary info ===========================
+FAILED tests/backend/test_clv_response_consistency.py::TestCLVResponseConsistency::test_clv_enabled_success_response_schema_consistency
+======================= 1 failed, 120 warnings in 2.09s =======================

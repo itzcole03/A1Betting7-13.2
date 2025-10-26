@@ -1,5 +1,5 @@
 // @ts-nocheck -- temporary suppression to reduce triage noise (Batch A)
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 // @ts-expect-error TS(2307): Cannot find module '@/lib/utils' or its correspond... Remove this comment to see the full error message
 import { cn } from '@/lib/utils';
 
@@ -318,16 +318,19 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className={cn('relative', variantClasses[variant], className)}>
       {/* Header */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div
         className={cn(
           'flex items-center justify-between p-6 border-b',
           variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
         )}
       >
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <h2
             className={cn(
               'text-xl font-bold',
@@ -336,7 +339,8 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
           >
             Bet Simulation Tool
           </h2>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <p
             className={cn(
               'text-sm mt-1',
@@ -346,10 +350,11 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
             Bankroll: {formatCurrency(bankroll, currency)}
           </p>
         </div>
-
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className='flex items-center space-x-2'>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <button
             onClick={runAllSimulations}
             disabled={betScenarios.length === 0}
@@ -379,16 +384,17 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
           )}
         </div>
       </div>
-
       {/* Add Scenario Form */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div
         className={cn(
           'p-6 border-b',
           variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
         )}
       >
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <h3
           className={cn(
             'font-semibold mb-4',
@@ -397,9 +403,11 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
         >
           Add Betting Scenario
         </h3>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className='grid grid-cols-1 md:grid-cols-5 gap-3'>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <input
             type='text'
             placeholder='Scenario name'
@@ -412,7 +420,8 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
                 : 'bg-white border-gray-300'
             )}
           />
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <input
             type='number'
             step='0.01'
@@ -426,7 +435,8 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
                 : 'bg-white border-gray-300'
             )}
           />
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <input
             type='number'
             placeholder='Odds (e.g. +150 or -110)'
@@ -439,7 +449,8 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
                 : 'bg-white border-gray-300'
             )}
           />
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <input
             type='number'
             step='0.1'
@@ -455,7 +466,8 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
                 : 'bg-white border-gray-300'
             )}
           />
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <button
             onClick={addScenario}
             className={cn(
@@ -469,12 +481,12 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
           </button>
         </div>
       </div>
-
       {/* Scenarios List */}
       {betScenarios.length > 0 && (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <div className='p-6'>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <h3
             className={cn(
               'font-semibold mb-4',
@@ -483,7 +495,8 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
           >
             Scenarios ({betScenarios.length})
           </h3>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='space-y-3'>
             {betScenarios.map(scenario => {
               const _result = simulationResults.find(r => r.scenario.id === scenario.id);
@@ -503,7 +516,6 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
           </div>
         </div>
       )}
-
       {/* Portfolio Analysis */}
       {showPortfolioAnalysis && simulationResults.length > 1 && (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -513,11 +525,11 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
             variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
           )}
         >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <PortfolioAnalysis results={simulationResults} variant={variant} currency={currency} />
         </div>
       )}
-
       {/* Monte Carlo Results */}
       {showMonteCarlo && monteCarloResults && (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -527,18 +539,20 @@ export const _BetSimulationTool: React.FC<BetSimulationToolProps> = ({
             variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
           )}
         >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <MonteCarloResults results={monteCarloResults} variant={variant} currency={currency} />
         </div>
       )}
-
       {/* Cyber Effects */}
       {variant === 'cyber' && (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
         <>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 rounded-lg pointer-events-none' />
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='absolute inset-0 bg-grid-white/[0.02] rounded-lg pointer-events-none' />
         </>
       )}
@@ -571,15 +585,19 @@ const _ScenarioCard: React.FC<ScenarioCardProps> = ({
       variant === 'cyber' ? 'bg-slate-800/50 border-cyan-500/30' : 'bg-gray-50 border-gray-200'
     )}
   >
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this
+    comment to see the full error message
     <div className='flex justify-between items-start mb-3'>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <h4 className={cn('font-medium', variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900')}>
           {scenario.name}
         </h4>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn('text-sm mt-1', variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-600')}
         >
@@ -587,9 +605,11 @@ const _ScenarioCard: React.FC<ScenarioCardProps> = ({
           {(scenario.probability * 100).toFixed(1)}% prob.)
         </div>
       </div>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div className='flex items-center space-x-2'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <span
           className={cn(
             'px-2 py-1 text-xs rounded-full',
@@ -598,7 +618,8 @@ const _ScenarioCard: React.FC<ScenarioCardProps> = ({
         >
           {scenario.riskLevel}
         </span>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <button
           onClick={() => onRemove(scenario.id)}
           className={cn(
@@ -612,19 +633,21 @@ const _ScenarioCard: React.FC<ScenarioCardProps> = ({
         </button>
       </div>
     </div>
-
     {result && (
       // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
       <div className='grid grid-cols-2 md:grid-cols-4 gap-3 text-sm'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn('opacity-70', variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600')}
           >
             Expected Value
           </div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn(
               'font-medium',
@@ -634,15 +657,18 @@ const _ScenarioCard: React.FC<ScenarioCardProps> = ({
             {formatCurrency(result.expectedValue, currency)}
           </div>
         </div>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn('opacity-70', variant === 'cyber' ? 'text-cyan-400' : 'text-gray-600')}
           >
             Kelly Optimal
           </div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn('font-medium', variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900')}
           >
@@ -652,9 +678,11 @@ const _ScenarioCard: React.FC<ScenarioCardProps> = ({
         {showAdvancedMetrics && (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <div
                 className={cn(
                   'opacity-70',
@@ -663,7 +691,8 @@ const _ScenarioCard: React.FC<ScenarioCardProps> = ({
               >
                 Sharpe Ratio
               </div>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <div
                 className={cn(
                   'font-medium',
@@ -673,9 +702,11 @@ const _ScenarioCard: React.FC<ScenarioCardProps> = ({
                 {result.sharpeRatio.toFixed(2)}
               </div>
             </div>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <div
                 className={cn(
                   'opacity-70',
@@ -684,7 +715,8 @@ const _ScenarioCard: React.FC<ScenarioCardProps> = ({
               >
                 Risk of Ruin
               </div>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <div
                 className={cn(
                   'font-medium',
@@ -717,7 +749,8 @@ const _PortfolioAnalysis: React.FC<PortfolioAnalysisProps> = ({ results, variant
   return (
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <h3
         className={cn(
           'font-semibold mb-4',
@@ -726,9 +759,11 @@ const _PortfolioAnalysis: React.FC<PortfolioAnalysisProps> = ({ results, variant
       >
         Portfolio Analysis
       </h3>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'p-3 rounded border',
@@ -737,7 +772,8 @@ const _PortfolioAnalysis: React.FC<PortfolioAnalysisProps> = ({ results, variant
               : 'bg-gray-50 border-gray-200'
           )}
         >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn(
               'text-sm opacity-70',
@@ -746,14 +782,16 @@ const _PortfolioAnalysis: React.FC<PortfolioAnalysisProps> = ({ results, variant
           >
             Total Expected Value
           </div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn('font-bold', totalExpectedValue >= 0 ? 'text-green-600' : 'text-red-600')}
           >
             {formatCurrency(totalExpectedValue, currency)}
           </div>
         </div>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'p-3 rounded border',
@@ -762,7 +800,8 @@ const _PortfolioAnalysis: React.FC<PortfolioAnalysisProps> = ({ results, variant
               : 'bg-gray-50 border-gray-200'
           )}
         >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn(
               'text-sm opacity-70',
@@ -771,12 +810,14 @@ const _PortfolioAnalysis: React.FC<PortfolioAnalysisProps> = ({ results, variant
           >
             Total Stake
           </div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className={cn('font-bold', variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900')}>
             {formatCurrency(totalStake, currency)}
           </div>
         </div>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'p-3 rounded border',
@@ -785,7 +826,8 @@ const _PortfolioAnalysis: React.FC<PortfolioAnalysisProps> = ({ results, variant
               : 'bg-gray-50 border-gray-200'
           )}
         >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn(
               'text-sm opacity-70',
@@ -794,12 +836,14 @@ const _PortfolioAnalysis: React.FC<PortfolioAnalysisProps> = ({ results, variant
           >
             Portfolio Risk
           </div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className={cn('font-bold', variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900')}>
             {formatCurrency(totalRisk, currency)}
           </div>
         </div>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'p-3 rounded border',
@@ -808,7 +852,8 @@ const _PortfolioAnalysis: React.FC<PortfolioAnalysisProps> = ({ results, variant
               : 'bg-gray-50 border-gray-200'
           )}
         >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn(
               'text-sm opacity-70',
@@ -817,7 +862,8 @@ const _PortfolioAnalysis: React.FC<PortfolioAnalysisProps> = ({ results, variant
           >
             Sharpe Ratio
           </div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn('font-bold', portfolioSharpe >= 1 ? 'text-green-600' : 'text-orange-600')}
           >
@@ -848,22 +894,26 @@ interface MonteCarloResultsProps {
 const _MonteCarloResults: React.FC<MonteCarloResultsProps> = ({ results, variant, currency }) => (
   // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
   <div>
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this
+    comment to see the full error message
     <h3
       className={cn('font-semibold mb-4', variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900')}
     >
       Monte Carlo Simulation ({results.iterations.toLocaleString()} iterations)
     </h3>
-    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this
+    comment to see the full error message
     <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div
         className={cn(
           'p-3 rounded border',
           variant === 'cyber' ? 'bg-slate-800/50 border-cyan-500/30' : 'bg-gray-50 border-gray-200'
         )}
       >
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'text-sm opacity-70',
@@ -872,7 +922,8 @@ const _MonteCarloResults: React.FC<MonteCarloResultsProps> = ({ results, variant
         >
           Mean Outcome
         </div>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'font-bold',
@@ -882,14 +933,16 @@ const _MonteCarloResults: React.FC<MonteCarloResultsProps> = ({ results, variant
           {formatCurrency(results.statistics.mean, currency)}
         </div>
       </div>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div
         className={cn(
           'p-3 rounded border',
           variant === 'cyber' ? 'bg-slate-800/50 border-cyan-500/30' : 'bg-gray-50 border-gray-200'
         )}
       >
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'text-sm opacity-70',
@@ -898,19 +951,22 @@ const _MonteCarloResults: React.FC<MonteCarloResultsProps> = ({ results, variant
         >
           5th Percentile
         </div>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className={cn('font-bold text-red-600')}>
           {formatCurrency(results.statistics.percentiles.p5, currency)}
         </div>
       </div>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div
         className={cn(
           'p-3 rounded border',
           variant === 'cyber' ? 'bg-slate-800/50 border-cyan-500/30' : 'bg-gray-50 border-gray-200'
         )}
       >
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'text-sm opacity-70',
@@ -919,19 +975,22 @@ const _MonteCarloResults: React.FC<MonteCarloResultsProps> = ({ results, variant
         >
           Median
         </div>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className={cn('font-bold', variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900')}>
           {formatCurrency(results.statistics.median, currency)}
         </div>
       </div>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div
         className={cn(
           'p-3 rounded border',
           variant === 'cyber' ? 'bg-slate-800/50 border-cyan-500/30' : 'bg-gray-50 border-gray-200'
         )}
       >
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'text-sm opacity-70',
@@ -940,19 +999,22 @@ const _MonteCarloResults: React.FC<MonteCarloResultsProps> = ({ results, variant
         >
           95th Percentile
         </div>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className={cn('font-bold text-green-600')}>
           {formatCurrency(results.statistics.percentiles.p95, currency)}
         </div>
       </div>
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div
         className={cn(
           'p-3 rounded border',
           variant === 'cyber' ? 'bg-slate-800/50 border-cyan-500/30' : 'bg-gray-50 border-gray-200'
         )}
       >
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'text-sm opacity-70',
@@ -961,7 +1023,8 @@ const _MonteCarloResults: React.FC<MonteCarloResultsProps> = ({ results, variant
         >
           Std Deviation
         </div>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className={cn('font-bold', variant === 'cyber' ? 'text-cyan-300' : 'text-gray-900')}>
           {formatCurrency(results.statistics.stdDev, currency)}
         </div>

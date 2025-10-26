@@ -1,0 +1,7 @@
+MODULE: <module 'backend.routes.feedback' from 'C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\routes\\feedback.py'>
+__file__: 'C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\backend\\routes\\feedback.py'
+
+--- SOURCE (first 800 chars) ---
+from ._feedback_stub import router
+
+__all__ = ["router"]

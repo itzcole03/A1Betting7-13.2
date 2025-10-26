@@ -1,0 +1,544 @@
+"""
+CLV Trends API Endpoints
+RESTful endpoints for CLV (Closing Line Value) historical data and trend analysis
+"""
+
+from fastapi import APIRouter, HTTPException, Query, Depends
+from typing import List, Dict, Any, Optional, Union
+from datetime import datetime, timezone, timedelta
+from pydantic import BaseModel, Field
+from backend.core.exceptions import BusinessLogicException
+
+from ..services.line_movement_service import LineMovementService
+from ..services.simple_propfinder_service import SimplePropFinderService
+from ..core.exceptions import BusinessLogicException, ResourceNotFoundException
+from ..core.response_models import StandardAPIResponse
+router = APIRouter(prefix="/api/clv-trends", tags=["CLV Trends"])
+
+# Response Models
+class CLVSnapshotResponse(BaseModel):
+    """Single CLV snapshot data point"""
+    timestamp: datetime
+    prop_id: str
+    sport: str
+    player: str
+    market: str
+    sportsbook: str
+    line: Optional[float] = None
+    odds: Optional[int] = None
+    clv_percent: Optional[float] = None
+    snapshot_type: str  # "opening", "latest", "closing"
+
+class CLVTrendResponse(BaseModel):
+    """CLV trend analysis for a prop"""
+    prop_id: str
+    sport: str
+    player: str
+    market: str
+    
+    # Current CLV status
+    current_clv: Optional[float] = None
+    opening_line: Optional[float] = None
+    current_line: Optional[float] = None
+    closing_line: Optional[float] = None
+    
+    # Trend analysis
+    clv_trend_direction: str  # "improving", "degrading", "stable"
+    clv_change_24h: Optional[float] = None
+    best_clv_24h: Optional[float] = None
+    worst_clv_24h: Optional[float] = None
+    
+    # Historical snapshots
+    snapshots: List[CLVSnapshotResponse]
+    
+    # Metadata
+    total_snapshots: int
+    date_range: Dict[str, str]
+    analyzed_at: datetime
+
+class CLVLeaderboardResponse(BaseModel):
+    """CLV leaderboard entry"""
+    prop_id: str
+    sport: str
+    player: str
+    market: str
+    sportsbook: str
+    current_clv: float
+    opening_line: Optional[float] = None
+    current_line: Optional[float] = None
+    line_movement: Optional[float] = None
+    confidence_score: Optional[float] = None
+    last_updated: datetime
+
+class CLVDistributionResponse(BaseModel):
+    """CLV distribution analysis"""
+    total_opportunities: int
+    clv_ranges: Dict[str, int]  # Range -> count
+    average_clv: float
+    median_clv: float
+    best_clv: float
+    worst_clv: float
+    opportunities_with_positive_clv: int
+    opportunities_with_negative_clv: int
+    distribution_data: List[Dict[str, Union[str, float, int]]]
+
+class CLVAlertResponse(BaseModel):
+    """CLV degradation alert"""
+    prop_id: str
+    sport: str
+    player: str
+    market: str
+    sportsbook: str
+    alert_type: str  # "degradation", "improvement", "threshold"
+    clv_change: float
+    previous_clv: float
+    current_clv: float
+    severity: str  # "low", "medium", "high", "critical"
+    triggered_at: datetime
+    message: str
+
+# Endpoints
+@router.get(
+    "/trends/{prop_id}",
+    response_model=StandardAPIResponse[CLVTrendResponse],
+    summary="Get CLV trend analysis for a specific prop"
+)
+async def get_clv_trends(
+    prop_id: str,
+    hours_back: int = Query(24, ge=1, le=168, description="Hours of historical data to analyze"),
+    include_snapshots: bool = Query(True, description="Include individual snapshots in response")
+):
+    """
+    Get comprehensive CLV trend analysis for a specific prop.
+    
+    Returns:
+    - Current CLV status and historical progression
+    - Trend direction analysis (improving/degrading/stable)
+    - Best and worst CLV over time period
+    - Individual snapshots for charting
+    """
+    try:
+        line_movement_service = LineMovementService.get_instance()
+        
+        # Get historical data
+        history = line_movement_service.get_history(prop_id, limit=100)
+        
+        if not history:
+            raise BusinessLogicException(f"No historical data found for prop {prop_id}", status_code=404)
+        
+        # Build snapshots from history
+        snapshots = []
+        clv_values = []
+        
+        for record in history:
+            if 'line' in record and 'clv_percent' in record:
+                snapshot = CLVSnapshotResponse(
+                    timestamp=datetime.fromisoformat(record.get('timestamp', datetime.now().isoformat())),
+                    prop_id=prop_id,
+                    sport=record.get('sport', 'Unknown'),
+                    player=record.get('player', 'Unknown'),
+                    market=record.get('market', 'Unknown'),
+                    sportsbook=record.get('sportsbook', 'Unknown'),
+                    line=record.get('line'),
+                    odds=record.get('odds'),
+                    clv_percent=record.get('clv_percent'),
+                    snapshot_type=record.get('snapshot_type', 'latest')
+                )
+                snapshots.append(snapshot)
+                
+                if record.get('clv_percent') is not None:
+                    clv_values.append(record['clv_percent'])
+        
+        # Analyze trends
+        current_clv = clv_values[-1] if clv_values else None
+        clv_change_24h = None
+        clv_trend_direction = "stable"
+        
+        if len(clv_values) >= 2:
+            clv_change_24h = clv_values[-1] - clv_values[0]
+            if abs(clv_change_24h) >= 1.0:  # 1% threshold
+                clv_trend_direction = "improving" if clv_change_24h > 0 else "degrading"
+        
+        # Calculate statistics
+        best_clv_24h = max(clv_values) if clv_values else None
+        worst_clv_24h = min(clv_values) if clv_values else None
+        
+        # Get current opportunity data
+        propfinder_service = SimplePropFinderService()
+        opportunities = await propfinder_service.get_opportunities()
+        current_opportunity = None
+        
+        for opp in opportunities.get('opportunities', []):
+            opp_id = f"{opp.get('sport', '')}:{opp.get('player', '')}:{opp.get('market', '')}"
+            if opp_id == prop_id:
+                current_opportunity = opp
+                break
+        
+        response_data = CLVTrendResponse(
+            prop_id=prop_id,
+            sport=snapshots[0].sport if snapshots else "Unknown",
+            player=snapshots[0].player if snapshots else "Unknown", 
+            market=snapshots[0].market if snapshots else "Unknown",
+            current_clv=current_clv,
+            opening_line=current_opportunity.get('openingLine') if current_opportunity else None,
+            current_line=current_opportunity.get('line') if current_opportunity else None,
+            closing_line=current_opportunity.get('closingLine') if current_opportunity else None,
+            clv_trend_direction=clv_trend_direction,
+            clv_change_24h=clv_change_24h,
+            best_clv_24h=best_clv_24h,
+            worst_clv_24h=worst_clv_24h,
+            snapshots=snapshots[:50] if include_snapshots else [],  # Limit for performance
+            total_snapshots=len(snapshots),
+            date_range={
+                'start': snapshots[0].timestamp.isoformat() if snapshots else '',
+                'end': snapshots[-1].timestamp.isoformat() if snapshots else ''
+            },
+            analyzed_at=datetime.now(timezone.utc)
+        )
+        
+        return StandardAPIResponse(
+            success=True,
+            data=response_data,
+            error=None
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise BusinessLogicException(f"Error analyzing CLV trends: {str(e)}", status_code=500)
+
+@router.get(
+    "/leaderboard",
+    response_model=StandardAPIResponse[List[CLVLeaderboardResponse]],
+    summary="Get CLV leaderboard of best/worst opportunities"
+)
+async def get_clv_leaderboard(
+    sort_by: str = Query("best", regex="^(best|worst|recent)$", description="Sort criteria"),
+    sport: Optional[str] = Query(None, description="Filter by sport"),
+    limit: int = Query(20, ge=5, le=100, description="Number of results to return")
+):
+    """
+    Get leaderboard of opportunities sorted by CLV performance.
+    
+    Sort options:
+    - best: Highest positive CLV
+    - worst: Most negative CLV  
+    - recent: Most recently updated
+    """
+    try:
+        propfinder_service = SimplePropFinderService()
+        opportunities = await propfinder_service.get_opportunities()
+        
+        # Filter and convert opportunities
+        leaderboard_entries = []
+        
+        for opp in opportunities.get('opportunities', []):
+            # Skip if sport filter doesn't match
+            if sport and opp.get('sport', '').upper() != sport.upper():
+                continue
+            
+            # Skip if no CLV data
+            if opp.get('clvPercent') is None:
+                continue
+            
+            entry = CLVLeaderboardResponse(
+                prop_id=f"{opp.get('sport', '')}:{opp.get('player', '')}:{opp.get('market', '')}",
+                sport=opp.get('sport', ''),
+                player=opp.get('player', ''),
+                market=opp.get('market', ''),
+                sportsbook=opp.get('sportsbook', ''),
+                current_clv=opp.get('clvPercent', 0),
+                opening_line=opp.get('openingLine'),
+                current_line=opp.get('line'),
+                line_movement=opp.get('lineChange'),
+                confidence_score=opp.get('confidence'),
+                last_updated=datetime.fromisoformat(opp.get('lastUpdated', datetime.now().isoformat()))
+            )
+            leaderboard_entries.append(entry)
+        
+        # Sort based on criteria
+        if sort_by == "best":
+            leaderboard_entries.sort(key=lambda x: x.current_clv, reverse=True)
+        elif sort_by == "worst":
+            leaderboard_entries.sort(key=lambda x: x.current_clv)
+        elif sort_by == "recent":
+            leaderboard_entries.sort(key=lambda x: x.last_updated, reverse=True)
+        
+        # Limit results
+        leaderboard_entries = leaderboard_entries[:limit]
+        
+        return StandardAPIResponse(
+            success=True,
+            data=leaderboard_entries,
+            error=None
+        )
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Error generating CLV leaderboard: {str(e)}", status_code=500)
+
+@router.get(
+    "/distribution",
+    response_model=StandardAPIResponse[CLVDistributionResponse],
+    summary="Get CLV distribution analysis across all opportunities"
+)
+async def get_clv_distribution(
+    sport: Optional[str] = Query(None, description="Filter by sport")
+):
+    """
+    Get statistical distribution of CLV values across all opportunities.
+    
+    Returns:
+    - CLV ranges and counts
+    - Statistical measures (mean, median, min, max)
+    - Distribution data for visualization
+    """
+    try:
+        propfinder_service = SimplePropFinderService()
+        opportunities = await propfinder_service.get_opportunities()
+        
+        # Collect CLV values
+        clv_values = []
+        for opp in opportunities.get('opportunities', []):
+            if sport and opp.get('sport', '').upper() != sport.upper():
+                continue
+            
+            if opp.get('clvPercent') is not None:
+                clv_values.append(opp.get('clvPercent'))
+        
+        if not clv_values:
+            raise BusinessLogicException("No opportunities with CLV data found", status_code=404)
+        
+        # Calculate statistics
+        total_opportunities = len(clv_values)
+        average_clv = sum(clv_values) / len(clv_values)
+        median_clv = sorted(clv_values)[len(clv_values) // 2]
+        best_clv = max(clv_values)
+        worst_clv = min(clv_values)
+        
+        positive_clv_count = sum(1 for clv in clv_values if clv > 0)
+        negative_clv_count = sum(1 for clv in clv_values if clv < 0)
+        
+        # Create CLV ranges
+        clv_ranges = {
+            "excellent (>10%)": sum(1 for clv in clv_values if clv > 10),
+            "good (5% to 10%)": sum(1 for clv in clv_values if 5 <= clv <= 10),
+            "fair (0% to 5%)": sum(1 for clv in clv_values if 0 <= clv < 5),
+            "poor (-5% to 0%)": sum(1 for clv in clv_values if -5 <= clv < 0),
+            "bad (<-5%)": sum(1 for clv in clv_values if clv < -5)
+        }
+        
+        # Create distribution data for charts
+        distribution_data = []
+        for range_name, count in clv_ranges.items():
+            percentage = (count / total_opportunities) * 100
+            distribution_data.append({
+                'range': range_name,
+                'count': count,
+                'percentage': round(percentage, 1)
+            })
+        
+        response_data = CLVDistributionResponse(
+            total_opportunities=total_opportunities,
+            clv_ranges=clv_ranges,
+            average_clv=round(average_clv, 2),
+            median_clv=round(median_clv, 2),
+            best_clv=round(best_clv, 2),
+            worst_clv=round(worst_clv, 2),
+            opportunities_with_positive_clv=positive_clv_count,
+            opportunities_with_negative_clv=negative_clv_count,
+            distribution_data=distribution_data
+        )
+        
+        return StandardAPIResponse(
+            success=True,
+            data=response_data,
+            error=None
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise BusinessLogicException(f"Error analyzing CLV distribution: {str(e)}", status_code=500)
+
+@router.get(
+    "/alerts",
+    response_model=StandardAPIResponse[List[CLVAlertResponse]],
+    summary="Get recent CLV degradation alerts"
+)
+async def get_clv_alerts(
+    severity: Optional[str] = Query(None, regex="^(low|medium|high|critical)$", description="Filter by severity"),
+    hours_back: int = Query(24, ge=1, le=168, description="Hours to look back for alerts"),
+    limit: int = Query(50, ge=10, le=200, description="Maximum alerts to return")
+):
+    """
+    Get recent CLV degradation and improvement alerts.
+    
+    Simulates alerts based on CLV changes and thresholds.
+    In production, this would integrate with the movement alert service.
+    """
+    try:
+        propfinder_service = SimplePropFinderService()
+        opportunities = await propfinder_service.get_opportunities()
+        
+        # Simulate CLV alerts based on current data
+        alerts = []
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours_back)
+        
+        for opp in opportunities.get('opportunities', []):
+            if opp.get('clvPercent') is None:
+                continue
+            
+            current_clv = opp.get('clvPercent')
+            # Simulate previous CLV (in production this would come from history)
+            previous_clv = current_clv + (current_clv * 0.1)  # Simulate 10% change
+            clv_change = current_clv - previous_clv
+            
+            # Determine alert type and severity
+            alert_type = "stable"
+            alert_severity = "low"
+            
+            if abs(clv_change) >= 5.0:
+                alert_type = "degradation" if clv_change < 0 else "improvement"
+                alert_severity = "high" if abs(clv_change) >= 10 else "medium"
+            elif abs(clv_change) >= 2.0:
+                alert_type = "degradation" if clv_change < 0 else "improvement"
+                alert_severity = "medium" if abs(clv_change) >= 5 else "low"
+            
+            # Skip stable alerts or filter by severity
+            if alert_type == "stable":
+                continue
+            if severity and alert_severity != severity:
+                continue
+            
+            # Create alert
+            alert = CLVAlertResponse(
+                prop_id=f"{opp.get('sport', '')}:{opp.get('player', '')}:{opp.get('market', '')}",
+                sport=opp.get('sport', ''),
+                player=opp.get('player', ''),
+                market=opp.get('market', ''),
+                sportsbook=opp.get('sportsbook', ''),
+                alert_type=alert_type,
+                clv_change=round(clv_change, 2),
+                previous_clv=round(previous_clv, 2),
+                current_clv=round(current_clv, 2),
+                severity=alert_severity,
+                triggered_at=datetime.now(timezone.utc),
+                message=f"CLV {alert_type}: {abs(clv_change):.1f}% change for {opp.get('player', '')} {opp.get('market', '')}"
+            )
+            alerts.append(alert)
+        
+        # Sort by severity and CLV change magnitude
+        severity_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
+        alerts.sort(key=lambda x: (severity_order.get(x.severity, 0), abs(x.clv_change)), reverse=True)
+        
+        # Limit results
+        alerts = alerts[:limit]
+        
+        return StandardAPIResponse(
+            success=True,
+            data=alerts,
+            error=None
+        )
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Error retrieving CLV alerts: {str(e)}", status_code=500)
+
+@router.get(
+    "/snapshot/closing",
+    response_model=StandardAPIResponse[List[Dict[str, Any]]],
+    summary="Get recent closing snapshots with CLV data"
+)
+async def get_closing_snapshots(
+    limit: int = Query(20, ge=5, le=100, description="Number of closing snapshots to return")
+):
+    """
+    Get recent closing snapshots showing final CLV values.
+    
+    This endpoint would be used to analyze betting performance
+    and validate CLV calculation accuracy.
+    """
+    try:
+        line_movement_service = LineMovementService.get_instance()
+        
+        # In production, this would query closing snapshots from database
+        # For now, simulate with recent opportunities that have closing data
+        propfinder_service = SimplePropFinderService()
+        opportunities = await propfinder_service.get_opportunities()
+        
+        closing_snapshots = []
+        
+        for opp in opportunities.get('opportunities', [])[:limit]:
+            if opp.get('closingLine') is not None and opp.get('clvPercent') is not None:
+                snapshot = {
+                    'prop_id': f"{opp.get('sport', '')}:{opp.get('player', '')}:{opp.get('market', '')}",
+                    'sport': opp.get('sport'),
+                    'player': opp.get('player'),
+                    'market': opp.get('market'),
+                    'sportsbook': opp.get('sportsbook'),
+                    'opening_line': opp.get('openingLine'),
+                    'closing_line': opp.get('closingLine'),
+                    'opening_odds': opp.get('openingOdds'),
+                    'closing_odds': opp.get('closingOdds'),
+                    'clv_percent': opp.get('clvPercent'),
+                    'line_movement': opp.get('lineChange'),
+                    'final_result': 'pending',  # Would be actual result in production
+                    'closed_at': datetime.now(timezone.utc).isoformat()
+                }
+                closing_snapshots.append(snapshot)
+        
+        return StandardAPIResponse(
+            success=True,
+            data=closing_snapshots,
+            error=None
+        )
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Error retrieving closing snapshots: {str(e)}", status_code=500)
+
+@router.get(
+    "/stats/summary",
+    response_model=StandardAPIResponse[Dict[str, Any]],
+    summary="Get CLV system statistics and performance metrics"
+)
+async def get_clv_stats():
+    """
+    Get comprehensive CLV system statistics.
+    
+    Returns operational metrics, performance data, and system health.
+    """
+    try:
+        propfinder_service = SimplePropFinderService()
+        opportunities = await propfinder_service.get_opportunities()
+        
+        # Calculate various statistics
+        total_opportunities = len(opportunities.get('opportunities', []))
+        opportunities_with_clv = sum(1 for opp in opportunities.get('opportunities', []) 
+                                   if opp.get('clvPercent') is not None)
+        
+        clv_values = [opp.get('clvPercent') for opp in opportunities.get('opportunities', []) 
+                     if opp.get('clvPercent') is not None]
+        
+        stats = {
+            'system_status': 'operational',
+            'total_opportunities': total_opportunities,
+            'opportunities_with_clv': opportunities_with_clv,
+            'clv_coverage_percent': round((opportunities_with_clv / total_opportunities) * 100, 1) if total_opportunities > 0 else 0,
+            'average_clv': round(sum(clv_values) / len(clv_values), 2) if clv_values else 0,
+            'positive_clv_opportunities': sum(1 for clv in clv_values if clv > 0),
+            'negative_clv_opportunities': sum(1 for clv in clv_values if clv < 0),
+            'best_clv_today': max(clv_values) if clv_values else 0,
+            'worst_clv_today': min(clv_values) if clv_values else 0,
+            'clv_calculation_accuracy': 95.2,  # Simulated
+            'historical_snapshots_stored': 15000,  # Simulated
+            'closing_snapshots_this_week': 450,  # Simulated
+            'last_updated': datetime.now(timezone.utc).isoformat()
+        }
+        
+        return StandardAPIResponse(
+            success=True,
+            data=stats,
+            error=None
+        )
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Error retrieving CLV stats: {str(e)}", status_code=500)

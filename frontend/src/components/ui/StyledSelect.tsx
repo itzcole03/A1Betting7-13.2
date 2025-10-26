@@ -384,15 +384,15 @@ export const _StyledSelect: React.FC<StyledSelectProps> = ({
             className='w-6 h-6 rounded object-cover flex-shrink-0'
           />
         )}
-
         {showIcons && option.icon && !option.image && (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <span className='flex-shrink-0'>{option.icon}</span>
         )}
-
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className='flex-1 min-w-0 text-left'>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='truncate'>{option.label}</div>
           {showDescriptions && option.description && (
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -406,7 +406,6 @@ export const _StyledSelect: React.FC<StyledSelectProps> = ({
             </div>
           )}
         </div>
-
         {multiple && isSelected && (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <div
@@ -427,7 +426,8 @@ export const _StyledSelect: React.FC<StyledSelectProps> = ({
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='relative'>
       {/* Trigger */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <button
         ref={triggerRef}
         type='button'
@@ -443,14 +443,15 @@ export const _StyledSelect: React.FC<StyledSelectProps> = ({
           className
         )}
       >
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className='flex items-center space-x-2 flex-1 min-w-0'>
           {loading && (
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
             <div className='animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full' />
           )}
-
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='flex-1 min-w-0 text-left'>
             {hasValue ? (
               multiple && Array.isArray(selectedOptions) ? (
@@ -467,7 +468,8 @@ export const _StyledSelect: React.FC<StyledSelectProps> = ({
                           : 'bg-gray-100 text-gray-700'
                       )}
                     >
-                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                      provided... Remove this comment to see the full error message
                       {showIcons && option.icon && <span className='mr-1'>{option.icon}</span>}
                       {option.label}
                     </span>
@@ -501,7 +503,8 @@ export const _StyledSelect: React.FC<StyledSelectProps> = ({
                     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
                     <span>{(selectedOptions as SelectOption).icon}</span>
                   )}
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <span className='truncate'>
                     {multiple
                       ? `${Array.isArray(currentValue) ? currentValue.length : 0} selected`
@@ -522,8 +525,8 @@ export const _StyledSelect: React.FC<StyledSelectProps> = ({
             )}
           </div>
         </div>
-
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className='flex items-center space-x-1 ml-2'>
           {clearable && hasValue && !disabled && (
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -539,12 +542,11 @@ export const _StyledSelect: React.FC<StyledSelectProps> = ({
               ✕
             </button>
           )}
-
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className={cn('transition-transform duration-200', isOpen && 'rotate-180')}>▼</div>
         </div>
       </button>
-
       {/* Dropdown */}
       {isOpen && (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -566,7 +568,8 @@ export const _StyledSelect: React.FC<StyledSelectProps> = ({
                 variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
               )}
             >
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <input
                 ref={searchInputRef}
                 type='text'
@@ -582,8 +585,8 @@ export const _StyledSelect: React.FC<StyledSelectProps> = ({
               />
             </div>
           )}
-
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='overflow-y-auto' style={{ maxHeight: maxHeight - (searchable ? 60 : 0) }}>
             {displayOptions.length === 0 ? (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -601,7 +604,6 @@ export const _StyledSelect: React.FC<StyledSelectProps> = ({
           </div>
         </div>
       )}
-
       {/* Cyber Effects */}
       {variant === 'cyber' && isOpen && (
         // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

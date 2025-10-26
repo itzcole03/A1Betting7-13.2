@@ -1,0 +1,98 @@
+from typing import Any, Dict
+
+from fastapi import APIRouter, Response, Request
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
+from ..core.exceptions import BusinessLogicException
+from pydantic import BaseModel
+
+from backend.services.lazy_sport_manager import lazy_sport_manager
+from backend.services.unified_error_handler import ErrorContext, handle_error
+from backend.services.unified_logging import get_logger
+
+router = APIRouter(prefix="/api/v2/sports", tags=["Sports"])
+
+logger = get_logger("sports_routes")
+
+
+class SportActivateRequest(BaseModel):
+    sport: str
+
+
+@router.options("/activate", include_in_schema=False)
+async def activate_sport_options() -> Response:
+    """CORS preflight support for sport activation. Return a 200 success envelope so tests expecting
+    Access-Control headers on OPTIONS see them populated by CORS middleware."""
+    # ResponseBuilder.success will let middleware attach CORS headers while returning 200
+    return ResponseBuilder.success({"status": "ok"})
+
+
+@router.post(
+    "/activate",
+    status_code=200,
+    response_model=StandardAPIResponse[Dict[str, Any]],
+)
+async def activate_sport(request: Request):
+    """Activate a sport (v2). Accept raw Request to allow explicit
+    content-type validation and clear error mapping for contract tests.
+    Returns a standardized envelope and includes `activated` and
+    `version_used` fields required by compatibility tests."""
+
+    sport = ""
+    try:
+        # Enforce JSON content-type for contract clarity
+        content_type = (request.headers.get("content-type") or "").lower()
+        if "application/json" not in content_type:
+            raise BusinessLogicException("Unsupported content type; application/json expected")
+
+        try:
+            payload = await request.json()
+        except Exception:
+            raise BusinessLogicException("Invalid JSON payload")
+
+        sport = (payload.get("sport") or "").strip().upper()
+        if not sport:
+            raise BusinessLogicException("Sport is required")
+
+        logger.info(f"Activating sport: {sport}")
+        activation_result = await lazy_sport_manager.activate_sport(sport)
+
+        if activation_result.get("status") != "ready":
+            error_message = activation_result.get("error") or "Sport activation failed"
+            logger.warning(f"Sport activation failed for {sport}: {activation_result}")
+            # Normalize unsupported-sport errors to the legacy test-friendly message
+            if "Unsupported sport" in str(error_message) or "unsupported sport" in str(error_message).lower():
+                raise BusinessLogicException("Invalid sport")
+            raise BusinessLogicException(f"Failed to activate sport '{sport}': {error_message}")
+
+        service_status = lazy_sport_manager.get_sport_status(sport)
+        response_payload = {
+            "status": activation_result.get("status"),
+            "sport": sport,
+            "activated": True,
+            "version_used": "v2",
+            "load_time": activation_result.get("load_time"),
+            "cached": activation_result.get("cached", False),
+            "newly_loaded": activation_result.get("newly_loaded", False),
+            "waited": activation_result.get("waited", False),
+            "service_status": service_status,
+        }
+
+        return ResponseBuilder.success(response_payload)
+    except BusinessLogicException:
+        # Propagate business exceptions to be handled by global handlers
+        raise
+    except Exception as e:
+        error_info = handle_error(
+            e,
+            context=ErrorContext(
+                endpoint="/api/v2/sports/activate",
+                additional_data={"sport": sport},
+            ),
+            message="Failed to activate sport",
+        )
+        user_message = error_info.user_message or "Failed to activate sport"
+        if sport:
+            user_message = f"{user_message} '{sport}'"
+        raise BusinessLogicException(user_message)

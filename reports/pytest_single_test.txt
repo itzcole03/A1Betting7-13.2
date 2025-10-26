@@ -1,0 +1,28 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.0, pytest-8.4.1, pluggy-1.6.0
+rootdir: C:\Users\bcmad\Downloads\A1Betting7-13.2
+configfile: pytest.ini
+plugins: anyio-4.9.0, asyncio-1.1.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+tests\backend\test_clv_response_consistency.py F                         [100%]
+
+================================== FAILURES ===================================
+_ TestCLVResponseConsistency.test_clv_enabled_success_response_schema_consistency _
+tests\backend\test_clv_response_consistency.py:300: in test_clv_enabled_success_response_schema_consistency
+    assert "closingLine" in opp, f"CLV field missing in enabled response: {opp.keys()}"
+E   AssertionError: CLV field missing in enabled response: dict_keys(['id', 'player', 'confidence', 'ev_pct', 'evPercent', 'evValue', 'edge', 'clvPercent', 'clv_metrics'])
+E   assert 'closingLine' in {'clvPercent': 10.6, 'clv_metrics': {'clv_estimate': 0.106, 'historical_edge': 0.09, 'line_movement_indicator': 'stable', 'market_efficiency': 0.76}, 'confidence': 72.0, 'edge': 0.0, ...}
+---------------------------- Captured stdout call -----------------------------
+DEBUG: CLVMetrics.record_success called, duration_ms=0.0
+TRACE: get_metrics_service sees constructor object=<class 'backend.services.clv_metrics.CLVMetricsService'>
+TRACE: CLVMetricsService.__init__ called, cls_obj=<class 'backend.services.clv_metrics.CLVMetricsService'>, caller=get_metrics_service C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\clv_metrics.py:359
+TRACE: get_metrics_service constructed instance=<backend.services.clv_metrics.CLVMetricsService object at 0x0000016857E09280>
+DEBUG: CLVMetrics.record_success obtained svc=<backend.services.clv_metrics.CLVMetricsService object at 0x0000016857E09280>
+---------------------------- Captured stderr call -----------------------------
+{"timestamp": "2025-10-21T23:29:07.254537+00:00", "level": "INFO", "logger": "a1betting", "message": "Request started", "module": "structured_logging_middleware", "function": "log_request_start", "line": 115, "request_id": "e9503a9a-fa90-410e-9a9e-080b2806f67b", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_start", "method": "GET", "url": "http://testserver/api/propfinder/opportunities?include_clv=true", "path": "/api/propfinder/opportunities", "query_params": {"include_clv": "true"}, "client_ip": "testclient", "user_agent": "testclient", "content_type": null}
+{"timestamp": "2025-10-21T23:29:07.795335+00:00", "level": "INFO", "logger": "a1betting", "message": "Request completed", "module": "structured_logging_middleware", "function": "log_request_success", "line": 130, "request_id": "e9503a9a-fa90-410e-9a9e-080b2806f67b", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_success", "method": "GET", "url": "http://testserver/api/propfinder/opportunities?include_clv=true", "path": "/api/propfinder/opportunities", "status_code": 200, "duration_ms": 540.8, "response_size": "551", "performance_category": "slow"}
+=========================== short test summary info ===========================
+FAILED tests/backend/test_clv_response_consistency.py::TestCLVResponseConsistency::test_clv_enabled_success_response_schema_consistency
+====================== 1 failed, 3464 warnings in 8.85s =======================

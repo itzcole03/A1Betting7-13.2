@@ -1,0 +1,588 @@
+"""
+User CLV Analytics Routes
+
+API endpoints for retrieving comprehensive user CLV analytics and performance metrics
+"""
+
+from fastapi import APIRouter, HTTPException, Depends, Query
+from sqlalchemy.orm import Session
+from sqlalchemy import func, and_, or_, desc
+from datetime import datetime, timezone, timedelta
+from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, Field
+import statistics
+from backend.core.exceptions import BusinessLogicException
+
+from backend.models.clv_bet_tracking import CLVBetTracking, CLVAnalyticsSummary, CLVLeaderboard, CLVComputationStatus
+from backend.utils.clv_utils import get_clv_tier, get_achievement_badges, calculate_roi_percent, calculate_win_rate
+from backend.database import get_db
+from backend.auth.security import get_current_user
+router = APIRouter(prefix="/api/users", tags=["User CLV Analytics"])
+
+
+# Response Models
+class CLVPerformanceMetrics(BaseModel):
+    """CLV performance metrics response"""
+    avg_clv_percent: Optional[float]
+    median_clv_percent: Optional[float]
+    positive_clv_rate: float
+    total_bets: int
+    bets_with_clv: int
+    clv_distribution: Dict[str, int]
+    best_clv: Optional[float]
+    worst_clv: Optional[float]
+    clv_consistency_score: Optional[float]
+
+
+class ProfitabilityMetrics(BaseModel):
+    """Profitability and outcome metrics"""
+    total_stake: Optional[float]
+    total_profit_loss: Optional[float]
+    roi_percent: Optional[float]
+    win_rate: Optional[float]
+    avg_stake: Optional[float]
+    settled_bets: int
+    winning_bets: int
+    losing_bets: int
+    push_bets: int
+
+
+class SportMarketBreakdown(BaseModel):
+    """Sport and market performance breakdown"""
+    sport_performance: Dict[str, Dict[str, Any]]
+    market_performance: Dict[str, Dict[str, Any]]
+    best_sport: Optional[str]
+    best_market: Optional[str]
+    worst_sport: Optional[str]
+    worst_market: Optional[str]
+
+
+class UserCLVAnalyticsResponse(BaseModel):
+    """Complete user CLV analytics response"""
+    user_id: str
+    period_start: datetime
+    period_end: datetime
+    clv_metrics: CLVPerformanceMetrics
+    profitability: ProfitabilityMetrics
+    breakdowns: SportMarketBreakdown
+    achievements: List[str]
+    ranking: Optional[Dict[str, Any]]
+    recent_trends: Dict[str, Any]
+    recommendations: List[str]
+
+
+@router.get("/{user_id}/clv", response_model=UserCLVAnalyticsResponse)
+async def get_user_clv_analytics(
+    user_id: str,
+    days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
+    sport: Optional[str] = Query(None, description="Filter by specific sport"),
+    market: Optional[str] = Query(None, description="Filter by specific market"),
+    include_ranking: bool = Query(True, description="Include user ranking data"),
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """
+    Get comprehensive CLV analytics for a user
+    
+    Provides detailed CLV performance metrics, profitability analysis,
+    sport/market breakdowns, achievements, and recommendations.
+    """
+    # Security check - users can only access their own data
+    if user_id != current_user.id:
+        raise BusinessLogicException("Access denied", status_code=403)
+    
+    try:
+        period_start = datetime.now(timezone.utc) - timedelta(days=days)
+        period_end = datetime.now(timezone.utc)
+        
+        # Build base query for user's bets in the period
+        base_query = db.query(CLVBetTracking).filter(
+            CLVBetTracking.user_id == user_id,
+            CLVBetTracking.placed_at >= period_start,
+            CLVBetTracking.placed_at <= period_end
+        )
+        
+        # Apply filters
+        if sport:
+            base_query = base_query.filter(CLVBetTracking.sport == sport)
+        if market:
+            base_query = base_query.filter(CLVBetTracking.market == market)
+        
+        # Get all bets
+        all_bets = base_query.all()
+        
+        if not all_bets:
+            # Return empty analytics for no bets
+            return _create_empty_analytics(user_id, period_start, period_end)
+        
+        # Calculate CLV performance metrics
+        clv_metrics = _calculate_clv_metrics(all_bets)
+        
+        # Calculate profitability metrics
+        profitability = _calculate_profitability_metrics(all_bets)
+        
+        # Calculate sport/market breakdowns
+        breakdowns = _calculate_sport_market_breakdowns(all_bets)
+        
+        # Get achievements
+        user_stats = {
+            "avg_clv_percent": clv_metrics.avg_clv_percent,
+            "total_bets": clv_metrics.total_bets,
+            "positive_clv_rate": clv_metrics.positive_clv_rate,
+            "win_rate": profitability.win_rate
+        }
+        achievements = get_achievement_badges(user_stats)
+        
+        # Get ranking data if requested
+        ranking = None
+        if include_ranking:
+            ranking = await _get_user_ranking(db, user_id)
+        
+        # Calculate recent trends
+        recent_trends = _calculate_recent_trends(db, user_id, period_start)
+        
+        # Generate recommendations
+        recommendations = _generate_recommendations(clv_metrics, profitability, breakdowns)
+        
+        return UserCLVAnalyticsResponse(
+            user_id=user_id,
+            period_start=period_start,
+            period_end=period_end,
+            clv_metrics=clv_metrics,
+            profitability=profitability,
+            breakdowns=breakdowns,
+            achievements=achievements,
+            ranking=ranking,
+            recent_trends=recent_trends,
+            recommendations=recommendations
+        )
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Failed to get CLV analytics: {str(e), status_code=500)}")
+
+
+@router.get("/{user_id}/clv/summary")
+async def get_user_clv_summary(
+    user_id: str,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """
+    Get a quick CLV summary for dashboard display
+    """
+    if user_id != current_user.id:
+        raise BusinessLogicException("Access denied", status_code=403)
+    
+    try:
+        # Get 30-day stats
+        period_start = datetime.now(timezone.utc) - timedelta(days=30)
+        
+        bets_with_clv = db.query(CLVBetTracking).filter(
+            CLVBetTracking.user_id == user_id,
+            CLVBetTracking.placed_at >= period_start,
+            CLVBetTracking.clv_status == CLVComputationStatus.COMPUTED
+        ).all()
+        
+        if not bets_with_clv:
+            return {
+                "avg_clv": None,
+                "total_bets": 0,
+                "positive_clv_rate": 0,
+                "clv_tier": "unknown",
+                "recent_trend": "neutral"
+            }
+        
+        clv_values = [getattr(bet, 'clv_percent') for bet in bets_with_clv if getattr(bet, 'clv_percent') is not None]
+        
+        if clv_values:
+            avg_clv = sum(clv_values) / len(clv_values)
+            positive_count = sum(1 for clv in clv_values if clv > 0)
+            positive_rate = (positive_count / len(clv_values)) * 100
+            
+            # Calculate recent trend (last 7 days vs previous 7 days)
+            week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+            two_weeks_ago = datetime.now(timezone.utc) - timedelta(days=14)
+            
+            recent_clv = [getattr(bet, 'clv_percent') for bet in bets_with_clv 
+                         if getattr(bet, 'placed_at') >= week_ago and getattr(bet, 'clv_percent') is not None]
+            previous_clv = [getattr(bet, 'clv_percent') for bet in bets_with_clv 
+                           if two_weeks_ago <= getattr(bet, 'placed_at') < week_ago and getattr(bet, 'clv_percent') is not None]
+            
+            trend = "neutral"
+            if recent_clv and previous_clv:
+                recent_avg = sum(recent_clv) / len(recent_clv)
+                previous_avg = sum(previous_clv) / len(previous_clv)
+                if recent_avg > previous_avg + 1:
+                    trend = "improving"
+                elif recent_avg < previous_avg - 1:
+                    trend = "declining"
+            
+            return {
+                "avg_clv": round(avg_clv, 2),
+                "total_bets": len(bets_with_clv),
+                "positive_clv_rate": round(positive_rate, 1),
+                "clv_tier": get_clv_tier(avg_clv),
+                "recent_trend": trend
+            }
+        else:
+            return {
+                "avg_clv": None,
+                "total_bets": len(bets_with_clv),
+                "positive_clv_rate": 0,
+                "clv_tier": "unknown",
+                "recent_trend": "neutral"
+            }
+            
+    except Exception as e:
+        raise BusinessLogicException(f"Failed to get CLV summary: {str(e), status_code=500)}")
+
+
+@router.get("/{user_id}/clv/history")
+async def get_user_clv_history(
+    user_id: str,
+    days: int = Query(90, ge=7, le=365, description="Number of days of history"),
+    granularity: str = Query("daily", regex="^(daily|weekly|monthly)$", description="Time granularity"),
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """
+    Get CLV performance history over time for charting
+    """
+    if user_id != current_user.id:
+        raise BusinessLogicException("Access denied", status_code=403)
+    
+    try:
+        period_start = datetime.now(timezone.utc) - timedelta(days=days)
+        
+        # Get all bets with CLV in the period
+        bets = db.query(CLVBetTracking).filter(
+            CLVBetTracking.user_id == user_id,
+            CLVBetTracking.placed_at >= period_start,
+            CLVBetTracking.clv_status == CLVComputationStatus.COMPUTED
+        ).order_by(CLVBetTracking.placed_at).all()
+        
+        if not bets:
+            return {"data_points": [], "summary": {"total_periods": 0, "avg_clv": None}}
+        
+        # Group bets by time period
+        history_data = _group_bets_by_period(bets, granularity)
+        
+        return {
+            "data_points": history_data,
+            "summary": {
+                "total_periods": len(history_data),
+                "avg_clv": sum(point["avg_clv"] for point in history_data if point["avg_clv"] is not None) / len(history_data) if history_data else None
+            }
+        }
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Failed to get CLV history: {str(e), status_code=500)}")
+
+
+# Helper functions
+def _create_empty_analytics(user_id: str, period_start: datetime, period_end: datetime) -> UserCLVAnalyticsResponse:
+    """Create empty analytics response for users with no bets"""
+    return UserCLVAnalyticsResponse(
+        user_id=user_id,
+        period_start=period_start,
+        period_end=period_end,
+        clv_metrics=CLVPerformanceMetrics(
+            avg_clv_percent=None,
+            median_clv_percent=None,
+            positive_clv_rate=0.0,
+            total_bets=0,
+            bets_with_clv=0,
+            clv_distribution={},
+            best_clv=None,
+            worst_clv=None,
+            clv_consistency_score=None
+        ),
+        profitability=ProfitabilityMetrics(
+            total_stake=None,
+            total_profit_loss=None,
+            roi_percent=None,
+            win_rate=None,
+            avg_stake=None,
+            settled_bets=0,
+            winning_bets=0,
+            losing_bets=0,
+            push_bets=0
+        ),
+        breakdowns=SportMarketBreakdown(
+            sport_performance={},
+            market_performance={},
+            best_sport=None,
+            best_market=None,
+            worst_sport=None,
+            worst_market=None
+        ),
+        achievements=[],
+        ranking=None,
+        recent_trends={},
+        recommendations=["Start placing bets to see CLV analytics!"]
+    )
+
+
+def _calculate_clv_metrics(bets: List[CLVBetTracking]) -> CLVPerformanceMetrics:
+    """Calculate CLV performance metrics from bet list"""
+    total_bets = len(bets)
+    bets_with_clv = [bet for bet in bets if getattr(bet, 'clv_status') == CLVComputationStatus.COMPUTED]
+    
+    if not bets_with_clv:
+        return CLVPerformanceMetrics(
+            avg_clv_percent=None,
+            median_clv_percent=None,
+            positive_clv_rate=0.0,
+            total_bets=total_bets,
+            bets_with_clv=0,
+            clv_distribution={},
+            best_clv=None,
+            worst_clv=None,
+            clv_consistency_score=None
+        )
+    
+    clv_values = [getattr(bet, 'clv_percent') for bet in bets_with_clv if getattr(bet, 'clv_percent') is not None]
+    
+    if not clv_values:
+        return CLVPerformanceMetrics(
+            avg_clv_percent=None,
+            median_clv_percent=None,
+            positive_clv_rate=0.0,
+            total_bets=total_bets,
+            bets_with_clv=len(bets_with_clv),
+            clv_distribution={},
+            best_clv=None,
+            worst_clv=None,
+            clv_consistency_score=None
+        )
+    
+    # Calculate basic stats
+    avg_clv = sum(clv_values) / len(clv_values)
+    median_clv = statistics.median(clv_values)
+    positive_count = sum(1 for clv in clv_values if clv > 0)
+    positive_rate = (positive_count / len(clv_values)) * 100
+    
+    # Calculate distribution
+    distribution = {
+        "excellent": sum(1 for clv in clv_values if clv >= 10),
+        "good": sum(1 for clv in clv_values if 5 <= clv < 10),
+        "positive": sum(1 for clv in clv_values if 0 <= clv < 5),
+        "slight_negative": sum(1 for clv in clv_values if -5 <= clv < 0),
+        "poor": sum(1 for clv in clv_values if clv < -5)
+    }
+    
+    # Calculate consistency score (inverse of coefficient of variation)
+    consistency_score = None
+    if len(clv_values) > 1:
+        try:
+            std_dev = statistics.stdev(clv_values)
+            if avg_clv != 0:
+                cv = abs(std_dev / avg_clv)
+                consistency_score = max(0, min(1, 1 - (cv / 2)))  # Normalize to 0-1
+        except statistics.StatisticsError:
+            pass
+    
+    return CLVPerformanceMetrics(
+        avg_clv_percent=round(avg_clv, 2),
+        median_clv_percent=round(median_clv, 2),
+        positive_clv_rate=round(positive_rate, 1),
+        total_bets=total_bets,
+        bets_with_clv=len(bets_with_clv),
+        clv_distribution=distribution,
+        best_clv=round(max(clv_values), 2),
+        worst_clv=round(min(clv_values), 2),
+        clv_consistency_score=round(consistency_score, 3) if consistency_score is not None else None
+    )
+
+
+def _calculate_profitability_metrics(bets: List[CLVBetTracking]) -> ProfitabilityMetrics:
+    """Calculate profitability metrics from bet list"""
+    settled_bets = [bet for bet in bets if getattr(bet, 'bet_result') is not None]
+    
+    if not settled_bets:
+        return ProfitabilityMetrics(
+            total_stake=sum(getattr(bet, 'stake_amount') for bet in bets),
+            total_profit_loss=None,
+            roi_percent=None,
+            win_rate=None,
+            avg_stake=sum(getattr(bet, 'stake_amount') for bet in bets) / len(bets) if bets else None,
+            settled_bets=0,
+            winning_bets=0,
+            losing_bets=0,
+            push_bets=0
+        )
+    
+    # Calculate profit/loss stats
+    profit_loss_values = [getattr(bet, 'profit_loss') for bet in settled_bets if getattr(bet, 'profit_loss') is not None]
+    total_profit_loss = sum(profit_loss_values) if profit_loss_values else None
+    
+    total_stake = sum(getattr(bet, 'stake_amount') for bet in bets)
+    roi_percent = calculate_roi_percent(total_profit_loss, total_stake) if total_profit_loss is not None else None
+    
+    # Calculate win/loss counts
+    winning_bets = sum(1 for bet in settled_bets if getattr(bet, 'bet_result') == 'win')
+    losing_bets = sum(1 for bet in settled_bets if getattr(bet, 'bet_result') == 'loss')
+    push_bets = sum(1 for bet in settled_bets if getattr(bet, 'bet_result') == 'push')
+    
+    win_rate = calculate_win_rate(winning_bets, len(settled_bets)) if settled_bets else None
+    
+    return ProfitabilityMetrics(
+        total_stake=total_stake,
+        total_profit_loss=total_profit_loss,
+        roi_percent=roi_percent,
+        win_rate=win_rate,
+        avg_stake=total_stake / len(bets) if bets else None,
+        settled_bets=len(settled_bets),
+        winning_bets=winning_bets,
+        losing_bets=losing_bets,
+        push_bets=push_bets
+    )
+
+
+def _calculate_sport_market_breakdowns(bets: List[CLVBetTracking]) -> SportMarketBreakdown:
+    """Calculate sport and market performance breakdowns"""
+    bets_with_clv = [bet for bet in bets if getattr(bet, 'clv_percent') is not None]
+    
+    if not bets_with_clv:
+        return SportMarketBreakdown(
+            sport_performance={},
+            market_performance={},
+            best_sport=None,
+            best_market=None,
+            worst_sport=None,
+            worst_market=None
+        )
+    
+    # Group by sport
+    sport_groups = {}
+    for bet in bets_with_clv:
+        sport = getattr(bet, 'sport')
+        if sport not in sport_groups:
+            sport_groups[sport] = []
+        sport_groups[sport].append(getattr(bet, 'clv_percent'))
+    
+    # Group by market
+    market_groups = {}
+    for bet in bets_with_clv:
+        market = getattr(bet, 'market')
+        if market not in market_groups:
+            market_groups[market] = []
+        market_groups[market].append(getattr(bet, 'clv_percent'))
+    
+    # Calculate sport performance
+    sport_performance = {}
+    for sport, clv_values in sport_groups.items():
+        sport_performance[sport] = {
+            "avg_clv": round(sum(clv_values) / len(clv_values), 2),
+            "count": len(clv_values),
+            "positive_rate": round((sum(1 for clv in clv_values if clv > 0) / len(clv_values)) * 100, 1)
+        }
+    
+    # Calculate market performance
+    market_performance = {}
+    for market, clv_values in market_groups.items():
+        market_performance[market] = {
+            "avg_clv": round(sum(clv_values) / len(clv_values), 2),
+            "count": len(clv_values),
+            "positive_rate": round((sum(1 for clv in clv_values if clv > 0) / len(clv_values)) * 100, 1)
+        }
+    
+    # Find best/worst performers
+    best_sport = max(sport_performance.keys(), key=lambda x: sport_performance[x]["avg_clv"]) if sport_performance else None
+    worst_sport = min(sport_performance.keys(), key=lambda x: sport_performance[x]["avg_clv"]) if sport_performance else None
+    best_market = max(market_performance.keys(), key=lambda x: market_performance[x]["avg_clv"]) if market_performance else None
+    worst_market = min(market_performance.keys(), key=lambda x: market_performance[x]["avg_clv"]) if market_performance else None
+    
+    return SportMarketBreakdown(
+        sport_performance=sport_performance,
+        market_performance=market_performance,
+        best_sport=best_sport,
+        best_market=best_market,
+        worst_sport=worst_sport,
+        worst_market=worst_market
+    )
+
+
+async def _get_user_ranking(db: Session, user_id: str) -> Optional[Dict[str, Any]]:
+    """Get user ranking information"""
+    try:
+        # This would typically query the CLVLeaderboard table
+        # For now, return a placeholder
+        return {
+            "overall_rank": None,
+            "percentile": None,
+            "total_users": None,
+            "last_updated": None
+        }
+    except:
+        return None
+
+
+def _calculate_recent_trends(db: Session, user_id: str, period_start: datetime) -> Dict[str, Any]:
+    """Calculate recent performance trends"""
+    # Calculate 7-day and 30-day trends
+    week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+    
+    recent_bets = db.query(CLVBetTracking).filter(
+        CLVBetTracking.user_id == user_id,
+        CLVBetTracking.placed_at >= week_ago,
+        CLVBetTracking.clv_status == CLVComputationStatus.COMPUTED
+    ).all()
+    
+    recent_clv_values = [getattr(bet, 'clv_percent') for bet in recent_bets if getattr(bet, 'clv_percent') is not None]
+    
+    return {
+        "recent_7d_bets": len(recent_bets),
+        "recent_7d_avg_clv": round(sum(recent_clv_values) / len(recent_clv_values), 2) if recent_clv_values else None,
+        "momentum": "neutral"  # Could implement more sophisticated trend analysis
+    }
+
+
+def _generate_recommendations(
+    clv_metrics: CLVPerformanceMetrics, 
+    profitability: ProfitabilityMetrics, 
+    breakdowns: SportMarketBreakdown
+) -> List[str]:
+    """Generate personalized recommendations based on performance"""
+    recommendations = []
+    
+    if clv_metrics.avg_clv_percent is not None:
+        if clv_metrics.avg_clv_percent < 0:
+            recommendations.append("Focus on improving bet selection - your average CLV is negative")
+        elif clv_metrics.avg_clv_percent < 2:
+            recommendations.append("Look for higher-value betting opportunities to improve your CLV")
+        else:
+            recommendations.append("Great CLV performance! Keep focusing on value betting")
+    
+    if clv_metrics.positive_clv_rate < 50:
+        recommendations.append("Try to increase your positive CLV rate above 50%")
+    
+    if breakdowns.best_sport and breakdowns.worst_sport:
+        recommendations.append(f"Consider focusing more on {breakdowns.best_sport} - your best performing sport")
+    
+    if clv_metrics.clv_consistency_score is not None and clv_metrics.clv_consistency_score < 0.3:
+        recommendations.append("Work on consistency - your CLV varies significantly between bets")
+    
+    if not recommendations:
+        recommendations.append("Keep up the good work! Continue focusing on value betting")
+    
+    return recommendations
+
+
+def _group_bets_by_period(bets: List[CLVBetTracking], granularity: str) -> List[Dict[str, Any]]:
+    """Group bets by time period for historical analysis"""
+    # This is a simplified implementation
+    # In production, you'd want more sophisticated time grouping
+    
+    if granularity == "daily":
+        # Group by day
+        pass
+    elif granularity == "weekly":
+        # Group by week
+        pass
+    else:  # monthly
+        # Group by month
+        pass
+    
+    # Placeholder implementation
+    return []

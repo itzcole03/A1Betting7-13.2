@@ -1,0 +1,285 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.0, pytest-8.4.1, pluggy-1.6.0 -- C:\Users\bcmad\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\bcmad\Downloads\A1Betting7-13.2
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.9.0, asyncio-1.1.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 1256 items / 6 errors
+
+=================================== ERRORS ====================================
+_ ERROR collecting tests/backend/services/test_enhanced_schema_validation.py __
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\python.py:498: in importtestmodule
+    mod = import_path(
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1381: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1354: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1325: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:929: in _load_unlocked
+    ???
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\assertion\rewrite.py:186: in exec_module
+    exec(co, module.__dict__)
+tests\backend\services\test_enhanced_schema_validation.py:18: in <module>
+    from backend.services.enhanced_schema_validation import (
+backend\services\enhanced_schema_validation.py:30: in <module>
+    from backend.api_integration import AggregatedOdds, OddsNormalizer
+backend\api_integration.py:614: in <module>
+    from backend.routes.real_time_analysis import router as real_time_analysis_router
+E     File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\real_time_analysis.py", line 113
+E       raise BusinessLogicException(f"Failed to start analysis: {str(e)}"
+E       ^^^^^
+E   SyntaxError: invalid syntax
+______ ERROR collecting tests/backend/services/test_line_movement_clv.py ______
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\python.py:498: in importtestmodule
+    mod = import_path(
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1381: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1354: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1325: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:929: in _load_unlocked
+    ???
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\assertion\rewrite.py:186: in exec_module
+    exec(co, module.__dict__)
+tests\backend\services\test_line_movement_clv.py:16: in <module>
+    from backend.services.simple_propfinder_service import PropOpportunity, Sport, Market, Pick, Trend, Venue, SharpMoney, MatchupHistory, LineMovement, Direction, Bookmaker
+backend\services\simple_propfinder_service.py:75: in <module>
+    from backend.api_integration import odds_aggregation_service, AggregatedOdds
+backend\api_integration.py:614: in <module>
+    from backend.routes.real_time_analysis import router as real_time_analysis_router
+E     File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\real_time_analysis.py", line 113
+E       raise BusinessLogicException(f"Failed to start analysis: {str(e)}"
+E       ^^^^^
+E   SyntaxError: invalid syntax
+_______ ERROR collecting tests/backend/test_clv_response_consistency.py _______
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\python.py:498: in importtestmodule
+    mod = import_path(
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1381: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1354: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1325: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:929: in _load_unlocked
+    ???
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\assertion\rewrite.py:186: in exec_module
+    exec(co, module.__dict__)
+tests\backend\test_clv_response_consistency.py:12: in <module>
+    from backend.services.simple_propfinder_service import (
+backend\services\simple_propfinder_service.py:75: in <module>
+    from backend.api_integration import odds_aggregation_service, AggregatedOdds
+backend\api_integration.py:614: in <module>
+    from backend.routes.real_time_analysis import router as real_time_analysis_router
+E     File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\real_time_analysis.py", line 113
+E       raise BusinessLogicException(f"Failed to start analysis: {str(e)}"
+E       ^^^^^
+E   SyntaxError: invalid syntax
+_______________ ERROR collecting tests/test_clv_calculation.py ________________
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\python.py:498: in importtestmodule
+    mod = import_path(
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1381: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1354: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1325: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:929: in _load_unlocked
+    ???
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\assertion\rewrite.py:186: in exec_module
+    exec(co, module.__dict__)
+tests\test_clv_calculation.py:9: in <module>
+    from backend.services.simple_propfinder_service import (
+backend\services\simple_propfinder_service.py:75: in <module>
+    from backend.api_integration import odds_aggregation_service, AggregatedOdds
+backend\api_integration.py:614: in <module>
+    from backend.routes.real_time_analysis import router as real_time_analysis_router
+E     File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\real_time_analysis.py", line 113
+E       raise BusinessLogicException(f"Failed to start analysis: {str(e)}"
+E       ^^^^^
+E   SyntaxError: invalid syntax
+_______________ ERROR collecting tests/test_clv_performance.py ________________
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\python.py:498: in importtestmodule
+    mod = import_path(
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1381: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1354: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1325: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:929: in _load_unlocked
+    ???
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\assertion\rewrite.py:186: in exec_module
+    exec(co, module.__dict__)
+tests\test_clv_performance.py:14: in <module>
+    from backend.services.simple_propfinder_service import SimplePropFinderService
+backend\services\simple_propfinder_service.py:75: in <module>
+    from backend.api_integration import odds_aggregation_service, AggregatedOdds
+backend\api_integration.py:614: in <module>
+    from backend.routes.real_time_analysis import router as real_time_analysis_router
+E     File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\real_time_analysis.py", line 113
+E       raise BusinessLogicException(f"Failed to start analysis: {str(e)}"
+E       ^^^^^
+E   SyntaxError: invalid syntax
+__________________ ERROR collecting tests/test_clv_system.py __________________
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\python.py:498: in importtestmodule
+    mod = import_path(
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1381: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1354: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1325: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:929: in _load_unlocked
+    ???
+..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\assertion\rewrite.py:186: in exec_module
+    exec(co, module.__dict__)
+tests\test_clv_system.py:35: in <module>
+    from backend.tasks.clv_computation_task import CLVComputationTask
+backend\tasks\clv_computation_task.py:17: in <module>
+    from backend.services.simple_propfinder_service import SimplePropfinderService
+backend\services\simple_propfinder_service.py:75: in <module>
+    from backend.api_integration import odds_aggregation_service, AggregatedOdds
+backend\api_integration.py:614: in <module>
+    from backend.routes.real_time_analysis import router as real_time_analysis_router
+E     File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\real_time_analysis.py", line 113
+E       raise BusinessLogicException(f"Failed to start analysis: {str(e)}"
+E       ^^^^^
+E   SyntaxError: invalid syntax
+------------------------------- Captured stdout -------------------------------
+{"asctime": "2025-10-18 05:03:41,887", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(id, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.887004Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,887", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(bet_id, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.887004Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,887", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(user_id, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(game_id, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(sport, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(market, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(player, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(selection, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(team, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(opponent, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(bet_type, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(stake_amount, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(placed_odds, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(placed_line, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(sportsbook, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.888008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,888", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(placed_at, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.889008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,889", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(game_start_time, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.889008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,889", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(created_at, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.889008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,889", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(closing_odds, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.889008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,889", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(closing_line, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.889008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,889", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(closing_captured_at, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.889008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,889", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(clv_percent, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.889008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,889", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(clv_status, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.889008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,889", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(clv_computed_at, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.889008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,889", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(bet_status, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.889008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,889", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(actual_result, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.889008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,890", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(bet_result, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.890008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,890", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(profit_loss, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.890008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,890", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(settled_at, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.890008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,890", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(opening_odds, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.890008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,890", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(opening_line, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.890008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,890", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(line_movement, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.890008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,890", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(odds_movement, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.890008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,890", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(bet_confidence, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.890008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,890", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(bet_tags, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.890008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,890", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(bet_notes, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.890008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,890", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(batch_id, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.890008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,890", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(processing_version, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.890008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,891", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(external_bet_id, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.891010Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,891", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(data_quality_score, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.891010Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,891", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) _configure_property(validation_flags, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.891010Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,891", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) Identified primary key columns: OrderedSet([Column('id', Integer(), table=<clv_bet_tracking>, primary_key=True, nullable=False)])", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.891010Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,891", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVBetTracking|clv_bet_tracking) constructed", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.891010Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,892", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(id, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.892013Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,892", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(user_id, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.892013Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,892", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(period_start, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.892013Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,892", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(period_end, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.892013Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,892", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(total_bets, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.892013Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,892", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(bets_with_clv, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.892013Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,892", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(avg_clv_percent, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.892013Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,892", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(median_clv_percent, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.892013Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(clv_excellent_count, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(clv_good_count, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(clv_positive_count, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(clv_slight_negative_count, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(clv_poor_count, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(positive_clv_rate, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(avg_stake, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(total_stake, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(total_profit_loss, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(roi_percent, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(win_rate, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(top_sport, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(top_market, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(sport_breakdown, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.893009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,893", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(market_breakdown, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.894009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,894", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(computed_at, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.894009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,894", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) _configure_property(computation_version, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.894009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,894", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) Identified primary key columns: OrderedSet([Column('id', Integer(), table=<clv_analytics_summary>, primary_key=True, nullable=False)])", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.894009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,894", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVAnalyticsSummary|clv_analytics_summary) constructed", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.894009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,895", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(id, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.895008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,895", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(user_id, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.895008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,895", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(username, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.895008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,895", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(period_start, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.895008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,895", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(period_end, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.895008Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(avg_clv_percent, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(total_bets, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(rank, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(percentile, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(rank_overall, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(rank_30d, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(rank_7d, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(clv_score, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(consistency_score, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(volume_score, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(clv_30d_avg, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(clv_7d_avg, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(bets_30d, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(bets_7d, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(achievement_badges, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(milestone_reached, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) _configure_property(last_updated, Column)", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,896", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) Identified primary key columns: OrderedSet([Column('id', Integer(), table=<clv_leaderboard>, primary_key=True, nullable=False)])", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.896009Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+{"asctime": "2025-10-18 05:03:41,897", "name": "sqlalchemy.orm.mapper.Mapper", "levelname": "INFO", "message": "(CLVLeaderboard|clv_leaderboard) constructed", "correlation_id": "no-correlation-id", "timestamp": "2025-10-18T10:03:41.897514Z", "app_name": "A1Betting Backend API", "app_version": "2.0.0", "environment": "development", "logger": "sqlalchemy.orm.mapper.Mapper", "level": "INFO", "file": "mapper.py", "line": 2471, "function": "_log"}
+=========================== short test summary info ===========================
+ERROR tests/backend/services/test_enhanced_schema_validation.py
+ERROR tests/backend/services/test_line_movement_clv.py
+ERROR tests/backend/test_clv_response_consistency.py
+ERROR tests/test_clv_calculation.py
+ERROR tests/test_clv_performance.py
+ERROR tests/test_clv_system.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!
+====================== 3415 warnings, 6 errors in 9.90s =======================

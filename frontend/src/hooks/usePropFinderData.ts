@@ -506,10 +506,12 @@ function resolveRefreshInterval(options?: UsePropfinderOptions): number {
 }
 
 function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderResult {
-  const initialFilters = useMemo(
-    () => normalizeInitialFilters(options?.initialFilters),
-    [options?.initialFilters]
-  );
+  // Preserve caller-provided initial filters. We avoid forcing a default sport
+  // here so deterministic debug snapshots (used in E2E/global-setup) remain
+  // consistent with server-side totals and filters.
+  const initialFilters = useMemo(() => {
+    return normalizeInitialFilters(options?.initialFilters);
+  }, [options?.initialFilters]);
 
   const [filters, setFilters] = useState<Record<string, unknown>>(initialFilters);
   const [searchQueryState, setSearchQueryState] = useState<string>(options?.search ?? '');
@@ -528,6 +530,8 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
   const searchRef = useRef<string>(options?.search ?? '');
   const activeRequestRef = useRef<AbortController | null>(null);
   const initialFetchRef = useRef<boolean>(false);
+  const isFetchingRef = useRef<boolean>(false);
+  const manualPaginationRef = useRef<boolean>(false);
 
   useEffect(() => {
     setFilters(initialFilters);
@@ -540,6 +544,14 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
   }, [options?.search]);
 
   useEffect(() => {
+    offsetRef.current = offset;
+  }, [offset]);
+
+  useEffect(() => {
+    opportunitiesRef.current = opportunities;
+  }, [opportunities]);
+
+  useEffect(() => {
     filtersRef.current = filters;
   }, [filters]);
   useEffect(() => {
@@ -548,12 +560,26 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
 
   const refreshIntervalMs = useMemo(() => resolveRefreshInterval(options), [options]);
   const includeCLV = Boolean(options?.includeCLV);
-  const effectiveLimit = options?.limit ?? 100;
+  // Use a conservative default page size to avoid transferring overly large
+  // payloads by default. Consumers can override via options.limit.
+  const effectiveLimit = options?.limit ?? 25;
   const initialOffset = options?.offset ?? 0;
   const userId = options?.userId;
 
+  const offsetRef = useRef<number>(initialOffset);
+  const opportunitiesRef = useRef<PropOpportunity[]>([]);
+
+  useEffect(() => {
+    offsetRef.current = offset;
+  }, [offset]);
+
+  useEffect(() => {
+    opportunitiesRef.current = opportunities;
+  }, [opportunities]);
+
   const fetchOpportunities = useCallback(
     async (opts?: { silent?: boolean }) => {
+      isFetchingRef.current = true;
       // Dev-only debug snapshot: if a dev snapshot is present in localStorage,
       // use it to populate opportunities/stats and skip the network fetch. This
       // is useful for headless E2E runs when the backend may have no data yet.
@@ -608,6 +634,7 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
               setLastUpdated(new Date().toISOString());
               setError(null);
               if (!opts?.silent) setLoading(false);
+              isFetchingRef.current = false;
               return;
             } catch (e) {
               // If snapshot parsing fails, fall through to normal fetch
@@ -641,7 +668,11 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
           includeCLV,
           userId,
         });
-        params.set('offset', String(offset));
+        params.set('offset', String(offsetRef.current));
+        // Request compact/list-mode by default for the opportunities list so
+        // the server can return a lightweight representation and reduce
+        // payload size. The server shim honors `fields=compact`.
+        params.set('fields', 'compact');
 
         const queryString = params.toString();
         const url = queryString
@@ -776,6 +807,7 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
                   setError(null);
                   if (!opts?.silent) setLoading(false);
                   if (activeRequestRef.current === controller) activeRequestRef.current = null;
+                  isFetchingRef.current = false;
                   return;
                 }
               }
@@ -797,7 +829,10 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
         const rawOpportunities = Array.isArray(data.opportunities)
           ? (data.opportunities as unknown[])
           : [];
-        const summary = asRecord(data.summary);
+        // Merge top-level data and nested summary so callers that place totals
+        // at the top-level (e.g. `total`) or inside `summary.count` are both
+        // accounted for when computing server totals and stats.
+        const summary = { ...asRecord(data), ...asRecord(data.summary) } as Record<string, unknown>;
 
         const clvOverrides = new Map<string, ClvOverride>();
         rawOpportunities.forEach(item => {
@@ -848,12 +883,16 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
         }
         // Update hasMore based on server summary or returned count
         const serverTotal =
-          (summary &&
-            (summary.total_opportunities || summary.total || summary.totalOpportunities)) ??
+          toNumberValue(summary.total_opportunities) ??
+          toNumberValue(summary.total) ??
+          toNumberValue(summary.totalOpportunities) ??
+          toNumberValue(summary.count) ??
           undefined;
         if (serverTotal !== undefined) {
           const currentCount =
-            (!offset ? 0 : offset) + (mapped?.length ?? 0) + (opportunities?.length ?? 0);
+            (Number(offsetRef.current) || 0) +
+            (mapped?.length ?? 0) +
+            (opportunitiesRef.current?.length ?? 0);
           setHasMore(currentCount < Number(serverTotal));
         } else {
           // fall back to length check
@@ -868,11 +907,7 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
               ok: true,
               status: response.status,
               message: undefined,
-              server_total: toNumberValue(
-                (summary &&
-                  (summary.total_opportunities || summary.total || summary.totalOpportunities)) ??
-                  undefined
-              ),
+              server_total: serverTotal,
             };
           }
         } catch {
@@ -920,19 +955,26 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
         }
       }
     },
-    [effectiveLimit, includeCLV, userId, offset, opportunities]
+    [effectiveLimit, includeCLV, userId]
   );
 
   // loadMore increments offset and fetches next page
-  const loadMore = useCallback(async () => {
+  const loadMore = useCallback(async (): Promise<void> => {
     if (!hasMore) return;
-    setOffset(prev => {
-      const next = prev + effectiveLimit;
-      return next;
-    });
-    // fetch with updated offset after state updates
-    await fetchOpportunities({ silent: true });
-  }, [effectiveLimit, fetchOpportunities, hasMore]);
+    if (isFetchingRef.current) return;
+    // mark that this offset change is a manual pagination so the offset effect
+    // won't trigger a duplicate fetch
+    manualPaginationRef.current = true;
+    const next = (offsetRef.current ?? 0) + effectiveLimit;
+    // update both state and ref synchronously so the fetch reads the correct offset
+    setOffset(next);
+    offsetRef.current = next;
+    try {
+      await fetchOpportunities({ silent: true });
+    } finally {
+      // nothing extra here; fetchOpportunities clears isFetchingRef itself
+    }
+  }, [effectiveLimit, hasMore, fetchOpportunities]);
 
   useEffect(() => {
     if (!initialFetchRef.current) {
@@ -947,6 +989,11 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
   useEffect(() => {
     // Do not trigger on initial mount because initialFetchRef handles initial run
     if (!initialFetchRef.current) return;
+    if (manualPaginationRef.current) {
+      // this pagination was initiated via loadMore which already called fetchOpportunities
+      manualPaginationRef.current = false;
+      return;
+    }
     fetchOpportunities();
   }, [offset, fetchOpportunities]);
 

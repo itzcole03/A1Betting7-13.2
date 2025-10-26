@@ -6,7 +6,7 @@ and integration status for enhanced odds aggregation decision making.
 
 Features:
 - Real-time provider confidence scores
-- Provider selection recommendations  
+- Provider selection recommendations
 - Circuit breaker integration status
 - Provider rankings and comparisons
 - Confidence-based decision insights
@@ -18,12 +18,13 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from ..services.provider_confidence_integration import (
 from backend.core.exceptions import BusinessLogicException
-    get_provider_confidence_integration,
+
+from ..services.provider_confidence_integration import (
+    ConfidenceLevel,
     ProviderConfidenceScore,
     ProviderSelectionResult,
-    ConfidenceLevel
+    get_provider_confidence_integration,
 )
 
 logger = logging.getLogger("provider_confidence_routes")
@@ -33,25 +34,32 @@ router = APIRouter(prefix="/api/odds/provider-confidence", tags=["Provider Confi
 
 class ProviderConfidenceResponse(BaseModel):
     """Response model for provider confidence score"""
+
     provider_id: str
-    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Base confidence score 0-1")
+    confidence_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Base confidence score 0-1"
+    )
     confidence_level: str = Field(..., description="Confidence level category")
     circuit_state: str = Field(..., description="Circuit breaker state")
     provider_state: str = Field(..., description="Provider operational state")
-    
+
     # Detailed scoring breakdown
     success_rate_score: float = Field(..., ge=0.0, le=1.0)
     latency_score: float = Field(..., ge=0.0, le=1.0)
     freshness_score: float = Field(..., ge=0.0, le=1.0)
     reliability_score: float = Field(..., ge=0.0, le=1.0)
     consistency_score: float = Field(..., ge=0.0, le=1.0)
-    
+
     # Circuit breaker influence
     circuit_penalty: float = Field(..., ge=0.0, le=1.0)
-    adjusted_confidence: float = Field(..., ge=0.0, le=1.0, description="Final confidence after penalties")
-    
+    adjusted_confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Final confidence after penalties"
+    )
+
     # Selection metadata
-    selection_priority: int = Field(..., ge=1, description="Selection priority (1=highest)")
+    selection_priority: int = Field(
+        ..., ge=1, description="Selection priority (1=highest)"
+    )
     requires_fallback: bool
     fallback_reason: Optional[str] = None
     last_updated: float
@@ -59,6 +67,7 @@ class ProviderConfidenceResponse(BaseModel):
 
 class ProviderSelectionResponse(BaseModel):
     """Response model for provider selection result"""
+
     primary_provider: Optional[ProviderConfidenceResponse]
     fallback_providers: List[ProviderConfidenceResponse]
     selection_reason: str
@@ -68,6 +77,7 @@ class ProviderSelectionResponse(BaseModel):
 
 class ProviderRankingResponse(BaseModel):
     """Response model for provider ranking"""
+
     provider_id: str
     confidence_score: float = Field(..., ge=0.0, le=1.0)
     confidence_level: str
@@ -76,6 +86,7 @@ class ProviderRankingResponse(BaseModel):
 
 class IntegrationStatusResponse(BaseModel):
     """Response model for integration status"""
+
     system: str
     status: str
     cached_providers: int
@@ -85,7 +96,9 @@ class IntegrationStatusResponse(BaseModel):
     last_selection: Optional[str]
 
 
-def _convert_confidence_score_to_response(score: ProviderConfidenceScore) -> ProviderConfidenceResponse:
+def _convert_confidence_score_to_response(
+    score: ProviderConfidenceScore,
+) -> ProviderConfidenceResponse:
     """Convert internal confidence score to API response"""
     return ProviderConfidenceResponse(
         provider_id=score.provider_id,
@@ -103,7 +116,7 @@ def _convert_confidence_score_to_response(score: ProviderConfidenceScore) -> Pro
         selection_priority=score.selection_priority,
         requires_fallback=score.requires_fallback,
         fallback_reason=score.fallback_reason,
-        last_updated=score.last_updated
+        last_updated=score.last_updated,
     )
 
 
@@ -115,89 +128,92 @@ async def get_confidence_health():
     try:
         integration = get_provider_confidence_integration()
         status = integration.get_integration_status()
-        
+
         return {
             "service": "Provider Confidence Integration",
             "status": "healthy",
             "integration_active": True,
-            "details": status
+            "details": status,
         }
-        
+
     except Exception as e:
         logger.error(f"Health check error: {e}")
-        raise BusinessLogicException(f"Health check failed: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.get("/score/{provider_id}", response_model=ProviderConfidenceResponse)
 async def get_provider_confidence_score(provider_id: str):
     """
     Get comprehensive confidence score for a specific provider.
-    
+
     Returns detailed confidence breakdown including circuit breaker influence
     and provider selection priority.
     """
     try:
         integration = get_provider_confidence_integration()
         score = await integration.get_provider_confidence_score(provider_id)
-        
+
         return _convert_confidence_score_to_response(score)
-        
+
     except Exception as e:
         logger.error(f"Error getting confidence score for {provider_id}: {e}")
-        raise BusinessLogicException(f"Failed to get confidence score: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.get("/rankings", response_model=List[ProviderRankingResponse])
 async def get_provider_rankings():
     """
     Get all providers ranked by confidence score.
-    
+
     Returns list of providers ordered by confidence score (highest first).
     """
     try:
         integration = get_provider_confidence_integration()
         rankings = await integration.get_provider_rankings()
-        
+
         response = []
-        for rank, (provider_id, confidence_score, confidence_level) in enumerate(rankings, 1):
-            response.append(ProviderRankingResponse(
-                provider_id=provider_id,
-                confidence_score=confidence_score,
-                confidence_level=confidence_level.value,
-                rank=rank
-            ))
-        
+        for rank, (provider_id, confidence_score, confidence_level) in enumerate(
+            rankings, 1
+        ):
+            response.append(
+                ProviderRankingResponse(
+                    provider_id=provider_id,
+                    confidence_score=confidence_score,
+                    confidence_level=confidence_level.value,
+                    rank=rank,
+                )
+            )
+
         return response
-        
+
     except Exception as e:
         logger.error(f"Error getting provider rankings: {e}")
-        raise BusinessLogicException(f"Failed to get provider rankings: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.post("/select", response_model=ProviderSelectionResponse)
 async def select_optimal_provider(
     available_providers: List[str],
-    confidence_threshold: Optional[float] = Query(None, ge=0.0, le=1.0, description="Minimum confidence threshold")
+    confidence_threshold: Optional[float] = Query(
+        None, ge=0.0, le=1.0, description="Minimum confidence threshold"
+    ),
 ):
     """
     Select optimal provider from list based on confidence scores and circuit states.
-    
+
     Returns primary provider recommendation and ordered fallback list.
     """
     try:
         integration = get_provider_confidence_integration()
         result = await integration.select_optimal_provider(
-            available_providers, 
-            confidence_threshold
+            available_providers, confidence_threshold
         )
-        
+
         return ProviderSelectionResponse(
             primary_provider=(
                 _convert_confidence_score_to_response(result.primary_provider)
-                if result.primary_provider else None
+                if result.primary_provider
+                else None
             ),
             fallback_providers=[
                 _convert_confidence_score_to_response(score)
@@ -205,34 +221,32 @@ async def select_optimal_provider(
             ],
             selection_reason=result.selection_reason,
             total_providers_evaluated=result.total_providers_evaluated,
-            confidence_threshold_used=result.confidence_threshold_used
+            confidence_threshold_used=result.confidence_threshold_used,
         )
-        
+
     except Exception as e:
         logger.error(f"Error selecting provider: {e}")
-        raise BusinessLogicException(f"Provider selection failed: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.get("/circuit-breaker/{provider_id}")
 async def check_circuit_breaker_recommendation(
     provider_id: str,
-    error_type: Optional[str] = Query(None, description="Type of error that occurred")
+    error_type: Optional[str] = Query(None, description="Type of error that occurred"),
 ):
     """
     Check if circuit breaker should be triggered for provider based on confidence.
-    
+
     Returns enhanced circuit breaker recommendation using confidence scoring.
     """
     try:
         integration = get_provider_confidence_integration()
         should_trigger = await integration.should_trigger_circuit_breaker(
-            provider_id, 
-            error_type
+            provider_id, error_type
         )
-        
+
         confidence_score = await integration.get_provider_confidence_score(provider_id)
-        
+
         return {
             "provider_id": provider_id,
             "should_trigger_circuit_breaker": should_trigger,
@@ -240,43 +254,51 @@ async def check_circuit_breaker_recommendation(
             "confidence_level": confidence_score.confidence_level.value,
             "circuit_state": confidence_score.circuit_state.value,
             "recommendation_reason": (
-                "Trigger circuit breaker due to low confidence and failures" if should_trigger
+                "Trigger circuit breaker due to low confidence and failures"
+                if should_trigger
                 else "Circuit breaker not recommended"
             ),
-            "error_type": error_type
+            "error_type": error_type,
         }
-        
+
     except Exception as e:
         logger.error(f"Error checking circuit breaker for {provider_id}: {e}")
-        raise BusinessLogicException(f"Circuit breaker check failed: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 class ProviderRequestUpdate(BaseModel):
     """Request model for updating provider confidence based on request outcome"""
+
     provider_id: str = Field(..., description="Provider identifier")
     success: bool = Field(..., description="Whether the request was successful")
     latency_ms: float = Field(..., ge=0, description="Request latency in milliseconds")
-    response_data: Optional[Dict[str, Any]] = Field(None, description="Optional response data")
+    response_data: Optional[Dict[str, Any]] = Field(
+        None, description="Optional response data"
+    )
 
 
 @router.post("/update-request")
 async def update_provider_confidence_on_request(request: ProviderRequestUpdate):
     """
     Update provider confidence based on request outcome.
-    
+
     This endpoint should be called after each provider request to maintain
     accurate confidence scoring and circuit breaker state.
     """
     try:
         integration = get_provider_confidence_integration()
         await integration.update_provider_confidence_on_request(
-            request.provider_id, request.success, request.latency_ms, request.response_data
+            request.provider_id,
+            request.success,
+            request.latency_ms,
+            request.response_data,
         )
-        
+
         # Get updated confidence score
-        updated_score = await integration.get_provider_confidence_score(request.provider_id)
-        
+        updated_score = await integration.get_provider_confidence_score(
+            request.provider_id
+        )
+
         return {
             "provider_id": request.provider_id,
             "request_recorded": True,
@@ -284,13 +306,12 @@ async def update_provider_confidence_on_request(request: ProviderRequestUpdate):
             "latency_ms": request.latency_ms,
             "updated_confidence": updated_score.adjusted_confidence,
             "confidence_level": updated_score.confidence_level.value,
-            "requires_fallback": updated_score.requires_fallback
+            "requires_fallback": updated_score.requires_fallback,
         }
-        
+
     except Exception as e:
         logger.error(f"Error updating confidence for {request.provider_id}: {e}")
-        raise BusinessLogicException(f"Confidence update failed: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.get("/thresholds")
@@ -300,11 +321,11 @@ async def get_confidence_thresholds():
     """
     try:
         integration = get_provider_confidence_integration()
-        
+
         return {
             "confidence_thresholds": integration.confidence_thresholds,
             "circuit_penalties": {
-                state.value: penalty 
+                state.value: penalty
                 for state, penalty in integration.circuit_penalties.items()
             },
             "selection_weights": integration.selection_weights,
@@ -312,27 +333,26 @@ async def get_confidence_thresholds():
                 "primary_provider_min": "Minimum confidence for primary provider selection",
                 "fallback_trigger": "Confidence level that triggers fallback",
                 "circuit_breaker_enhance": "Enhanced circuit breaker threshold",
-                "emergency_fallback": "Emergency fallback threshold"
-            }
+                "emergency_fallback": "Emergency fallback threshold",
+            },
         }
-        
+
     except Exception as e:
         logger.error(f"Error getting confidence thresholds: {e}")
-        raise BusinessLogicException(f"Failed to get thresholds: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.get("/integration-status", response_model=IntegrationStatusResponse)
 async def get_integration_status():
     """
     Get comprehensive status of the confidence integration system.
-    
+
     Returns system health, cache status, and recent selection history.
     """
     try:
         integration = get_provider_confidence_integration()
         status = integration.get_integration_status()
-        
+
         return IntegrationStatusResponse(
             system=status["system"],
             status=status["status"],
@@ -340,10 +360,9 @@ async def get_integration_status():
             selection_history_count=status["selection_history_count"],
             confidence_thresholds=status["confidence_thresholds"],
             circuit_penalties=status["circuit_penalties"],
-            last_selection=status["last_selection"]
+            last_selection=status["last_selection"],
         )
-        
+
     except Exception as e:
         logger.error(f"Error getting integration status: {e}")
-        raise BusinessLogicException(f"Failed to get integration status: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)

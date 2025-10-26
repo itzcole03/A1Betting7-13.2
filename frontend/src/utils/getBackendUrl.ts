@@ -22,6 +22,19 @@ function getViteEnvSafe(): Record<string, string> {
 
 export function getBackendUrl(): string {
   const viteEnv = getViteEnvSafe();
+  // In a browser dev server session (Vite), prefer a relative base so the
+  // dev proxy forwards /api requests to the backend and avoids CORS issues.
+  // For Jest/Node, keep returning the absolute URL.
+  try {
+    const inBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
+    const isDev = import.meta.env ? import.meta.env.MODE === 'development' : false;
+    if (inBrowser && isDev) {
+      return ''; // use relative paths like '/api/...' so Vite proxy picks them up
+    }
+  } catch (e) {
+    // ignore - fall back to legacy logic
+  }
+
   return (
     viteEnv.VITE_BACKEND_URL ||
     viteEnv.VITE_API_URL ||

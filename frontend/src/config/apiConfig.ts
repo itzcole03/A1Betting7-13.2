@@ -13,10 +13,14 @@ const resolveApiBaseUrl = (): string => {
 
   if (typeof window !== 'undefined') {
     const { protocol, hostname, port } = window.location;
-    const devPorts = new Set(['5173', '5174', '4173']);
     const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
 
-    if (isLocalHost && devPorts.has(port)) {
+    // If we're running in a browser on localhost (any port), treat the current
+    // origin as the API base so Vite's dev server can proxy /api requests. This
+    // avoids hardcoding ports (Vite may choose another port like 5175 when
+    // 5173 is in use) and prevents CORS issues where the frontend talks
+    // directly to 127.0.0.1:8000.
+    if (isLocalHost) {
       return `${protocol}//${window.location.host}`;
     }
   }

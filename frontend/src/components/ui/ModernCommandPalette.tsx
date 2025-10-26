@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 // @ts-nocheck -- temporary suppression to reduce triage noise (Batch A)
 // @ts-expect-error TS(2307): Cannot find module '@/lib/utils' or its correspond... Remove this comment to see the full error message
 import { cn } from '@/lib/utils';
@@ -221,16 +221,13 @@ export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
   const _groupedCommands = useMemo(() => {
     if (!showCategories) return { All: filteredCommands };
 
-    const _grouped = filteredCommands.reduce(
-      (acc, command) => {
-        if (!acc[command.category]) {
-          acc[command.category] = [];
-        }
-        acc[command.category].push(command);
-        return acc;
-      },
-      {} as Record<string, Command[]>
-    );
+    const _grouped = filteredCommands.reduce((acc, command) => {
+      if (!acc[command.category]) {
+        acc[command.category] = [];
+      }
+      acc[command.category].push(command);
+      return acc;
+    }, {} as Record<string, Command[]>);
 
     return grouped;
   }, [filteredCommands, showCategories]);
@@ -395,14 +392,15 @@ export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
     // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
     <div className='fixed inset-0 z-50 flex items-start justify-center pt-20'>
       {/* Backdrop */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div
         className='absolute inset-0 bg-black/50 backdrop-blur-sm'
         onClick={() => onOpenChange(false)}
       />
-
       {/* Command Palette */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div
         className={cn(
           'relative w-full max-w-2xl mx-4 max-h-96 overflow-hidden',
@@ -411,16 +409,19 @@ export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
         )}
       >
         {/* Search Input */}
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'flex items-center p-4 border-b',
             variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
           )}
         >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='flex items-center flex-1 space-x-3'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div
               className={cn(
                 'text-lg',
@@ -430,8 +431,8 @@ export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
             >
               {state.loading ? '⟳' : '🔍'}
             </div>
-
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <input
               ref={inputRef}
               type='text'
@@ -444,7 +445,6 @@ export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
               )}
               disabled={state.loading}
             />
-
             {enableVoiceSearch && (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <button
@@ -462,17 +462,17 @@ export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
               </button>
             )}
           </div>
-
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn('text-xs', variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500')}
           >
             {filteredCommands.length} results
           </div>
         </div>
-
         {/* Results */}
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div ref={listRef} className='max-h-80 overflow-y-auto'>
           {/* Recent Commands */}
           {showRecents && !state.query && state.recentCommands.length > 0 && (
@@ -483,7 +483,8 @@ export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
                 variant === 'cyber' ? 'border-cyan-500/20' : 'border-gray-100'
               )}
             >
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <div
                 className={cn(
                   'text-xs font-medium mb-2 uppercase tracking-wider',
@@ -533,13 +534,17 @@ export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
                         : 'bg-gray-50 border-gray-100 text-gray-500'
                     )}
                   >
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                    provided... Remove this comment to see the full error message
                     <div className='flex items-center space-x-2'>
-                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                      provided... Remove this comment to see the full error message
                       {category?.icon && <span>{category.icon}</span>}
-                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                      provided... Remove this comment to see the full error message
                       <span>{category?.name || categoryId}</span>
-                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                      provided... Remove this comment to see the full error message
                       <span className='text-xs opacity-50'>({categoryCommands.length})</span>
                     </div>
                   </div>
@@ -579,9 +584,11 @@ export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
                 variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500'
               )}
             >
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <div className='text-4xl mb-2'>🔍</div>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <div className='text-sm'>No commands found</div>
               {state.query && (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -590,9 +597,9 @@ export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
             </div>
           )}
         </div>
-
         {/* Footer */}
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'flex items-center justify-between p-3 border-t text-xs',
@@ -601,26 +608,32 @@ export const _ModernCommandPalette: React.FC<ModernCommandPaletteProps> = ({
               : 'border-gray-200 text-gray-500'
           )}
         >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='flex items-center space-x-4'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <span>↑↓ Navigate</span>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <span>↵ Execute</span>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <span>Esc Close</span>
           </div>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div>{enableVoiceSearch && <span>🎤 Voice Search</span>}</div>
         </div>
-
         {/* Cyber Effects */}
         {variant === 'cyber' && (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className='absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 rounded-xl pointer-events-none' />
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className='absolute inset-0 bg-grid-white/[0.02] rounded-xl pointer-events-none' />
           </>
         )}
@@ -663,16 +676,19 @@ const _CommandItem: React.FC<CommandItemProps> = ({
       )}
       onClick={() => !command.disabled && onExecute(command)}
     >
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div className='flex items-center space-x-3 flex-1 min-w-0'>
         {/* Icon */}
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         {command.icon && <span className='text-lg flex-shrink-0'>{command.icon}</span>}
-
         {/* Content */}
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className='flex-1 min-w-0'>
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn(
               'font-medium truncate',
@@ -694,11 +710,12 @@ const _CommandItem: React.FC<CommandItemProps> = ({
           )}
         </div>
       </div>
-
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div className='flex items-center space-x-2'>
         {/* Favorite Button */}
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <button
           onClick={e => {
             e.stopPropagation();
@@ -709,13 +726,12 @@ const _CommandItem: React.FC<CommandItemProps> = ({
             isFavorite
               ? 'text-yellow-500'
               : variant === 'cyber'
-                ? 'text-cyan-400/50 hover:text-cyan-300'
-                : 'text-gray-400 hover:text-gray-600'
+              ? 'text-cyan-400/50 hover:text-cyan-300'
+              : 'text-gray-400 hover:text-gray-600'
           )}
         >
           {isFavorite ? '★' : '☆'}
         </button>
-
         {/* Shortcut */}
         {showShortcuts && command.shortcut && (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

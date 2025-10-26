@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { fileURLToPath } from 'url';
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -17,21 +18,24 @@ export default defineConfig({
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
     ['json', { outputFile: 'test-results/results.json' }],
-    ['junit', { outputFile: 'test-results/junit.xml' }]
+    ['junit', { outputFile: 'test-results/junit.xml' }],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://127.0.0.1:5173',
+    baseURL: process.env.E2E_FRONTEND_BASE_URL ?? 'http://localhost:5173',
+    // Reuse a storage state created in global setup so onboarding / demo flags
+    // are pre-populated for all test contexts.
+    storageState: 'tests/e2e/auth.json',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    /* Always collect a trace (includes network) so trace-based correlator can extract request/response events) */
+    trace: 'on',
 
     /* Take screenshot on failure */
     screenshot: 'only-on-failure',
 
     /* Record video on failure */
-    video: 'retain-on-failure'
+    video: 'retain-on-failure',
   },
 
   /* Configure projects for major browsers */
@@ -73,20 +77,48 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: [
-    {
-      command: 'npm run dev',
-      url: 'http://127.0.0.1:5173',
-      reuseExistingServer: !process.env.CI,
-      timeout: 30 * 1000,
-    },
-    {
-      command: 'cd .. && python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000',
-      url: 'http://127.0.0.1:8000/health',
-      reuseExistingServer: !process.env.CI,
-      timeout: 60 * 1000,
-    }
-  ],
+  // If an external front-end base URL is provided via E2E_FRONTEND_BASE_URL
+  // (for example, when CI starts an instrumented proxy outside Playwright),
+  // avoid starting the Playwright-managed frontend webServer. This prevents
+  // Playwright from launching its own server (which could bind to 5173 and
+  // lead tests to bypass the instrumented proxy). When the env var is set,
+  // Playwright will still run the backend webServer entry so the backend
+  // process is available for tests.
+  webServer: process.env.E2E_FRONTEND_BASE_URL
+    ? [
+        {
+          // Only start the backend server; frontend is provided externally.
+          command:
+            'cd .. & npx kill-port 8000 & set PYTHONPATH=.&& python -m uvicorn backend.core.app:create_app --factory --host 127.0.0.1 --port 8000',
+          url: 'http://localhost:8000/api/testing/ready',
+          reuseExistingServer: false,
+          timeout: 60 * 1000,
+        },
+      ]
+    : [
+        {
+          // Full local flow: build the frontend and serve the static dist
+          // using the in-repo static server. This is the deterministic
+          // default for developer runs where E2E_FRONTEND_BASE_URL is not
+          // provided.
+          command: 'cd . && npm run build && node scripts/serve-dist-fixed.cjs 5173',
+          url: 'http://localhost:5173',
+          env: {
+            BACKEND_URL: 'http://localhost:8000',
+          },
+          reuseExistingServer: false,
+          timeout: 4 * 60 * 1000,
+        },
+        {
+          // Start the backend service when Playwright manages the frontend
+          // process too. Keeps backend lifecycle aligned with frontend.
+          command:
+            'cd .. & npx kill-port 8000 & set PYTHONPATH=.&& python -m uvicorn backend.core.app:create_app --factory --host 127.0.0.1 --port 8000',
+          url: 'http://localhost:8000/api/testing/ready',
+          reuseExistingServer: false,
+          timeout: 60 * 1000,
+        },
+      ],
 
   /* Timeout settings */
   timeout: 30 * 1000,
@@ -94,7 +126,8 @@ export default defineConfig({
     timeout: 10 * 1000,
   },
 
-  /* Global setup and teardown */
-  globalSetup: require.resolve('./tests/e2e/global-setup'),
-  globalTeardown: require.resolve('./tests/e2e/global-teardown'),
+  /* Global setup and teardown (ESM-safe resolution) */
+  // Use import.meta.url to build file paths in an ES module context.
+  globalSetup: fileURLToPath(new URL('./tests/e2e/global-setup', import.meta.url)),
+  globalTeardown: fileURLToPath(new URL('./tests/e2e/global-teardown', import.meta.url)),
 });

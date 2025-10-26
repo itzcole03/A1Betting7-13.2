@@ -11,13 +11,12 @@ from datetime import datetime, timezone, timedelta
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
 import statistics
+from backend.core.exceptions import BusinessLogicException
 
 from backend.models.clv_bet_tracking import CLVBetTracking, CLVAnalyticsSummary, CLVLeaderboard, CLVComputationStatus
 from backend.utils.clv_utils import get_clv_tier, get_achievement_badges, calculate_roi_percent, calculate_win_rate
 from backend.database import get_db
 from backend.auth.security import get_current_user
-from backend.core.exceptions import BusinessLogicException
-
 router = APIRouter(prefix="/api/users", tags=["User CLV Analytics"])
 
 
@@ -96,7 +95,7 @@ async def get_user_clv_analytics(
         period_start = datetime.now(timezone.utc) - timedelta(days=days)
         period_end = datetime.now(timezone.utc)
         
-        # Build base query for user's bets in the period
+        # Build base query for user's bets in the period'
         base_query = db.query(CLVBetTracking).filter(
             CLVBetTracking.user_id == user_id,
             CLVBetTracking.placed_at >= period_start,
@@ -159,7 +158,7 @@ async def get_user_clv_analytics(
         )
         
     except Exception as e:
-        raise BusinessLogicException(f"Failed to get CLV analytics: {str(e, status_code=500)}")
+        raise BusinessLogicException(f"Failed to get CLV analytics: {str(e)}, status_code=500)")
 
 
 @router.get("/{user_id}/clv/summary")
@@ -235,7 +234,7 @@ async def get_user_clv_summary(
             }
             
     except Exception as e:
-        raise BusinessLogicException(f"Failed to get CLV summary: {str(e, status_code=500)}")
+        raise BusinessLogicException(f"Failed to get CLV summary: {str(e)}, status_code=500)")
 
 
 @router.get("/{user_id}/clv/history")
@@ -277,7 +276,7 @@ async def get_user_clv_history(
         }
         
     except Exception as e:
-        raise BusinessLogicException(f"Failed to get CLV history: {str(e, status_code=500)}")
+        raise BusinessLogicException(f"Failed to get CLV history: {str(e)}, status_code=500)")
 
 
 # Helper functions
@@ -573,7 +572,7 @@ def _generate_recommendations(
 def _group_bets_by_period(bets: List[CLVBetTracking], granularity: str) -> List[Dict[str, Any]]:
     """Group bets by time period for historical analysis"""
     # This is a simplified implementation
-    # In production, you'd want more sophisticated time grouping
+    # In production, you'd want more sophisticated time grouping'
     
     if granularity == "daily":
         # Group by day

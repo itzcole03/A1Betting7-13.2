@@ -12,10 +12,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-# Contract compliance imports
-from ..core.response_models import ResponseBuilder, StandardAPIResponse
-from ..core.exceptions import BusinessLogicException, AuthenticationException
-
+from backend.core.exceptions import BusinessLogicException
 from backend.models.api_models import (
     ArbitrageOpportunity,
     BettingOpportunity,
@@ -23,6 +20,10 @@ from backend.models.api_models import (
     RiskProfilesResponse,
 )
 
+from ..core.exceptions import AuthenticationException, BusinessLogicException
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
 from ..services.redis_cache_service import get_redis_cache
 
 # Temporarily commenting out corrupted data_fetchers
@@ -34,11 +35,15 @@ router = APIRouter(prefix="/api", tags=["Betting"])
 
 try:  # pragma: no cover - defensive import for optional odds ingestion
     from backend.odds.odds_snapshot_store import odds_snapshot_store
-except Exception:  # pragma: no cover - odds ingestion not available in some test contexts
+except (
+    Exception
+):  # pragma: no cover - odds ingestion not available in some test contexts
     odds_snapshot_store = None  # type: ignore
 
 try:  # pragma: no cover - optional ingestion refresh helper
-    from backend.odds.odds_ingestion_service import refresh_market as refresh_odds_market
+    from backend.odds.odds_ingestion_service import (
+        refresh_market as refresh_odds_market,
+    )
 except Exception:  # pragma: no cover - odds ingestion not wired
     refresh_odds_market = None  # type: ignore
 
@@ -62,12 +67,16 @@ def _format_event_description(
             resolved_player = parts[2]
 
     if resolved_player:
-        resolved_player = re.sub(r"(?<!^)(?=[A-Z])", " ", resolved_player).replace("_", " ").strip()
+        resolved_player = (
+            re.sub(r"(?<!^)(?=[A-Z])", " ", resolved_player).replace("_", " ").strip()
+        )
 
     market_label = market.replace("_", " ").title() if market else ""
     line_label = f"Line {line}" if line is not None else ""
 
-    segments = [segment for segment in (resolved_player, market_label, line_label) if segment]
+    segments = [
+        segment for segment in (resolved_player, market_label, line_label) if segment
+    ]
     return " - ".join(segments) if segments else selection_key
 
 
@@ -87,7 +96,9 @@ def _compute_real_arbitrage_opportunities(
 
     for selection_key, entries in grouped.items():
         overs = [entry for entry in entries if getattr(entry, "side", "over") == "over"]
-        unders = [entry for entry in entries if getattr(entry, "side", "over") == "under"]
+        unders = [
+            entry for entry in entries if getattr(entry, "side", "over") == "under"
+        ]
         if not overs or not unders:
             continue
 
@@ -145,7 +156,9 @@ def _coerce_iso_timestamp(value: Any) -> Optional[str]:
         return value
     if hasattr(value, "isoformat"):
         try:
-            return value.isoformat()  # pragma: no cover - defensive path for custom types
+            return (
+                value.isoformat()
+            )  # pragma: no cover - defensive path for custom types
         except Exception:  # noqa: BLE001 - best effort conversion
             return None
     return None
@@ -197,11 +210,11 @@ async def fetch_betting_opportunities_internal() -> List[Dict[str, Any]]:
             },
         ]
 
-        logger.info(f"Fetched {len(opportunities)} betting opportunities")
+        logger.info("Fetched %d betting opportunities", len(opportunities))
         return opportunities
 
     except Exception as e:
-        logger.error(f"Error in fetch_betting_opportunities_internal: {e}")
+        logger.exception("Error in fetch_betting_opportunities_internal: %s", e)
         # Return empty list on error rather than raise
         return []
 
@@ -218,34 +231,36 @@ async def get_betting_opportunities(
     try:
         # Check Redis cache first
         cache_service = await get_redis_cache()
-        
+
         # Create cache filters
         filters = {"sport": sport, "limit": limit}
-        
+
         # Try to get from cache
         cached_opportunities = await cache_service.get_betting_opportunities(filters)
         if cached_opportunities:
             return ResponseBuilder.success(cached_opportunities)
-        
+
         # Cache miss - fetch opportunities
         opportunities = await fetch_betting_opportunities_internal()
 
         # Filter by sport if specified
         if sport:
             opportunities = [
-                opp for opp in opportunities if opp.get("sport", "").lower() == sport.lower()
+                opp
+                for opp in opportunities
+                if opp.get("sport", "").lower() == sport.lower()
             ]
 
         # Apply limit
         opportunities = opportunities[:limit]
-        
+
         # Cache the results
         await cache_service.cache_betting_opportunities(opportunities, filters)
 
         return ResponseBuilder.success(opportunities)
 
     except Exception as e:
-        logger.error(f"Error fetching betting opportunities: {e}")
+        logger.exception("Error fetching betting opportunities: %s", e)
         raise BusinessLogicException("Failed to fetch betting opportunities")
 
 
@@ -257,15 +272,21 @@ async def get_arbitrage_opportunities(
     limit: int = Query(5, ge=1, le=50),
     sport: str = Query("MLB", description="Sport to evaluate for arbitrage"),
     market: str = Query("player_props", description="Market to evaluate for arbitrage"),
-    min_margin_pct: float = Query(0.25, ge=0.0, description="Minimum profit margin percentage to include"),
+    min_margin_pct: float = Query(
+        0.25, ge=0.0, description="Minimum profit margin percentage to include"
+    ),
 ) -> Dict[str, Any]:
     """Get arbitrage opportunities across different bookmakers"""
     try:
         if odds_snapshot_store is None:
-            logger.warning("Odds snapshot store unavailable; returning empty arbitrage list")
+            logger.warning(
+                "Odds snapshot store unavailable; returning empty arbitrage list"
+            )
             return ResponseBuilder.success([])
 
-        snapshots = await odds_snapshot_store.get_latest(sport=sport, market=market, limit=4000)
+        snapshots = await odds_snapshot_store.get_latest(
+            sport=sport, market=market, limit=4000
+        )
 
         if not snapshots and refresh_odds_market is not None:
             try:
@@ -276,7 +297,9 @@ async def get_arbitrage_opportunities(
 
         if not snapshots:
             logger.info(
-                "No arbitrage opportunities available for sport=%s market=%s", sport, market
+                "No arbitrage opportunities available for sport=%s market=%s",
+                sport,
+                market,
             )
             return ResponseBuilder.success([])
 
@@ -325,7 +348,9 @@ async def get_arbitrage_opportunities(
                     "total_stake": round(opportunity["total_stake"], 2),
                     "guaranteed_return": round(opportunity["guaranteed_return"], 2),
                     "guaranteed_profit": round(opportunity["guaranteed_profit"], 2),
-                    "last_updated": _coerce_iso_timestamp(opportunity.get("last_updated")),
+                    "last_updated": _coerce_iso_timestamp(
+                        opportunity.get("last_updated")
+                    ),
                 }
             )
 
@@ -337,7 +362,7 @@ async def get_arbitrage_opportunities(
         return ResponseBuilder.success(formatted)
 
     except Exception as e:
-        logger.error(f"Error fetching arbitrage opportunities: {e}")
+        logger.exception("Error fetching arbitrage opportunities: %s", e)
         raise BusinessLogicException("Failed to fetch arbitrage opportunities")
 
 
@@ -368,10 +393,10 @@ async def get_risk_profiles() -> Dict[str, Any]:
                 min_expected_value=0.08,
             ),
         ]
-
-        logger.info(f"Returning {len(profiles)} risk profiles")
+        # Use lazy logging formatting to avoid f-strings at import-time
+        logger.info("Returning %d risk profiles", len(profiles))
         return ResponseBuilder.success(RiskProfilesResponse(profiles=profiles))
 
     except Exception as e:
-        logger.error(f"Error fetching risk profiles: {e}")
+        logger.exception("Error fetching risk profiles: %s", e)
         raise BusinessLogicException("Failed to fetch risk profiles")

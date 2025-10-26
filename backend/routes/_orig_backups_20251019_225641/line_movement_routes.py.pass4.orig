@@ -1,0 +1,329 @@
+"""
+Line Movement API Routes
+
+FastAPI routes for querying line movement data and analytics.
+Provides endpoints for tracking betting line changes over time.
+"""
+
+from typing import Optional, List
+from fastapi import APIRouter, HTTPException, Query
+from datetime import datetime
+from backend.core.exceptions import BusinessLogicException
+
+from ..models.line_movement import (
+    LineMovementResponse,
+    LineMovementQuery,
+    MovementMetrics,
+    DEFAULT_MOVEMENT_CONFIG
+)
+from ..services.line_movement_service import (
+    get_line_movement_service,
+    trigger_snapshot
+)
+
+# Create router without a fixed prefix so it can be mounted at multiple paths
+router = APIRouter(tags=["line-movement"])
+
+
+@router.get("/movement", response_model=LineMovementResponse)
+async def get_line_movement(
+    sport: str = Query(..., description="Sport filter (e.g., MLB, NBA)"),
+    player: str = Query(..., description="Player name"),
+    market: str = Query(..., description="Market type (e.g., HR, Points)"),
+    limit: Optional[int] = Query(
+        40, 
+        description="Maximum snapshots to return", 
+        ge=1, 
+        le=100
+    )
+):
+    """
+    Get line movement analysis for a specific player-market combination.
+    
+    Returns timeline of snapshots with movement magnitude, direction, and volatility.
+    """
+    try:
+        service = await get_line_movement_service()
+        
+        analysis = await service.get_movement_analysis(
+            sport=sport,
+            player=player,
+            market=market,
+            limit=limit
+        )
+        
+        return analysis
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Failed to retrieve line movement data: {str(e)}, status_code=500)"
+        )
+
+
+@router.get("/movement/recent")
+async def get_recent_movements(
+    sport: Optional[str] = Query(None, description="Sport filter (optional)"),
+    hours_back: int = Query(24, description="Hours to look back", ge=1, le=168),
+    min_magnitude: float = Query(
+        0.5, 
+        description="Minimum magnitude to include", 
+        ge=0.0
+    ),
+    limit: int = Query(50, description="Maximum results to return", ge=1, le=200)
+):
+    """
+    Get recent significant line movements across all tracked lines.
+    
+    Returns movements sorted by magnitude (highest first).
+    """
+    try:
+        service = await get_line_movement_service()
+        
+        movements = await service.get_recent_movements(
+            sport=sport,
+            hours_back=hours_back,
+            min_magnitude=min_magnitude
+        )
+        
+        # Apply limit
+        limited_movements = movements[:limit]
+        
+        return {
+            "movements": limited_movements,
+            "total_found": len(movements),
+            "returned": len(limited_movements),
+            "filters": {
+                "sport": sport,
+                "hours_back": hours_back,
+                "min_magnitude": min_magnitude
+            },
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Failed to retrieve recent movements: {str(e)}, status_code=500)"
+        )
+
+
+@router.post("/movement/snapshot")
+async def record_movement_snapshot(
+    sport: str = Query(..., description="Sport abbreviation"),
+    player: str = Query(..., description="Player name"),
+    market: str = Query(..., description="Market type"),
+    line: float = Query(..., description="Current betting line"),
+    best_odds: int = Query(..., description="Best available odds"),
+    source: str = Query("manual", description="Source that triggered the snapshot")
+):
+    """
+    Manually record a line movement snapshot for testing purposes.
+    
+    In production, snapshots are automatically triggered by odds aggregation.
+    """
+    try:
+        movement_event = await trigger_snapshot(
+            sport=sport,
+            player=player,
+            market=market,
+            line=line,
+            best_odds=best_odds,
+            source=source
+        )
+        
+        return {
+            "status": "success",
+            "message": "Snapshot recorded successfully",
+            "movement_event": {
+                "sport": movement_event.sport,
+                "player": movement_event.player,
+                "market": movement_event.market,
+                "magnitude": movement_event.magnitude,
+                "direction": movement_event.direction.value,
+                "volatility_score": movement_event.volatility_score,
+                "timestamp": movement_event.timestamp.isoformat(),
+                "is_significant": movement_event.is_significant()
+            }
+        }
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Failed to record snapshot: {str(e)}, status_code=500)"
+        )
+
+
+@router.get("/movement/metrics", response_model=MovementMetrics)
+async def get_movement_metrics():
+    """
+    Get current metrics for the line movement tracking system.
+    
+    Returns snapshot counts, volatility events, and system health.
+    """
+    try:
+        service = await get_line_movement_service()
+        metrics = await service.get_metrics()
+        
+        return metrics
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Failed to retrieve metrics: {str(e)}, status_code=500)"
+        )
+
+
+@router.get("/movement/config")
+async def get_movement_config():
+    """
+    Get current line movement tracking configuration.
+    
+    Returns settings for snapshot limits, TTL, and thresholds.
+    """
+    config = DEFAULT_MOVEMENT_CONFIG
+    
+    return {
+        "max_snapshots_per_line": config.max_snapshots_per_line,
+        "volatility_threshold": config.volatility_threshold,
+        "magnitude_threshold": config.magnitude_threshold,
+        "snapshot_ttl_hours": config.snapshot_ttl_hours,
+        "redis_key_prefix": config.redis_key_prefix,
+        "sample_redis_key": config.generate_redis_key("MLB", "Aaron_Judge", "HR")
+    }
+
+
+@router.delete("/movement/cleanup")
+async def cleanup_expired_snapshots():
+    """
+    Manually trigger cleanup of expired line movement snapshots.
+    
+    This normally runs automatically in the background.
+    """
+    try:
+        service = await get_line_movement_service()
+        cleaned_count = await service.cleanup_expired_snapshots()
+        
+        return {
+            "status": "success",
+            "message": f"Cleanup completed successfully",
+            "cleaned_keys": cleaned_count,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Failed to cleanup snapshots: {str(e)}, status_code=500)"
+        )
+
+
+@router.get("/movement/health")
+async def check_movement_service_health():
+    """
+    Health check endpoint for line movement service.
+    
+    Returns service status and Redis connectivity.
+    """
+    try:
+        service = await get_line_movement_service()
+        redis_client = await service._ensure_redis()
+        
+        # Test basic functionality
+        test_metrics = await service.get_metrics()
+        
+        return {
+            "status": "healthy",
+            "redis_connected": redis_client is not None,
+            "fallback_mode": redis_client is None,
+            "active_tracked_lines": test_metrics.active_tracked_lines,
+            "total_snapshots": test_metrics.total_snapshots,
+            "timestamp": datetime.utcnow().isoformat(),
+            "service_available": True
+        }
+        
+    except Exception as e:
+        return {
+            "status": "degraded",
+            "error": str(e),
+            "redis_connected": False,
+            "fallback_mode": True,
+            "timestamp": datetime.utcnow().isoformat(),
+            "service_available": False
+        }
+
+
+# Additional convenience endpoints for integration
+
+@router.get("/movement/player/{sport}/{player})
+async def get_player_movements(
+    sport: str,
+    player: str,
+    hours_back: int = Query(24, description="Hours to look back", ge=1, le=168)
+):
+    """
+    Get all line movements for a specific player across all markets.
+    
+    Convenience endpoint for player-focused analysis.
+    """
+    try:
+        service = await get_line_movement_service()
+        
+        # Get all recent movements and filter by player
+        all_movements = await service.get_recent_movements(
+            sport=sport,
+            hours_back=hours_back,
+            min_magnitude=0.0  # Include all magnitudes
+        )
+        
+        # Filter for this specific player
+        player_movements = [
+            movement for movement in all_movements 
+            if movement["player"].lower() == player.lower()
+        ]
+        
+        return {
+            "sport": sport,
+            "player": player,
+            "movements": player_movements,
+            "total_movements": len(player_movements),
+            "hours_back": hours_back,
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Failed to retrieve player movements: {str(e)}, status_code=500)"
+        )
+
+
+@router.get("/movement/market/{sport}/{market})
+async def get_market_movements(
+    sport: str,
+    market: str,
+    hours_back: int = Query(24, description="Hours to look back", ge=1, le=168),
+    min_magnitude: float = Query(0.5, description="Minimum magnitude", ge=0.0)
+):
+    """
+    Get all line movements for a specific market across all players.
+    
+    Useful for analyzing market-wide trends (e.g., all HR props).
+    """
+    try:
+        service = await get_line_movement_service()
+        
+        # Get all recent movements and filter by market
+        all_movements = await service.get_recent_movements(
+            sport=sport,
+            hours_back=hours_back,
+            min_magnitude=min_magnitude
+        )
+        
+        # Filter for this specific market
+        market_movements = [
+            movement for movement in all_movements 
+            if movement["market"].lower() == market.lower()
+        ]
+        
+        return {
+            "sport": sport,
+            "market": market,
+            "movements": market_movements,
+            "total_movements": len(market_movements),
+            "hours_back": hours_back,
+            "min_magnitude": min_magnitude,
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise BusinessLogicException(f"Failed to retrieve market movements: {str(e)}, status_code=500)"
+        )

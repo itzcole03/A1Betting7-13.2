@@ -21,6 +21,8 @@ All sections below are historical (Archived). Only correct factual errors if nee
 - One-time bootstrap reliability start log: "🛡️ Reliability monitoring started (bootstrap)" (suppressed in test).
 - Line Shopping Optimizer page (`frontend/src/components/features/betting/LineShopping.tsx`) wired into the dashboard for multi-book odds comparisons, summary metrics, and sportsbook leaderboards powered by PropFinder data.
 
+- Opt-in compatibility: `LEGACY_DEPRECATION_HINTS` environment variable controls whether legacy health alias responses include deprecation metadata (`data.deprecated` and `data.forward`). This preserves canonical identical-envelope behavior by default while allowing legacy migration hints to be emitted when enabled. Tests and a short doc (`docs/LEGACY_DEPRECATION_HINTS.md`) were added to cover the new behavior.
+
 ### Changed
 
 - All direct `new PerformanceObserver()` calls replaced with `safeObserve` + `disconnectObserver`.
@@ -230,12 +232,12 @@ Implemented comprehensive model inference observability system with safe shadow 
 
 #### Validation Results
 
-✅ Model registry with environment variable configuration  
-✅ Feature hash determinism and order-insensitivity verified  
-✅ Shadow mode execution with proper error isolation  
-✅ Ring buffer audit storage with capacity limits  
-✅ Frontend polling and real-time dashboard functionality  
-✅ Comprehensive backend and frontend test coverage  
+✅ Model registry with environment variable configuration
+✅ Feature hash determinism and order-insensitivity verified
+✅ Shadow mode execution with proper error isolation
+✅ Ring buffer audit storage with capacity limits
+✅ Frontend polling and real-time dashboard functionality
+✅ Comprehensive backend and frontend test coverage
 ✅ Complete architecture documentation with extension roadmap
 
 Production-ready ML inference observability enabling safe model experimentation, drift monitoring, and performance analysis.
@@ -273,10 +275,10 @@ Implemented comprehensive request correlation system enabling seamless tracing f
 
 #### Validation Results
 
-✅ Custom request IDs properly accepted and propagated  
-✅ Request state correlation working end-to-end  
-✅ Structured logging with automatic context injection  
-✅ Response headers include correlated request IDs  
+✅ Custom request IDs properly accepted and propagated
+✅ Request state correlation working end-to-end
+✅ Structured logging with automatic context injection
+✅ Response headers include correlated request IDs
 ✅ Frontend telemetry ring buffer functioning
 
 All PR8 functionality validated with comprehensive test coverage enabling future performance optimization and incident correlation.

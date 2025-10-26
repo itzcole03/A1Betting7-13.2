@@ -1,0 +1,192 @@
+{
+  "success": true,
+  "data": {
+    "opportunities": [
+      {
+        "id": "sample-1",
+        "player": "Sample Player 1",
+        "sport": "MLB",
+        "market": "Hits",
+        "line": 1.5,
+        "pick": "over",
+        "odds": -110,
+        "impliedProbability": 52.38,
+        "aiProbability": 55.0,
+        "edge": 2.6,
+        "confidence": 72.0,
+        "projectedValue": 1.8,
+        "volume": 100,
+        "trend": "up",
+        "trendStrength": 3,
+        "timeToGame": "02:00:00",
+        "venue": "home",
+        "weather": null,
+        "injuries": [],
+        "recentForm": [
+          1,
+          0,
+          1
+        ],
+        "matchupHistory": {
+          "games": 3,
+          "average": 1.2,
+          "hitRate": 66.7
+        },
+        "lineMovement": {
+          "open": 1.5,
+          "current": 1.7,
+          "direction": "up"
+        },
+        "bookmakers": [],
+        "isBookmarked": false,
+        "tags": [],
+        "socialSentiment": 50,
+        "sharpMoney": "moderate",
+        "lastUpdated": "2025-10-19T11:42:56Z",
+        "alertTriggered": false,
+        "alertSeverity": null,
+        "evValue": null,
+        "evPercent": 3.2,
+        "evTier": "low",
+        "isOutlier": false,
+        "openingLine": 1.5,
+        "openingOdds": -115,
+        "latestLine": 1.7,
+        "latestOdds": -110,
+        "lineChange": 0.2,
+        "oddsChange": 5,
+        "movementDirection": "up"
+      },
+      {
+        "id": "sample-2",
+        "player": "Sample Player 2",
+        "sport": "MLB",
+        "market": "Home Runs",
+        "line": 0.5,
+        "pick": "under",
+        "odds": 120,
+        "impliedProbability": 45.45,
+        "aiProbability": 43.0,
+        "edge": -2.5,
+        "confidence": 68.0,
+        "projectedValue": 0.3,
+        "volume": 80,
+        "trend": "down",
+        "trendStrength": 2,
+        "timeToGame": "03:30:00",
+        "venue": "away",
+        "weather": null,
+        "injuries": [],
+        "recentForm": [
+          0,
+          0,
+          1
+        ],
+        "matchupHistory": {
+          "games": 3,
+          "average": 0.4,
+          "hitRate": 33.3
+        },
+        "lineMovement": {
+          "open": 0.5,
+          "current": 0.4,
+          "direction": "down"
+        },
+        "bookmakers": [],
+        "isBookmarked": false,
+        "tags": [],
+        "socialSentiment": 50,
+        "sharpMoney": "light",
+        "lastUpdated": "2025-10-19T11:42:56Z",
+        "alertTriggered": false,
+        "alertSeverity": null,
+        "evValue": null,
+        "evPercent": null,
+        "evTier": null,
+        "isOutlier": false,
+        "openingLine": 0.5,
+        "openingOdds": 125,
+        "latestLine": 0.4,
+        "latestOdds": 120,
+        "lineChange": -0.1,
+        "oddsChange": -5,
+        "movementDirection": "down"
+      },
+      {
+        "id": "sample-3",
+        "player": "Sample Player 3",
+        "sport": "MLB",
+        "market": "RBI",
+        "line": 0.5,
+        "pick": "over",
+        "odds": -102,
+        "impliedProbability": 50.5,
+        "aiProbability": 50.8,
+        "edge": 0.3,
+        "confidence": 71.0,
+        "projectedValue": 0.6,
+        "volume": 60,
+        "trend": "flat",
+        "trendStrength": 1,
+        "timeToGame": "01:15:00",
+        "venue": "home",
+        "weather": null,
+        "injuries": [],
+        "recentForm": [
+          1,
+          1,
+          0
+        ],
+        "matchupHistory": {
+          "games": 3,
+          "average": 0.7,
+          "hitRate": 66.7
+        },
+        "lineMovement": {
+          "open": 0.5,
+          "current": 0.5,
+          "direction": "flat"
+        },
+        "bookmakers": [],
+        "isBookmarked": false,
+        "tags": [],
+        "socialSentiment": 50,
+        "sharpMoney": "moderate",
+        "lastUpdated": "2025-10-19T11:42:56Z",
+        "alertTriggered": false,
+        "alertSeverity": null,
+        "evValue": null,
+        "evPercent": null,
+        "evTier": null,
+        "isOutlier": false,
+        "openingLine": 0.5,
+        "openingOdds": -102,
+        "latestLine": 0.5,
+        "latestOdds": -102,
+        "lineChange": 0.0,
+        "oddsChange": 0,
+        "movementDirection": "flat"
+      }
+    ],
+    "total": 3,
+    "filtered": 3,
+    "summary": {
+      "total_opportunities": 3,
+      "avg_confidence": 70.3,
+      "max_edge": 2.6,
+      "alert_triggered_count": 0,
+      "sharp_heavy_count": 0,
+      "sports_breakdown": {
+        "MLB": 3
+      },
+      "markets_breakdown": {}
+    }
+  },
+  "error": null,
+  "meta": {
+    "timestamp": "2025-10-19T11:42:56.713848Z",
+    "processing_time_ms": 0.0007152557373046875,
+    "version": "1.0.0",
+    "request_id": null
+  }
+}

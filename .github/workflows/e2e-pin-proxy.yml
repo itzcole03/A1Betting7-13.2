@@ -1,0 +1,60 @@
+name: E2E (pin proxy) - draft
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - chore/shims-quickcheck
+
+jobs:
+  e2e-pin-proxy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: |
+          npm ci --no-audit --no-fund
+
+      - name: Build frontend (dist)
+        working-directory: frontend
+        run: |
+          npm run build
+
+      - name: Start instrumented static/proxy server (background)
+        working-directory: frontend
+        env:
+          PORT: 5174
+        run: |
+          # start the instrumented proxy bound to 127.0.0.1:5174, keep it in background
+          nohup node scripts/serve-dist-fixed.cjs 5174 > ../frontend/test-results/serve-dist-fixed-5174.log 2>&1 &
+
+      - name: Export E2E_FRONTEND_BASE_URL
+        run: echo "E2E_FRONTEND_BASE_URL=http://127.0.0.1:5174" >> $GITHUB_ENV
+
+      - name: Run Playwright (single-folder example)
+        working-directory: frontend
+        env:
+          E2E_FRONTEND_BASE_URL: ${{ env.E2E_FRONTEND_BASE_URL }}
+        run: |
+          # Example: run a single folder or the full suite. Adjust the folder name as-needed.
+          # Ensure Playwright always collects traces and runs a deterministic single-folder example
+          npx playwright test --project=chromium --grepFolder=prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium --workers=1 --retries=0 --trace=on || true
+
+      - name: Upload proxy and test-results
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-test-results
+          path: frontend/test-results

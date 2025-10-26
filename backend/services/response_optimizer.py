@@ -277,7 +277,7 @@ class ResponseOptimizer:
 
         # Try cache first
         if cache_key and advanced_caching_system and self.config.enable_caching:
-            cached_response = await self._try_cache(cache_key)
+            cached_response = await self._try_cache(cache_key, request_id=request_id)
             if cached_response:
                 return cached_response
 
@@ -307,13 +307,51 @@ class ResponseOptimizer:
 
         return response
 
-    async def _try_cache(self, cache_key: str) -> Optional[Response]:
+    async def _try_cache(
+        self, cache_key: str, request_id: Optional[str] = None
+    ) -> Optional[Response]:
         """Try to get response from cache"""
 
         try:
             cached_data = await advanced_caching_system.get(f"response:{cache_key}")
             if cached_data:
-                return JSONResponse(content=cached_data)
+                # cached_data should be a JSON-serializable dict (we store dicts)
+                try:
+                    # Make a shallow copy so we don't mutate the cached value
+                    cached_copy = (
+                        dict(cached_data)
+                        if isinstance(cached_data, dict)
+                        else cached_data
+                    )
+
+                    # Ensure top-level meta exists
+                    if isinstance(cached_copy, dict):
+                        meta = cached_copy.get("meta")
+                        if meta is None or not isinstance(meta, dict):
+                            meta = {}
+                            cached_copy["meta"] = meta
+
+                        # Inject fresh ephemeral metadata for this request so
+                        # cached responses resemble live responses and tests
+                        # that compare full payloads (including meta) remain deterministic.
+                        from datetime import datetime
+
+                        try:
+                            meta["timestamp"] = datetime.utcnow().isoformat() + "Z"
+                        except Exception:
+                            pass
+
+                        try:
+                            if request_id:
+                                meta["request_id"] = request_id
+                        except Exception:
+                            pass
+
+                    return JSONResponse(content=cached_copy)
+                except Exception:
+                    # If anything goes wrong building the response, fall
+                    # back to returning the raw cached_data as-is.
+                    return JSONResponse(content=cached_data)
         except Exception as e:
             app_logger.warning(f"Cache retrieval failed: {e}")
 
@@ -326,17 +364,72 @@ class ResponseOptimizer:
 
         try:
             # Only cache JSON responses
-            if isinstance(response, JSONResponse):
+            # Accept either JSONResponse or generic Response with JSON media type
+            is_json_response = False
+            try:
+                if isinstance(response, JSONResponse):
+                    is_json_response = True
+                else:
+                    media = getattr(response, "media_type", None)
+                    if media == "application/json":
+                        is_json_response = True
+            except Exception:
+                is_json_response = False
+
+            if is_json_response:
                 cache_ttl = ttl or self.config.default_cache_ttl
-                await advanced_caching_system.set(
-                    f"response:{cache_key}",
-                    (
-                        response.body.decode()
-                        if isinstance(response.body, bytes)
-                        else response.body
-                    ),
-                    cache_ttl,
-                )
+
+                # Extract JSON body from the Response object
+                body = None
+                try:
+                    body = getattr(response, "body", None)
+                    if body is None and hasattr(response, "render"):
+                        # Some Response objects lazily render their body
+                        try:
+                            rendered = response.render()
+                            body = getattr(response, "body", None) or rendered
+                        except Exception:
+                            body = getattr(response, "body", None)
+                except Exception:
+                    body = None
+
+                if isinstance(body, bytes):
+                    try:
+                        body_text = body.decode("utf-8")
+                    except Exception:
+                        body_text = None
+                elif isinstance(body, str):
+                    body_text = body
+                else:
+                    body_text = None
+
+                if body_text is None:
+                    # Nothing parseable to cache
+                    return
+
+                try:
+                    parsed = json.loads(body_text)
+                except Exception:
+                    # Body isn't valid JSON; don't cache
+                    return
+
+                # Strip ephemeral per-request metadata before caching so
+                # cached payloads remain deterministic across requests.
+                try:
+                    if isinstance(parsed, dict):
+                        meta = parsed.get("meta")
+                        if isinstance(meta, dict):
+                            meta.pop("request_id", None)
+                            meta.pop("timestamp", None)
+                except Exception:
+                    pass
+
+                try:
+                    await advanced_caching_system.set(
+                        f"response:{cache_key}", parsed, cache_ttl
+                    )
+                except Exception as e:
+                    app_logger.warning(f"Cache storage failed: {e}")
         except Exception as e:
             app_logger.warning(f"Cache storage failed: {e}")
 

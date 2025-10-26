@@ -1,6 +1,6 @@
 # PropFinder.app Competitive Analysis
 
-## Generated: 2025-08-22T15:21:10.347Z
+## Generated: 2025-10-17T22:00:47.426Z
 
 ## Tech Stack Analysis
 - bundles: ✅
@@ -13,7 +13,7 @@
 
 ## Performance Metrics
 - Initial Load Status: 200
-- Total Network Requests: 27
+- Total Network Requests: 33
 - API Requests: 0
 
 ## Key Findings for A1Betting Implementation

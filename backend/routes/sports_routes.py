@@ -1,15 +1,17 @@
 from typing import Any, Dict
 
-from fastapi import APIRouter, Response, Request
-
-# Contract compliance imports
-from ..core.response_models import ResponseBuilder, StandardAPIResponse
-from ..core.exceptions import BusinessLogicException
+from fastapi import APIRouter, Request, Response
 from pydantic import BaseModel
 
+from backend.core.exceptions import BusinessLogicException
 from backend.services.lazy_sport_manager import lazy_sport_manager
 from backend.services.unified_error_handler import ErrorContext, handle_error
 from backend.services.unified_logging import get_logger
+
+from ..core.exceptions import BusinessLogicException
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
 
 router = APIRouter(prefix="/api/v2/sports", tags=["Sports"])
 
@@ -44,7 +46,9 @@ async def activate_sport(request: Request):
         # Enforce JSON content-type for contract clarity
         content_type = (request.headers.get("content-type") or "").lower()
         if "application/json" not in content_type:
-            raise BusinessLogicException("Unsupported content type; application/json expected")
+            raise BusinessLogicException(
+                "Unsupported content type; application/json expected"
+            )
 
         try:
             payload = await request.json()
@@ -62,9 +66,14 @@ async def activate_sport(request: Request):
             error_message = activation_result.get("error") or "Sport activation failed"
             logger.warning(f"Sport activation failed for {sport}: {activation_result}")
             # Normalize unsupported-sport errors to the legacy test-friendly message
-            if "Unsupported sport" in str(error_message) or "unsupported sport" in str(error_message).lower():
+            if (
+                "Unsupported sport" in str(error_message)
+                or "unsupported sport" in str(error_message).lower()
+            ):
                 raise BusinessLogicException("Invalid sport")
-            raise BusinessLogicException(f"Failed to activate sport '{sport}': {error_message}")
+            raise BusinessLogicException(
+                f"Failed to activate sport '{sport}': {error_message}"
+            )
 
         service_status = lazy_sport_manager.get_sport_status(sport)
         response_payload = {

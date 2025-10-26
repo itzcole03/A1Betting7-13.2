@@ -1,24 +1,24 @@
 // Page Objects for End-to-End Testing
-import { Page, Locator, expect } from '@playwright/test';
-import fs from 'fs';
-import pathModule from 'path';
+import { Locator, Page, expect } from "@playwright/test";
+import fs from "fs";
+import pathModule from "path";
 
 export class BasePage {
   readonly page: Page;
-  
+
   constructor(page: Page) {
     this.page = page;
   }
-  
-  async goto(path: string = '/') {
-  // Attempt navigation with a few fallbacks to make tests more resilient
-  const maxAttempts = 3;
+
+  async goto(path: string = "/") {
+    // Attempt navigation with a few fallbacks to make tests more resilient
+    const maxAttempts = 3;
     let lastError: any = null;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         // Prefer networkidle on the first attempt
-        const waitUntil = attempt === 1 ? 'networkidle' : 'domcontentloaded';
+        const waitUntil = attempt === 1 ? "networkidle" : "domcontentloaded";
         await this.page.goto(path, { waitUntil });
         await this.waitForPageLoad();
         lastError = null;
@@ -39,8 +39,8 @@ export class BasePage {
         const base = new URL(this.page.url()).origin;
         const target = new URL(path, base).href;
         await this.page.evaluate((p) => {
-          history.pushState({}, '', p);
-          window.dispatchEvent(new Event('popstate'));
+          history.pushState({}, "", p);
+          window.dispatchEvent(new Event("popstate"));
         }, path);
         await this.waitForPageLoad();
         lastError = null;
@@ -55,7 +55,9 @@ export class BasePage {
       try {
         const base = new URL(this.page.url()).origin;
         const target = new URL(path, base).href;
-        await this.page.evaluate((u) => { window.location.href = u; }, target);
+        await this.page.evaluate((u) => {
+          window.location.href = u;
+        }, target);
         await this.waitForPageLoad();
         lastError = null;
       } catch (e) {
@@ -67,20 +69,23 @@ export class BasePage {
       // If the navigation failed due to an offline/network disconnect,
       // don't re-throw immediately — let tests inspect the offline/placeholder UI.
       // Handle multiple browser-specific error messages (Chromium, WebKit, Firefox).
-      const msg = String(lastError || '');
+      const msg = String(lastError || "");
       const offlineSignals = [
-        'ERR_INTERNET_DISCONNECTED',
-        'net::ERR_INTERNET_DISCONNECTED',
-        'NS_ERROR_OFFLINE',
-        'ERR_CONNECTION_CLOSED',
-        'net::ERR_CONNECTION_CLOSED'
+        "ERR_INTERNET_DISCONNECTED",
+        "net::ERR_INTERNET_DISCONNECTED",
+        "NS_ERROR_OFFLINE",
+        "ERR_CONNECTION_CLOSED",
+        "net::ERR_CONNECTION_CLOSED",
       ];
 
-      if (offlineSignals.some(s => msg.includes(s))) {
+      if (offlineSignals.some((s) => msg.includes(s))) {
         try {
           // Wait a little longer for the SPA root to appear; some offline
           // placeholders are transient in dev environments.
-          await this.page.waitForSelector('#root, [data-testid="app-container"]', { timeout: 7000 });
+          await this.page.waitForSelector(
+            '#root, [data-testid="app-container"]',
+            { timeout: 7000 }
+          );
           return;
         } catch {
           // If even the root isn't visible, fallthrough to throwing so the
@@ -92,22 +97,33 @@ export class BasePage {
       throw lastError;
     }
   }
-  
+
   async waitForPageLoad() {
     // Wait for the main app container
-    await this.page.waitForSelector('#root, [data-testid="app-container"]', { 
-      timeout: 10000 
+    await this.page.waitForSelector('#root, [data-testid="app-container"]', {
+      timeout: 10000,
     });
-    
+
     // Wait for any loading indicators to disappear
-    await this.page.waitForFunction(() => {
-      const loadingElements = document.querySelectorAll('[data-testid*="loading"], .loading, .spinner');
-      return loadingElements.length === 0 || Array.from(loadingElements).every(el => 
-        getComputedStyle(el).display === 'none' || !el.offsetParent
-      );
-    }, { timeout: 5000 }).catch(() => {
-      // Continue if loading indicators don't disappear (they might not exist)
-    });
+    await this.page
+      .waitForFunction(
+        () => {
+          const loadingElements = document.querySelectorAll(
+            '[data-testid*="loading"], .loading, .spinner'
+          );
+          return (
+            loadingElements.length === 0 ||
+            Array.from(loadingElements).every(
+              (el) =>
+                getComputedStyle(el).display === "none" || !el.offsetParent
+            )
+          );
+        },
+        { timeout: 5000 }
+      )
+      .catch(() => {
+        // Continue if loading indicators don't disappear (they might not exist)
+      });
 
     // Handle common onboarding or modal flows that block the main UI in early runs.
     try {
@@ -116,50 +132,78 @@ export class BasePage {
         'button:has-text("Skip for now")',
         'button:has-text("Skip")',
         'button:has-text("Next")',
+        // Dev-mode/global onboarding controls that appear in local/dev builds
+        'button:has-text("Dev: View Dashboard")',
+        '[data-testid="dev-view-dashboard-global"]',
+        '[data-testid="dev-view-dashboard"]',
+        // Common onboarding selectors
         '[data-testid="onboarding-skip"]',
-        '.onboarding-skip',
-        '.modal-close',
-        'button[aria-label="Close"]'
+        ".onboarding-skip",
+        ".modal-close",
+        'button[aria-label="Close"]',
       ];
 
       for (const sel of skipSelectors) {
         const el = this.page.locator(sel).first();
-        if (await el.isVisible({ timeout: 800 }).catch(() => false)) {
+        // If element is visible, click normally. If it's present but not
+        // reported visible (fixed position or outside viewport), try a
+        // forced click so dev/global controls are actionable in CI.
+        const isVisible = await el
+          .isVisible({ timeout: 800 })
+          .catch(() => false);
+        if (isVisible) {
           await el.click();
           await this.page.waitForTimeout(300);
           break;
+        }
+
+        // If not visible but exists in DOM, attempt a force click as a fallback
+        const count = await el.count().catch(() => 0);
+        if (count > 0) {
+          try {
+            await el.click({ force: true });
+            await this.page.waitForTimeout(300);
+            break;
+          } catch {
+            // ignore and continue to next selector
+          }
         }
       }
     } catch {
       // ignore any issues dismissing onboarding
     }
   }
-  
+
   async takeScreenshot(name: string) {
-    await this.page.screenshot({ 
+    await this.page.screenshot({
       path: `tests/e2e/screenshots/${name}-${Date.now()}.png`,
-      fullPage: true 
+      fullPage: true,
     });
   }
-  
-  async waitForApiResponse(urlPattern: string | RegExp, timeout: number = 5000) {
+
+  async waitForApiResponse(
+    urlPattern: string | RegExp,
+    timeout: number = 5000
+  ) {
     return await this.page.waitForResponse(
-      response => {
+      (response) => {
         const url = response.url();
-        return typeof urlPattern === 'string' ? 
-          url.includes(urlPattern) : 
-          urlPattern.test(url);
+        return typeof urlPattern === "string"
+          ? url.includes(urlPattern)
+          : urlPattern.test(url);
       },
       { timeout }
     );
   }
-  
+
   async checkApiHealth() {
     try {
-      const healthIndicator = this.page.locator('[data-testid="api-health-indicator"]').first();
+      const healthIndicator = this.page
+        .locator('[data-testid="api-health-indicator"]')
+        .first();
       if (await healthIndicator.isVisible({ timeout: 2000 })) {
         const status = await healthIndicator.textContent();
-        return status?.includes('healthy') || status?.includes('UP') || false;
+        return status?.includes("healthy") || status?.includes("UP") || false;
       }
     } catch {
       // Health indicator not found, assume OK
@@ -171,37 +215,43 @@ export class BasePage {
 export class NavigationPage extends BasePage {
   readonly menuButton: Locator;
   readonly navigationPanel: Locator;
-  
+
   constructor(page: Page) {
     super(page);
-    this.menuButton = page.locator('button[title*="Navigation"], button[title*="Menu"]').first();
-    this.navigationPanel = page.locator('[data-testid="navigation-panel"], .navigation-panel').first();
+    this.menuButton = page
+      .locator('button[title*="Navigation"], button[title*="Menu"]')
+      .first();
+    this.navigationPanel = page
+      .locator('[data-testid="navigation-panel"], .navigation-panel')
+      .first();
   }
-  
+
   async openNavigation() {
     if (await this.menuButton.isVisible()) {
       await this.menuButton.click();
-      await this.navigationPanel.waitFor({ state: 'visible', timeout: 3000 });
+      await this.navigationPanel.waitFor({ state: "visible", timeout: 3000 });
     }
   }
-  
+
   async navigateToPage(pageName: string) {
     await this.openNavigation();
-    
+
     const pageMap: Record<string, string> = {
-      'dashboard': '/dashboard',
-      'matchup-analysis': '/matchup-analysis',
-      'analytics': '/analytics',
-      'betting': '/betting',
-      'prizepicks': '/prizepicks',
-      'settings': '/settings',
+      dashboard: "/dashboard",
+      "matchup-analysis": "/matchup-analysis",
+      analytics: "/analytics",
+      betting: "/betting",
+      prizepicks: "/prizepicks",
+      settings: "/settings",
     };
-    
+
     const path = pageMap[pageName.toLowerCase()] || `/${pageName}`;
-    
+
     // Try to click navigation link first
     try {
-      const navLink = this.page.locator(`a[href="${path}"], a[href*="${pageName}"]`).first();
+      const navLink = this.page
+        .locator(`a[href="${path}"], a[href*="${pageName}"]`)
+        .first();
       if (await navLink.isVisible({ timeout: 2000 })) {
         await navLink.click();
         await this.waitForPageLoad();
@@ -210,7 +260,7 @@ export class NavigationPage extends BasePage {
     } catch {
       // Navigation link not found, use direct navigation
     }
-    
+
     // Fallback to direct navigation
     await this.goto(path);
   }
@@ -224,93 +274,120 @@ export class MatchupAnalysisPage extends BasePage {
   readonly runAnalysisButton: Locator;
   readonly comparisonResults: Locator;
   readonly confidenceScore: Locator;
-  
+
   constructor(page: Page) {
     super(page);
-    this.playerASelect = page.locator('select').first();
-    this.playerBSelect = page.locator('select').nth(1);
-    this.analysisTypeButtons = page.locator('button').filter({ hasText: /Head-to-Head|Statistical|Situational|Predictive/ });
-    this.timeframeButtons = page.locator('button').filter({ hasText: /Season|Last 10|Last 5|Career/ });
-    this.runAnalysisButton = page.locator('button').filter({ hasText: /Run Analysis|Analyze/ }).first();
-    this.comparisonResults = page.locator('[data-testid="comparison-results"], .comparison-results').first();
-    this.confidenceScore = page.locator('text=/\\d+\\.\\d+%/').first();
+    this.playerASelect = page.locator("select").first();
+    this.playerBSelect = page.locator("select").nth(1);
+    this.analysisTypeButtons = page
+      .locator("button")
+      .filter({ hasText: /Head-to-Head|Statistical|Situational|Predictive/ });
+    this.timeframeButtons = page
+      .locator("button")
+      .filter({ hasText: /Season|Last 10|Last 5|Career/ });
+    this.runAnalysisButton = page
+      .locator("button")
+      .filter({ hasText: /Run Analysis|Analyze/ })
+      .first();
+    this.comparisonResults = page
+      .locator('[data-testid="comparison-results"], .comparison-results')
+      .first();
+    this.confidenceScore = page.locator("text=/\\d+\\.\\d+%/").first();
   }
-  
-  async selectPlayer(playerPosition: 'A' | 'B', playerName: string) {
-    const select = playerPosition === 'A' ? this.playerASelect : this.playerBSelect;
-    await select.selectOption({ label: new RegExp(playerName, 'i') });
-    
+
+  async selectPlayer(playerPosition: "A" | "B", playerName: string) {
+    const select =
+      playerPosition === "A" ? this.playerASelect : this.playerBSelect;
+    await select.selectOption({ label: new RegExp(playerName, "i") });
+
     // Wait for any dynamic updates
     await this.page.waitForTimeout(500);
   }
-  
-  async selectAnalysisType(type: 'Head-to-Head' | 'Statistical' | 'Situational' | 'Predictive') {
+
+  async selectAnalysisType(
+    type: "Head-to-Head" | "Statistical" | "Situational" | "Predictive"
+  ) {
     const button = this.analysisTypeButtons.filter({ hasText: type }).first();
     await button.click();
-    
+
     // Wait for button state to update
     await expect(button).toHaveClass(/bg-cyan-500|active|selected/);
   }
-  
-  async selectTimeframe(timeframe: 'Season' | 'Last 10' | 'Last 5' | 'Career') {
+
+  async selectTimeframe(timeframe: "Season" | "Last 10" | "Last 5" | "Career") {
     const button = this.timeframeButtons.filter({ hasText: timeframe }).first();
     await button.click();
-    
+
     // Wait for button state to update
     await expect(button).toHaveClass(/bg-purple-500|active|selected/);
   }
-  
+
   async runAnalysis() {
     await this.runAnalysisButton.click();
-    
+
     // Wait for analysis to complete
-    await this.page.waitForFunction(() => {
-      const loadingIndicators = document.querySelectorAll('[data-testid*="loading"], .loading');
-      return loadingIndicators.length === 0 || Array.from(loadingIndicators).every(el => 
-        getComputedStyle(el).display === 'none'
-      );
-    }, { timeout: 10000 }).catch(() => {
-      // Continue if no loading indicators
-    });
-    
+    await this.page
+      .waitForFunction(
+        () => {
+          const loadingIndicators = document.querySelectorAll(
+            '[data-testid*="loading"], .loading'
+          );
+          return (
+            loadingIndicators.length === 0 ||
+            Array.from(loadingIndicators).every(
+              (el) => getComputedStyle(el).display === "none"
+            )
+          );
+        },
+        { timeout: 10000 }
+      )
+      .catch(() => {
+        // Continue if no loading indicators
+      });
+
     // Wait for results to appear
     await this.page.waitForTimeout(1000);
   }
-  
+
   async getConfidenceScore(): Promise<number> {
     const scoreText = await this.confidenceScore.textContent();
     const match = scoreText?.match(/(\\d+\\.\\d+)%/);
     return match ? parseFloat(match[1]) : 0;
   }
-  
-  async getPlayerStats(playerPosition: 'A' | 'B'): Promise<Record<string, string>> {
-    const playerSection = playerPosition === 'A' ? 
-      this.page.locator('.bg-slate-700\\/30').first() :
-      this.page.locator('.bg-slate-700\\/30').last();
-    
+
+  async getPlayerStats(
+    playerPosition: "A" | "B"
+  ): Promise<Record<string, string>> {
+    const playerSection =
+      playerPosition === "A"
+        ? this.page.locator(".bg-slate-700\\/30").first()
+        : this.page.locator(".bg-slate-700\\/30").last();
+
     const stats: Record<string, string> = {};
-    
+
     // Extract recent stats
-    const statRows = playerSection.locator('.flex.justify-between.text-sm');
+    const statRows = playerSection.locator(".flex.justify-between.text-sm");
     const count = await statRows.count();
-    
+
     for (let i = 0; i < count; i++) {
       const row = statRows.nth(i);
-      const label = await row.locator('span').first().textContent();
-      const value = await row.locator('span').last().textContent();
-      
+      const label = await row.locator("span").first().textContent();
+      const value = await row.locator("span").last().textContent();
+
       if (label && value) {
-        stats[label.replace(':', '').trim()] = value.trim();
+        stats[label.replace(":", "").trim()] = value.trim();
       }
     }
-    
+
     return stats;
   }
-  
+
   async validatePageElements() {
     // Check that all main elements are present
     // Wait for the main elements to appear (give slightly longer time for heavy builds)
-    await this.page.waitForSelector('select', { timeout: 8000 }).catch(() => {});
+    await this.page
+      .waitForSelector("select", { timeout: 8000 })
+      .catch(() => {});
     await expect(this.playerASelect).toBeVisible();
     await expect(this.playerBSelect).toBeVisible();
     await expect(this.analysisTypeButtons.first()).toBeVisible();
@@ -319,7 +396,7 @@ export class MatchupAnalysisPage extends BasePage {
 
     // Wait for a page title to appear; don't fail hard on exact text because builds
     // sometimes render a branding header before route-specific titles.
-    await this.page.waitForSelector('h1', { timeout: 8000 }).catch(() => {});
+    await this.page.waitForSelector("h1", { timeout: 8000 }).catch(() => {});
   }
 }
 
@@ -328,33 +405,66 @@ export class DashboardPage extends BasePage {
   readonly recentPredictions: Locator;
   readonly performanceCharts: Locator;
   readonly refreshButton: Locator;
-  
+
   constructor(page: Page) {
     super(page);
-    this.analyticsCards = page.locator('[data-testid="analytics-card"], .analytics-card');
-    this.recentPredictions = page.locator('[data-testid="recent-predictions"], .recent-predictions');
-    this.performanceCharts = page.locator('[data-testid="performance-chart"], .performance-chart');
-    this.refreshButton = page.locator('button').filter({ hasText: /Refresh|Update/ }).first();
+    this.analyticsCards = page.locator(
+      '[data-testid="analytics-card"], .analytics-card'
+    );
+    this.recentPredictions = page.locator(
+      '[data-testid="recent-predictions"], .recent-predictions'
+    );
+    this.performanceCharts = page.locator(
+      '[data-testid="performance-chart"], .performance-chart'
+    );
+    this.refreshButton = page
+      .locator("button")
+      .filter({ hasText: /Refresh|Update/ })
+      .first();
   }
-  
+
   async validateDashboardContent() {
     // Wait for dashboard content to load (give extra time for heavy dev builds)
-    await this.page.waitForSelector('h1, [data-testid="dashboard-title"]', { timeout: 8000 });
-    
+    await this.page.waitForSelector('h1, [data-testid="dashboard-title"]', {
+      timeout: 8000,
+    });
+
     // Check for main dashboard elements
-    const hasAnalytics = await this.analyticsCards.first().isVisible().catch(() => false);
-    const hasPredictions = await this.recentPredictions.first().isVisible().catch(() => false);
-    const hasCharts = await this.performanceCharts.first().isVisible().catch(() => false);
-    
+    const hasAnalytics = await this.analyticsCards
+      .first()
+      .isVisible()
+      .catch(() => false);
+    const hasPredictions = await this.recentPredictions
+      .first()
+      .isVisible()
+      .catch(() => false);
+    const hasCharts = await this.performanceCharts
+      .first()
+      .isVisible()
+      .catch(() => false);
+
     const ok = hasAnalytics || hasPredictions || hasCharts;
     if (!ok) {
       try {
-        const debugDir = pathModule.join(process.cwd(), 'tests', 'e2e', 'debug');
-        if (!fs.existsSync(debugDir)) fs.mkdirSync(debugDir, { recursive: true });
+        const debugDir = pathModule.join(
+          process.cwd(),
+          "tests",
+          "e2e",
+          "debug"
+        );
+        if (!fs.existsSync(debugDir))
+          fs.mkdirSync(debugDir, { recursive: true });
         const ts = Date.now();
         const html = await this.page.content();
-        fs.writeFileSync(pathModule.join(debugDir, `dashboard-empty-${ts}.html`), html, 'utf8');
-        await this.page.screenshot({ path: pathModule.join(debugDir, `dashboard-empty-${ts}.png`), fullPage: true });
+        fs.writeFileSync(
+          pathModule.join(debugDir, `dashboard-empty-${ts}.html`),
+          html,
+          "utf8"
+        );
+        await this.page.screenshot({
+          path: pathModule.join(debugDir, `dashboard-empty-${ts}.png`),
+          fullPage: true,
+        });
       } catch (err) {
         // best-effort
       }
@@ -362,7 +472,7 @@ export class DashboardPage extends BasePage {
 
     return ok;
   }
-  
+
   async refreshDashboard() {
     if (await this.refreshButton.isVisible()) {
       await this.refreshButton.click();
@@ -375,26 +485,44 @@ export class AnalyticsPage extends BasePage {
   readonly performanceMetrics: Locator;
   readonly modelComparison: Locator;
   readonly chartContainer: Locator;
-  
+
   constructor(page: Page) {
     super(page);
-    this.performanceMetrics = page.locator('[data-testid="performance-metrics"], .performance-metrics');
-    this.modelComparison = page.locator('[data-testid="model-comparison"], .model-comparison');
-    this.chartContainer = page.locator('[data-testid="chart-container"], .chart-container, canvas');
+    this.performanceMetrics = page.locator(
+      '[data-testid="performance-metrics"], .performance-metrics'
+    );
+    this.modelComparison = page.locator(
+      '[data-testid="model-comparison"], .model-comparison'
+    );
+    this.chartContainer = page.locator(
+      '[data-testid="chart-container"], .chart-container, canvas'
+    );
   }
-  
+
   async validateAnalyticsContent() {
     // Wait for analytics page elements to appear. Analytics can be resource-heavy
     // so allow a longer timeout and return true as soon as any of the main
     // indicators become visible.
     try {
-      await this.page.waitForSelector('[data-testid="performance-metrics"], [data-testid="model-comparison"], [data-testid="chart-container"], canvas', { timeout: 10000 });
+      await this.page.waitForSelector(
+        '[data-testid="performance-metrics"], [data-testid="model-comparison"], [data-testid="chart-container"], canvas',
+        { timeout: 10000 }
+      );
       return true;
     } catch (e) {
       // As a fallback, probe visibility more leniently
-      const hasMetrics = await this.performanceMetrics.first().isVisible().catch(() => false);
-      const hasComparison = await this.modelComparison.first().isVisible().catch(() => false);
-      const hasCharts = await this.chartContainer.first().isVisible().catch(() => false);
+      const hasMetrics = await this.performanceMetrics
+        .first()
+        .isVisible()
+        .catch(() => false);
+      const hasComparison = await this.modelComparison
+        .first()
+        .isVisible()
+        .catch(() => false);
+      const hasCharts = await this.chartContainer
+        .first()
+        .isVisible()
+        .catch(() => false);
       return hasMetrics || hasComparison || hasCharts;
     }
   }

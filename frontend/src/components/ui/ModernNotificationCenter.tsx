@@ -2,7 +2,7 @@
 // We'll incrementally reintroduce types with small, focused fixes in Batch A.
 // TODO: remove this directive once this file is stabilized.
 // @ts-nocheck
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 // @ts-expect-error TS(2307): Cannot find module '@/lib/utils' or its correspond... Remove this comment to see the full error message
 import { cn } from '@/lib/utils';
 
@@ -354,26 +354,23 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
 
     // Group notifications
     if (groupByCategory || groupByDate) {
-      const _grouped = filtered.reduce(
-        (groups, notification) => {
-          let _key: string;
+      const _grouped = filtered.reduce((groups, notification) => {
+        let _key: string;
 
-          if (groupByDate) {
-            key = notification.timestamp.toDateString();
-          } else if (groupByCategory) {
-            key = notification.category;
-          } else {
-            key = 'All';
-          }
+        if (groupByDate) {
+          key = notification.timestamp.toDateString();
+        } else if (groupByCategory) {
+          key = notification.category;
+        } else {
+          key = 'All';
+        }
 
-          if (!groups[key]) {
-            groups[key] = [];
-          }
-          groups[key].push(notification);
-          return groups;
-        },
-        {} as Record<string, ModernNotification[]>
-      );
+        if (!groups[key]) {
+          groups[key] = [];
+        }
+        groups[key].push(notification);
+        return groups;
+      }, {} as Record<string, ModernNotification[]>);
 
       setGroupedNotifications(grouped);
     }
@@ -462,9 +459,9 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
           onClick={onClose}
         />
       )}
-
       {/* Notification Center */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div
         ref={containerRef}
         className={cn(
@@ -477,16 +474,19 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
         )}
       >
         {/* Header */}
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div
           className={cn(
             'flex items-center justify-between p-4 border-b',
             variant === 'cyber' ? 'border-cyan-500/30' : 'border-gray-200'
           )}
         >
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='flex items-center space-x-3'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <h3
               className={cn(
                 'text-lg font-semibold',
@@ -495,9 +495,9 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
             >
               Notifications
             </h3>
-
             {/* Counters */}
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className='flex items-center space-x-2'>
               {unreadCount > 0 && (
                 // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -526,8 +526,8 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
               )}
             </div>
           </div>
-
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='flex items-center space-x-2'>
             {/* Actions */}
             {showMarkAllRead && unreadCount > 0 && (
@@ -544,7 +544,6 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
                 Mark all read
               </button>
             )}
-
             {showClearAll && (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <button
@@ -559,8 +558,8 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
                 Clear all
               </button>
             )}
-
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <button
               onClick={onClose}
               className={cn(
@@ -574,7 +573,6 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
             </button>
           </div>
         </div>
-
         {/* Search and Filters */}
         {(showSearch || showFilters) && (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -603,7 +601,8 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
             {showFilters && (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
               <div className='flex flex-wrap gap-2'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+                Remove this comment to see the full error message
                 <select
                   onChange={e =>
                     handleFilterChange({
@@ -617,15 +616,18 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
                       : 'bg-white border-gray-300'
                   )}
                 >
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <option value=''>All</option>
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <option value='false'>Unread</option>
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <option value='true'>Read</option>
                 </select>
-
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+                Remove this comment to see the full error message
                 <select
                   onChange={e =>
                     handleFilterChange({
@@ -639,26 +641,32 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
                       : 'bg-white border-gray-300'
                   )}
                 >
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <option value=''>All Priorities</option>
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <option value='critical'>Critical</option>
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <option value='urgent'>Urgent</option>
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <option value='high'>High</option>
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <option value='medium'>Medium</option>
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <option value='low'>Low</option>
                 </select>
               </div>
             )}
           </div>
         )}
-
         {/* Notifications List */}
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className='flex-1 overflow-y-auto'>
           {Object.entries(displayNotifications).map(([groupKey, groupNotifications]) => (
             // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -675,11 +683,14 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
                       : 'border-gray-100 hover:bg-gray-50 text-gray-700'
                   )}
                 >
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <span className='font-medium'>{groupKey}</span>
-                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                  // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                  provided... Remove this comment to see the full error message
                   <div className='flex items-center space-x-2'>
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                    provided... Remove this comment to see the full error message
                     <span
                       className={cn(
                         'text-xs px-2 py-1 rounded-full',
@@ -688,7 +699,8 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
                     >
                       {groupNotifications.length}
                     </span>
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                    provided... Remove this comment to see the full error message
                     <span
                       className={cn(
                         'text-xs transition-transform',
@@ -729,23 +741,27 @@ export const _ModernNotificationCenter: React.FC<ModernNotificationCenterProps> 
                 variant === 'cyber' ? 'text-cyan-400/70' : 'text-gray-500'
               )}
             >
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <div className='text-4xl mb-2'>🔔</div>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <div className='text-sm'>No notifications</div>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <div className='text-xs mt-1 opacity-70'>You're all caught up!</div>
             </div>
           )}
         </div>
-
         {/* Cyber Effects */}
         {variant === 'cyber' && (
           // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
           <>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className='absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 rounded-xl pointer-events-none' />
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className='absolute inset-0 bg-grid-white/[0.02] rounded-xl pointer-events-none' />
           </>
         )}
@@ -784,20 +800,23 @@ const _NotificationItem: React.FC<NotificationItemProps> = ({
       )}
     >
       {/* Priority Indicator */}
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div
         className={cn(
           'absolute left-0 top-0 bottom-0 w-1',
           getPriorityIndicator(notification.priority, variant)
         )}
       />
-
-      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+      // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+      this comment to see the full error message
       <div className='pl-4 pr-3 py-4'>
-        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+        // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove
+        this comment to see the full error message
         <div className='flex items-start space-x-3'>
           {/* Icon/Avatar */}
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div
             className={cn(
               'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm',
@@ -815,13 +834,15 @@ const _NotificationItem: React.FC<NotificationItemProps> = ({
               getNotificationIcon(notification.type)
             )}
           </div>
-
           {/* Content */}
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='flex-1 min-w-0'>
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div className='flex items-center justify-between'>
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <h4
                 className={cn(
                   'font-medium truncate',
@@ -830,10 +851,11 @@ const _NotificationItem: React.FC<NotificationItemProps> = ({
               >
                 {notification.title}
               </h4>
-
-              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+              // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+              Remove this comment to see the full error message
               <div className='flex items-center space-x-2 ml-2'>
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+                Remove this comment to see the full error message
                 <span
                   className={cn(
                     'text-xs whitespace-nowrap',
@@ -842,13 +864,13 @@ const _NotificationItem: React.FC<NotificationItemProps> = ({
                 >
                   {formatTimeAgo(notification.timestamp)}
                 </span>
-
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+                Remove this comment to see the full error message
                 {!notification.read && <div className='w-2 h-2 bg-blue-500 rounded-full' />}
               </div>
             </div>
-
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <p
               className={cn(
                 'text-sm mt-1 line-clamp-2',
@@ -857,9 +879,9 @@ const _NotificationItem: React.FC<NotificationItemProps> = ({
             >
               {notification.message}
             </p>
-
             {/* Source */}
-            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+            // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+            Remove this comment to see the full error message
             <div
               className={cn(
                 'text-xs mt-1',
@@ -868,7 +890,6 @@ const _NotificationItem: React.FC<NotificationItemProps> = ({
             >
               From {notification.source.name}
             </div>
-
             {/* Data Display */}
             {notification.data?.value && (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -880,17 +901,18 @@ const _NotificationItem: React.FC<NotificationItemProps> = ({
                     : 'bg-gray-50 border-gray-200'
                 )}
               >
-                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+                Remove this comment to see the full error message
                 <div
                   className={cn(
                     'text-lg font-bold',
                     notification.data.trend === 'up'
                       ? 'text-green-500'
                       : notification.data.trend === 'down'
-                        ? 'text-red-500'
-                        : variant === 'cyber'
-                          ? 'text-cyan-300'
-                          : 'text-gray-900'
+                      ? 'text-red-500'
+                      : variant === 'cyber'
+                      ? 'text-cyan-300'
+                      : 'text-gray-900'
                   )}
                 >
                   {typeof notification.data.value === 'number' ? '$' : ''}
@@ -910,7 +932,6 @@ const _NotificationItem: React.FC<NotificationItemProps> = ({
                 </div>
               </div>
             )}
-
             {/* Actions */}
             {notification.actions && notification.actions.length > 0 && (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -940,14 +961,14 @@ const _NotificationItem: React.FC<NotificationItemProps> = ({
                           : 'text-gray-600 hover:bg-gray-100')
                     )}
                   >
-                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+                    // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is
+                    provided... Remove this comment to see the full error message
                     {action.icon && <span className='mr-1'>{action.icon}</span>}
                     {action.label}
                   </button>
                 ))}
               </div>
             )}
-
             {/* Tags */}
             {notification.tags && notification.tags.length > 0 && (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
@@ -969,9 +990,9 @@ const _NotificationItem: React.FC<NotificationItemProps> = ({
               </div>
             )}
           </div>
-
           {/* Action Buttons */}
-          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message
+          // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided...
+          Remove this comment to see the full error message
           <div className='flex flex-col space-y-1'>
             {!notification.read && onRead && (
               // @ts-expect-error TS(17004): Cannot use JSX unless the '--jsx' flag is provided... Remove this comment to see the full error message

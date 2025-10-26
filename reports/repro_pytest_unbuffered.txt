@@ -1,0 +1,128 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0
+rootdir: C:\Users\bcmad\Downloads\A1Betting7-13.2
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.9.0, asyncio-1.2.0, cov-6.2.1, typeguard-4.4.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1357 items
+
+tests\backend\bets\test_clv_drift.py ...                                 [  0%]
+tests\backend\bets\test_clv_idempotent.py .                              [  0%]
+tests\backend\bets\test_clv_update.py .                                  [  0%]
+tests\backend\bets\test_filters.py .                                     [  0%]
+tests\backend\bets\test_place_bet.py ..                                  [  0%]
+tests\backend\ev\test_ev_calculator.py ...                               [  0%]
+tests\backend\ev\test_ev_endpoint.py ...                                 [  1%]
+tests\backend\ev\test_ev_endpoint_kelly.py ...                           [  1%]
+tests\backend\ev\test_ev_summary_endpoint.py .                           [  1%]
+tests\backend\ev\test_kelly_calc.py ...                                  [  1%]
+tests\backend\ev\test_odds_normalizer.py ...                             [  1%]
+tests\backend\ev_engine\test_ev_details.py ....                          [  2%]
+tests\backend\ev_engine\test_ev_engine.py .............................. [  4%]
+.                                                                        [  4%]
+tests\backend\odds\test_arbitrage_endpoint.py ..                         [  4%]
+tests\backend\odds\test_arbitrage_summary.py ..                          [  4%]
+tests\backend\odds\test_arbitrage_summary_basic.py .                     [  4%]
+tests\backend\odds\test_arbitrage_summary_flag.py .                      [  4%]
+tests\backend\odds\test_arbitrage_summary_flag_env.py .                  [  4%]
+tests\backend\odds\test_best_book_endpoint.py ..                         [  5%]
+tests\backend\odds\test_consensus_alias_endpoint.py ..                   [  5%]
+tests\backend\odds\test_consensus_endpoint.py .                          [  5%]
+tests\backend\odds\test_ev_enrichment_optional.py ..                     [  5%]
+tests\backend\odds\test_ingestion_service.py .                           [  5%]
+tests\backend\odds\test_odds_models.py ...                               [  5%]
+tests\backend\routes\test_admin_feature_flags.py ...                     [  5%]
+tests\backend\routes\test_admin_feature_flags_rbac.py ..                 [  6%]
+tests\backend\routes\test_alert_routes.py ....................           [  7%]
+tests\backend\routes\test_analytics_routes.py .......                    [  8%]
+tests\backend\routes\test_api_contract_compliance.py ...F
+
+================================== FAILURES ===================================
+_____ TestStandardAPIResponseContract.test_mlb_routes_contract_compliance _____
+tests\backend\routes\test_api_contract_compliance.py:260: in test_mlb_routes_contract_compliance
+    pytest.fail(f"StandardAPIResponse contract violations found:\n{violation_report}")
+E   Failed: StandardAPIResponse contract violations found:
+E   Application health check (/health): Exception during test - Expecting value: line 1 column 1 (char 0)
+---------------------------- Captured stderr call -----------------------------
+2025-10-20 10:47:01,505 - backend.middleware.legacy_middleware - INFO - [LegacyMiddleware] dispatch start method=GET path=/mlb/todays-games
+{"timestamp": "2025-10-20T15:47:01.505768+00:00", "level": "INFO", "logger": "a1betting", "message": "Request started", "module": "structured_logging_middleware", "function": "log_request_start", "line": 115, "request_id": "624d9988-b8c7-49d5-8133-9a468a574649", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_start", "method": "GET", "url": "http://testserver/mlb/todays-games", "path": "/mlb/todays-games", "query_params": {}, "client_ip": "testclient", "user_agent": "testclient", "content_type": null}
+2025-10-20 10:47:01,506 - backend.middleware.request_id_middleware - INFO - Request started: GET /mlb/todays-games
+2025-10-20 10:47:01,506 - backend.middleware.request_id_middleware - INFO - Request completed: GET /mlb/todays-games - 200
+2025-10-20 10:47:01,506 - backend.middleware.distributed_trace_middleware - INFO - Trace completed: b19340f1-a2bf-4b6f-8bce-806408331660
+{"timestamp": "2025-10-20T15:47:01.506478+00:00", "level": "INFO", "logger": "a1betting", "message": "Request completed", "module": "structured_logging_middleware", "function": "log_request_success", "line": 130, "request_id": "624d9988-b8c7-49d5-8133-9a468a574649", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_success", "method": "GET", "url": "http://testserver/mlb/todays-games", "path": "/mlb/todays-games", "status_code": 200, "duration_ms": 0.73, "response_size": "26", "performance_category": "fast"}
+2025-10-20 10:47:01,506 - backend.middleware.legacy_middleware - INFO - [FinalEnforce] legacy=False path=/mlb/todays-games status_code=200 headers={'content-length': '26', 'content-type': 'application/json', 'x-request-id': '624d9988-b8c7-49d5-8133-9a468a574649', 'x-trace-id': 'b19340f1-a2bf-4b6f-8bce-806408331660', 'x-span-id': 'a47a692e', 'x-ratelimit-limit': '100', 'x-ratelimit-remaining': '134', 'x-ratelimit-reset': '1760975281', 'strict-transport-security': 'max-age=63072000; includeSubDomains; preload', 'x-content-type-options': 'nosniff', 'x-frame-options': 'DENY', 'referrer-policy': 'no-referrer', 'cross-origin-opener-policy': 'same-origin', 'cross-origin-embedder-policy': 'require-corp', 'cross-origin-resource-policy': 'same-origin', 'permissions-policy': 'accelerometer=(), gyroscope=(), camera=(), microphone=(), geolocation=(), autoplay=()', 'content-security-policy-report-only': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; connect-src 'self'; upgrade-insecure-requests; report-uri /api/security/csp-report"} body_preview=None
+2025-10-20 10:47:01,510 - backend.middleware.legacy_middleware - INFO - [LegacyMiddleware] dispatch start method=GET path=/mlb/prizepicks-props/
+{"timestamp": "2025-10-20T15:47:01.511515+00:00", "level": "INFO", "logger": "a1betting", "message": "Request started", "module": "structured_logging_middleware", "function": "log_request_start", "line": 115, "request_id": "49b29e51-5c72-43c7-b387-a603cd51c35c", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_start", "method": "GET", "url": "http://testserver/mlb/prizepicks-props/", "path": "/mlb/prizepicks-props/", "query_params": {}, "client_ip": "testclient", "user_agent": "testclient", "content_type": null}
+2025-10-20 10:47:01,511 - backend.middleware.request_id_middleware - INFO - Request started: GET /mlb/prizepicks-props/
+2025-10-20 10:47:01,512 - backend.middleware.request_id_middleware - INFO - Request completed: GET /mlb/prizepicks-props/ - 200
+2025-10-20 10:47:01,512 - backend.middleware.distributed_trace_middleware - INFO - Trace completed: 4a17531e-2ee5-47cd-8bae-04a82e247825
+{"timestamp": "2025-10-20T15:47:01.512586+00:00", "level": "INFO", "logger": "a1betting", "message": "Request completed", "module": "structured_logging_middleware", "function": "log_request_success", "line": 130, "request_id": "49b29e51-5c72-43c7-b387-a603cd51c35c", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_success", "method": "GET", "url": "http://testserver/mlb/prizepicks-props/", "path": "/mlb/prizepicks-props/", "status_code": 200, "duration_ms": 1.09, "response_size": "26", "performance_category": "fast"}
+2025-10-20 10:47:01,513 - backend.middleware.legacy_middleware - INFO - [FinalEnforce] legacy=False path=/mlb/prizepicks-props/ status_code=200 headers={'content-length': '26', 'content-type': 'application/json', 'x-request-id': '49b29e51-5c72-43c7-b387-a603cd51c35c', 'x-trace-id': '4a17531e-2ee5-47cd-8bae-04a82e247825', 'x-span-id': '71e6dbcf', 'x-ratelimit-limit': '100', 'x-ratelimit-remaining': '133', 'x-ratelimit-reset': '1760975281', 'strict-transport-security': 'max-age=63072000; includeSubDomains; preload', 'x-content-type-options': 'nosniff', 'x-frame-options': 'DENY', 'referrer-policy': 'no-referrer', 'cross-origin-opener-policy': 'same-origin', 'cross-origin-embedder-policy': 'require-corp', 'cross-origin-resource-policy': 'same-origin', 'permissions-policy': 'accelerometer=(), gyroscope=(), camera=(), microphone=(), geolocation=(), autoplay=()', 'content-security-policy-report-only': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; connect-src 'self'; upgrade-insecure-requests; report-uri /api/security/csp-report"} body_preview=None
+2025-10-20 10:47:01,516 - backend.middleware.legacy_middleware - INFO - [LegacyMiddleware] dispatch start method=GET path=/health
+{"timestamp": "2025-10-20T15:47:01.516459+00:00", "level": "INFO", "logger": "a1betting", "message": "Request started", "module": "structured_logging_middleware", "function": "log_request_start", "line": 115, "request_id": "025263cd-7912-46f1-a383-853bc7537173", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_start", "method": "GET", "url": "http://testserver/health", "path": "/health", "query_params": {}, "client_ip": "testclient", "user_agent": "testclient", "content_type": null}
+2025-10-20 10:47:01,516 - backend.middleware.request_id_middleware - INFO - Request started: GET /health
+2025-10-20 10:47:01,516 - backend.core.app - INFO - [API] /api/health called (canonical)
+2025-10-20 10:47:01,517 - backend.middleware.request_id_middleware - INFO - Request completed: GET /health - 200
+2025-10-20 10:47:01,517 - backend.middleware.distributed_trace_middleware - INFO - Trace completed: 0747bc82-15fd-4bf7-9b6f-5f483e3c646b
+{"timestamp": "2025-10-20T15:47:01.518015+00:00", "level": "INFO", "logger": "a1betting", "message": "Request completed", "module": "structured_logging_middleware", "function": "log_request_success", "line": 130, "request_id": "025263cd-7912-46f1-a383-853bc7537173", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_success", "method": "GET", "url": "http://testserver/health", "path": "/health", "status_code": 200, "duration_ms": 1.57, "response_size": "252", "performance_category": "fast"}
+2025-10-20 10:47:01,518 - backend.middleware.legacy_middleware - INFO - [FinalEnforce] legacy=False path=/health status_code=200 headers={'x-force-flat-baseline': 'true', 'content-length': '252', 'content-type': 'application/json', 'x-request-id': '025263cd-7912-46f1-a383-853bc7537173', 'x-trace-id': '0747bc82-15fd-4bf7-9b6f-5f483e3c646b', 'x-span-id': '0e08ae9d', 'x-ratelimit-limit': '100', 'x-ratelimit-remaining': '132', 'x-ratelimit-reset': '1760975281', 'strict-transport-security': 'max-age=63072000; includeSubDomains; preload', 'x-content-type-options': 'nosniff', 'x-frame-options': 'DENY', 'referrer-policy': 'no-referrer', 'cross-origin-opener-policy': 'same-origin', 'cross-origin-embedder-policy': 'require-corp', 'cross-origin-resource-policy': 'same-origin', 'permissions-policy': 'accelerometer=(), gyroscope=(), camera=(), microphone=(), geolocation=(), autoplay=()', 'content-security-policy-report-only': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; connect-src 'self'; upgrade-insecure-requests; report-uri /api/security/csp-report"} body_preview=None
+2025-10-20 10:47:01,522 - backend.middleware.legacy_middleware - INFO - [LegacyMiddleware] dispatch start method=POST path=/api/sports/activate/MLB
+2025-10-20 10:47:01,522 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/sports/activate/MLB -> None
+2025-10-20 10:47:01,522 - backend.middleware.legacy_middleware - INFO - Legacy endpoint accessed: POST /api/sports/activate/MLB (count: 1)
+2025-10-20 10:47:01,522 - backend.middleware.legacy_middleware - INFO - Legacy registry entry: path=/api/sports/activate/MLB, forward=None, entry=LegacyEndpointData(path='/api/sports/activate/MLB', count=1, forward=None, last_access_ts=1760975221.5224895, first_recorded_ts=1760975221.5224507)
+{"timestamp": "2025-10-20T15:47:01.522772+00:00", "level": "INFO", "logger": "a1betting", "message": "Request started", "module": "structured_logging_middleware", "function": "log_request_start", "line": 115, "request_id": "085e3457-728f-4c57-bcd4-ba85014ccadf", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_start", "method": "POST", "url": "http://testserver/api/sports/activate/MLB", "path": "/api/sports/activate/MLB", "query_params": {}, "client_ip": "testclient", "user_agent": "testclient", "content_type": "application/json"}
+2025-10-20 10:47:01,523 - backend.middleware.request_id_middleware - INFO - Request started: POST /api/sports/activate/MLB
+2025-10-20 10:47:01,523 - backend.middleware.request_id_middleware - INFO - Request completed: POST /api/sports/activate/MLB - 200
+2025-10-20 10:47:01,523 - backend.middleware.distributed_trace_middleware - INFO - Trace completed: 36a57cf9-2ed8-43a7-8713-1c46af50e738
+{"timestamp": "2025-10-20T15:47:01.523639+00:00", "level": "INFO", "logger": "a1betting", "message": "Request completed", "module": "structured_logging_middleware", "function": "log_request_success", "line": 130, "request_id": "085e3457-728f-4c57-bcd4-ba85014ccadf", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_success", "method": "POST", "url": "http://testserver/api/sports/activate/MLB", "path": "/api/sports/activate/MLB", "status_code": 200, "duration_ms": 0.88, "response_size": "96", "performance_category": "fast"}
+2025-10-20 10:47:01,524 - backend.middleware.legacy_middleware - INFO - Legacy response produced by handler=backend.routes.compat_shims.compat_sports_activate for path=/api/sports/activate/MLB status_code=200
+2025-10-20 10:47:01,527 - backend.middleware.legacy_middleware - INFO - [LegacyMiddleware] dispatch start method=GET path=/api/debug/status
+2025-10-20 10:47:01,527 - backend.services.legacy_registry - INFO - Registered legacy endpoint: /api/debug/status -> None
+2025-10-20 10:47:01,527 - backend.middleware.legacy_middleware - INFO - Legacy endpoint accessed: GET /api/debug/status (count: 1)
+2025-10-20 10:47:01,527 - backend.middleware.legacy_middleware - INFO - Legacy registry entry: path=/api/debug/status, forward=None, entry=LegacyEndpointData(path='/api/debug/status', count=1, forward=None, last_access_ts=1760975221.52785, first_recorded_ts=1760975221.5278087)
+{"timestamp": "2025-10-20T15:47:01.528146+00:00", "level": "INFO", "logger": "a1betting", "message": "Request started", "module": "structured_logging_middleware", "function": "log_request_start", "line": 115, "request_id": "751cb9fd-eaea-4641-a65c-589a9ad8f024", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_start", "method": "GET", "url": "http://testserver/api/debug/status", "path": "/api/debug/status", "query_params": {}, "client_ip": "testclient", "user_agent": "testclient", "content_type": null}
+2025-10-20 10:47:01,528 - backend.middleware.request_id_middleware - INFO - Request started: GET /api/debug/status
+2025-10-20 10:47:01,528 - backend.errors.catalog - ERROR - API Error: E4040_NOT_FOUND
+2025-10-20 10:47:01,529 - backend.middleware.request_id_middleware - INFO - Request completed: GET /api/debug/status - 404
+2025-10-20 10:47:01,529 - backend.middleware.distributed_trace_middleware - INFO - Trace completed: 9bc6242f-daf4-4224-83e1-9fc5c6704a61
+{"timestamp": "2025-10-20T15:47:01.529217+00:00", "level": "INFO", "logger": "a1betting", "message": "Request completed", "module": "structured_logging_middleware", "function": "log_request_success", "line": 130, "request_id": "751cb9fd-eaea-4641-a65c-589a9ad8f024", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_success", "method": "GET", "url": "http://testserver/api/debug/status", "path": "/api/debug/status", "status_code": 404, "duration_ms": 1.09, "response_size": "270", "performance_category": "fast"}
+2025-10-20 10:47:01,530 - backend.middleware.legacy_middleware - INFO - Legacy response produced by handler=None for path=/api/debug/status status_code=404
+------------------------------ Captured log call ------------------------------
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:189 [LegacyMiddleware] dispatch start method=GET path=/mlb/todays-games
+INFO     backend.middleware.request_id_middleware:request_id_middleware.py:67 Request started: GET /mlb/todays-games
+INFO     backend.middleware.request_id_middleware:request_id_middleware.py:92 Request completed: GET /mlb/todays-games - 200
+INFO     backend.middleware.distributed_trace_middleware:distributed_trace_middleware.py:224 Trace completed: b19340f1-a2bf-4b6f-8bce-806408331660
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:1153 [FinalEnforce] legacy=False path=/mlb/todays-games status_code=200 headers={'content-length': '26', 'content-type': 'application/json', 'x-request-id': '624d9988-b8c7-49d5-8133-9a468a574649', 'x-trace-id': 'b19340f1-a2bf-4b6f-8bce-806408331660', 'x-span-id': 'a47a692e', 'x-ratelimit-limit': '100', 'x-ratelimit-remaining': '134', 'x-ratelimit-reset': '1760975281', 'strict-transport-security': 'max-age=63072000; includeSubDomains; preload', 'x-content-type-options': 'nosniff', 'x-frame-options': 'DENY', 'referrer-policy': 'no-referrer', 'cross-origin-opener-policy': 'same-origin', 'cross-origin-embedder-policy': 'require-corp', 'cross-origin-resource-policy': 'same-origin', 'permissions-policy': 'accelerometer=(), gyroscope=(), camera=(), microphone=(), geolocation=(), autoplay=()', 'content-security-policy-report-only': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; connect-src 'self'; upgrade-insecure-requests; report-uri /api/security/csp-report"} body_preview=None
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:189 [LegacyMiddleware] dispatch start method=GET path=/mlb/prizepicks-props/
+INFO     backend.middleware.request_id_middleware:request_id_middleware.py:67 Request started: GET /mlb/prizepicks-props/
+INFO     backend.middleware.request_id_middleware:request_id_middleware.py:92 Request completed: GET /mlb/prizepicks-props/ - 200
+INFO     backend.middleware.distributed_trace_middleware:distributed_trace_middleware.py:224 Trace completed: 4a17531e-2ee5-47cd-8bae-04a82e247825
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:1153 [FinalEnforce] legacy=False path=/mlb/prizepicks-props/ status_code=200 headers={'content-length': '26', 'content-type': 'application/json', 'x-request-id': '49b29e51-5c72-43c7-b387-a603cd51c35c', 'x-trace-id': '4a17531e-2ee5-47cd-8bae-04a82e247825', 'x-span-id': '71e6dbcf', 'x-ratelimit-limit': '100', 'x-ratelimit-remaining': '133', 'x-ratelimit-reset': '1760975281', 'strict-transport-security': 'max-age=63072000; includeSubDomains; preload', 'x-content-type-options': 'nosniff', 'x-frame-options': 'DENY', 'referrer-policy': 'no-referrer', 'cross-origin-opener-policy': 'same-origin', 'cross-origin-embedder-policy': 'require-corp', 'cross-origin-resource-policy': 'same-origin', 'permissions-policy': 'accelerometer=(), gyroscope=(), camera=(), microphone=(), geolocation=(), autoplay=()', 'content-security-policy-report-only': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; connect-src 'self'; upgrade-insecure-requests; report-uri /api/security/csp-report"} body_preview=None
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:189 [LegacyMiddleware] dispatch start method=GET path=/health
+INFO     backend.middleware.request_id_middleware:request_id_middleware.py:67 Request started: GET /health
+INFO     backend.core.app:app.py:738 [API] /api/health called (canonical)
+INFO     backend.middleware.request_id_middleware:request_id_middleware.py:92 Request completed: GET /health - 200
+INFO     backend.middleware.distributed_trace_middleware:distributed_trace_middleware.py:224 Trace completed: 0747bc82-15fd-4bf7-9b6f-5f483e3c646b
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:1153 [FinalEnforce] legacy=False path=/health status_code=200 headers={'x-force-flat-baseline': 'true', 'content-length': '252', 'content-type': 'application/json', 'x-request-id': '025263cd-7912-46f1-a383-853bc7537173', 'x-trace-id': '0747bc82-15fd-4bf7-9b6f-5f483e3c646b', 'x-span-id': '0e08ae9d', 'x-ratelimit-limit': '100', 'x-ratelimit-remaining': '132', 'x-ratelimit-reset': '1760975281', 'strict-transport-security': 'max-age=63072000; includeSubDomains; preload', 'x-content-type-options': 'nosniff', 'x-frame-options': 'DENY', 'referrer-policy': 'no-referrer', 'cross-origin-opener-policy': 'same-origin', 'cross-origin-embedder-policy': 'require-corp', 'cross-origin-resource-policy': 'same-origin', 'permissions-policy': 'accelerometer=(), gyroscope=(), camera=(), microphone=(), geolocation=(), autoplay=()', 'content-security-policy-report-only': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; connect-src 'self'; upgrade-insecure-requests; report-uri /api/security/csp-report"} body_preview=None
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:189 [LegacyMiddleware] dispatch start method=POST path=/api/sports/activate/MLB
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/sports/activate/MLB -> None
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:261 Legacy endpoint accessed: POST /api/sports/activate/MLB (count: 1)
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:265 Legacy registry entry: path=/api/sports/activate/MLB, forward=None, entry=LegacyEndpointData(path='/api/sports/activate/MLB', count=1, forward=None, last_access_ts=1760975221.5224895, first_recorded_ts=1760975221.5224507)
+INFO     backend.middleware.request_id_middleware:request_id_middleware.py:67 Request started: POST /api/sports/activate/MLB
+INFO     backend.middleware.request_id_middleware:request_id_middleware.py:92 Request completed: POST /api/sports/activate/MLB - 200
+INFO     backend.middleware.distributed_trace_middleware:distributed_trace_middleware.py:224 Trace completed: 36a57cf9-2ed8-43a7-8713-1c46af50e738
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:302 Legacy response produced by handler=backend.routes.compat_shims.compat_sports_activate for path=/api/sports/activate/MLB status_code=200
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:189 [LegacyMiddleware] dispatch start method=GET path=/api/debug/status
+INFO     backend.services.legacy_registry:legacy_registry.py:102 Registered legacy endpoint: /api/debug/status -> None
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:261 Legacy endpoint accessed: GET /api/debug/status (count: 1)
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:265 Legacy registry entry: path=/api/debug/status, forward=None, entry=LegacyEndpointData(path='/api/debug/status', count=1, forward=None, last_access_ts=1760975221.52785, first_recorded_ts=1760975221.5278087)
+INFO     backend.middleware.request_id_middleware:request_id_middleware.py:67 Request started: GET /api/debug/status
+ERROR    backend.errors.catalog:catalog.py:312 API Error: E4040_NOT_FOUND
+INFO     backend.middleware.request_id_middleware:request_id_middleware.py:92 Request completed: GET /api/debug/status - 404
+INFO     backend.middleware.distributed_trace_middleware:distributed_trace_middleware.py:224 Trace completed: 9bc6242f-daf4-4224-83e1-9fc5c6704a61
+INFO     backend.middleware.legacy_middleware:legacy_middleware.py:302 Legacy response produced by handler=None for path=/api/debug/status status_code=404
+=========================== short test summary info ===========================
+FAILED tests/backend/routes/test_api_contract_compliance.py::TestStandardAPIResponseContract::test_mlb_routes_contract_compliance
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+================ 1 failed, 112 passed, 248 warnings in 13.10s =================

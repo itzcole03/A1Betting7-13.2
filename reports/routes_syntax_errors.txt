@@ -1,0 +1,480 @@
+FAILED: backend/routes\advanced_arbitrage_routes.py:   File "backend/routes\advanced_arbitrage_routes.py", line 121
+    ) for odds in opp.odds_combinations
+    ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '[' on line 108
+
+FAILED: backend/routes\advanced_kelly_routes.py:   File "backend/routes\advanced_kelly_routes.py", line 202
+    raise BusinessLogicException("Too many opportunities (max 20))
+                                 ^
+SyntaxError: unterminated string literal (detected at line 202)
+
+FAILED: backend/routes\advanced_kelly_routes_secured.py:   File "backend/routes\advanced_kelly_routes_secured.py", line 76
+    description=f"Betting opportunity {opp.id},"
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\advanced_search_routes.py:   File "backend/routes\advanced_search_routes.py", line 212
+    raise BusinessLogicException(f"Search execution failed: {str(e)}})"
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\ai_recommendations_routes.py:   File "backend/routes\ai_recommendations_routes.py", line 190
+    raise BusinessLogicException("Failed to generate recommendations")
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\ai_routes.py:   File "backend/routes\ai_routes.py", line 79
+    return ResponseBuilder.success(HealthResponse(
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\alert_engine_routes.py:   File "backend/routes\alert_engine_routes.py", line 88
+    raise BusinessLogicException("Failed to get alert engine status")
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\bets_routes.py:   File "backend/routes\bets_routes.py", line 73
+    raise BusinessLogicException({"error": "validation_error", "message": str(e), status_code=422)}
+                                                                                                 ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '{'
+
+FAILED: backend/routes\cache_management_routes.py:   File "backend/routes\cache_management_routes.py", line 38
+    raise BusinessLogicException(
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\cheatsheets_routes.py:   File "backend/routes\cheatsheets_routes.py", line 156
+    logger.error(f"Failed to get opportunities: {e}"
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\clv_history_segmentation_routes.py:   File "backend/routes\clv_history_segmentation_routes.py", line 493
+    insights.append("You're in the top tier of CLV performers - excellent work!")'
+                                                                                 ^
+SyntaxError: unterminated string literal (detected at line 493)
+
+FAILED: backend/routes\clv_trends_routes.py:   File "backend/routes\clv_trends_routes.py", line 102
+    "/trends/{prop_id},"
+    ^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\compat_shims.py:   File "backend/routes\compat_shims.py", line 17
+    return ok({"status": "ready", "details": "Bankroll service available (compat shim)}
+                                             ^
+SyntaxError: unterminated string literal (detected at line 17)
+
+FAILED: backend/routes\comprehensive_sportradar_routes.py:   File "backend/routes\comprehensive_sportradar_routes.py", line 67
+    raise BusinessLogicException(f"Health check failed: {str(e)}})"
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\consolidated_admin.py:   File "backend/routes\consolidated_admin.py", line 45
+    logging.warning(f"Health monitoring services import failed: {e}"
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\consolidated_prizepicks.py:   File "backend/routes\consolidated_prizepicks.py", line 175
+    "player": "A'ja Wilson", '
+                             ^
+SyntaxError: unterminated string literal (detected at line 175)
+
+FAILED: backend/routes\correlation_and_tickets.py:   File "backend/routes\correlation_and_tickets.py", line 211
+    )
+    ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '{' on line 210
+
+FAILED: backend/routes\csp_report.py:   File "backend/routes\csp_report.py", line 40
+    return None
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\dashboard_customization_routes.py:   File "backend/routes\dashboard_customization_routes.py", line 257
+    except Exception as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\data_export_routes.py:   File "backend/routes\data_export_routes.py", line 77
+    return ResponseBuilder.success({"export_id": "immediate",
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\data_validation_routes.py:   File "backend/routes\data_validation_routes.py", line 227
+    }
+    ^
+SyntaxError: closing parenthesis '}' does not match opening parenthesis '(' on line 220
+
+FAILED: backend/routes\debug_api.py:   File "backend/routes\debug_api.py", line 23
+    if body:
+           ^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\dependencies.py:   File "backend/routes\dependencies.py", line 40
+    })
+    ^
+SyntaxError: closing parenthesis '}' does not match opening parenthesis '(' on line 39
+
+FAILED: backend/routes\draftkings_integration_routes.py:   File "backend/routes\draftkings_integration_routes.py", line 81
+    except Exception as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\enhanced_api.py:   File "backend/routes\enhanced_api.py", line 204
+    }
+    ^
+SyntaxError: closing parenthesis '}' does not match opening parenthesis '(' on line 202
+
+FAILED: backend/routes\enhanced_data_validation_routes.py:   File "backend/routes\enhanced_data_validation_routes.py", line 56
+    print(f"Validation services not available: {e}"
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\enhanced_ev_routes.py:   File "backend/routes\enhanced_ev_routes.py", line 81
+    raise BusinessLogicException(f"EV calculation failed: {str(e)}, status_code=500)"
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\enhanced_ml_routes.py: Sorry: IndentationError: unexpected indent (enhanced_ml_routes.py, line 54)
+FAILED: backend/routes\enhanced_search_routes.py:   File "backend/routes\enhanced_search_routes.py", line 107
+    cache_key = f"ai_suggestions:{request.data_type}:{hash(request.text)"
+                                                                        ^
+SyntaxError: f-string: expecting '}'
+
+FAILED: backend/routes\enhanced_sportsbook_routes.py:   File "backend/routes\enhanced_sportsbook_routes.py", line 103
+    return ResponseBuilder.success({"sport": sport,
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\enhanced_websocket_routes.py:   File "backend/routes\enhanced_websocket_routes.py", line 318
+    async def websocket_arbitrage_only(
+          ^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\enterprise_model_registry_routes.py:   File "backend/routes\enterprise_model_registry_routes.py", line 200
+    if model_type and MODEL_REGISTRY_AVAILABLE:
+                                              ^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\ev_feed_debug_routes.py:   File "backend/routes\ev_feed_debug_routes.py", line 26
+    return ResponseBuilder.success(data={"entries": subset, "count": len(subset), "effective_limit": effective_limit}
+                                  ^
+SyntaxError: '(' was never closed
+
+FAILED: backend/routes\ev_feed_routes.py:   File "backend/routes\ev_feed_routes.py", line 18
+    from backend.core.exceptions import BusinessLogicException
+    ^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\ev_routes.py:   File "backend/routes\ev_routes.py", line 93
+    logger.debug(f"Kelly calc failed: {ke}"
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\hardened_arbitrage_routes.py:   File "backend/routes\hardened_arbitrage_routes.py", line 175
+    raise BusinessLogicException(
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\health_extended.py:   File "backend/routes\health_extended.py", line 16
+    base["meta"] = {"request_id": str(uuid4())
+                   ^
+SyntaxError: '{' was never closed
+
+FAILED: backend/routes\lazy_sport_routes.py:   File "backend/routes\lazy_sport_routes.py", line 42
+    except Exception as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\live_betting_routes.py:   File "backend/routes\live_betting_routes.py", line 94
+    except Exception as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\llm_explanations.py:   File "backend/routes\llm_explanations.py", line 125
+    f"LLM explanation request - edge_id: {edge_id}, force_refresh: {request.force_refresh}, request_id: {request_context.get('request_id')"
+                                                                                                                                          ^
+SyntaxError: f-string: expecting '}'
+
+FAILED: backend/routes\meta_cache.py:   File "backend/routes\meta_cache.py", line 118
+    latency_percentiles = stats.get("latency_percentiles", {"p50": 0.0, "p90": 0.0, "p95": 0.0, "p99": 0.0
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\meta_legacy.py:   File "backend/routes\meta_legacy.py", line 106
+    raise BusinessLogicException(f"Failed to retrieve legacy usage data: {str(e)}, status_code=500)")
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\mlb_extras_broken.py:   File "backend/routes\mlb_extras_broken.py", line 40
+    return ResponseBuilder.success({"status": "ok", "message": "mlb_extras router is reachable}
+                                                               ^
+SyntaxError: unterminated string literal (detected at line 40)
+
+FAILED: backend/routes\mlb_extras_fixed.py:   File "backend/routes\mlb_extras_fixed.py", line 22
+    async def get_live_game_stats(game_id: int):
+          ^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\models_inference.py:   File "backend/routes\models_inference.py", line 217
+    )
+    ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '{' on line 216
+
+FAILED: backend/routes\model_performance_monitoring_routes.py:   File "backend/routes\model_performance_monitoring_routes.py", line 81
+    except Exception as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\model_registry.py:   File "backend/routes\model_registry.py", line 34
+    class VersionInfo:
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\model_registry_routes.py:   File "backend/routes\model_registry_routes.py", line 279
+    return ResponseBuilder.success(ModelResponse(**{k: v for k, v in model_data.items()) if k != 'model_file_path'}
+                                                                                       ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '{'
+
+FAILED: backend/routes\model_registry_simple.py:   File "backend/routes\model_registry_simple.py", line 76
+    logger.info(f"Model lifecycle event: {event_type}, extra={"
+                                                              ^
+SyntaxError: f-string: expecting '}'
+
+FAILED: backend/routes\modern_async_routes.py:   File "backend/routes\modern_async_routes.py", line 100
+    logger.info(f"Processing bet placement request: {context.request_id}"
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\modern_ml_routes.py:   File "backend/routes\modern_ml_routes.py", line 28
+    from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+    ^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\multiple_sportsbook_routes.py:   File "backend/routes\multiple_sportsbook_routes.py", line 336
+    return JSONResponse(content=ResponseBuilder.success(out))
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\nba_routes.py:   File "backend/routes\nba_routes.py", line 35
+    raise BusinessLogicException(f"NBA health check failed: {str(e)}"
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\observability_events.py:   File "backend/routes\observability_events.py", line 82
+    if request_id:
+                 ^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\odds_history_routes.py:   File "backend/routes\odds_history_routes.py", line 50
+    if not historical_data:
+                          ^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\odds_routes.py:   File "backend/routes\odds_routes.py", line 107
+    except Exception as e:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\opportunities_routes.py:   File "backend/routes\opportunities_routes.py", line 42
+    logger.error(f"Failed to fetch positive EV opportunities: {e}"
+                ^
+SyntaxError: '(' was never closed
+
+FAILED: backend/routes\optimization_and_simulation.py:   File "backend/routes\optimization_and_simulation.py", line 182
+    name=f"portfolio_optimization_{opt_run.id},"
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\optimized_api_routes.py:   File "backend/routes\optimized_api_routes.py", line 66
+    raise BusinessLogicException("Failed to retrieve MLB games", {"details": str(e)}
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\optimized_real_time_routes.py:   File "backend/routes\optimized_real_time_routes.py", line 63
+    raise BusinessLogicException(f"Service initialization failed: {str(e)}})"
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\optimized_routes.py:   File "backend/routes\optimized_routes.py", line 75
+    prop_id=req_data.get("prop_id", f"batch_{i},"
+                                    ^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\parlay_routes.py:   File "backend/routes\parlay_routes.py", line 64
+    return ParlayHealthApiResponse(
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\phase2_routes.py:   File "backend/routes\phase2_routes.py", line 446
+    }
+    ^
+SyntaxError: closing parenthesis '}' does not match opening parenthesis '(' on line 443
+
+FAILED: backend/routes\phase3_routes.py:   File "backend/routes\phase3_routes.py", line 108
+    raise BusinessLogicException(
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\player_dashboard_routes.py:   File "backend/routes\player_dashboard_routes.py", line 26
+    return ResponseBuilder.success({"status": "healthy", "service": "player_dashboard}"
+                                                                    ^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\player_performance_routes.py:   File "backend/routes\player_performance_routes.py", line 42
+    error={"message": f"Invalid sport '{sport}'. Must be one of: {', '.join(valid_sports)}}"
+                                                                                          ^
+SyntaxError: f-string: single '}' is not allowed
+
+FAILED: backend/routes\priority2_demo_routes.py:   File "backend/routes\priority2_demo_routes.py", line 124
+    async def priority2_health_check():
+          ^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\priority2_realtime_routes.py:   File "backend/routes\priority2_realtime_routes.py", line 66
+    return ResponseBuilder.success({"status": "healthy}
+                                              ^
+SyntaxError: unterminated string literal (detected at line 66)
+
+FAILED: backend/routes\prizepicks_simple.py:   File "backend/routes\prizepicks_simple.py", line 89
+    "player_name": "A'ja Wilson",'
+                                 ^
+SyntaxError: unterminated string literal (detected at line 89)
+
+FAILED: backend/routes\production_health_routes.py:   File "backend/routes\production_health_routes.py", line 140
+    async def background_tasks_health() -> Dict[str, Any]:
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\production_health_routes_standardized.py:   File "backend/routes\production_health_routes_standardized.py", line 115
+    f"Health check failed: {str(e)},"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\propfinder_routes.py:   File "backend/routes\propfinder_routes.py", line 382
+    except Exception:
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\propollama_router.py:   File "backend/routes\propollama_router.py", line 161
+    return ResponseBuilder.success({"content": """🏀 **LeBron James Prop Analysis**\n\n📊 **Current Form Analysis:**\n• Averaging 25.8 PPG over last 10 games\n• 8.2 RPG and 6.9 APG in recent stretch\n• Shooting 52% from field, 35% from three\n\n🎯 **Key Factors to Consider:**\n• Rest days: LeBron performs better with 1+ days rest\n• Matchup difficulty: Check opponent's defensive rating\n• Game script: Lakers' pace and expected competitiveness\n• Motivation level: Playoff implications or milestone games\n\n⚡ **Recommendation Framework:**\n• Points props: Look for 24.5+ lines for value\n• Assists: Consider matchup pace and ball movement\n• Rebounds: Factor in opponent's rebounding strength\n\n🚨 **Risk Management:**\n• Never bet more than 2-3% of bankroll on single prop\n• Consider multiple correlated props for portfolio approach\n• Track line movements before game time\n\n*Always verify with current injury reports and lineup changes*""",'
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ^
+SyntaxError: unterminated string literal (detected at line 161)
+
+FAILED: backend/routes\provider_resilience_routes.py:   File "backend/routes\provider_resilience_routes.py", line 60
+    raise BusinessLogicException(str(e), status_code=500)
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\provider_status_routes.py:   File "backend/routes\provider_status_routes.py", line 201
+    return response
+    ^^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\realtime_websocket_routes.py:   File "backend/routes\realtime_websocket_routes.py", line 468
+    return ResponseBuilder.success({"status": "success", "message": "System alert broadcasted}
+                                                                    ^
+SyntaxError: unterminated string literal (detected at line 468)
+
+FAILED: backend/routes\real_time_analysis.py:   File "backend/routes\real_time_analysis.py", line 113
+    raise BusinessLogicException(f"Failed to start analysis: {str(e)}"
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\risk_personalization.py:   File "backend/routes\risk_personalization.py", line 189
+    )
+    ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '{' on line 188
+
+FAILED: backend/routes\risk_personalization_backup.py:   File "backend/routes\risk_personalization_backup.py", line 6
+    """Get interest model service instance"""
+       ^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\risk_tools_routes.py:   File "backend/routes\risk_tools_routes.py", line 135
+    raise BusinessLogicException("Failed to calculate Kelly criterion"
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\security_head_endpoints.py:   File "backend/routes\security_head_endpoints.py", line 62
+    response.headers["ETag"] = f'"{etag}'"
+                                         ^
+SyntaxError: unterminated string literal (detected at line 62)
+
+FAILED: backend/routes\security_routes.py:   File "backend/routes\security_routes.py", line 248
+    return ResponseBuilder.success(data={"message": "Logged out successfully}
+                                                    ^
+SyntaxError: unterminated string literal (detected at line 248)
+
+FAILED: backend/routes\security_test.py:   File "backend/routes\security_test.py", line 55
+    logger.error(f"Error getting security status: {e}"
+                ^
+SyntaxError: '(' was never closed
+
+FAILED: backend/routes\shap.py:   File "backend/routes\shap.py", line 104
+    f"Factors supporting higher performance: {', '.join([f'{k.replace('_', ' ')}' for k, _ in top_positive])"
+                                                                                                            ^
+SyntaxError: f-string: expecting '}'
+
+FAILED: backend/routes\sports_routes.py:   File "backend/routes\sports_routes.py", line 29
+    return ResponseBuilder.success({"status": "ok}
+                                              ^
+SyntaxError: unterminated string literal (detected at line 29)
+
+FAILED: backend/routes\system_capabilities.py:   File "backend/routes\system_capabilities.py", line 110
+    }
+    ^
+SyntaxError: closing parenthesis '}' does not match opening parenthesis '(' on line 108
+
+FAILED: backend/routes\tools_routes.py:   File "backend/routes\tools_routes.py", line 7
+    from backend.core.exceptions import BusinessLogicException
+    ^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\trace_test_routes.py:   File "backend/routes\trace_test_routes.py", line 91
+    logger.info("Completed inner operation", extra={"span_id": inner_span}
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\trending_suggestions.py:   File "backend/routes\trending_suggestions.py", line 43
+    detail=f"Failed to fetch trending suggestions: {str(e)},"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+
+FAILED: backend/routes\unified_api.py:   File "backend/routes\unified_api.py", line 348
+    ]
+    ^
+SyntaxError: closing parenthesis ']' does not match opening parenthesis '(' on line 347
+
+FAILED: backend/routes\unified_sports_routes.py:   File "backend/routes\unified_sports_routes.py", line 44
+    f"Failed to activate {sport} service: {activation_result.get('error', 'Unknown error')"
+                                                                                          ^
+SyntaxError: f-string: expecting '}'
+
+FAILED: backend/routes\versioned_api_routes.py:   File "backend/routes\versioned_api_routes.py", line 179
+    class SportActivateRequest(BaseModel):
+    ^^^^^
+SyntaxError: invalid syntax
+
+FAILED: backend/routes\version_routes.py:   File "backend/routes\version_routes.py", line 60
+    )
+    ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '{' on line 59
+
+FAILED: backend/routes\websocket_logging_routes.py:   File "backend/routes\websocket_logging_routes.py", line 53
+    )
+    ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '{' on line 52
+
+FAILED: backend/routes\ws_client.py:   File "backend/routes\ws_client.py", line 140
+    )
+    ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '{' on line 139
+
+FAILED: backend/routes\ws_client_enhanced.py:   File "backend/routes\ws_client_enhanced.py", line 42
+    return Response(content=json.dumps({"detail": "client_id is required}, status_code=422, media_type="application/json")
+                                                                                                                        ^
+SyntaxError: unterminated string literal (detected at line 42)
+
+FAILED: backend/routes\ws_client_unified.py:   File "backend/routes\ws_client_unified.py", line 139
+    logger.error(f"Failed to send message to {client_id}: {e}"
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?

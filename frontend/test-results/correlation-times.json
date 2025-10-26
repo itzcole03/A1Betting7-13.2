@@ -1,0 +1,38 @@
+[
+  {
+    "folder": "prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium",
+    "earliest_trace_time": "2025-10-26T01:14:20.622Z"
+  },
+  {
+    "folder": "prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium",
+    "earliest_trace_time": "2025-10-26T01:14:33.261Z"
+  },
+  {
+    "folder": "prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium",
+    "earliest_trace_time": "2025-10-26T01:13:55.336Z"
+  },
+  {
+    "folder": "prediction-filtering-Predi-52caa-props-by-different-criteria-chromium",
+    "earliest_trace_time": "2025-10-26T01:13:42.735Z"
+  },
+  {
+    "folder": "prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium",
+    "earliest_trace_time": "2025-10-26T01:13:17.439Z"
+  },
+  {
+    "folder": "prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium",
+    "earliest_trace_time": "2025-10-26T01:12:52.118Z"
+  },
+  {
+    "folder": "prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium",
+    "earliest_trace_time": "2025-10-26T01:14:07.904Z"
+  },
+  {
+    "folder": "prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium",
+    "earliest_trace_time": "2025-10-26T01:13:30.075Z"
+  },
+  {
+    "folder": "prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium",
+    "earliest_trace_time": "2025-10-26T01:13:04.768Z"
+  }
+]

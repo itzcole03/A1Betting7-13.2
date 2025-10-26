@@ -1,0 +1,9 @@
+--- TRACEBACK 1 ---
+tests/backend/test_enhanced_ev_routes.py::TestEnhancedEVAPI::test_enhanced_calculate_success FAILED [ 48%]
+
+--- TRACEBACK 2 ---
+tests/backend/test_enhanced_ev_routes.py::TestEnhancedEVAPI::test_enhanced_calculate_validation_error FAILED [ 48%]
+
+--- TRACEBACK 3 ---
+tests/backend/test_enhanced_ev_routes.py::TestEnhancedEVAPI::test_enhanced_calculate_cache_behavior FAILED [ 48%]
+

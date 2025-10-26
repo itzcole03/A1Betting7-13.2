@@ -5,11 +5,14 @@ Provides GET /api/odds/history?prop_id=&sportsbook=&hours_back=&limit=
 which returns a standardized time series suitable for sparklines.
 """
 
-from typing import Optional, Dict, Any
 import logging
-from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, Query, HTTPException
 import os
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, Optional
+
+from fastapi import APIRouter, HTTPException, Query
+
+from backend.core.exceptions import BusinessLogicException
 from backend.core.response_models import ResponseBuilder, StandardAPIResponse
 from backend.services.unified_odds_aggregation_service import get_unified_odds_service
 
@@ -19,7 +22,9 @@ router = APIRouter(prefix="/api/odds", tags=["Odds History"])
 
 @router.get("/history", response_model=StandardAPIResponse[Dict[str, Any]])
 async def get_odds_history(
-    prop_id: str = Query(..., description="Canonical prop identifier (event:market:selection)"),
+    prop_id: str = Query(
+        ..., description="Canonical prop identifier (event:market:selection)"
+    ),
     sportsbook: str = Query(..., description="Sportsbook name"),
     hours_back: int = Query(24, ge=1, le=168, description="Hours to look back"),
     limit: int = Query(100, ge=10, le=500, description="Maximum snapshots to return"),
@@ -34,8 +39,9 @@ async def get_odds_history(
         historical_data = []
         try:
             if os.getenv("ENABLE_ODDS_SNAPSHOTS", "false").lower() == "true":
-                from backend.services.odds_snapshot_service import get_odds_snapshot_service
-from backend.core.exceptions import BusinessLogicException
+                from backend.services.odds_snapshot_service import (
+                    get_odds_snapshot_service,
+                )
 
                 svc = get_odds_snapshot_service()
                 historical_data = await svc.get_history(
@@ -46,7 +52,9 @@ from backend.core.exceptions import BusinessLogicException
                     limit=limit,
                 )
         except Exception as _e:
-            logger.warning(f"DB-backed odds history unavailable, falling back to in-memory: {_e}")
+            logger.warning(
+                f"DB-backed odds history unavailable, falling back to in-memory: {_e}"
+            )
 
         if not historical_data:
             historical_data = await unified_odds_service.get_prop_history(
@@ -63,7 +71,10 @@ from backend.core.exceptions import BusinessLogicException
                     "prop_id": prop_id,
                     "sportsbook": sportsbook,
                     "total_snapshots": 0,
-                    "date_range": {"start": start_time.isoformat(), "end": end_time.isoformat()},
+                    "date_range": {
+                        "start": start_time.isoformat(),
+                        "end": end_time.isoformat(),
+                    },
                     "snapshots": [],
                 }
             )
@@ -76,7 +87,9 @@ from backend.core.exceptions import BusinessLogicException
                     return float(raw)
                 if isinstance(raw, str):
                     # Handle ISO strings
-                    return datetime.fromisoformat(raw.replace("Z", "+00:00")).timestamp()
+                    return datetime.fromisoformat(
+                        raw.replace("Z", "+00:00")
+                    ).timestamp()
             except Exception:
                 pass
             return 0.0
@@ -88,7 +101,10 @@ from backend.core.exceptions import BusinessLogicException
                 "prop_id": prop_id,
                 "sportsbook": sportsbook,
                 "total_snapshots": len(historical_data),
-                "date_range": {"start": start_time.isoformat(), "end": end_time.isoformat()},
+                "date_range": {
+                    "start": start_time.isoformat(),
+                    "end": end_time.isoformat(),
+                },
                 "snapshots": historical_data,
             }
         )

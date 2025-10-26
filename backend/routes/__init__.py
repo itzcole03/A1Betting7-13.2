@@ -6,12 +6,14 @@ submodules when accessed. If a submodule cannot be imported, a
 lightweight placeholder module is returned so tests can safely patch
 attributes on it.
 """
-from types import ModuleType
+
+import logging
 from importlib import import_module
+from types import ModuleType
 from typing import Any
+
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-import logging
 
 
 def __getattr__(name: str) -> Any:
@@ -39,8 +41,9 @@ def __getattr__(name: str) -> Any:
         # Some names pytest or test helpers expect to be functions or lists
         # (for example, `setUpModule` should be a callable). Provide
         # appropriately-typed placeholders instead of a ModuleType so test
-        # collection/fixtures don't fail when importing backend.routes.*.
+        # collection/fixtures don't fail when importing backend.routes.*.'
         if name in ("setUpModule", "setup_module"):
+
             def _noop_setup_module():
                 return None
 
@@ -52,6 +55,7 @@ def __getattr__(name: str) -> Any:
         # function (not a module) so return a simple callable when that name is
         # requested.
         if name in ("tearDownModule", "teardown_module", "tear_down_module"):
+
             def _noop_teardown_module(arg=None):
                 # Accept an optional argument to be compatible with callers
                 # that pass the module object during teardown.
@@ -121,7 +125,7 @@ def __getattr__(name: str) -> Any:
 
         # If this placeholder represents sportsbook routes, provide a minimal
         # APIRouter with a few basic endpoints so legacy middleware and tests
-        # that expect certain paths (e.g. /api/sportsbook/arbitrage) don't
+        # that expect certain paths (e.g. /api/sportsbook/arbitrage) don't'
         # immediately return 404. Handlers return lightweight JSON responses
         # that tests can patch or inspect further.
         try:
@@ -129,26 +133,40 @@ def __getattr__(name: str) -> Any:
                 _router = APIRouter(prefix="/api/sportsbook", tags=["sportsbook"])
 
                 @_router.get("/arbitrage")
-                async def _placeholder_arbitrage(sport: str = "mlb", min_profit: float = 0.0):
-                    return JSONResponse(content={"success": True, "data": [], "error": None})
+                async def _placeholder_arbitrage(
+                    sport: str = "mlb", min_profit: float = 0.0
+                ):
+                    return JSONResponse(
+                        content={"success": True, "data": [], "error": None}
+                    )
 
                 @_router.get("/player-props")
                 async def _placeholder_player_props():
-                    return JSONResponse(content={"success": True, "data": [], "error": None})
+                    return JSONResponse(
+                        content={"success": True, "data": [], "error": None}
+                    )
 
                 @_router.get("/best-odds")
                 async def _placeholder_best_odds():
-                    return JSONResponse(content={"success": True, "data": [], "error": None})
+                    return JSONResponse(
+                        content={"success": True, "data": [], "error": None}
+                    )
 
                 setattr(placeholder, "router", _router)
             # Provide a lightweight NBA router placeholder so production app
-            # route inclusion doesn't fail during tests when import fails.
+            # route inclusion doesn't fail during tests when import fails.'
             if "nba" in name:
                 _router = APIRouter(prefix="/nba", tags=["NBA"])
 
                 @_router.get("/health")
                 async def _nba_placeholder_health():
-                    return JSONResponse(content={"success": True, "data": {"status": "healthy"}, "error": None})
+                    return JSONResponse(
+                        content={
+                            "success": True,
+                            "data": {"status": "healthy"},
+                            "error": None,
+                        }
+                    )
 
                 setattr(placeholder, "router", _router)
         except Exception:

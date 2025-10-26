@@ -1,0 +1,149 @@
+"""
+Player Performance API Routes
+Provides endpoints for fetching player performance vs betting line trends
+"""
+
+import logging
+from typing import Optional
+from fastapi import APIRouter, HTTPException, Query
+from backend.core.response_models import ResponseBuilder
+from backend.services.player_performance_service import get_player_performance_service
+from backend.models.player_models import PlayerPerformanceResponse
+from backend.core.exceptions import BusinessLogicException
+
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/api/players", tags=["Player Performance"])
+
+
+@router.get("/performance")
+async def get_player_performance(
+    sport: str = Query(..., description="Sport type (MLB, NBA, NFL, NHL)"),
+    player: str = Query(..., description="Player name (URL encoded)"),
+    market: str = Query(..., description="Market type (HR, Hits, Points, etc.)"),
+    window: int = Query(10, ge=1, le=50, description="Number of recent games to analyze")
+) -> PlayerPerformanceResponse:
+    """
+    Get player performance vs betting line trends
+    
+    Returns recent game results with rolling statistics including:
+    - recent_games: Individual game results vs lines
+    - rolling_avg: Average stat value over the window
+    - hit_rate: Percentage of times player went over the line
+    - std_dev: Standard deviation of performance
+    
+    Example: GET /api/players/performance?sport=MLB&player=Shohei%20Ohtani&market=HR&window=10
+    """
+    try:
+        # Validate sport
+        valid_sports = {"MLB", "NBA", "NFL", "NHL"}
+        if sport.upper() not in valid_sports:
+            return PlayerPerformanceResponse(
+                success=False,
+                data={},
+                error={"message": f"Invalid sport '{sport}'. Must be one of: {', '.join(valid_sports)}"}
+            )
+        
+        # Validate market for sport
+        valid_markets = _get_valid_markets(sport.upper())
+        if market not in valid_markets:
+            return PlayerPerformanceResponse(
+                success=False,
+                data={},
+                error={"message": f"Invalid market '{market}' for {sport}. Valid markets: {', '.join(valid_markets)}"}
+            )
+        
+        logger.info(f"Fetching performance data: {sport} - {player} - {market} (window: {window})")
+        
+        # Get performance service and fetch data
+        service = get_player_performance_service()
+        performance_data = await service.get_player_performance(
+            sport=sport.upper(),
+            player=player,
+            market=market,
+            window=window
+        )
+        
+        # Format response data
+        response_data = {
+            "player": performance_data.player,
+            "sport": performance_data.sport,
+            "market": performance_data.market,
+            "window": performance_data.window,
+            "recent_games": [
+                {
+                    "date": game.date,
+                    "stat_value": game.stat_value,
+                    "line_at_time": game.line_at_time,
+                    "result_over": game.result_over,
+                    "opponent": game.opponent,
+                    "home": game.home,
+                    "confidence": game.confidence
+                }
+                for game in performance_data.recent_games
+            ],
+            "stats": {
+                "rolling_avg": performance_data.stats.rolling_avg,
+                "hit_rate": performance_data.stats.hit_rate,
+                "std_dev": performance_data.stats.std_dev,
+                "total_games": performance_data.stats.total_games,
+                "over_count": performance_data.stats.over_count,
+                "under_count": performance_data.stats.under_count,
+                "avg_line": performance_data.stats.avg_line,
+                "avg_actual": performance_data.stats.avg_actual
+            },
+            "timestamp": performance_data.timestamp
+        }
+        
+        return PlayerPerformanceResponse(
+            success=True,
+            data=response_data,
+            error=None
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in get_player_performance: {e}")
+        return PlayerPerformanceResponse(
+            success=False,
+            data={},
+            error={"message": f"Internal server error: {str(e)}"}
+        )
+
+
+@router.get("/performance/markets")
+async def get_available_markets(
+    sport: str = Query(..., description="Sport type (MLB, NBA, NFL, NHL)")
+):
+    """
+    Get available markets for a specific sport
+    
+    Returns a list of valid market types for the specified sport
+    """
+    try:
+        valid_sports = {"MLB", "NBA", "NFL", "NHL"}
+        if sport.upper() not in valid_sports:
+            raise BusinessLogicException(f"Invalid sport '{sport}'. Must be one of: {', '.join(valid_sports, status_code=400)}"
+            )
+        
+        markets = _get_valid_markets(sport.upper())
+        
+        return ResponseBuilder.success(data={
+            "sport": sport.upper(),
+            "markets": markets
+        })
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in get_available_markets: {e}")
+        raise BusinessLogicException(f"Internal server error: {str(e, status_code=500)}")
+
+
+def _get_valid_markets(sport: str) -> list:
+    """Get valid markets for a sport"""
+    market_config = {
+        "MLB": ["HR", "Hits", "RBI", "Runs", "Total Bases", "Strikeouts"],
+        "NBA": ["Points", "Rebounds", "Assists", "3-Pointers"],
+        "NFL": ["Passing Yards", "Rushing Yards", "Receiving Yards", "Touchdowns"],
+        "NHL": ["Goals", "Assists", "Points", "Shots", "Saves"]
+    }
+    return market_config.get(sport, [])

@@ -5,18 +5,20 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, Query, status
-
-# Contract compliance imports
-from ..core.response_models import ResponseBuilder, StandardAPIResponse
-from ..core.exceptions import BusinessLogicException, AuthenticationException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from backend.core.exceptions import BusinessLogicException
 from backend.exceptions.api_exceptions import (
     AuthorizationException,
     BusinessLogicException,
 )
 from backend.services.real_time_analysis_engine import real_time_engine
 from backend.utils.response_envelope import fail, ok
+
+from ..core.exceptions import AuthenticationException, BusinessLogicException
+
+# Contract compliance imports
+from ..core.response_models import ResponseBuilder, StandardAPIResponse
 
 router = APIRouter()
 security = HTTPBearer()
@@ -86,8 +88,10 @@ def get_rules_audit_log(
         # {"success": True, "data": [...], "error": None}
         return ok(entries)
     except Exception as e:
+        # Normalize exception usage: BusinessLogicException expects `message` and `error_code` kwargs
         raise BusinessLogicException(
-            detail=f"Failed to read audit log: {str(e)}", error_code="audit_log_error"
+            message=f"Failed to read audit log: {str(e)}",
+            error_code="audit_log_error",
         )
 
 
@@ -113,17 +117,20 @@ def reload_business_rules(_: bool = Depends(is_admin)) -> Dict[str, Any]:
         logger.info(
             f"Business rules reloaded by admin at {timestamp}. Version: {version}, Last updated: {last_updated}"
         )
-        return ResponseBuilder.success(ok(
-            {
-                "message": "Business rules reloaded",
-                "ruleset_version": version,
-                "rules_last_updated": last_updated,
-                "timestamp": timestamp,
-            }
-        ))
+        return ResponseBuilder.success(
+            ok(
+                {
+                    "message": "Business rules reloaded",
+                    "ruleset_version": version,
+                    "rules_last_updated": last_updated,
+                    "timestamp": timestamp,
+                }
+            )
+        )
     except Exception as e:
         logger.error(f"Failed to reload business rules: {e}")
+        # Use proper BusinessLogicException signature
         raise BusinessLogicException(
-            detail=f"Failed to reload business rules: {str(e)}",
+            message=f"Failed to reload business rules: {str(e)}",
             error_code="reload_failed",
         )

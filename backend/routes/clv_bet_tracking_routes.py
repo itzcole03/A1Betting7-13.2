@@ -12,14 +12,13 @@ from datetime import datetime, timezone, timedelta
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
 import uuid
+from backend.core.exceptions import BusinessLogicException
 
 from backend.models.clv_bet_tracking import CLVBetTracking, CLVAnalyticsSummary, CLVLeaderboard, BetStatus, CLVComputationStatus
 from backend.utils.clv_utils import generate_bet_id, calculate_clv_percent, get_clv_tier, get_achievement_badges
 from backend.database import get_db
 from backend.auth.security import get_current_user
 from backend.tasks.clv_computation_task import clv_computation_task
-from backend.core.exceptions import BusinessLogicException
-
 router = APIRouter(prefix="/api/bets", tags=["CLV Tracking"])
 
 
@@ -148,7 +147,7 @@ async def track_bet(
         
     except Exception as e:
         db.rollback()
-        raise BusinessLogicException(f"Failed to track bet: {str(e, status_code=500)}")
+        raise BusinessLogicException(f"Failed to track bet: {str(e)}, status_code=500)")
 
 
 @router.put("/track/{bet_id}/clv", response_model=Dict[str, Any])
@@ -216,7 +215,7 @@ async def update_bet_clv(
         raise
     except Exception as e:
         db.rollback()
-        raise BusinessLogicException(f"Failed to update CLV: {str(e, status_code=500)}")
+        raise BusinessLogicException(f"Failed to update CLV: {str(e)}, status_code=500)")
 
 
 @router.get("/track", response_model=List[Dict[str, Any]])
@@ -281,10 +280,10 @@ async def get_user_bets(
         return result
         
     except Exception as e:
-        raise BusinessLogicException(f"Failed to retrieve bets: {str(e, status_code=500)}")
+        raise BusinessLogicException(f"Failed to retrieve bets: {str(e)}, status_code=500)")
 
 
-@router.get("/track/{bet_id}", response_model=Dict[str, Any])
+@router.get("/track/{bet_id}\", response_model=Dict[str, Any]")
 async def get_bet_details(
     bet_id: str,
     db: Session = Depends(get_db),
@@ -340,7 +339,7 @@ async def get_bet_details(
     except HTTPException:
         raise
     except Exception as e:
-        raise BusinessLogicException(f"Failed to retrieve bet details: {str(e, status_code=500)}")
+        raise BusinessLogicException(f"Failed to retrieve bet details: {str(e)}, status_code=500)")
 
 
 @router.delete("/track/{bet_id}")
@@ -370,7 +369,7 @@ async def delete_bet(
         raise
     except Exception as e:
         db.rollback()
-        raise BusinessLogicException(f"Failed to delete bet: {str(e, status_code=500)}")
+        raise BusinessLogicException(f"Failed to delete bet: {str(e)}, status_code=500)")
 
 
 @router.post("/track/{bet_id}/settle")
@@ -412,7 +411,7 @@ async def settle_bet(
         raise
     except Exception as e:
         db.rollback()
-        raise BusinessLogicException(f"Failed to settle bet: {str(e, status_code=500)}")
+        raise BusinessLogicException(f"Failed to settle bet: {str(e)}, status_code=500)")
 
 
 @router.post("/clv/compute")
@@ -430,7 +429,7 @@ async def trigger_clv_computation(
     try:
         # Run manual CLV computation
         if bet_ids:
-            # Filter bet_ids to only include user's bets for security
+            # Filter bet_ids to only include user's bets for security'
             user_bet_ids = db.query(CLVBetTracking.bet_id).filter(
                 CLVBetTracking.user_id == current_user.id,
                 CLVBetTracking.bet_id.in_(bet_ids)
@@ -462,7 +461,7 @@ async def trigger_clv_computation(
     except HTTPException:
         raise
     except Exception as e:
-        raise BusinessLogicException(f"Failed to compute CLV: {str(e, status_code=500)}")
+        raise BusinessLogicException(f"Failed to compute CLV: {str(e)}, status_code=500)")
 
 
 @router.get("/clv/computation-status")
@@ -474,7 +473,7 @@ async def get_clv_computation_status(
     Get CLV computation status for user's bets
     """
     try:
-        # Get status counts for user's bets
+        # Get status counts for user's bets'
         status_counts = db.query(
             CLVBetTracking.clv_status,
             func.count(CLVBetTracking.id).label('count')
@@ -496,4 +495,4 @@ async def get_clv_computation_status(
         }
         
     except Exception as e:
-        raise BusinessLogicException(f"Failed to get computation status: {str(e, status_code=500)}")
+        raise BusinessLogicException(f"Failed to get computation status: {str(e)}, status_code=500)")

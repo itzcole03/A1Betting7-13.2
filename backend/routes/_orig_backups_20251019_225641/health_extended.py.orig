@@ -1,0 +1,33 @@
+import time
+from datetime import datetime
+
+from fastapi import APIRouter, Response
+from fastapi.responses import JSONResponse
+from uuid import uuid4
+
+# Original file backup for inspection. This file was flagged with syntax errors
+# during automated compile checks and is preserved here as .orig.
+
+def _envelope(data: dict, include_meta: bool = True):
+    base = {
+        "success": True,
+        "data": data,
+        "error": None,
+    }
+    if include_meta:
+        base["meta"] = {"request_id": str(uuid4())}
+    return base
+
+router = APIRouter(tags=["infrastructure", "health", "performance"])
+
+_START = time.time()
+
+def _uptime_seconds() -> int:
+    try:
+        return int(time.time() - _START)
+    except Exception:
+        return 0
+
+@router.get("/api/health/extended")
+async def extended_health():
+    return JSONResponse(content=_envelope({"status": "backup"}), status_code=200)

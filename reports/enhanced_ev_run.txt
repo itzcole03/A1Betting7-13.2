@@ -1,0 +1,98 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.0, pytest-8.4.1, pluggy-1.6.0 -- C:\Users\bcmad\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\bcmad\Downloads\A1Betting7-13.2
+configfile: pytest.ini
+plugins: anyio-4.9.0, asyncio-1.1.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 30 items
+
+tests/backend/test_enhanced_ev_routes.py::TestEnhancedEVAPI::test_enhanced_calculate_success FAILED [  3%]
+tests/backend/test_enhanced_ev_routes.py::TestEnhancedEVAPI::test_enhanced_calculate_validation_error FAILED [  6%]
+tests/backend/test_enhanced_ev_routes.py::TestEnhancedEVAPI::test_enhanced_calculate_cache_behavior FAILED [ 10%]
+
+================================== FAILURES ===================================
+______________ TestEnhancedEVAPI.test_enhanced_calculate_success ______________
+
+self = <tests.backend.test_enhanced_ev_routes.TestEnhancedEVAPI object at 0x000001D3E34AB380>
+client = <starlette.testclient.TestClient object at 0x000001D3E3A26AB0>
+sample_ev_request = {'fair_odds': 2.0, 'market_odds': 2.2, 'stakes': 10.0}
+
+    def test_enhanced_calculate_success(self, client, sample_ev_request):
+        """Test successful enhanced EV calculation"""
+        response = client.post("/api/ev/enhanced/calculate", json=sample_ev_request)
+    
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\backend\test_enhanced_ev_routes.py:57: AssertionError
+---------------------------- Captured stderr call -----------------------------
+{"timestamp": "2025-10-20T12:59:20.909069+00:00", "level": "INFO", "logger": "a1betting", "message": "Request started", "module": "structured_logging_middleware", "function": "log_request_start", "line": 115, "request_id": "d4ae773f-89af-4dbf-b4db-57727d998d3a", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_start", "method": "POST", "url": "http://testserver/api/ev/enhanced/calculate", "path": "/api/ev/enhanced/calculate", "query_params": {}, "client_ip": "testclient", "user_agent": "testclient", "content_type": "application/json"}
+ERROR [backend.errors.catalog] API Error: E4040_NOT_FOUND
+{"timestamp": "2025-10-20T12:59:20.910069+00:00", "level": "INFO", "logger": "a1betting", "message": "Request completed", "module": "structured_logging_middleware", "function": "log_request_success", "line": 130, "request_id": "d4ae773f-89af-4dbf-b4db-57727d998d3a", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_success", "method": "POST", "url": "http://testserver/api/ev/enhanced/calculate", "path": "/api/ev/enhanced/calculate", "status_code": 404, "duration_ms": 1.0, "response_size": "270", "performance_category": "fast"}
+------------------------------ Captured log call ------------------------------
+ERROR    backend.errors.catalog:catalog.py:312 API Error: E4040_NOT_FOUND
+_________ TestEnhancedEVAPI.test_enhanced_calculate_validation_error __________
+
+self = <tests.backend.test_enhanced_ev_routes.TestEnhancedEVAPI object at 0x000001D3E359B020>
+client = <starlette.testclient.TestClient object at 0x000001D3E3480920>
+
+    def test_enhanced_calculate_validation_error(self, client):
+        """Test validation error handling"""
+        invalid_request = {
+            "fair_odds": 0.5,  # Invalid - must be > 1.0
+            "market_odds": 2.2,
+            "stakes": 10.0
+        }
+    
+        response = client.post("/api/ev/enhanced/calculate", json=invalid_request)
+>       assert response.status_code == 422  # Validation error
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 404 == 422
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\backend\test_enhanced_ev_routes.py:77: AssertionError
+---------------------------- Captured stderr call -----------------------------
+{"timestamp": "2025-10-20T12:59:21.468089+00:00", "level": "INFO", "logger": "a1betting", "message": "Request started", "module": "structured_logging_middleware", "function": "log_request_start", "line": 115, "request_id": "09c75355-6d6d-4cb1-a8ad-405b093eae30", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_start", "method": "POST", "url": "http://testserver/api/ev/enhanced/calculate", "path": "/api/ev/enhanced/calculate", "query_params": {}, "client_ip": "testclient", "user_agent": "testclient", "content_type": "application/json"}
+ERROR [backend.errors.catalog] API Error: E4040_NOT_FOUND
+{"timestamp": "2025-10-20T12:59:21.470102+00:00", "level": "INFO", "logger": "a1betting", "message": "Request completed", "module": "structured_logging_middleware", "function": "log_request_success", "line": 130, "request_id": "09c75355-6d6d-4cb1-a8ad-405b093eae30", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_success", "method": "POST", "url": "http://testserver/api/ev/enhanced/calculate", "path": "/api/ev/enhanced/calculate", "status_code": 404, "duration_ms": 2.01, "response_size": "270", "performance_category": "fast"}
+------------------------------ Captured log call ------------------------------
+ERROR    backend.errors.catalog:catalog.py:312 API Error: E4040_NOT_FOUND
+__________ TestEnhancedEVAPI.test_enhanced_calculate_cache_behavior ___________
+
+self = <tests.backend.test_enhanced_ev_routes.TestEnhancedEVAPI object at 0x000001D3E368FD70>
+client = <starlette.testclient.TestClient object at 0x000001D3E3A4DD90>
+sample_ev_request = {'fair_odds': 2.0, 'market_odds': 2.2, 'stakes': 10.0}
+
+    def test_enhanced_calculate_cache_behavior(self, client, sample_ev_request):
+        """Test caching behavior across requests"""
+        # Clear cache first to ensure clean state
+        client.post("/api/ev/cache/invalidate")
+    
+        # First request - should miss cache
+        response1 = client.post("/api/ev/enhanced/calculate", json=sample_ev_request)
+        data1 = response1.json()
+>       assert data1["data"]["cache_hit"] is False
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: 'NoneType' object is not subscriptable
+
+tests\backend\test_enhanced_ev_routes.py:87: TypeError
+---------------------------- Captured stderr call -----------------------------
+{"timestamp": "2025-10-20T12:59:21.481616+00:00", "level": "INFO", "logger": "a1betting", "message": "Request started", "module": "structured_logging_middleware", "function": "log_request_start", "line": 115, "request_id": "cb113dd7-61e7-459b-a2d7-962d1c7ecd23", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_start", "method": "POST", "url": "http://testserver/api/ev/cache/invalidate", "path": "/api/ev/cache/invalidate", "query_params": {}, "client_ip": "testclient", "user_agent": "testclient", "content_type": null}
+ERROR [backend.errors.catalog] API Error: E4040_NOT_FOUND
+{"timestamp": "2025-10-20T12:59:21.483146+00:00", "level": "INFO", "logger": "a1betting", "message": "Request completed", "module": "structured_logging_middleware", "function": "log_request_success", "line": 130, "request_id": "cb113dd7-61e7-459b-a2d7-962d1c7ecd23", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_success", "method": "POST", "url": "http://testserver/api/ev/cache/invalidate", "path": "/api/ev/cache/invalidate", "status_code": 404, "duration_ms": 1.53, "response_size": "270", "performance_category": "fast"}
+{"timestamp": "2025-10-20T12:59:21.486694+00:00", "level": "INFO", "logger": "a1betting", "message": "Request started", "module": "structured_logging_middleware", "function": "log_request_start", "line": 115, "request_id": "388a6aed-a129-4a50-a63d-85bda54c322f", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_start", "method": "POST", "url": "http://testserver/api/ev/enhanced/calculate", "path": "/api/ev/enhanced/calculate", "query_params": {}, "client_ip": "testclient", "user_agent": "testclient", "content_type": "application/json"}
+ERROR [backend.errors.catalog] API Error: E4040_NOT_FOUND
+{"timestamp": "2025-10-20T12:59:21.487695+00:00", "level": "INFO", "logger": "a1betting", "message": "Request completed", "module": "structured_logging_middleware", "function": "log_request_success", "line": 130, "request_id": "388a6aed-a129-4a50-a63d-85bda54c322f", "taskName": "starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro", "event_type": "request_success", "method": "POST", "url": "http://testserver/api/ev/enhanced/calculate", "path": "/api/ev/enhanced/calculate", "status_code": 404, "duration_ms": 1.0, "response_size": "270", "performance_category": "fast"}
+------------------------------ Captured log call ------------------------------
+ERROR    backend.errors.catalog:catalog.py:312 API Error: E4040_NOT_FOUND
+ERROR    backend.errors.catalog:catalog.py:312 API Error: E4040_NOT_FOUND
+=========================== short test summary info ===========================
+FAILED tests/backend/test_enhanced_ev_routes.py::TestEnhancedEVAPI::test_enhanced_calculate_success - assert 404 == 200
+ +  where 404 = <Response [404 Not Found]>.status_code
+FAILED tests/backend/test_enhanced_ev_routes.py::TestEnhancedEVAPI::test_enhanced_calculate_validation_error - assert 404 == 422
+ +  where 404 = <Response [404 Not Found]>.status_code
+FAILED tests/backend/test_enhanced_ev_routes.py::TestEnhancedEVAPI::test_enhanced_calculate_cache_behavior - TypeError: 'NoneType' object is not subscriptable
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 3 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+====================== 3 failed, 3418 warnings in 29.57s ======================

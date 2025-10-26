@@ -1,0 +1,878 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\playwright.config.ts",
+    "rootDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/frontend/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/junit.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/frontend/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/frontend/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/frontend/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/frontend/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "C:/Users/bcmad/Downloads/A1Betting7-13.2/frontend/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "prediction-filtering.spec.ts",
+      "file": "prediction-filtering.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Prediction Filtering",
+          "file": "prediction-filtering.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display prop predictions with filtering options",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11721,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:21:16",
+                        "location": {
+                          "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                          "column": 16,
+                          "line": 21
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 19 |\u001b[39m   test(\u001b[32m'should display prop predictions with filtering options'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 20 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[90m// Check that props are displayed\u001b[39m\n \u001b[90m 24 |\u001b[39m     \u001b[36mconst\u001b[39m propCards \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"prop-card\"]'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                            "column": 16,
+                            "line": 21
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n\n\u001b[0m \u001b[90m 19 |\u001b[39m   test(\u001b[32m'should display prop predictions with filtering options'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 20 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 21 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[90m// Check that props are displayed\u001b[39m\n \u001b[90m 24 |\u001b[39m     \u001b[36mconst\u001b[39m propCards \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"prop-card\"]'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:21:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-26T01:12:51.739Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                        "column": 16,
+                        "line": 21
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1667b703209348e7650e-fe9821abd517880eee33",
+              "file": "prediction-filtering.spec.ts",
+              "line": 19,
+              "column": 3
+            },
+            {
+              "title": "should filter props by player name",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11739,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:33:16",
+                        "location": {
+                          "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                          "column": 16,
+                          "line": 33
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 31 |\u001b[39m   test(\u001b[32m'should filter props by player name'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 32 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 34 |\u001b[39m\n \u001b[90m 35 |\u001b[39m     \u001b[90m// Get initial prop count\u001b[39m\n \u001b[90m 36 |\u001b[39m     \u001b[36mconst\u001b[39m initialCount \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"prop-card\"]'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                            "column": 16,
+                            "line": 33
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n\n\u001b[0m \u001b[90m 31 |\u001b[39m   test(\u001b[32m'should filter props by player name'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 32 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 34 |\u001b[39m\n \u001b[90m 35 |\u001b[39m     \u001b[90m// Get initial prop count\u001b[39m\n \u001b[90m 36 |\u001b[39m     \u001b[36mconst\u001b[39m initialCount \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"prop-card\"]'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:33:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-26T01:13:04.393Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                        "column": 16,
+                        "line": 33
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1667b703209348e7650e-bd899813805004ff22c9",
+              "file": "prediction-filtering.spec.ts",
+              "line": 31,
+              "column": 3
+            },
+            {
+              "title": "should filter props by sport type",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11740,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:58:16",
+                        "location": {
+                          "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                          "column": 16,
+                          "line": 58
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 56 |\u001b[39m   test(\u001b[32m'should filter props by sport type'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 57 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 58 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 59 |\u001b[39m\n \u001b[90m 60 |\u001b[39m     \u001b[90m// Look for sport filter dropdown or buttons\u001b[39m\n \u001b[90m 61 |\u001b[39m     \u001b[36mconst\u001b[39m sportFilter \u001b[33m=\u001b[39m page\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                            "column": 16,
+                            "line": 58
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n\n\u001b[0m \u001b[90m 56 |\u001b[39m   test(\u001b[32m'should filter props by sport type'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 57 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 58 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 59 |\u001b[39m\n \u001b[90m 60 |\u001b[39m     \u001b[90m// Look for sport filter dropdown or buttons\u001b[39m\n \u001b[90m 61 |\u001b[39m     \u001b[36mconst\u001b[39m sportFilter \u001b[33m=\u001b[39m page\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:58:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-26T01:13:17.043Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                        "column": 16,
+                        "line": 58
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1667b703209348e7650e-3b60154e690aacde93c9",
+              "file": "prediction-filtering.spec.ts",
+              "line": 56,
+              "column": 3
+            },
+            {
+              "title": "should filter props by confidence level",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11717,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:79:16",
+                        "location": {
+                          "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                          "column": 16,
+                          "line": 79
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 77 |\u001b[39m   test(\u001b[32m'should filter props by confidence level'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 78 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 79 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 80 |\u001b[39m\n \u001b[90m 81 |\u001b[39m     \u001b[90m// Look for confidence filter (slider, dropdown, etc.)\u001b[39m\n \u001b[90m 82 |\u001b[39m     \u001b[36mconst\u001b[39m confidenceFilter \u001b[33m=\u001b[39m page\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                            "column": 16,
+                            "line": 79
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n\n\u001b[0m \u001b[90m 77 |\u001b[39m   test(\u001b[32m'should filter props by confidence level'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 78 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 79 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 80 |\u001b[39m\n \u001b[90m 81 |\u001b[39m     \u001b[90m// Look for confidence filter (slider, dropdown, etc.)\u001b[39m\n \u001b[90m 82 |\u001b[39m     \u001b[36mconst\u001b[39m confidenceFilter \u001b[33m=\u001b[39m page\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:79:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-26T01:13:29.712Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                        "column": 16,
+                        "line": 79
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1667b703209348e7650e-06fd229f7d1f4ddf9bce",
+              "file": "prediction-filtering.spec.ts",
+              "line": 77,
+              "column": 3
+            },
+            {
+              "title": "should sort props by different criteria",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11686,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:109:16",
+                        "location": {
+                          "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                          "column": 16,
+                          "line": 109
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 107 |\u001b[39m   test(\u001b[32m'should sort props by different criteria'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 108 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 109 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 110 |\u001b[39m\n \u001b[90m 111 |\u001b[39m     \u001b[36mconst\u001b[39m initialProps \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"prop-card\"]'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n \u001b[90m 112 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                            "column": 16,
+                            "line": 109
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n\n\u001b[0m \u001b[90m 107 |\u001b[39m   test(\u001b[32m'should sort props by different criteria'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 108 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 109 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 110 |\u001b[39m\n \u001b[90m 111 |\u001b[39m     \u001b[36mconst\u001b[39m initialProps \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"prop-card\"]'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n \u001b[90m 112 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:109:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-26T01:13:42.366Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-52caa-props-by-different-criteria-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                        "column": 16,
+                        "line": 109
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1667b703209348e7650e-6f12953e98cf19d13a68",
+              "file": "prediction-filtering.spec.ts",
+              "line": 107,
+              "column": 3
+            },
+            {
+              "title": "should handle empty filter results gracefully",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11673,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:133:16",
+                        "location": {
+                          "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                          "column": 16,
+                          "line": 133
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 131 |\u001b[39m   test(\u001b[32m'should handle empty filter results gracefully'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 132 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 133 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 134 |\u001b[39m\n \u001b[90m 135 |\u001b[39m     \u001b[90m// Apply a filter that should return no results\u001b[39m\n \u001b[90m 136 |\u001b[39m     \u001b[36mconst\u001b[39m searchInput \u001b[33m=\u001b[39m page\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                            "column": 16,
+                            "line": 133
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n\n\u001b[0m \u001b[90m 131 |\u001b[39m   test(\u001b[32m'should handle empty filter results gracefully'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 132 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 133 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 134 |\u001b[39m\n \u001b[90m 135 |\u001b[39m     \u001b[90m// Apply a filter that should return no results\u001b[39m\n \u001b[90m 136 |\u001b[39m     \u001b[36mconst\u001b[39m searchInput \u001b[33m=\u001b[39m page\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:133:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-26T01:13:54.965Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                        "column": 16,
+                        "line": 133
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1667b703209348e7650e-c07387dbe410b4ceaea4",
+              "file": "prediction-filtering.spec.ts",
+              "line": 131,
+              "column": 3
+            },
+            {
+              "title": "should maintain filter state on page refresh",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11784,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:156:16",
+                        "location": {
+                          "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                          "column": 16,
+                          "line": 156
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 154 |\u001b[39m   test(\u001b[32m'should maintain filter state on page refresh'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 155 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 156 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 157 |\u001b[39m\n \u001b[90m 158 |\u001b[39m     \u001b[90m// Apply a filter\u001b[39m\n \u001b[90m 159 |\u001b[39m     \u001b[36mconst\u001b[39m searchInput \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'input[placeholder*=\"search\" i]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                            "column": 16,
+                            "line": 156
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n\n\u001b[0m \u001b[90m 154 |\u001b[39m   test(\u001b[32m'should maintain filter state on page refresh'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 155 |\u001b[39m     \u001b[90m// Wait for props to load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 156 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 157 |\u001b[39m\n \u001b[90m 158 |\u001b[39m     \u001b[90m// Apply a filter\u001b[39m\n \u001b[90m 159 |\u001b[39m     \u001b[36mconst\u001b[39m searchInput \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'input[placeholder*=\"search\" i]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:156:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-26T01:14:07.539Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                        "column": 16,
+                        "line": 156
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1667b703209348e7650e-cdd222477c18217bde9d",
+              "file": "prediction-filtering.spec.ts",
+              "line": 154,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Advanced Filtering Features",
+          "file": "prediction-filtering.spec.ts",
+          "line": 178,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should support multiple simultaneous filters",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11718,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:185:16",
+                        "location": {
+                          "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                          "column": 16,
+                          "line": 185
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 183 |\u001b[39m\n \u001b[90m 184 |\u001b[39m   test(\u001b[32m'should support multiple simultaneous filters'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 185 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 186 |\u001b[39m\n \u001b[90m 187 |\u001b[39m     \u001b[36mconst\u001b[39m initialCount \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"prop-card\"]'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n \u001b[90m 188 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                            "column": 16,
+                            "line": 185
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n\n\u001b[0m \u001b[90m 183 |\u001b[39m\n \u001b[90m 184 |\u001b[39m   test(\u001b[32m'should support multiple simultaneous filters'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 185 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 186 |\u001b[39m\n \u001b[90m 187 |\u001b[39m     \u001b[36mconst\u001b[39m initialCount \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'[data-testid=\"prop-card\"]'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n \u001b[90m 188 |\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:185:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-26T01:14:20.253Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                        "column": 16,
+                        "line": 185
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1667b703209348e7650e-3ede18c8348ea80c9006",
+              "file": "prediction-filtering.spec.ts",
+              "line": 184,
+              "column": 3
+            },
+            {
+              "title": "should provide clear all filters functionality",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11736,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:211:16",
+                        "location": {
+                          "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                          "column": 16,
+                          "line": 211
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 209 |\u001b[39m\n \u001b[90m 210 |\u001b[39m   test(\u001b[32m'should provide clear all filters functionality'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 211 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 212 |\u001b[39m\n \u001b[90m 213 |\u001b[39m     \u001b[90m// Apply some filters\u001b[39m\n \u001b[90m 214 |\u001b[39m     \u001b[36mconst\u001b[39m playerFilter \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'input[placeholder*=\"player\" i]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                            "column": 16,
+                            "line": 211
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"prop-list\"]') to be visible\u001b[22m\n\n\n\u001b[0m \u001b[90m 209 |\u001b[39m\n \u001b[90m 210 |\u001b[39m   test(\u001b[32m'should provide clear all filters functionality'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 211 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'[data-testid=\"prop-list\"]'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 212 |\u001b[39m\n \u001b[90m 213 |\u001b[39m     \u001b[90m// Apply some filters\u001b[39m\n \u001b[90m 214 |\u001b[39m     \u001b[36mconst\u001b[39m playerFilter \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'input[placeholder*=\"player\" i]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts:211:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-26T01:14:32.889Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\test-results\\prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\tests\\e2e\\prediction-filtering.spec.ts",
+                        "column": 16,
+                        "line": 211
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "1667b703209348e7650e-d113e3e9d6d6e802b388",
+              "file": "prediction-filtering.spec.ts",
+              "line": 210,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-10-26T01:10:39.584Z",
+    "duration": 246337.065,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 9,
+    "flaky": 0
+  }
+}

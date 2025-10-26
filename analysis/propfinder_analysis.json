@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-08-22T15:21:10.347Z",
+  "timestamp": "2025-10-17T22:00:47.426Z",
   "site": "propfinder.app",
   "techStack": {
     "bundles": [
-      "https://propfinder.app/assets/index-BU0xwb8m.js",
-      "https://propfinder.app/assets/polyfills-legacy-gY21MeHW.js"
+      "https://propfinder.app/assets/index-CkwPKb-B.js",
+      "https://propfinder.app/assets/polyfills-legacy-Vxe6tbZC.js"
     ]
   },
   "apiEndpoints": [],
@@ -15,6 +15,6 @@
   "features": [],
   "errors": [],
   "initialState": {},
-  "totalRequests": 27,
+  "totalRequests": 33,
   "technologies": []
 }

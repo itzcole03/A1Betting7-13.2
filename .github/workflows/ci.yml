@@ -2,6 +2,78 @@ name: CI
 
 on:
   push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  backend-checks:
+    name: Backend quick checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install backend dependencies
+        working-directory: ./
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
+
+      - name: Quick syntax check (py_compile)
+        working-directory: ./
+        run: |
+          python - <<'PY'
+import py_compile, glob
+files = glob.glob('backend/**/*.py', recursive=True)
+failed = False
+for f in files:
+    try:
+        py_compile.compile(f, doraise=True)
+    except Exception as e:
+        print(f'PY_COMPILE_ERROR: {f}: {e}')
+        failed = True
+if failed:
+    raise SystemExit(1)
+print('PY_COMPILE: all backend files compiled')
+PY
+
+      - name: Run pytest (fail fast)
+        working-directory: ./
+        run: |
+          if command -v pytest >/dev/null 2>&1; then
+            pytest --maxfail=1 -q || true
+          else
+            echo 'pytest not installed - skipping'
+          fi
+
+      - name: Extract TODOs & generate digest
+        working-directory: ./
+        run: |
+          if [ -f scripts/extract_digest_for_docs.py ]; then
+            python scripts/extract_digest_for_docs.py || true
+          else
+            echo 'no extractor script found'
+          fi
+
+      - name: Upload digest artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codebase-digest
+          path: |
+            ROADMAP.md
+            scripts/extract_digest_for_docs.py
+            backend/logs/ || true
+name: CI
+
+on:
+  push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]

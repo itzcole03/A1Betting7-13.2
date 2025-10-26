@@ -1,0 +1,65 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0 -- C:\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\bcmad\Downloads\A1Betting7-13.2\backend
+configfile: pytest.ini
+plugins: anyio-4.9.0, Faker-37.5.3, asyncio-1.2.0, cov-6.2.1, typeguard-4.4.4
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 0 items / 1 error
+
+=================================== ERRORS ====================================
+_______________ ERROR collecting tests/test_health_endpoints.py _______________
+..\..\AppData\Roaming\Python\Python313\site-packages\_pytest\python.py:498: in importtestmodule
+    mod = import_path(
+..\..\AppData\Roaming\Python\Python313\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+C:\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+..\..\AppData\Roaming\Python\Python313\site-packages\_pytest\assertion\rewrite.py:186: in exec_module
+    exec(co, module.__dict__)
+backend\tests\test_health_endpoints.py:4: in <module>
+    from backend.main import app
+backend\main.py:50: in <module>
+    from backend.core.app import create_app, register_feature_routers
+backend\core\app.py:3775: in <module>
+    app = create_app()
+          ^^^^^^^^^^^^
+backend\core\app.py:1124: in create_app
+    from backend.routes.auth import router as auth_router
+E     File "C:\Users\bcmad\Downloads\A1Betting7-13.2\backend\routes\auth.py", line 94
+E       return ResponseBuilder.success(data={"message": "registered", **(result or {}})
+E                                                                                    ^
+E   SyntaxError: closing parenthesis '}' does not match opening parenthesis '('
+------------------------------- Captured stdout -------------------------------
+Loaded .env from: C:\Users\bcmad\Downloads\A1Betting7-13.2\.env
+2025-10-17 07:13:04,022 - a1betting.enhanced_data_pipeline - INFO - DATASOURCE: Registered data source: theodds_api
+2025-10-17 07:13:04,022 - a1betting.enhanced_data_pipeline - INFO - DATASOURCE: Registered data source: mlb_stats_api
+2025-10-17 07:13:04,023 - a1betting.enhanced_data_pipeline - INFO - DATASOURCE: Registered data source: theodds_api
+2025-10-17 07:13:04,023 - a1betting.enhanced_data_pipeline - INFO - DATASOURCE: Registered data source: mlb_stats_api
+2025-10-17 07:13:04,168 - odds_store - INFO - OddsNormalizer initialized for odds storage
+2025-10-17 07:13:04,179 - odds_store - INFO - Cache service initialized for odds storage
+------------------------------- Captured stderr -------------------------------
+2025-10-17 07:13:03,267 - unified_config - INFO - Configuration loaded successfully\n2025-10-17 07:13:03,370 - root - WARNING - MLflow not available. Experiment tracking disabled.\n2025-10-17 07:13:03,442 - root - WARNING - Featuretools not available. Automated feature engineering disabled.\n2025-10-17 07:13:03,444 - root - WARNING - Phase 2 services not available: No module named 'backend.services.advanced_caching'\n2025-10-17 07:13:03,446 - backend.services.modern_ml_service - INFO - Modern ML Service initialized\n2025-10-17 07:13:03,446 - backend.services.modern_ml_service - INFO - Available models: ['transformer', 'gnn', 'hybrid_transformer_gnn', 'multi_modal']\n2025-10-17 07:13:03,486 - root - WARNING - Featuretools not available. Advanced automated feature engineering disabled.\n2025-10-17 07:13:03,487 - root - WARNING - TSFresh not available. Time series feature extraction disabled.\n2025-10-17 07:13:03,495 - backend.services.automated_feature_engineering - INFO - Advanced Feature Engineering initialized\n2025-10-17 07:13:03,805 - backend.services.real_shap_service - INFO - STARTUP: Real SHAP Service initialized - ZERO mock explanations\n2025-10-17 07:13:03,805 - backend.services.real_shap_service - INFO - STARTUP: Real SHAP Service initialized - ZERO mock explanations\n2025-10-17 07:13:03,806 - root - WARNING - ONNX not available. Model export functionality disabled.\n2025-10-17 07:13:03,806 - root - WARNING - TensorRT not available. GPU acceleration limited.\n2025-10-17 07:13:03,807 - backend.services.performance_optimization - INFO - Performance optimization service initialized\n2025-10-17 07:13:03,807 - backend.services.performance_optimization - INFO - Device: cpu\n2025-10-17 07:13:03,807 - backend.services.performance_optimization - INFO - ONNX available: False\n2025-10-17 07:13:03,807 - backend.services.performance_optimization - INFO - TensorRT available: False\n2025-10-17 07:13:04,010 - data_validation - INFO - \U0001f50d DataValidationOrchestrator initialized with enterprise patterns\n2025-10-17 07:13:04,018 - optimized_validation - INFO - Prometheus metrics server started on port 8001\n2025-10-17 07:13:04,021 - enhanced_validation_integration - INFO - Enhanced Data Validation Integration Service initialized\n2025-10-17 07:13:04,021 - propollama - INFO - \u2705 Enhanced data validation integration available\n2025-10-17 07:13:04,022 - a1betting.enhanced_data_pipeline - INFO - DATASOURCE: Registered data source: theodds_api\n2025-10-17 07:13:04,022 - a1betting.enhanced_data_pipeline - INFO - DATASOURCE: Registered data source: mlb_stats_api\n2025-10-17 07:13:04,022 - backend.services.automated_feature_engineering - INFO - Advanced Feature Engineering initialized\n2025-10-17 07:13:04,022 - backend.services.automated_feature_engineering - INFO - Advanced Feature Engineering initialized\n2025-10-17 07:13:04,023 - a1betting.enhanced_data_pipeline - INFO - DATASOURCE: Registered data source: theodds_api\n2025-10-17 07:13:04,023 - a1betting.enhanced_data_pipeline - INFO - DATASOURCE: Registered data source: mlb_stats_api\n2025-10-17 07:13:04,023 - propollama - INFO - \u2705 Enhanced data validation integration enabled\n2025-10-17 07:13:04,023 - propollama - INFO - \U0001f680 Enterprise ComprehensivePropGenerator initialized with modern async patterns\n2025-10-17 07:13:04,057 - backend.services.legacy_registry - INFO - Legacy registry connected to Prometheus metrics\n2025-10-17 07:13:04,057 - backend.services.legacy_registry - INFO - Legacy registry initialized: enabled=True, sunset_date=None\n2025-10-17 07:13:04,057 - backend.core.app - INFO - Legacy endpoint middleware added for usage telemetry and deprecation controls\n2025-10-17 07:13:04,059 - backend.exceptions.handlers - INFO - \u2705 PayloadRejectionError handler registered\n2025-10-17 07:13:04,059 - backend.exceptions.handlers - INFO - \u2705 All exception handlers registered with structured error taxonomy\n2025-10-17 07:13:04,059 - backend.core.app - INFO - Centralized exception handlers registered\n2025-10-17 07:13:04,060 - backend.simple_enhanced_setup - INFO - simple_enhanced_setup: routes included\n2025-10-17 07:13:04,060 - backend.core.app - INFO - Simple enhanced API fallback registered (v1 routes)\n2025-10-17 07:13:04,063 - backend.core.app - ERROR - Failed to register PR11 enhanced WebSocket client route: unterminated string literal (detected at line 42) (ws_client_enhanced.py, line 42)\n2025-10-17 07:13:04,065 - backend.core.app - INFO - SUCCESS: Core compatibility router mounted for legacy endpoints\n2025-10-17 07:13:04,065 - backend.routes - WARNING - Failed to import backend.routes.mlb_extras, creating test placeholder\n2025-10-17 07:13:04,065 - backend.core.app - ERROR - Error including mlb_extras router: module 'backend.routes.mlb_extras' has no attribute 'router'\n2025-10-17 07:13:04,066 - backend.core.app - ERROR - ERROR: Failed to register extended health/performance routes: '{' was never closed (health_extended.py, line 16)\n2025-10-17 07:13:04,109 - backend.services.comprehensive_prizepicks_service - INFO - PrizePicks database initialized successfully\n2025-10-17 07:13:04,110 - backend.services.comprehensive_prizepicks_service - INFO - Initialized MLBStatsAPIClient for PrizePicks integration\n2025-10-17 07:13:04,117 - backend.core.app - INFO - SUCCESS: Health routes included (/api/health/status)\n2025-10-17 07:13:04,119 - backend.core.app - INFO - SUCCESS: Sports activation extras included (OPTIONS/HEAD for /api/sports/activate/{sport})\n2025-10-17 07:13:04,125 - backend.core.app - INFO - Admin Feature Flags routes included (/api/admin/feature-flags)\n2025-10-17 07:13:04,125 - backend.core.app - ERROR - Error including tools router: invalid syntax (tools_routes.py, line 7)\n2025-10-17 07:13:04,168 - odds_store - INFO - OddsNormalizer initialized for odds storage\n2025-10-17 07:13:04,179 - odds_store - INFO - Cache service initialized for odds storage\n2025-10-17 07:13:04,188 - backend.services.intelligent_ensemble_system - WARNING - Main prediction engine not available\n2025-10-17 07:13:04,188 - backend.services.intelligent_ensemble_system - WARNING - Enhanced prediction engine not available\n2025-10-17 07:13:04,188 - backend.services.intelligent_ensemble_system - WARNING - Ensemble engine not available\n2025-10-17 07:13:04,189 - backend.services.intelligent_ensemble_system - WARNING - Ultra accuracy engine not available\n2025-10-17 07:13:04,189 - backend.services.intelligent_ensemble_system - WARNING - Real ML service not available\n2025-10-17 07:13:04,189 - backend.services.intelligent_ensemble_system - WARNING - Recursive AI not available\n2025-10-17 07:13:04,190 - backend.services.intelligent_ensemble_system - INFO - \U0001f3c6 In-season sports: ['MLB', 'NFL', 'NBA', 'NHL', 'College Football', 'MLS', 'Tennis', 'Golf']\n2025-10-17 07:13:04,190 - backend.services.intelligent_ensemble_system - INFO - \U0001f680 Total engines initialized: 0\n2025-10-17 07:13:04,190 - backend.services.intelligent_ensemble_system - INFO - \U0001f3af Engine weights: {}\n2025-10-17 07:13:04,190 - backend.services.intelligent_ensemble_system - INFO - \u2705 Intelligent Ensemble System initialized with 0 engines\n2025-10-17 07:13:04,190 - backend.services.unified_data_fetcher - INFO - \u2705 Intelligent ensemble system loaded successfully\n2025-10-17 07:13:04,210 - backend.services.cache - WARNING - aioredis not available or connection failed: module 'aioredis' has no attribute 'from_url'
+============================== warnings summary ===============================
+..\..\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_config.py:323
+  C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+..\..\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_generate_schema.py:298
+  C:\Users\bcmad\AppData\Roaming\Python\Python313\site-packages\pydantic\_internal\_generate_schema.py:298: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.11/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR backend\tests\test_health_endpoints.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+======================== 2 warnings, 1 error in 5.12s =========================

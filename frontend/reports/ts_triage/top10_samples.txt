@@ -1,0 +1,40 @@
+=== src/components/ui/ConfidenceBandChart.tsx ===
+src/components/ui/ConfidenceBandChart.tsx(2,1): error TS2578: Unused '@ts-expect-error' directive.
+src/components/ui/ConfidenceBandChart.tsx(115,35): error TS2304: Cannot find name 'themes'.
+src/components/ui/ConfidenceBandChart.tsx(116,10): error TS2304: Cannot find name 'themes'.
+=== src/services/predictionCache.ts ===
+src/services/predictionCache.ts(66,37): error TS2304: Cannot find name 'key'.
+src/services/predictionCache.ts(75,9): error TS2304: Cannot find name 'previous'.
+src/services/predictionCache.ts(76,75): error TS2304: Cannot find name 'previous'.
+=== src/components/ui/ModernNotificationCenter.tsx ===
+src/components/ui/ModernNotificationCenter.tsx(2,1): error TS2578: Unused '@ts-expect-error' directive.
+src/components/ui/ModernNotificationCenter.tsx(124,10): error TS2304: Cannot find name 'icons'.
+src/components/ui/ModernNotificationCenter.tsx(124,37): error TS2304: Cannot find name 'icons'.
+=== src/components/ui/BetSimulationTool.tsx ===
+src/components/ui/BetSimulationTool.tsx(2,1): error TS2578: Unused '@ts-expect-error' directive.
+src/components/ui/BetSimulationTool.tsx(67,35): error TS2304: Cannot find name 'decimalOdds'.
+src/components/ui/BetSimulationTool.tsx(69,24): error TS2304: Cannot find name 'winAmount'.
+=== src/components/ui/ParticleField.tsx ===
+src/components/ui/ParticleField.tsx(30,25): error TS2554: Expected 1 arguments, but got 0.
+src/components/ui/ParticleField.tsx(67,26): error TS2304: Cannot find name 'config'.
+src/components/ui/ParticleField.tsx(68,26): error TS2304: Cannot find name 'currentConfig'.
+=== src/components/features/sports/SportsManager.tsx ===
+src/components/features/sports/SportsManager.tsx(20,3): error TS2724: '"../../../constants/sports"' has no exported member named 'SEASON_FILTERS'. Did you mean '_SEASON_FILTERS'?
+src/components/features/sports/SportsManager.tsx(21,3): error TS2724: '"../../../constants/sports"' has no exported member named 'SPORTS_CONFIG'. Did you mean '_SPORTS_CONFIG'?
+src/components/features/sports/SportsManager.tsx(22,3): error TS2724: '"../../../constants/sports"' has no exported member named 'SPORT_CATEGORIES'. Did you mean '_SPORT_CATEGORIES'?
+=== src/components/ui/StyledSelect.tsx ===
+src/components/ui/StyledSelect.tsx(1,1): error TS2578: Unused '@ts-expect-error' directive.
+src/components/ui/StyledSelect.tsx(74,10): error TS2304: Cannot find name 'sizes'.
+src/components/ui/StyledSelect.tsx(74,37): error TS2304: Cannot find name 'sizes'.
+=== src/components/ui/SafeChart.tsx ===
+src/components/ui/SafeChart.tsx(2,1): error TS2578: Unused '@ts-expect-error' directive.
+src/components/ui/SafeChart.tsx(70,5): error TS2304: Cannot find name 'errors'.
+src/components/ui/SafeChart.tsx(71,30): error TS18004: No value exists in scope for the shorthand property 'errors'. Either declare one or provide an initializer.
+=== src/components/ui/ModernCommandPalette.tsx ===
+src/components/ui/ModernCommandPalette.tsx(2,1): error TS2578: Unused '@ts-expect-error' directive.
+src/components/ui/ModernCommandPalette.tsx(78,7): error TS2304: Cannot find name 'textLower'.
+src/components/ui/ModernCommandPalette.tsx(78,26): error TS2304: Cannot find name 'queryLower'.
+=== src/components/ui/ConfidenceBands.tsx ===
+src/components/ui/ConfidenceBands.tsx(2,1): error TS2578: Unused '@ts-expect-error' directive.
+src/components/ui/ConfidenceBands.tsx(69,32): error TS2304: Cannot find name 'colorSchemes'.
+src/components/ui/ConfidenceBands.tsx(69,53): error TS2304: Cannot find name 'colorSchemes'.

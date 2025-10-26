@@ -1,0 +1,811 @@
+"""
+Bankroll Management API Routes
+
+Comprehensive bankroll tracking with bet recording, performance analytics,
+and Kelly criterion integration.
+"""
+
+from datetime import datetime, timedelta, timezone
+from typing import List, Optional, Dict, Any
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from sqlalchemy.orm import Session
+from sqlalchemy import desc, asc, func, and_, or_
+from pydantic import BaseModel, Field
+import logging
+import numpy as np
+import statistics
+from backend.core.exceptions import BusinessLogicException
+
+# Database and models
+from backend.database import get_db
+from backend.models.bet import Bet
+from backend.models.bankroll_models import (
+    BankrollSnapshot, BankrollSummary, KellyCalculation,
+    kelly_fraction, fractional_kelly, calculate_expected_value,
+    calculate_roi_percent, calculate_clv_percent
+)
+
+# Contract compliance
+from backend.core.response_models import ResponseBuilder, StandardAPIResponse
+# Security
+from backend.services.security.rate_limiter import rate_limit, get_client_ip
+
+logger = logging.getLogger(__name__)
+
+# Create router
+router = APIRouter(prefix="/api/bankroll", tags=["Bankroll Management"])
+
+# Request Models
+class BetRecordRequest(BaseModel):
+    """Request model for recording a new bet"""
+    stake: float = Field(gt=0, description="Amount wagered")
+    odds: float = Field(gt=1.0, description="Decimal odds")
+    bet_type: str = Field(description="Type of bet (e.g., 'moneyline', 'spread', 'total')")
+    selection: str = Field(description="Bet selection (e.g., 'over', 'under', team name)")
+    sportsbook: str = Field(description="Sportsbook name")
+    market: str = Field(description="Market type")
+    
+    # Optional fields
+    player_name: Optional[str] = None
+    fair_odds: Optional[float] = Field(None, gt=1.0, description="Your fair odds estimate")
+    confidence_score: Optional[float] = Field(None, ge=0, le=10, description="Confidence in bet (0-10)")
+    notes: Optional[str] = None
+    
+    # Calculated fields (will be computed if not provided)
+    ev_percent: Optional[float] = None
+    kelly_fraction_used: Optional[float] = None
+    bankroll_at_time: Optional[float] = None
+    
+    # Match context (optional)
+    match_id: Optional[int] = None
+    sport: Optional[str] = None
+    game_date: Optional[datetime] = None
+
+
+class KellyCalculationRequest(BaseModel):
+    """Request model for Kelly criterion calculation"""
+    fair_probability: float = Field(gt=0, lt=1, description="Your estimated win probability")
+    market_odds: float = Field(gt=1.0, description="Market decimal odds")
+    bankroll: Optional[float] = Field(None, gt=0, description="Current bankroll (will use user's current if not provided)")'
+    variant: str = Field(default="classic", description="Kelly variant: 'classic', 'fractional', 'adaptive'")
+    fraction_cap: Optional[float] = Field(None, gt=0, le=1, description="Maximum fraction to bet")
+
+
+# Response Models
+class BetResponse(BaseModel):
+    """Response model for bet information"""
+    id: int
+    stake: float
+    odds: float
+    bet_type: str
+    selection: str
+    result: Optional[str]
+    pnl: Optional[float]
+    roi_percent: Optional[float]
+    ev_percent: Optional[float]
+    kelly_fraction_used: Optional[float]
+    clv_percent: Optional[float]
+    sportsbook: str
+    market: str
+    player_name: Optional[str]
+    confidence_score: Optional[float]
+    placed_at: datetime
+    settled_at: Optional[datetime]
+    status: str
+    is_settled: bool
+
+
+class BankrollSummaryResponse(BaseModel):
+    """Response model for bankroll performance summary"""
+    current_bankroll: float
+    total_bets: int
+    total_wagered: float
+    total_pnl: float
+    roi_percent: float
+    win_rate: float
+    avg_bet_size: float
+    avg_odds: float
+    
+    # Kelly metrics
+    avg_kelly_fraction: Optional[float]
+    kelly_efficiency: Optional[float]
+    avg_ev_percent: Optional[float]
+    
+    # CLV metrics
+    avg_clv_percent: Optional[float]
+    positive_clv_rate: Optional[float]
+    
+    # Risk metrics
+    max_drawdown_percent: Optional[float]
+    volatility: Optional[float]
+    sharpe_ratio: Optional[float]
+    
+    # Breakdowns
+    sport_breakdown: Optional[Dict[str, Any]]
+    market_breakdown: Optional[Dict[str, Any]]
+    sportsbook_breakdown: Optional[Dict[str, Any]]
+    
+    period_start: datetime
+    period_end: datetime
+
+
+class KellyCalculationResponse(BaseModel):
+    """Response model for Kelly calculation"""
+    kelly_fraction: float
+    recommended_bet_size: float
+    expected_value: float
+    expected_growth_rate: Optional[float]
+    ev_percent: float
+    fair_probability: float
+    market_odds: float
+    bankroll_used: float
+    variant_used: str
+    risk_assessment: Dict[str, Any]
+
+
+# Helper functions
+def get_user_current_bankroll(db: Session, user_id: int) -> float:
+    """Get user's current bankroll from latest snapshot"""'
+    latest_snapshot = db.query(BankrollSnapshot).filter(
+        BankrollSnapshot.user_id == user_id
+    ).order_by(desc(BankrollSnapshot.timestamp)).first()
+    
+    if latest_snapshot:
+        return latest_snapshot.bankroll_amount
+    return 1000.0  # Default starting bankroll
+
+
+def update_bankroll_snapshot(db: Session, user_id: int, new_amount: float, 
+                           change_amount: float, change_type: str, 
+                           bet_id: Optional[int] = None, notes: Optional[str] = None):
+    """Create a new bankroll snapshot"""
+    snapshot = BankrollSnapshot(
+        user_id=user_id,
+        bankroll_amount=new_amount,
+        change_amount=change_amount,
+        change_type=change_type,
+        bet_id=bet_id,
+        notes=notes
+    )
+    db.add(snapshot)
+    db.commit()
+    return snapshot
+
+
+# API Endpoints
+@router.get("/status")
+async def bankroll_status():
+    """Simple status endpoint to test router"""
+    return {"status": "bankroll router active", "routes": ["kelly-calculation", "bet-record", "summary"]}
+
+@router.post("/bet-record", response_model=StandardAPIResponse[BetResponse])
+# @rate_limit("bankroll_bet", cost=1.0, extract_identifier=lambda *args: get_client_ip(args[1]) if len(args) > 1 else "default")
+async def record_bet(
+    bet_request: BetRecordRequest,
+    request: Request,
+    user_id: int = 1,  # TODO: Get from authentication
+    db: Session = Depends(get_db)
+):
+    """Record a new bet with Kelly criterion calculations"""
+    try:
+        # Get current bankroll
+        current_bankroll = get_user_current_bankroll(db, user_id)
+        bankroll_at_time = bet_request.bankroll_at_time or current_bankroll
+        
+        # Calculate Kelly fraction and EV if fair odds provided
+        kelly_fraction_used = bet_request.kelly_fraction_used
+        ev_percent = bet_request.ev_percent
+        
+        if bet_request.fair_odds and not kelly_fraction_used:
+            fair_probability = 1 / bet_request.fair_odds
+            kelly_fraction_used = kelly_fraction(fair_probability, bet_request.odds)
+            
+        if bet_request.fair_odds and not ev_percent:
+            fair_probability = 1 / bet_request.fair_odds
+            expected_value = calculate_expected_value(fair_probability, bet_request.odds, bet_request.stake)
+            ev_percent = (expected_value / bet_request.stake) * 100
+        
+        # Calculate bet size percentage
+        bet_size_percent = (bet_request.stake / bankroll_at_time) * 100 if bankroll_at_time > 0 else 0
+        
+        # Create bet record
+        bet = Bet(
+            user_id=user_id,
+            match_id=bet_request.match_id or 0,  # Default for non-match bets
+            amount=bet_request.stake,  # Legacy field
+            stake=bet_request.stake,
+            odds=bet_request.odds,
+            bet_type=bet_request.bet_type,
+            selection=bet_request.selection,
+            potential_winnings=bet_request.stake * bet_request.odds,
+            sportsbook=bet_request.sportsbook,
+            market=bet_request.market,
+            player_name=bet_request.player_name,
+            confidence_score=bet_request.confidence_score,
+            notes=bet_request.notes,
+            ev_percent=ev_percent,
+            kelly_fraction_used=kelly_fraction_used,
+            fair_odds=bet_request.fair_odds,
+            bankroll_at_time=bankroll_at_time,
+            bet_size_percent=bet_size_percent,
+            status="pending"
+        )
+        
+        db.add(bet)
+        db.commit()
+        db.refresh(bet)
+        
+        # Update bankroll (subtract bet amount)
+        new_bankroll = current_bankroll - bet_request.stake
+        update_bankroll_snapshot(
+            db, user_id, new_bankroll, -bet_request.stake, "bet_placed", 
+            bet.id, f"Bet placed: {bet_request.selection}"
+        )
+        
+        # Convert to response
+        bet_response = BetResponse(
+            id=bet.id,
+            stake=bet.stake,
+            odds=bet.odds,
+            bet_type=bet.bet_type,
+            selection=bet.selection,
+            result=bet.result,
+            pnl=bet.pnl,
+            roi_percent=bet.roi_percent,
+            ev_percent=bet.ev_percent,
+            kelly_fraction_used=bet.kelly_fraction_used,
+            clv_percent=bet.clv_percent,
+            sportsbook=bet.sportsbook or "Unknown",
+            market=bet.market or "Unknown",
+            player_name=bet.player_name,
+            confidence_score=bet.confidence_score,
+            placed_at=bet.placed_at,
+            settled_at=bet.settled_at,
+            status=bet.status,
+            is_settled=bet.is_settled
+        )
+        
+        logger.info(f"Recorded bet {bet.id} for user {user_id}: ${bet.stake} at {bet.odds})"
+        
+        return ResponseBuilder.success(bet_response)
+        
+    except Exception as e:
+        logger.error(f"Error recording bet: {e})"
+        raise BusinessLogicException(f"Failed to record bet: {str(e)})"
+
+
+@router.get("/summary", response_model=StandardAPIResponse[BankrollSummaryResponse])
+async def get_bankroll_summary(
+    days: int = Query(30, ge=1, le=365, description="Number of days to include in summary"),
+    user_id: int = 1,  # TODO: Get from authentication
+    db: Session = Depends(get_db)
+):
+    """Get comprehensive bankroll performance summary"""
+    try:
+        # Calculate date range (use UTC)
+        end_date = datetime.now(timezone.utc)
+        start_date = end_date - timedelta(days=days)
+        
+        # Get current bankroll
+        current_bankroll = get_user_current_bankroll(db, user_id)
+        
+        # Get bets in period
+        bets_query = db.query(Bet).filter(
+            Bet.user_id == user_id,
+            Bet.placed_at >= start_date,
+            Bet.placed_at <= end_date
+        )
+        
+        all_bets = bets_query.all()
+        settled_bets = [bet for bet in all_bets if bet.is_settled]
+        
+        # Calculate basic metrics
+        total_bets = len(all_bets)
+        total_wagered = sum(bet.stake for bet in all_bets)
+        total_pnl = sum(bet.pnl or 0 for bet in settled_bets)
+        
+        # Calculate performance metrics
+        roi_percent = (total_pnl / total_wagered * 100) if total_wagered > 0 else 0
+        
+        won_bets = [bet for bet in settled_bets if bet.result == "win"]
+        win_rate = (len(won_bets) / len(settled_bets) * 100) if settled_bets else 0
+        
+        avg_bet_size = total_wagered / total_bets if total_bets > 0 else 0
+        avg_odds = sum(bet.odds for bet in all_bets) / total_bets if total_bets > 0 else 0
+        
+        # Kelly metrics
+        kelly_bets = [bet for bet in all_bets if bet.kelly_fraction_used is not None]
+        avg_kelly_fraction = sum(bet.kelly_fraction_used for bet in kelly_bets if bet.kelly_fraction_used is not None) / len(kelly_bets) if kelly_bets else None
+        
+        ev_bets = [bet for bet in all_bets if bet.ev_percent is not None]
+        avg_ev_percent = sum(bet.ev_percent for bet in ev_bets if bet.ev_percent is not None) / len(ev_bets) if ev_bets else None
+        
+        # CLV metrics
+        clv_bets = [bet for bet in settled_bets if bet.clv_percent is not None]
+        avg_clv_percent = sum(bet.clv_percent for bet in clv_bets if bet.clv_percent is not None) / len(clv_bets) if clv_bets else None
+        positive_clv_rate = (len([bet for bet in clv_bets if bet.clv_percent is not None and bet.clv_percent > 0]) / len(clv_bets) * 100) if clv_bets else None
+        
+        # Breakdowns
+        sport_breakdown = {}
+        market_breakdown = {}
+        sportsbook_breakdown = {}
+        
+        for bet in all_bets:
+            # Market breakdown
+            market = bet.market or 'Unknown'
+            if market not in market_breakdown:
+                market_breakdown[market] = {'bets': 0, 'wagered': 0, 'pnl': 0}
+            market_breakdown[market]['bets'] += 1
+            market_breakdown[market]['wagered'] += bet.stake
+            market_breakdown[market]['pnl'] += bet.pnl or 0
+            
+            # Sportsbook breakdown
+            sportsbook = bet.sportsbook or 'Unknown'
+            if sportsbook not in sportsbook_breakdown:
+                sportsbook_breakdown[sportsbook] = {'bets': 0, 'wagered': 0, 'pnl': 0}
+            sportsbook_breakdown[sportsbook]['bets'] += 1
+            sportsbook_breakdown[sportsbook]['wagered'] += bet.stake
+            sportsbook_breakdown[sportsbook]['pnl'] += bet.pnl or 0
+        
+        # Calculate risk metrics (simplified)
+        pnl_values = [bet.pnl or 0 for bet in settled_bets]
+        if len(pnl_values) > 1:
+            volatility = statistics.stdev(pnl_values)
+            avg_return = statistics.mean(pnl_values)
+            sharpe_ratio = avg_return / volatility if volatility > 0 else 0
+        else:
+            volatility = None
+            sharpe_ratio = None
+        
+        # Calculate max drawdown (simplified)
+        max_drawdown_percent = None
+        
+        # Kelly efficiency (how close actual sizing was to Kelly)
+        kelly_efficiency = None
+        if kelly_bets:
+            efficiency_scores = []
+            for bet in kelly_bets:
+                if bet.bankroll_at_time and bet.kelly_fraction_used:
+                    optimal_size = bet.kelly_fraction_used * bet.bankroll_at_time
+                    actual_efficiency = min(bet.stake / optimal_size, optimal_size / bet.stake) if optimal_size > 0 else 0
+                    efficiency_scores.append(actual_efficiency)
+            kelly_efficiency = sum(efficiency_scores) / len(efficiency_scores) if efficiency_scores else None
+        
+        summary = BankrollSummaryResponse(
+            current_bankroll=current_bankroll,
+            total_bets=total_bets,
+            total_wagered=total_wagered,
+            total_pnl=total_pnl,
+            roi_percent=roi_percent,
+            win_rate=win_rate,
+            avg_bet_size=avg_bet_size,
+            avg_odds=avg_odds,
+            avg_kelly_fraction=avg_kelly_fraction,
+            kelly_efficiency=kelly_efficiency,
+            avg_ev_percent=avg_ev_percent,
+            avg_clv_percent=avg_clv_percent,
+            positive_clv_rate=positive_clv_rate,
+            max_drawdown_percent=max_drawdown_percent,
+            volatility=volatility,
+            sharpe_ratio=sharpe_ratio,
+            sport_breakdown=sport_breakdown,
+            market_breakdown=market_breakdown,
+            sportsbook_breakdown=sportsbook_breakdown,
+            period_start=start_date,
+            period_end=end_date
+        )
+        
+        logger.info(f"Generated bankroll summary for user {user_id}: {days} days, {total_bets} bets, ${total_pnl:.2f} PnL")
+        
+        return ResponseBuilder.success(summary)
+        
+    except Exception as e:
+        logger.error(f"Error generating bankroll summary: {e})"
+        raise BusinessLogicException(f"Failed to generate summary: {str(e)})"
+
+
+@router.post("/kelly-calculation", response_model=StandardAPIResponse[KellyCalculationResponse])
+async def calculate_kelly_recommendation(
+    kelly_request: KellyCalculationRequest,
+    user_id: int = 1,  # TODO: Get from authentication
+    db: Session = Depends(get_db)
+):
+    """Calculate Kelly criterion recommendation for a potential bet"""
+    try:
+        # Get bankroll
+        bankroll = kelly_request.bankroll or get_user_current_bankroll(db, user_id)
+        
+        # Calculate Kelly fraction
+        if kelly_request.variant == "fractional":
+            kelly_f = fractional_kelly(kelly_request.fair_probability, kelly_request.market_odds, 0.25)
+        else:
+            kelly_f = kelly_fraction(kelly_request.fair_probability, kelly_request.market_odds)
+        
+        # Apply fraction cap if specified
+        if kelly_request.fraction_cap:
+            kelly_f = min(kelly_f, kelly_request.fraction_cap)
+        
+        # Calculate recommended bet size
+        recommended_bet_size = kelly_f * bankroll
+        
+        # Calculate expected value
+        expected_value = calculate_expected_value(
+            kelly_request.fair_probability, 
+            kelly_request.market_odds, 
+            recommended_bet_size
+        )
+        
+        # Calculate EV percentage
+        ev_percent = (expected_value / recommended_bet_size * 100) if recommended_bet_size > 0 else 0
+        
+        # Calculate expected growth rate (simplified)
+        p = kelly_request.fair_probability
+        b = kelly_request.market_odds - 1
+        expected_growth_rate = p * np.log(1 + b * kelly_f) + (1 - p) * np.log(1 - kelly_f) if kelly_f > 0 else 0
+        
+        # Risk assessment
+        risk_assessment = {
+            "edge_percent": ((kelly_request.fair_probability * kelly_request.market_odds - 1) * 100),
+            "max_loss_percent": (kelly_f * 100),
+            "confidence_level": "high" if kelly_f > 0.05 else "medium" if kelly_f > 0.01 else "low",
+            "recommendation": "strong" if kelly_f > 0.05 else "moderate" if kelly_f > 0.01 else "weak"
+        }
+        
+        response = KellyCalculationResponse(
+            kelly_fraction=kelly_f,
+            recommended_bet_size=recommended_bet_size,
+            expected_value=expected_value,
+            expected_growth_rate=expected_growth_rate,
+            ev_percent=ev_percent,
+            fair_probability=kelly_request.fair_probability,
+            market_odds=kelly_request.market_odds,
+            bankroll_used=bankroll,
+            variant_used=kelly_request.variant,
+            risk_assessment=risk_assessment
+        )
+        
+        logger.info(f"Calculated Kelly for user {user_id}: {kelly_f:.4f} fraction, ${recommended_bet_size:.2f} recommended")
+        
+        return ResponseBuilder.success(response)
+        
+    except Exception as e:
+        logger.error(f"Error calculating Kelly: {e})"
+        raise BusinessLogicException(f"Failed to calculate Kelly: {str(e)})"
+
+
+@router.put("/bet-settle/{bet_id}, response_model=StandardAPIResponse[BetResponse])"
+async def settle_bet(
+    bet_id: int,
+    result: str = Query(..., regex="^(win|loss|push)$", description="Bet result"),
+    closing_odds: Optional[float] = Query(None, gt=1.0, description="Closing line odds for CLV calculation"),
+    user_id: int = 1,  # TODO: Get from authentication
+    db: Session = Depends(get_db)
+):
+    """Settle a bet and update bankroll"""
+    try:
+        # Get bet
+        bet = db.query(Bet).filter(Bet.id == bet_id, Bet.user_id == user_id).first()
+        if not bet:
+            raise BusinessLogicException(f"Bet {bet_id} not found")
+        
+        if bet.is_settled:
+            raise BusinessLogicException(f"Bet {bet_id} is already settled")
+        
+        # Calculate PnL
+        if result == "win":
+            pnl = bet.stake * (bet.odds - 1)
+        elif result == "loss":
+            pnl = -bet.stake
+        else:  # push
+            pnl = 0
+        
+        # Calculate CLV if closing odds provided
+        clv_percent = None
+        if closing_odds:
+            clv_percent = calculate_clv_percent(bet.odds, closing_odds)
+        
+        # Calculate ROI
+        roi_percent = calculate_roi_percent(pnl, bet.stake)
+        
+        # Update bet
+        bet.result = result
+        bet.pnl = pnl
+        bet.clv_percent = clv_percent
+        bet.settled_at = datetime.now()
+        bet.status = "settled"
+        bet.closing_odds = closing_odds
+        
+        db.commit()
+        db.refresh(bet)
+        
+        # Update bankroll (add winnings if any)
+        current_bankroll = get_user_current_bankroll(db, user_id)
+        new_bankroll = current_bankroll + pnl
+        update_bankroll_snapshot(
+            db, user_id, new_bankroll, pnl, "bet_settled", 
+            bet.id, f"Bet settled: {result} (${pnl:+.2f})"
+        )
+        
+        # Convert to response
+        bet_response = BetResponse(
+            id=bet.id,
+            stake=bet.stake,
+            odds=bet.odds,
+            bet_type=bet.bet_type,
+            selection=bet.selection,
+            result=bet.result,
+            pnl=bet.pnl,
+            roi_percent=bet.roi_percent,
+            ev_percent=bet.ev_percent,
+            kelly_fraction_used=bet.kelly_fraction_used,
+            clv_percent=bet.clv_percent,
+            sportsbook=bet.sportsbook or "Unknown",
+            market=bet.market or "Unknown",
+            player_name=bet.player_name,
+            confidence_score=bet.confidence_score,
+            placed_at=bet.placed_at,
+            settled_at=bet.settled_at,
+            status=bet.status,
+            is_settled=bet.is_settled
+        )
+        
+        logger.info(f"Settled bet {bet.id} for user {user_id}: {result} (${pnl:+.2f})")
+        
+        return ResponseBuilder.success(bet_response)
+        
+    except Exception as e:
+        logger.error(f"Error settling bet: {e})"
+        raise BusinessLogicException(f"Failed to settle bet: {str(e)})"
+
+
+@router.get("/bets", response_model=StandardAPIResponse[List[BetResponse]])
+async def get_bets(
+    limit: int = Query(50, ge=1, le=1000, description="Number of bets to return"),
+    offset: int = Query(0, ge=0, description="Number of bets to skip"),
+    status: Optional[str] = Query(None, regex="^(pending|settled|cancelled)$", description="Filter by status"),
+    sport: Optional[str] = Query(None, description="Filter by sport"),
+    sportsbook: Optional[str] = Query(None, description="Filter by sportsbook"),
+    user_id: int = 1,  # TODO: Get from authentication
+    db: Session = Depends(get_db)
+):
+    """Get user's betting history with filters"""'
+    try:
+        query = db.query(Bet).filter(Bet.user_id == user_id)
+        
+        # Apply filters
+        if status:
+            query = query.filter(Bet.status == status)
+        if sportsbook:
+            query = query.filter(Bet.sportsbook.ilike(f"%{sportsbook}%"))
+        
+        # Order by most recent first
+        query = query.order_by(desc(Bet.placed_at))
+        
+        # Apply pagination
+        bets = query.offset(offset).limit(limit).all()
+        
+        # Convert to response
+        bet_responses = [
+            BetResponse(
+                id=bet.id,
+                stake=bet.stake,
+                odds=bet.odds,
+                bet_type=bet.bet_type,
+                selection=bet.selection,
+                result=bet.result,
+                pnl=bet.pnl,
+                roi_percent=bet.roi_percent,
+                ev_percent=bet.ev_percent,
+                kelly_fraction_used=bet.kelly_fraction_used,
+                clv_percent=bet.clv_percent,
+                sportsbook=bet.sportsbook or "Unknown",
+                market=bet.market or "Unknown",
+                player_name=bet.player_name,
+                confidence_score=bet.confidence_score,
+                placed_at=bet.placed_at,
+                settled_at=bet.settled_at,
+                status=bet.status,
+                is_settled=bet.is_settled
+            )
+            for bet in bets
+        ]
+        
+        logger.info(f"Retrieved {len(bet_responses)} bets for user {user_id})"
+        
+        return ResponseBuilder.success(bet_responses)
+        
+    except Exception as e:
+        logger.error(f"Error retrieving bets: {e})"
+        raise BusinessLogicException(f"Failed to retrieve bets: {str(e)})"
+
+
+@router.get("/stats/performance", response_model=StandardAPIResponse[Dict[str, Any]])
+async def get_performance_stats(
+    days: int = Query(30, ge=1, le=365, description="Number of days to analyze"),
+    user_id: int = 1,  # TODO: Get from authentication
+    db: Session = Depends(get_db)
+):
+    """Get detailed performance statistics"""
+    try:
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days)
+        
+        # Get settled bets in period
+        settled_bets = db.query(Bet).filter(
+            Bet.user_id == user_id,
+            Bet.status == "settled",
+            Bet.placed_at >= start_date,
+            Bet.placed_at <= end_date
+        ).all()
+        
+        if not settled_bets:
+            return ResponseBuilder.success({
+                "message": "No settled bets found in the specified period",
+                "period_days": days,
+                "total_bets": 0
+            })
+        
+        # Calculate detailed statistics
+        total_bets = len(settled_bets)
+        total_wagered = sum(bet.stake for bet in settled_bets)
+        total_pnl = sum(bet.pnl or 0 for bet in settled_bets)
+        
+        won_bets = [bet for bet in settled_bets if bet.result == "win"]
+        lost_bets = [bet for bet in settled_bets if bet.result == "loss"]
+        push_bets = [bet for bet in settled_bets if bet.result == "push"]
+        
+        # Win rates and averages
+        win_rate = len(won_bets) / total_bets * 100
+        avg_win_odds = sum(bet.odds for bet in won_bets) / len(won_bets) if won_bets else 0
+        avg_loss_odds = sum(bet.odds for bet in lost_bets) / len(lost_bets) if lost_bets else 0
+        
+        # Profitability analysis
+        profitable_days = 0
+        daily_pnl = {}
+        
+        for bet in settled_bets:
+            day_key = bet.placed_at.date()
+            if day_key not in daily_pnl:
+                daily_pnl[day_key] = 0
+            daily_pnl[day_key] += bet.pnl or 0
+        
+        profitable_days = len([pnl for pnl in daily_pnl.values() if pnl > 0])
+        
+        # Streak analysis
+        current_streak = 0
+        current_streak_type = None
+        max_win_streak = 0
+        max_loss_streak = 0
+        temp_win_streak = 0
+        temp_loss_streak = 0
+        
+        for bet in sorted(settled_bets, key=lambda x: x.placed_at):
+            if bet.result == "win":
+                temp_win_streak += 1
+                temp_loss_streak = 0
+                max_win_streak = max(max_win_streak, temp_win_streak)
+            elif bet.result == "loss":
+                temp_loss_streak += 1
+                temp_win_streak = 0
+                max_loss_streak = max(max_loss_streak, temp_loss_streak)
+        
+        # Most recent streak
+        if settled_bets:
+            last_bet = max(settled_bets, key=lambda x: x.placed_at)
+            if last_bet.result in ["win", "loss"]:
+                current_streak_type = last_bet.result
+                current_streak = 1
+                
+                # Count backwards to find streak length
+                sorted_bets = sorted(settled_bets, key=lambda x: x.placed_at, reverse=True)
+                for bet in sorted_bets[1:]:  # Skip the last bet we already counted
+                    if bet.result == current_streak_type:
+                        current_streak += 1
+                    else:
+                        break
+        
+        # Market analysis
+        market_stats = {}
+        for bet in settled_bets:
+            market = bet.market or "Unknown"
+            if market not in market_stats:
+                market_stats[market] = {
+                    "bets": 0, "wins": 0, "losses": 0, "pushes": 0,
+                    "wagered": 0, "pnl": 0, "roi": 0
+                }
+            
+            stats = market_stats[market]
+            stats["bets"] += 1
+            stats["wagered"] += bet.stake
+            stats["pnl"] += bet.pnl or 0
+            
+            if bet.result == "win":
+                stats["wins"] += 1
+            elif bet.result == "loss":
+                stats["losses"] += 1
+            else:
+                stats["pushes"] += 1
+        
+        # Calculate ROI for each market
+        for market, stats in market_stats.items():
+            stats["win_rate"] = (stats["wins"] / stats["bets"] * 100) if stats["bets"] > 0 else 0
+            stats["roi"] = (stats["pnl"] / stats["wagered"] * 100) if stats["wagered"] > 0 else 0
+        
+        performance_stats = {
+            "period_summary": {
+                "days": days,
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat(),
+                "total_bets": total_bets,
+                "total_wagered": total_wagered,
+                "total_pnl": total_pnl,
+                "roi_percent": (total_pnl / total_wagered * 100) if total_wagered > 0 else 0
+            },
+            "win_loss_analysis": {
+                "wins": len(won_bets),
+                "losses": len(lost_bets),
+                "pushes": len(push_bets),
+                "win_rate_percent": win_rate,
+                "avg_win_odds": avg_win_odds,
+                "avg_loss_odds": avg_loss_odds,
+                "avg_win_payout": sum(bet.pnl or 0 for bet in won_bets) / len(won_bets) if won_bets else 0,
+                "avg_loss_amount": sum(bet.pnl or 0 for bet in lost_bets) / len(lost_bets) if lost_bets else 0
+            },
+            "streak_analysis": {
+                "current_streak": current_streak,
+                "current_streak_type": current_streak_type,
+                "max_win_streak": max_win_streak,
+                "max_loss_streak": max_loss_streak
+            },
+            "profitability": {
+                "profitable_days": profitable_days,
+                "total_days": len(daily_pnl),
+                "profitable_day_rate": (profitable_days / len(daily_pnl) * 100) if daily_pnl else 0,
+                "best_day": max(daily_pnl.values()) if daily_pnl else 0,
+                "worst_day": min(daily_pnl.values()) if daily_pnl else 0
+            },
+            "market_breakdown": market_stats
+        }
+        
+        logger.info(f"Generated performance stats for user {user_id}: {days} days, {total_bets} bets")
+        
+        return ResponseBuilder.success(performance_stats)
+        
+    except Exception as e:
+        logger.error(f"Error generating performance stats: {e})"
+        raise BusinessLogicException(f"Failed to generate performance stats: {str(e)})"
+
+
+@router.post("/bankroll-adjustment")
+async def adjust_bankroll(
+    amount: float = Query(..., description="Adjustment amount (positive for deposit, negative for withdrawal)"),
+    reason: str = Query(..., description="Reason for adjustment"),
+    user_id: int = 1,  # TODO: Get from authentication
+    db: Session = Depends(get_db)
+):
+    """Manually adjust bankroll (deposits/withdrawals)"""
+    try:
+        current_bankroll = get_user_current_bankroll(db, user_id)
+        new_bankroll = current_bankroll + amount
+        
+        if new_bankroll < 0:
+            raise BusinessLogicException("Bankroll cannot go negative")
+        
+        change_type = "deposit" if amount > 0 else "withdrawal"
+        update_bankroll_snapshot(
+            db, user_id, new_bankroll, amount, change_type, 
+            None, f"Manual {change_type}: {reason}"
+        )
+        
+        logger.info(f"Adjusted bankroll for user {user_id}: ${amount:+.2f} ({reason})")
+        
+        return ResponseBuilder.success({
+            "previous_bankroll": current_bankroll,
+            "adjustment": amount,
+            "new_bankroll": new_bankroll,
+            "reason": reason
+        })
+        
+    except Exception as e:
+        logger.error(f"Error adjusting bankroll: {e})"
+        raise BusinessLogicException(f"Failed to adjust bankroll: {str(e)})"

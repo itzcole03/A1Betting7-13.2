@@ -18,7 +18,8 @@ import uuid
 from contextvars import ContextVar
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
+
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -40,21 +41,23 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
         """Configure structured JSON logging"""
         # Remove existing handlers to avoid duplicates
         self.logger.handlers.clear()
-        
+
         # Create structured formatter
         formatter = StructuredFormatter()
-        
+
         # Console handler with JSON formatting
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
         console_handler.setLevel(logging.INFO)
-        
+
         # File handler for persistent logging
         try:
             log_dir = Path(__file__).parent.parent / "logs"
             log_dir.mkdir(exist_ok=True)
             # Use plain FileHandler during tests to avoid Windows rename/lock issues
-            testing = bool(os.environ.get("TESTING") or os.environ.get("PYTEST_CURRENT_TEST"))
+            testing = bool(
+                os.environ.get("TESTING") or os.environ.get("PYTEST_CURRENT_TEST")
+            )
             if testing:
                 file_handler = logging.FileHandler(log_dir / "structured.log")
             else:
@@ -68,91 +71,124 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
             self.logger.addHandler(file_handler)
         except Exception as e:
             self.logger.warning(f"Could not set up file logging: {e}")
-        
+
         self.logger.addHandler(console_handler)
         self.logger.setLevel(logging.DEBUG)
         self.logger.propagate = False
 
     async def dispatch(self, request: Request, call_next) -> Response:
         """Process request with structured logging"""
-        # Generate unique request ID
-        req_id = str(uuid.uuid4())
+        # Prefer an incoming proxy-provided request id (for trace correlation).
+        # Fall back to x-request-id and finally generate a new UUID.
+        incoming_proxy_id = None
+        try:
+            incoming_proxy_id = request.headers.get(
+                "x-proxy-request-id"
+            ) or request.headers.get("x-request-id")
+        except Exception:
+            incoming_proxy_id = None
+
+        if incoming_proxy_id:
+            req_id = str(incoming_proxy_id)
+        else:
+            req_id = str(uuid.uuid4())
+
+        # Store request id in contextvar
         request_id_ctx.set(req_id)
-        
-        # Add request ID to request state for easy access
+
+        # Add request ID and proxy id to request state for easy access
         request.state.request_id = req_id
-        
+        try:
+            request.state.proxy_request_id = incoming_proxy_id
+        except Exception:
+            request.state.proxy_request_id = None
+
         start_time = time.time()
-        
+
         # Log incoming request
         self.log_request_start(request, req_id)
-        
+
         try:
             response = await call_next(request)
-            
+
             # Calculate response time
             duration_ms = (time.time() - start_time) * 1000
-            
+
             # Log successful response
             self.log_request_success(request, response, req_id, duration_ms)
-            
+
             # Add request ID to response headers for client tracking
             response.headers["X-Request-ID"] = req_id
-            
+
             return response
-            
+
         except Exception as exc:
             duration_ms = (time.time() - start_time) * 1000
-            
+
             # Log error with full context
             self.log_request_error(request, exc, req_id, duration_ms)
-            
+
             # Re-raise to let FastAPI handle the error
             raise exc
 
     def log_request_start(self, request: Request, req_id: str):
         """Log the start of a request"""
-        self.logger.info("Request started", extra={
-            "event_type": "request_start",
-            "request_id": req_id,
-            "method": request.method,
-            "url": str(request.url),
-            "path": request.url.path,
-            "query_params": dict(request.query_params),
-            "client_ip": self.get_client_ip(request),
-            "user_agent": request.headers.get("user-agent"),
-            "content_type": request.headers.get("content-type"),
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        })
+        self.logger.info(
+            "Request started",
+            extra={
+                "event_type": "request_start",
+                "request_id": req_id,
+                "proxy_request_id": getattr(request.state, "proxy_request_id", None),
+                "method": request.method,
+                "url": str(request.url),
+                "path": request.url.path,
+                "query_params": dict(request.query_params),
+                "client_ip": self.get_client_ip(request),
+                "user_agent": request.headers.get("user-agent"),
+                "content_type": request.headers.get("content-type"),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+        )
 
-    def log_request_success(self, request: Request, response: Response, req_id: str, duration_ms: float):
+    def log_request_success(
+        self, request: Request, response: Response, req_id: str, duration_ms: float
+    ):
         """Log successful request completion"""
-        self.logger.info("Request completed", extra={
-            "event_type": "request_success",
-            "request_id": req_id,
-            "method": request.method,
-            "url": str(request.url),
-            "path": request.url.path,
-            "status_code": response.status_code,
-            "duration_ms": round(duration_ms, 2),
-            "response_size": response.headers.get("content-length"),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "performance_category": self.get_performance_category(duration_ms)
-        })
+        self.logger.info(
+            "Request completed",
+            extra={
+                "event_type": "request_success",
+                "request_id": req_id,
+                "method": request.method,
+                "url": str(request.url),
+                "path": request.url.path,
+                "status_code": response.status_code,
+                "duration_ms": round(duration_ms, 2),
+                "response_size": response.headers.get("content-length"),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "performance_category": self.get_performance_category(duration_ms),
+            },
+        )
 
-    def log_request_error(self, request: Request, exc: Exception, req_id: str, duration_ms: float):
+    def log_request_error(
+        self, request: Request, exc: Exception, req_id: str, duration_ms: float
+    ):
         """Log request that resulted in error"""
-        self.logger.error("Request failed", extra={
-            "event_type": "request_error",
-            "request_id": req_id,
-            "method": request.method,
-            "url": str(request.url),
-            "path": request.url.path,
-            "error_type": type(exc).__name__,
-            "error_message": str(exc),
-            "duration_ms": round(duration_ms, 2),
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }, exc_info=True)
+        self.logger.error(
+            "Request failed",
+            extra={
+                "event_type": "request_error",
+                "request_id": req_id,
+                "method": request.method,
+                "url": str(request.url),
+                "path": request.url.path,
+                "error_type": type(exc).__name__,
+                "error_message": str(exc),
+                "duration_ms": round(duration_ms, 2),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+            exc_info=True,
+        )
 
     def get_client_ip(self, request: Request) -> str:
         """Extract client IP address from request"""
@@ -160,14 +196,14 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
         forwarded_ips = [
             request.headers.get("x-forwarded-for"),
             request.headers.get("x-real-ip"),
-            request.headers.get("x-client-ip")
+            request.headers.get("x-client-ip"),
         ]
-        
+
         for ip_header in forwarded_ips:
             if ip_header:
                 # Take the first IP if there are multiple
                 return ip_header.split(",")[0].strip()
-        
+
         # Fall back to direct client IP
         return request.client.host if request.client else "unknown"
 
@@ -200,27 +236,48 @@ class StructuredFormatter(logging.Formatter):
             "function": record.funcName,
             "line": record.lineno,
         }
-        
+
         # Add request ID if available
         req_id = request_id_ctx.get()
         if req_id:
             log_data["request_id"] = req_id
-        
+
         # Add any extra fields from the log record
         if hasattr(record, "__dict__"):
             extra_fields = {
-                k: v for k, v in record.__dict__.items()
-                if k not in ("name", "msg", "args", "levelname", "levelno", "pathname", 
-                           "filename", "module", "exc_info", "exc_text", "stack_info",
-                           "lineno", "funcName", "created", "msecs", "relativeCreated",
-                           "thread", "threadName", "processName", "process", "message")
+                k: v
+                for k, v in record.__dict__.items()
+                if k
+                not in (
+                    "name",
+                    "msg",
+                    "args",
+                    "levelname",
+                    "levelno",
+                    "pathname",
+                    "filename",
+                    "module",
+                    "exc_info",
+                    "exc_text",
+                    "stack_info",
+                    "lineno",
+                    "funcName",
+                    "created",
+                    "msecs",
+                    "relativeCreated",
+                    "thread",
+                    "threadName",
+                    "processName",
+                    "process",
+                    "message",
+                )
             }
             log_data.update(extra_fields)
-        
+
         # Add exception info if present
         if record.exc_info:
             log_data["exception"] = self.formatException(record.exc_info)
-        
+
         return json.dumps(log_data, default=str, ensure_ascii=False)
 
 
@@ -255,12 +312,12 @@ class RequestIDLogger:
     def _log(self, level: int, message: str, exc_info=False, **kwargs):
         """Internal logging method"""
         extra = kwargs.copy()
-        
+
         # Add request ID to extra fields
         req_id = request_id_ctx.get()
         if req_id:
             extra["request_id"] = req_id
-        
+
         self.logger.log(level, message, extra=extra, exc_info=exc_info)
 
 

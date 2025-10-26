@@ -1,0 +1,203 @@
+"""
+Alert API routes for user alert configuration and management.
+Part of the basic user alert MVP implementation.
+"""
+
+from fastapi import APIRouter, HTTPException, Depends, Query
+from typing import List, Optional
+import logging
+from backend.core.exceptions import BusinessLogicException
+
+from backend.models.alert_models import (
+    AlertRule, AlertTrigger, CreateAlertRequest, AlertRuleResponse,
+    AlertsListResponse, FiredAlertsResponse, AlertStats
+)
+from backend.services.alert_service import alert_service
+logger = logging.getLogger("propollama.alerts")
+
+router = APIRouter(prefix="/api/alerts", tags=["alerts"])
+
+
+def get_current_user_id() -> str:
+    """
+    Mock user authentication for MVP.
+    In production, this would extract user ID from JWT token or session.
+    """
+    # For MVP, return a default user ID
+    return "user_123"
+
+
+@router.post("/", response_model=AlertRuleResponse)
+async def create_alert_rule(
+    request: CreateAlertRequest,
+    user_id: str = Depends(get_current_user_id)
+):
+    """
+    Create a new alert rule for the authenticated user.
+    
+    Alert types:
+    - ev_threshold: Trigger when EV >= trigger_value
+    - arbitrage: Trigger when arbitrage opportunities >= trigger_value
+    - line_movement: Trigger when line movement magnitude >= trigger_value
+    """
+    try:
+        rule = await alert_service.create_alert_rule(user_id, request)
+        
+        return AlertRuleResponse(
+            id=rule.id,
+            type=rule.type,
+            sport=rule.sport,
+            player=rule.player,
+            market=rule.market,
+            trigger_value=rule.trigger_value,
+            created_at=rule.created_at,
+            is_active=rule.is_active
+        )
+    
+    except Exception as e:
+        logger.error(f"Error creating alert rule: {e})
+        raise BusinessLogicException("Failed to create alert rule", status_code=500)
+
+
+@router.get("/", response_model=AlertsListResponse)
+async def get_alert_rules(
+    user_id: str = Depends(get_current_user_id)
+):
+    """
+    Get all active alert rules for the authenticated user.
+    """
+    try:
+        rules = await alert_service.get_user_alert_rules(user_id)
+        
+        rule_responses = [
+            AlertRuleResponse(
+                id=rule.id,
+                type=rule.type,
+                sport=rule.sport,
+                player=rule.player,
+                market=rule.market,
+                trigger_value=rule.trigger_value,
+                created_at=rule.created_at,
+                is_active=rule.is_active
+            )
+            for rule in rules
+        ]
+        
+        return AlertsListResponse(
+            rules=rule_responses,
+            total_count=len(rule_responses)
+        )
+    
+    except Exception as e:
+        logger.error(f"Error getting alert rules: {e})
+        raise BusinessLogicException("Failed to get alert rules", status_code=500)
+
+
+@router.delete("/{rule_id})
+async def delete_alert_rule(
+    rule_id: str,
+    user_id: str = Depends(get_current_user_id)
+):
+    """
+    Delete an alert rule for the authenticated user.
+    """
+    try:
+        success = await alert_service.delete_alert_rule(user_id, rule_id)
+        
+        if not success:
+            raise BusinessLogicException("Alert rule not found", status_code=404)
+        
+        return {"message": "Alert rule deleted successfully", "rule_id": rule_id}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting alert rule: {e})
+        raise BusinessLogicException("Failed to delete alert rule", status_code=500)
+
+
+@router.get("/fired", response_model=FiredAlertsResponse)
+async def get_fired_alerts(
+    limit: int = Query(50, ge=1, le=100, description="Number of recent fired alerts to return")
+):
+    """
+    Get the last N fired alerts across all users.
+    For MVP, this is not user-specific but shows all triggered alerts.
+    """
+    try:
+        fired_alerts = await alert_service.get_fired_alerts(limit)
+        
+        return FiredAlertsResponse(
+            fired_alerts=fired_alerts,
+            total_count=len(fired_alerts)
+        )
+    
+    except Exception as e:
+        logger.error(f"Error getting fired alerts: {e})
+        raise BusinessLogicException("Failed to get fired alerts", status_code=500)
+
+
+@router.get("/stats", response_model=AlertStats)
+async def get_alert_stats():
+    """
+    Get statistics about the alert system.
+    Useful for monitoring and debugging.
+    """
+    try:
+        stats = await alert_service.get_alert_stats()
+        return stats
+    
+    except Exception as e:
+        logger.error(f"Error getting alert stats: {e})
+        raise BusinessLogicException("Failed to get alert stats", status_code=500)
+
+
+@router.post("/evaluation/start")
+async def start_alert_evaluation():
+    """
+    Manually start the alert evaluation loop.
+    For debugging and testing purposes.
+    """
+    try:
+        await alert_service.start_evaluation_loop()
+        return {"message": "Alert evaluation loop started"}
+    
+    except Exception as e:
+        logger.error(f"Error starting alert evaluation: {e})
+        raise BusinessLogicException("Failed to start alert evaluation", status_code=500)
+
+
+@router.post("/evaluation/stop")
+async def stop_alert_evaluation():
+    """
+    Manually stop the alert evaluation loop.
+    For debugging and testing purposes.
+    """
+    try:
+        await alert_service.stop_evaluation_loop()
+        return {"message": "Alert evaluation loop stopped"}
+    
+    except Exception as e:
+        logger.error(f"Error stopping alert evaluation: {e})
+        raise BusinessLogicException("Failed to stop alert evaluation", status_code=500)
+
+
+@router.post("/evaluation/trigger")
+async def trigger_manual_evaluation():
+    """
+    Manually trigger a single alert evaluation cycle.
+    For debugging and testing purposes.
+    """
+    try:
+        await alert_service._evaluate_all_alerts()
+        stats = await alert_service.get_alert_stats()
+        
+        return {
+            "message": "Manual alert evaluation completed",
+            "last_evaluation": stats.last_evaluation,
+            "stats": stats
+        }
+    
+    except Exception as e:
+        logger.error(f"Error in manual alert evaluation: {e})
+        raise BusinessLogicException("Failed to trigger alert evaluation", status_code=500)

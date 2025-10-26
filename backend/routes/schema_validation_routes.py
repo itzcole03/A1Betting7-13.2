@@ -6,7 +6,7 @@ provider statistics, and validation trends.
 
 Features:
 - Real-time validation statistics
-- Provider performance monitoring  
+- Provider performance monitoring
 - Validation trend analysis
 - Historical validation data
 - Provider quality scoring
@@ -19,13 +19,14 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
-from ..services.enhanced_schema_validation import (
 from backend.core.exceptions import BusinessLogicException
+
+from ..services.enhanced_schema_validation import (
+    ValidationCategory,
     ValidationLevel,
-    ValidationCategory, 
-    ValidationWarning,
     ValidationResult,
-    get_enhanced_schema_validator
+    ValidationWarning,
+    get_enhanced_schema_validator,
 )
 
 logger = logging.getLogger("schema_validation_routes")
@@ -91,19 +92,19 @@ class ValidationTestRequest(BaseModel):
 async def test_validation(request: ValidationTestRequest):
     """
     Test validation on provided raw odds data.
-    
+
     Useful for testing validation rules and seeing what warnings
     would be generated for specific data.
     """
     try:
         validator = get_enhanced_schema_validator()
-        
+
         result = validator.validate_aggregated_odds(
             raw_data=request.raw_data,
             provider=request.provider,
-            context=request.context
+            context=request.context,
         )
-        
+
         # Convert to response format
         warnings_response = [
             ValidationWarningResponse(
@@ -115,11 +116,11 @@ async def test_validation(request: ValidationTestRequest):
                 expected_value=w.expected_value,
                 provider=w.provider,
                 suggestion=w.suggestion,
-                timestamp=w.timestamp
+                timestamp=w.timestamp,
             )
             for w in result.warnings
         ]
-        
+
         return ValidationResultResponse(
             is_valid=result.is_valid,
             has_critical_errors=result.has_critical_errors,
@@ -129,40 +130,40 @@ async def test_validation(request: ValidationTestRequest):
             validation_summary=result.validation_summary,
             provider=result.provider,
             timestamp=result.timestamp,
-            processed_data_available=result.processed_data is not None
+            processed_data_available=result.processed_data is not None,
         )
-        
+
     except Exception as e:
         logger.error(f"Validation test error: {e}")
-        raise BusinessLogicException(f"Validation test failed: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.get("/statistics", response_model=Dict[str, Any])
 async def get_validation_statistics(
-    provider: Optional[str] = Query(None, description="Specific provider to get statistics for")
+    provider: Optional[str] = Query(
+        None, description="Specific provider to get statistics for"
+    )
 ):
     """
     Get validation statistics for provider(s).
-    
+
     Without provider parameter, returns summary for all providers.
     With provider parameter, returns detailed statistics for that provider.
     """
     try:
         validator = get_enhanced_schema_validator()
         stats = validator.get_provider_statistics(provider)
-        
+
         if "error" in stats:
             raise BusinessLogicException(stats["error"], status_code=404)
-        
+
         return stats
-        
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error getting validation statistics: {e}")
-        raise BusinessLogicException(f"Failed to get validation statistics: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.get("/statistics/{provider}", response_model=ProviderStatisticsResponse)
@@ -171,18 +172,17 @@ async def get_provider_statistics(provider: str):
     try:
         validator = get_enhanced_schema_validator()
         stats = validator.get_provider_statistics(provider)
-        
+
         if "error" in stats:
             raise BusinessLogicException(stats["error"], status_code=404)
-        
+
         return ProviderStatisticsResponse(**stats)
-        
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error getting provider statistics for {provider}: {e}")
-        raise BusinessLogicException(f"Failed to get statistics for provider {provider}: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.get("/trends", response_model=ValidationTrendsResponse)
@@ -191,14 +191,14 @@ async def get_validation_trends(
 ):
     """
     Get validation trends over time.
-    
+
     Shows validation success rates, error rates, and performance trends
     over the specified time period.
     """
     try:
         validator = get_enhanced_schema_validator()
         trends = validator.get_validation_trends(hours_back)
-        
+
         if "message" in trends:
             # No data available
             return ValidationTrendsResponse(
@@ -209,31 +209,30 @@ async def get_validation_trends(
                 error_rate=0.0,
                 average_validation_time_ms=0.0,
                 provider_breakdown={},
-                trend_status="no_data"
+                trend_status="no_data",
             )
-        
+
         return ValidationTrendsResponse(**trends)
-        
+
     except Exception as e:
         logger.error(f"Error getting validation trends: {e}")
-        raise BusinessLogicException(f"Failed to get validation trends: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.get("/health", response_model=Dict[str, Any])
 async def get_validation_health():
     """
     Get overall health status of the validation system.
-    
+
     Returns system health, recent performance, and any issues.
     """
     try:
         validator = get_enhanced_schema_validator()
-        
+
         # Get recent trends for health assessment
         recent_trends = validator.get_validation_trends(hours_back=1)
         all_stats = validator.get_provider_statistics()
-        
+
         # Determine health status
         if "message" in recent_trends:
             health_status = "no_data"
@@ -244,7 +243,7 @@ async def get_validation_health():
                 health_status = "excellent"
                 health_score = 1.0
             elif success_rate >= 0.85:
-                health_status = "good" 
+                health_status = "good"
                 health_score = 0.8
             elif success_rate >= 0.70:
                 health_status = "warning"
@@ -252,7 +251,7 @@ async def get_validation_health():
             else:
                 health_status = "critical"
                 health_score = 0.3
-        
+
         return {
             "service": "Enhanced Schema Validation",
             "status": health_status,
@@ -266,14 +265,13 @@ async def get_validation_health():
                 "provider_statistics": True,
                 "historical_tracking": True,
                 "automatic_sanitization": True,
-                "trend_analysis": True
-            }
+                "trend_analysis": True,
+            },
         }
-        
+
     except Exception as e:
         logger.error(f"Error getting validation health: {e}")
-        raise BusinessLogicException(f"Failed to get validation health: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.get("/providers", response_model=List[str])
@@ -282,29 +280,28 @@ async def get_monitored_providers():
     try:
         validator = get_enhanced_schema_validator()
         stats = validator.get_provider_statistics()
-        
+
         if "all_providers" in stats:
             return list(stats["all_providers"].keys())
         else:
             return []
-            
+
     except Exception as e:
         logger.error(f"Error getting monitored providers: {e}")
-        raise BusinessLogicException(f"Failed to get monitored providers: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.get("/validation-rules", response_model=Dict[str, Any])
 async def get_validation_rules():
     """
     Get the current validation rules and configuration.
-    
+
     Useful for understanding what validations are being performed
     and their thresholds.
     """
     try:
         validator = get_enhanced_schema_validator()
-        
+
         return {
             "validation_levels": [level.value for level in ValidationLevel],
             "validation_categories": [cat.value for cat in ValidationCategory],
@@ -315,32 +312,31 @@ async def get_validation_rules():
                 "data_consistency_validation": "Validates internal data consistency",
                 "provider_specific_validation": "Provider-specific rules and expectations",
                 "temporal_validation": "Validates data freshness and timestamps",
-                "business_logic_validation": "Validates business rules and market consistency"
-            }
+                "business_logic_validation": "Validates business rules and market consistency",
+            },
         }
-        
+
     except Exception as e:
         logger.error(f"Error getting validation rules: {e}")
-        raise BusinessLogicException(f"Failed to get validation rules: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 @router.post("/validate-raw", response_model=ValidationResultResponse)
 async def validate_raw_data(request: ValidationTestRequest):
     """
     Validate raw odds data and return detailed results.
-    
+
     This is the main validation endpoint used by the odds aggregation system.
     """
     try:
         validator = get_enhanced_schema_validator()
-        
+
         result = validator.validate_aggregated_odds(
             raw_data=request.raw_data,
             provider=request.provider,
-            context=request.context
+            context=request.context,
         )
-        
+
         # Convert warnings to response format
         warnings_response = [
             ValidationWarningResponse(
@@ -352,11 +348,11 @@ async def validate_raw_data(request: ValidationTestRequest):
                 expected_value=w.expected_value,
                 provider=w.provider,
                 suggestion=w.suggestion,
-                timestamp=w.timestamp
+                timestamp=w.timestamp,
             )
             for w in result.warnings
         ]
-        
+
         return ValidationResultResponse(
             is_valid=result.is_valid,
             has_critical_errors=result.has_critical_errors,
@@ -366,13 +362,12 @@ async def validate_raw_data(request: ValidationTestRequest):
             validation_summary=result.validation_summary,
             provider=result.provider,
             timestamp=result.timestamp,
-            processed_data_available=result.processed_data is not None
+            processed_data_available=result.processed_data is not None,
         )
-        
+
     except Exception as e:
         logger.error(f"Raw data validation error: {e}")
-        raise BusinessLogicException(f"Raw data validation failed: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)
 
 
 # Integration endpoint for the existing odds aggregation service
@@ -380,40 +375,39 @@ async def validate_raw_data(request: ValidationTestRequest):
 async def get_integration_status():
     """
     Get status of schema validation integration with odds aggregation system.
-    
+
     Shows how validation is integrated with existing provider resilience
     and odds normalization systems.
     """
     try:
         validator = get_enhanced_schema_validator()
-        
+
         # Check integration points
         has_provider_stats = len(validator.provider_stats) > 0
         has_recent_validations = len(validator.recent_validations) > 0
-        
+
         return {
             "integration_status": "active" if has_provider_stats else "inactive",
             "provider_monitoring": {
                 "active": has_provider_stats,
                 "provider_count": len(validator.provider_stats),
-                "providers": list(validator.provider_stats.keys())
+                "providers": list(validator.provider_stats.keys()),
             },
             "validation_history": {
                 "active": has_recent_validations,
                 "recent_count": len(validator.recent_validations),
-                "max_history": validator.recent_validations.maxlen
+                "max_history": validator.recent_validations.maxlen,
             },
             "features_enabled": {
                 "enhanced_validation": True,
                 "provider_statistics": True,
                 "trend_analysis": True,
                 "automatic_sanitization": True,
-                "integration_with_resilience_manager": True
+                "integration_with_resilience_manager": True,
             },
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error getting integration status: {e}")
-        raise BusinessLogicException(f"Failed to get integration status: {str(e, status_code=500)}"
-        )
+        raise BusinessLogicException(str(e), status_code=500)

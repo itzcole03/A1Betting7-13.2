@@ -8,12 +8,14 @@ This avoids duplicating logic and offers a stable path for frontend clients
 expecting the opportunities namespace.
 """
 
-from typing import Optional
 import logging
-from fastapi import APIRouter, Query, HTTPException
-from backend.models.ev_models import EVFeedResponse, SportType, MarketType
-from backend.services.ev_feed_service import ev_feed_service
+from typing import Optional
+
+from fastapi import APIRouter, HTTPException, Query
+
 from backend.core.exceptions import BusinessLogicException
+from backend.models.ev_models import EVFeedResponse, MarketType, SportType
+from backend.services.ev_feed_service import ev_feed_service
 
 logger = logging.getLogger("opportunities_routes")
 router = APIRouter(prefix="/api/opportunities", tags=["Opportunities"])
@@ -25,7 +27,9 @@ async def get_positive_ev_opportunities(
     min_edge: Optional[float] = Query(3.0, description="Minimum EV percentage"),
     market_type: Optional[MarketType] = Query(None, description="Market type filter"),
     source_book: Optional[str] = Query(None, description="Sportsbook filter"),
-    limit: Optional[int] = Query(100, description="Maximum opportunities", ge=1, le=500),
+    limit: Optional[int] = Query(
+        100, description="Maximum opportunities", ge=1, le=500
+    ),
 ):
     """
     Compatibility alias that proxies to /api/ev/feed to serve +EV opportunities.

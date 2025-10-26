@@ -1,0 +1,371 @@
+[
+  {
+    "folder": "prediction-filtering-Advan-0026e-ltiple-simultaneous-filters-chromium",
+    "trace_picks": [
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      }
+    ]
+  },
+  {
+    "folder": "prediction-filtering-Advan-88e5a-r-all-filters-functionality-chromium",
+    "trace_picks": [
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      }
+    ]
+  },
+  {
+    "folder": "prediction-filtering-Predi-04ff5-y-filter-results-gracefully-chromium",
+    "trace_picks": [
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      }
+    ]
+  },
+  {
+    "folder": "prediction-filtering-Predi-52caa-props-by-different-criteria-chromium",
+    "trace_picks": [
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      }
+    ]
+  },
+  {
+    "folder": "prediction-filtering-Predi-6976b--filter-props-by-sport-type-chromium",
+    "trace_picks": [
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      }
+    ]
+  },
+  {
+    "folder": "prediction-filtering-Predi-9fadc-ions-with-filtering-options-chromium",
+    "trace_picks": [
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      }
+    ]
+  },
+  {
+    "folder": "prediction-filtering-Predi-a33c5-ilter-state-on-page-refresh-chromium",
+    "trace_picks": [
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      }
+    ]
+  },
+  {
+    "folder": "prediction-filtering-Predi-a8b26-r-props-by-confidence-level-chromium",
+    "trace_picks": [
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      }
+    ]
+  },
+  {
+    "folder": "prediction-filtering-Predi-b28d8-filter-props-by-player-name-chromium",
+    "trace_picks": [
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      },
+      {
+        "time": null,
+        "method": null,
+        "url": "",
+        "path": "",
+        "x-request-id": null,
+        "trace_level_xrids": [],
+        "response_status": null,
+        "_failureText": null,
+        "proxy_matches": [],
+        "backend_matches": []
+      }
+    ]
+  }
+]

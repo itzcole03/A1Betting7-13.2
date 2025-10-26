@@ -1,74 +1,144 @@
 ﻿# A1Betting — Copilot Field Guide (concise)
-## Quick architecture highlights
-- Backend entry: FastAPI app factory at `backend/core/app.py` — always instantiate via `create_app()`.
-- Frontend: Vite + React + TypeScript; central services in `frontend/src/services/MasterServiceRegistry.ts` and `EnhancedDataManager` (`frontend/src/services/EnhancedDataManager.ts`).
-- PropFinder flow: `propfinder_routes.py` → `backend/services/simple_propfinder_service.py` → unified services/cache → frontend `src/hooks/usePropFinderData.ts` → `VirtualizedPropList`.
 
-## Run & test (developer shortcuts)
-- Start backend (dev): run VS Code task `🚀 Start PropFinder Development Environment` or:
-	- python -m uvicorn backend.core.app:create_app --factory --host 127.0.0.1 --port 8000 --reload
+## A1Betting — Copilot Field Guide (concise)
+
+This file gives an AI/code-assistant the minimal, high-value facts to be productive in this repo.
+
+Key points
+
+- Backend entry: FastAPI app factory at `backend/core/app.py` — always instantiate via `create_app()` (this ensures middleware, standardized envelopes and feature routers load correctly).
+- Frontend: Vite + React + TypeScript. Central orchestrators: `frontend/src/services/MasterServiceRegistry.ts` and `frontend/src/services/EnhancedDataManager.ts`.
+- Canonical data flow (PropFinder): `propfinder_routes.py` → `backend/services/simple_propfinder_service.py` → `backend/services/unified_*` (cache/metrics) → `frontend/src/hooks/usePropFinderData.ts` → `VirtualizedPropList`.
+
+Run & debug shortcuts (dev)
+
+- Start backend (dev): run VS Code task "Start Backend (uvicorn)" or:
+  python -m uvicorn backend.core.app:create_app --factory --host 127.0.0.1 --port 8000 --reload
 - Frontend (dev): cd frontend && npm run dev
-- Run tests: pytest --verbose --tb=short
-- Health endpoints: GET /health, GET /api/health, GET /api/modern-ml/health
+- Run tests quickly: pytest --verbose --tb=short (workspace contains targeted tasks like "Run PrizePicks tests (pytest)").
 
-## Conventions & gotchas
-- Responses use {success,data,error} — use ok()/fail() in `backend/core/app.py`.
-- Feature flags are in `backend/config/settings.py` (e.g. APP_DEV_LEAN_MODE). Lean mode reduces telemetry and structured logs.
-- Prefer `backend/services/unified_*` facades for caching/metrics rather than raw client calls.
-- Use `unified_cache_service` for backend caching; frontend deterministic TTL keys live in `EnhancedDataManager`.
+Project-specific conventions (do not change lightly)
 
-## Frontend practical patterns
-- Use `VirtualizedPropList` for lists >100 rows to avoid rendering bottlenecks.
-- Register services via `MasterServiceRegistry.getInstance()` so health panels and hooks pick them up.
-- Extend `src/hooks/usePropFinderData.ts` when adding new query/filter types to keep serialization consistent.
+- API envelope: responses are {success, data, error}. Use ok()/fail() wrappers in `backend/core/app.py` for consistency.
+- Route registration: call `register_feature_routers()` (see `backend/core/app.py`) to avoid duplicate routers during hot-reload and pytest collection.
+- Use the `backend/services/unified_*` facades (and `unified_cache_service`) for caching, metrics and downstream clients — these centralize TTL/keys and observability.
+- Feature flags live in `backend/config/settings.py` (examples: `APP_DEV_LEAN_MODE`, `DISABLE_STARTUP_HOOKS`, `ENABLE_ODDS_SNAPSHOTS`). Tests and VS Code tasks set `APP_DEV_LEAN_MODE=true` by default; unset for full telemetry.
+- Guard heavy optional ML deps (torch, ray) with try/except in `backend/services/*` to avoid import-time crashes in dev/test.
 
-## ML/ETL & integrations
-- ML/ensemble and prediction code live in `backend/services` (e.g., modern_ml_service.py, prediction_engine.py). Heavy deps (torch, ray) are optional — guard imports.
-- Use `/scripts` for batch pulls and recon (see `scripts/README.md`). ETL docs: `ETL_IMPLEMENTATION_PLAN.md`, `ETL_PIPELINE_ARCHITECTURE.md`.
+Frontend patterns and pitfalls
 
-## Diagnostics & troubleshooting
-- Logs: backend -> `backend/logs/propollama.log`; frontend logs use `[PropOllamaUnified]` prefix.
-- Refresh demo odds: POST /api/odds/refresh before GET /api/odds/*.
-- Register routes using `register_feature_routers()` in `backend/core/app.py` to avoid duplicates during hot reload or tests.
+- Virtualize lists >100 rows: use `frontend/src/components/lists/VirtualizedPropList.tsx` to avoid rendering bottlenecks.
+- Register client services with `MasterServiceRegistry.getInstance()` so `ServiceHealthPanel` and hooks can find them.
+- Add new query/filter fields via `frontend/src/hooks/usePropFinderData.ts` so serialization and cache keys remain consistent.
 
-## Files to consult
-- Backend entry & routing: `backend/core/app.py`, `backend/routes/`
-- PropFinder logic: `backend/services/simple_propfinder_service.py`, `propfinder_routes.py`
-- Frontend hooks/services: `frontend/src/hooks/usePropFinderData.ts`, `frontend/src/services/EnhancedDataManager.ts`, `frontend/src/services/MasterServiceRegistry.ts`
-- ETL/ML docs: `ETL_IMPLEMENTATION_PLAN.md`, `ML_ENSEMBLE_README.md`
+Integration & operability notes
 
-If you'd like more examples (route template, test scaffold, or small service example), tell me which area to expand and I'll iterate.
-# A1Betting — Copilot Field Guide
-## Architecture
-- Canonical FastAPI app lives in `backend/core/app.py`; always instantiate via `create_app()` so middleware order, standardized envelopes, and feature routers stay consistent.
-- PropFinder stack flows `propfinder_routes.py` → `services/simple_propfinder_service.py` → unified data/cache services → frontend hook `src/hooks/usePropFinderData.ts` using `EnhancedDataManager`.
-- Shared backend utilities live under `backend/services/unified_*`; prefer extending these facades instead of calling raw clients to keep metrics and caching centralized.
-- Frontend aggregates data through `MasterServiceRegistry.getInstance()` and `EnhancedDataManager.mapToFeaturedProps(props, sport)`; skipping the `sport` argument strips featured props.
-- WebSocket + batch interactions are handled by `frontend/src/services/EnhancedDataManager.ts`; reuse its batching/subscription APIs instead of ad-hoc sockets.
+- Health endpoints used by scripts: `/health`, `/api/health`, `/api/modern-ml/health`.
+- Backend logs: `backend/logs/propollama.log`.
+- Many internal scripts live under `scripts/`; ETL docs are `ETL_IMPLEMENTATION_PLAN.md` and `ETL_PIPELINE_ARCHITECTURE.md`.
+- VS Code task names to know: "Start Backend (uvicorn)", "Run PrizePicks tests (pytest)", and other test tasks that run targeted pytest invocations.
 
-## Backend Workflow
-- Start locally from repo root with `python -m uvicorn backend.core.app:create_app --factory --host 127.0.0.1 --port 8000 --reload`; VS Code task `🚀 Start PropFinder Development Environment` wires this up with the frontend.
-- `APP_DEV_LEAN_MODE=true` (default in tasks) disables heavy logging/metrics middleware; drop it for performance investigations that need full telemetry.
-- Primary test loop: `pytest --verbose --tb=short` at repo root; ingestion-only checks: `python -m pytest backend/tests/test_cache.py backend/tests/test_scheduler_runner.py -q`.
-- When adding routes rely on `register_feature_routers()` (see `backend/core/app.py`) to avoid duplicate registration in tests and hot reload.
-- Extended ML or inference endpoints should go through `backend/services/modern_ml_service.py`; guard optional torch/ray imports with try/except like existing patterns.
+Files to consult for examples
 
-## Frontend Workflow
-- Run from `frontend/` with `npm run dev` (5173); type safety via `npm run type-check`, unit tests via `npm run test -- --watchAll=false`.
-- Prop dashboard uses `src/components/dashboard/PropFinderDashboard.tsx` with virtualization helpers (`components/lists/{PropList,VirtualizedPropList}.tsx`)—stick with these for tables >100 rows.
-- Shared fetch logic lives in `src/hooks/usePropFinderData.ts`; extend its sanitizers when introducing new filter types so query serialization stays consistent.
-- Register new services through `src/services/MasterServiceRegistry.ts` to populate the `ServiceHealthPanel` and ensure dependency injection works across hooks.
+- App & routing: `backend/core/app.py`, `backend/routes/`
+- PropFinder: `backend/services/simple_propfinder_service.py`, `propfinder_routes.py`
+- Unified facades: `backend/services/unified_*`
+- Frontend orchestrators: `frontend/src/services/EnhancedDataManager.ts`, `frontend/src/services/MasterServiceRegistry.ts`, `frontend/src/hooks/usePropFinderData.ts`
 
-## Patterns & Conventions
-- API responses follow `{success,data,error}` helpers defined in `backend/core/app.py`; reuse `ok()`/`fail()` when returning payloads to match error handling on the frontend.
-- Feature flags: `USE_FREE_INGESTION`, `ENABLE_ODDS_SNAPSHOTS`, `APP_DEV_LEAN_MODE`, `DISABLE_STARTUP_HOOKS`, `POSITIVE_EV_FEED_DISABLED`; check `backend/config/settings.py` before toggling.
-- Cache-aware backend services should use the `unified_cache_service` layer; frontend caches rely on TTL-aware keys in `EnhancedDataManager`—keep cache keys deterministic.
-- When fetching props client-side, always pass the resolved sport to `mapToFeaturedProps` and honor the hook’s `refreshIntervalMs` (default 30s) unless you coordinate backend load changes.
-- Zustand manages shared state (`frontend/src/state`); avoid duplicating orchestrators—instead extend `usePropOllamaState` or existing slices.
+Admin dashboard (frontend/admin)
 
-## Diagnostics & Integrations
-- Health checks: `/health`, `/api/health`, `/api/modern-ml/health`, `/api/debug/status`; scripts expect 200 even on `HEAD` so keep responses lightweight.
-- Logs: backend emits to `backend/logs/propollama.log` (structured when lean mode disabled); frontend logs share `[PropOllamaUnified]` prefix via `enhancedLogger`.
-- External data: Prop ingestion combines PrizePicks, SportRadar, and odds APIs; go through `backend/services/comprehensive_prop_generator.py` for multi-source props or `/mlb/comprehensive-props/{game_id}` endpoint consumers.
-- Deterministic in-memory odds MVP exposed under `/api/odds/*`; refresh via `POST /api/odds/refresh` before reading snapshots when demo data looks stale.
-- Use `/scripts` utilities (see `scripts/README.md`) for recon and batch data pulls; pipeline commands assume repo-root execution with virtualenv already activated.
+- The admin UI is a React-admin dashboard focused on secure business-rule management: auth + audit are required for API calls.
+- Prefer Material UI and Monaco/Ace for YAML editing; ensure edits are auditable and calls are authenticated.
+
+If any section is unclear or you'd like a deeper, example-driven expansion (route template, small service + test scaffold, or a PR checklist), tell me which area to expand and I will iterate.
+
+---
+
+## Expanded examples & quick scaffolds
+
+These short, copy-pasteable templates are intentionally minimal. Follow the repo patterns (use `ok()/fail()` envelopes, `register_feature_routers()`, and unified facades) when adapting them.
+
+1. Route template (backend)
+
+Place new routes under `backend/routes/`. Use `register_feature_routers()` in your module so hot-reload/tests don't duplicate routers.
+
+Example (minimal):
+
+```py
+# backend/routes/example_route.py
+from fastapi import APIRouter
+from backend.core.app import ok, fail, register_feature_routers
+
+router = APIRouter(prefix="/api/example")
+
+@router.get("/ping")
+def ping():
+  return ok({"pong": True})
+
+def register(router_registry):
+  # called by register_feature_routers()
+  router_registry.include_router(router)
+
+register_feature_routers.register = register
+```
+
+Notes: put business logic into `backend/services/...` (see `simple_propfinder_service.py`). Keep routes thin — they should validate inputs and call services.
+
+2. Minimal backend service + test scaffold
+
+Service (use unified facades and caching when applicable):
+
+```py
+# backend/services/example_service.py
+from backend.services.unified_cache_service import unified_cache_service
+
+def get_example(id: str):
+  key = f"example:{id}"
+  cached = unified_cache_service.get(key)
+  if cached is not None:
+    return cached
+  # replace with real call
+  result = {"id": id, "value": "hello"}
+  unified_cache_service.set(key, result, ttl=60)
+  return result
+```
+
+Test scaffold (pytest):
+
+```py
+# backend/tests/test_example_service.py
+from backend.services.example_service import get_example
+
+def test_get_example_returns_shape():
+  res = get_example('abc')
+  assert res['id'] == 'abc'
+  assert 'value' in res
+```
+
+Run single test quickly:
+
+```bash
+python -m pytest backend/tests/test_example_service.py -q --tb=short
+```
+
+3. PR checklist (quick, focused)
+
+- Does the route use `ok()` / `fail()` envelopes from `backend/core/app.py`?
+- If adding backend routes, did you add/modify a `register()` hook and ensure `register_feature_routers()` picks it up?
+- Are heavy optional imports (torch/ray) guarded in `backend/services/*`?
+- Did you add/adjust feature flags in `backend/config/settings.py` if needed?
+- Frontend: did you register any new client services in `MasterServiceRegistry` and extend `usePropFinderData` if you added query params?
+- Tests: add a unit test for the service and a small integration test for the route (pytest).
+- Lint & type: run repo linters / type-checkers used by the frontend/backend pipelines.
+
+4. Troubleshooting quick hits
+
+- Test import-time failures: run `python -c "import backend.core.app"` and `python -m pytest backend/tests/test_collect_only -q` to expose import errors.
+- Duplicate routers during tests/hot reload: ensure the module exports a `register()` and `register_feature_routers()` is used by `create_app()`.
+- Unexpected missing data in frontend lists: check `EnhancedDataManager` batching behavior and ensure cache keys match `EnhancedDataManager` TTL scheme.
+- Heavy ML imports breaking tests: make sure imports are guarded with try/except and fall back to stubs.
+- Use the VS Code tasks provided (Start Backend (uvicorn), Run PrizePicks tests (pytest)) for reproducible runs.
+
+---
+
+If you'd like any of these expanded into a runnable example file (with tests and a small README), tell me which one and I'll scaffold it in the repo and run the relevant tests.

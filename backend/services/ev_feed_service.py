@@ -133,93 +133,104 @@ class EVFeedService:
         Returns dictionary representing stored or existing entry with flags:
           { deduped: bool, replaced: bool }
         """
-        async with self._lock:
-            try:
-                now_ts = time.time()
-                ev_pct = float(getattr(opp, "ev_percent", 0.0))
-                # Update max_edge
-                if ev_pct > self.max_edge:
-                    self.max_edge = ev_pct
-                opp_dict = opp.dict()
-                opp_dict["updated_at"] = opp_dict["updated_at"].isoformat()
-                opp_dict["edge_tier"] = self.classify_edge(ev_pct)
-                opp_dict["added_epoch"] = now_ts
-                # Dedup key (without our_fair_odds so replacements considered)
-                key = f"{opp.player}|{opp.market}|{opp.source_book}|{opp.market_odds}"
-                existing = self._dedup_index.get(key)
-                result = {"deduped": False, "replaced": False}
-                if existing:
-                    ts, idx = existing
-                    within_window = (now_ts - ts) <= self.DEDUP_WINDOW_SECONDS
-                    if within_window and 0 <= idx < len(self._ring):
-                        current_ev = float(self._ring[idx].get("ev_percent", 0.0))
-                        if abs(current_ev - ev_pct) < 0.15:
-                            # Duplicate (ignore)
-                            self.total_deduped += 1
-                            logger.debug(
-                                "ev_feed:dedupe_skip",
-                                extra={
-                                    "key": key,
-                                    "edge": current_ev,
-                                    "new_edge": ev_pct,
-                                },
-                            )
-                            result["deduped"] = True
-                            return {**self._ring[idx], **result}
-                        if ev_pct > current_ev:
-                            # Replacement (improved edge)
-                            self._ring[idx].update(opp_dict)
-                            self._dedup_index[key] = (now_ts, idx)
-                            self.total_replaced += 1
-                            logger.debug(
-                                "ev_feed:replaced",
-                                extra={
-                                    "key": key,
-                                    "old_edge": current_ev,
-                                    "new_edge": ev_pct,
-                                    "tier": opp_dict.get("edge_tier"),
-                                },
-                            )
-                            result["replaced"] = True
-                            self.last_added_at = now_ts
-                            return {**self._ring[idx], **result}
-                    # Stale or out of window -> treat as new append
-                # Append new
-                self._ring.append(opp_dict)
-                self._dedup_index[key] = (now_ts, len(self._ring) - 1)
-                self.total_added += 1
-                logger.debug(
-                    "ev_feed:add",
-                    extra={
-                        "key": key,
-                        "edge": ev_pct,
-                        "tier": opp_dict.get("edge_tier"),
-                        "size": len(self._ring),
-                    },
-                )
-                self.last_added_at = now_ts
-                # Prune if capacity exceeded
-                if len(self._ring) > self.MAX_RING_CAPACITY:
-                    overflow = len(self._ring) - self.MAX_RING_CAPACITY
-                    if overflow > 0:
-                        self._ring = self._ring[overflow:]
-                        new_index = {}
-                        for idx, item in enumerate(self._ring):
-                            key2 = f"{item.get('player')}|{item.get('market')}|{item.get('source_book')}|{item.get('market_odds')}"
-                            new_index[key2] = (now_ts, idx)
-                        self._dedup_index = new_index
-                        self.last_prune_at = now_ts
+        # asyncio.Lock objects are bound to the event loop they were created in.
+        # In test environments the service instance may be created during import
+        # on a different loop; attempting to 'async with self._lock' can raise
+        # a RuntimeError. To be resilient, attempt to use the configured lock
+        # and recreate it in the current loop if that fails.
+        try:
+            async with self._lock:
+                _need_recreate = False
+        except RuntimeError:
+            # Replace with a lock bound to the current event loop
+            self._lock = asyncio.Lock()
+
+        try:
+            now_ts = time.time()
+            ev_pct = float(getattr(opp, "ev_percent", 0.0))
+            # Update max_edge
+            if ev_pct > self.max_edge:
+                self.max_edge = ev_pct
+            opp_dict = opp.dict()
+            opp_dict["updated_at"] = opp_dict["updated_at"].isoformat()
+            opp_dict["edge_tier"] = self.classify_edge(ev_pct)
+            opp_dict["added_epoch"] = now_ts
+            # Dedup key (without our_fair_odds so replacements considered)
+            key = f"{opp.player}|{opp.market}|{opp.source_book}|{opp.market_odds}"
+            existing = self._dedup_index.get(key)
+            result = {"deduped": False, "replaced": False}
+            if existing:
+                ts, idx = existing
+                within_window = (now_ts - ts) <= self.DEDUP_WINDOW_SECONDS
+                if within_window and 0 <= idx < len(self._ring):
+                    current_ev = float(self._ring[idx].get("ev_percent", 0.0))
+                    if abs(current_ev - ev_pct) < 0.15:
+                        # Duplicate (ignore)
+                        self.total_deduped += 1
                         logger.debug(
-                            "ev_feed:prune",
+                            "ev_feed:dedupe_skip",
                             extra={
-                                "removed": overflow,
-                                "size": len(self._ring),
+                                "key": key,
+                                "edge": current_ev,
+                                "new_edge": ev_pct,
                             },
                         )
-                return {**opp_dict, **result}
-            except Exception as e:  # pragma: no cover - defensive
-                logger.debug(f"add_feed_entry failed (non-fatal): {e}")
-                return {"error": str(e)}
+                        result["deduped"] = True
+                        return {**self._ring[idx], **result}
+                    if ev_pct > current_ev:
+                        # Replacement (improved edge)
+                        self._ring[idx].update(opp_dict)
+                        self._dedup_index[key] = (now_ts, idx)
+                        self.total_replaced += 1
+                        logger.debug(
+                            "ev_feed:replaced",
+                            extra={
+                                "key": key,
+                                "old_edge": current_ev,
+                                "new_edge": ev_pct,
+                                "tier": opp_dict.get("edge_tier"),
+                            },
+                        )
+                        result["replaced"] = True
+                        self.last_added_at = now_ts
+                        return {**self._ring[idx], **result}
+                # Stale or out of window -> treat as new append
+            # Append new
+            self._ring.append(opp_dict)
+            self._dedup_index[key] = (now_ts, len(self._ring) - 1)
+            self.total_added += 1
+            logger.debug(
+                "ev_feed:add",
+                extra={
+                    "key": key,
+                    "edge": ev_pct,
+                    "tier": opp_dict.get("edge_tier"),
+                    "size": len(self._ring),
+                },
+            )
+            self.last_added_at = now_ts
+            # Prune if capacity exceeded
+            if len(self._ring) > self.MAX_RING_CAPACITY:
+                overflow = len(self._ring) - self.MAX_RING_CAPACITY
+                if overflow > 0:
+                    self._ring = self._ring[overflow:]
+                    new_index = {}
+                    for idx, item in enumerate(self._ring):
+                        key2 = f"{item.get('player')}|{item.get('market')}|{item.get('source_book')}|{item.get('market_odds')}"
+                        new_index[key2] = (now_ts, idx)
+                    self._dedup_index = new_index
+                    self.last_prune_at = now_ts
+                    logger.debug(
+                        "ev_feed:prune",
+                        extra={
+                            "removed": overflow,
+                            "size": len(self._ring),
+                        },
+                    )
+            return {**opp_dict, **result}
+        except Exception as e:  # pragma: no cover - defensive
+            logger.debug(f"add_feed_entry failed (non-fatal): {e}")
+            return {"error": str(e)}
 
     def get_meta(self) -> Dict[str, Any]:
         """Return lightweight meta counters for observability."""
@@ -384,7 +395,9 @@ class EVFeedService:
             if normalized:
                 return normalized
 
-            logger.debug("MLB stats client returned no props; falling back to mock data")
+            logger.debug(
+                "MLB stats client returned no props; falling back to mock data"
+            )
             return self._generate_mock_props(SportType.MLB, 20)
         except Exception as stats_error:
             logger.warning(
@@ -559,9 +572,15 @@ class EVFeedService:
             stat_display = str(stat_type).replace("_", " ").title()
             line_float = float(line_value)
         except (TypeError, ValueError) as parse_error:
-            raise ValueError(f"Invalid MLB prop line value: {line_value}") from parse_error
+            raise ValueError(
+                f"Invalid MLB prop line value: {line_value}"
+            ) from parse_error
 
-        market = f"{stat_display} Over {line_float:.1f}" if line_float % 1 else f"{stat_display} Over {int(line_float)}"
+        market = (
+            f"{stat_display} Over {line_float:.1f}"
+            if line_float % 1
+            else f"{stat_display} Over {int(line_float)}"
+        )
 
         odds_data: Dict[str, int] = {}
         for bookmaker in prop.get("bookmakers", []) or []:
@@ -585,13 +604,20 @@ class EVFeedService:
 
         model_probability = prop.get("ai_probability")
         if model_probability is not None:
-            model_probability = self._clamp_probability(float(model_probability) / 100.0)
+            model_probability = self._clamp_probability(
+                float(model_probability) / 100.0
+            )
 
         implied_probability = prop.get("implied_probability")
         if implied_probability is not None:
-            implied_probability = self._clamp_probability(float(implied_probability) / 100.0)
+            implied_probability = self._clamp_probability(
+                float(implied_probability) / 100.0
+            )
 
-        game_info = prop.get("matchup") or f"{prop.get('team_name', 'MLB')} vs {prop.get('opponent', 'Opponent')}"
+        game_info = (
+            prop.get("matchup")
+            or f"{prop.get('team_name', 'MLB')} vs {prop.get('opponent', 'Opponent')}"
+        )
 
         normalized = {
             "player": player_name,

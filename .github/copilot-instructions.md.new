@@ -1,0 +1,43 @@
+## A1Betting — Copilot Field Guide (concise)
+
+Purpose: give an AI coding agent the minimal, high-value knowledge to be productive fast in this repo.
+
+## Quick architecture (what to know)
+- Backend entry: the FastAPI app factory is `backend/core/app.py` — always instantiate via `create_app()` so middleware, envelopes and feature routers load predictably.
+- Frontend: Vite + React + TypeScript. Orchestrators: `frontend/src/services/MasterServiceRegistry.ts` and `frontend/src/services/EnhancedDataManager.ts`.
+- PropFinder data flow: `propfinder_routes.py` → `backend/services/simple_propfinder_service.py` → `backend/services/unified_*` (cache/metrics) → `frontend/src/hooks/usePropFinderData.ts` → `frontend/src/components/lists/VirtualizedPropList.tsx`.
+
+## Run & debug (concrete commands)
+- Start backend (dev):
+```powershell
+python -m uvicorn backend.core.app:create_app --factory --host 127.0.0.1 --port 8000 --reload
+```
+- Preferred VS Code task: the workspace contains a `Start Backend (uvicorn)` task that sets `PYTHONPATH`, `APP_DEV_LEAN_MODE=true` and `DISABLE_STARTUP_HOOKS=true`.
+- Frontend (dev): `cd frontend && npm run dev`.
+- Tests: from repo root run `pytest --verbose --tb=short`. Individual tests live under `backend/tests/`.
+
+## Project-specific conventions & gotchas
+- API envelope: responses follow {success,data,error}. Use the `ok()`/`fail()` helpers in `backend/core/app.py` to preserve envelopes the frontend expects.
+- Route registration: use `register_feature_routers()` (in `backend/core/app.py`) when adding routers to avoid duplicate registrations during hot reload or pytest collection.
+- Caching/metrics: prefer the `backend/services/unified_*` facades and `unified_cache_service` rather than ad-hoc cache calls; keys/TTLs are deterministic and relied on by frontend `EnhancedDataManager`.
+- Feature flags live in `backend/config/settings.py` (examples: `APP_DEV_LEAN_MODE`, `DISABLE_STARTUP_HOOKS`). Tests and VS Code tasks toggle these — check them before changing behavior.
+- Optional heavy deps (torch, ray): imports are guarded in `backend/services/*`. Keep the same pattern to avoid import-time failures in CI/dev.
+
+## Frontend patterns to reuse
+- Virtualize long lists: use `VirtualizedPropList` for >100 rows (see `frontend/src/components/lists/`).
+- Register client services with `MasterServiceRegistry.getInstance()` so `ServiceHealthPanel` and hooks discover them.
+- Use `EnhancedDataManager` batching/subscription APIs for socket or batched updates; its TTL/key patterns are used by hooks in `src/hooks/usePropFinderData.ts`.
+
+## Integration points & diagnostics
+- Health endpoints expected by tooling: `/health`, `/api/health`, `/api/modern-ml/health`.
+- Backend logs: `backend/logs/propollama.log` — useful for debugging startup issues.
+- ML/ensemble code and guarded optional imports live under `backend/services/modern_ml_service.py` and `prediction_engine.py`.
+- Batch/ETL scripts: check the `scripts/` folder and `scripts/README.md` for ingest and recon utilities.
+
+## Files to consult (quick references)
+- App entry & routers: `backend/core/app.py`, `backend/routes/`
+- PropFinder: `backend/services/simple_propfinder_service.py`, `propfinder_routes.py`
+- Unified facades: `backend/services/unified_*` (caching/metrics)
+- Frontend orchestrators/hooks: `frontend/src/services/EnhancedDataManager.ts`, `frontend/src/services/MasterServiceRegistry.ts`, `frontend/src/hooks/usePropFinderData.ts`
+
+If you want, I can (a) add a short route template + test scaffold, (b) extract common env var examples from the VS Code tasks, or (c) add a small checklist for safe CI-friendly changes. Which would help most?

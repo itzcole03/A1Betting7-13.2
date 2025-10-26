@@ -86,7 +86,29 @@ class JSONFormatter(logging.Formatter):
             if hasattr(record, "endpoint"):
                 log_entry["endpoint"] = record.endpoint
 
-            return json.dumps(log_entry, default=str, ensure_ascii=False)
+            try:
+                # Prefer utf-8 JSON with non-ascii preserved for readability
+                return json.dumps(log_entry, default=str, ensure_ascii=False)
+            except (UnicodeEncodeError, TypeError, ValueError):
+                # Fallback: ensure ASCII-safe representation with replacement
+                try:
+                    return json.dumps(log_entry, default=str, ensure_ascii=True)
+                except Exception:
+                    # As a last resort, build a minimal string to avoid raising
+                    try:
+                        return (
+                            '{"timestamp":"%s","level":"%s","logger":"%s","message":"%s"}'
+                            % (
+                                datetime.now(timezone.utc).isoformat() + "Z",
+                                getattr(record, "levelname", "ERROR"),
+                                getattr(record, "name", "unknown"),
+                                str(record.getMessage())
+                                .encode("utf-8", errors="replace")
+                                .decode("utf-8", errors="replace"),
+                            )
+                        )
+                    except Exception:
+                        return '{"message": "log_formatting_error"}'
 
         except Exception as e:
             # Fallback to simple format if JSON serialization fails
@@ -156,9 +178,13 @@ class EnhancedLogger:
 
         # File handler with rotation
         try:
-            testing = bool(os.environ.get("TESTING") or os.environ.get("PYTEST_CURRENT_TEST"))
+            testing = bool(
+                os.environ.get("TESTING") or os.environ.get("PYTEST_CURRENT_TEST")
+            )
             if testing:
-                file_handler = logging.FileHandler(filename=self.log_file_path, encoding="utf-8")
+                file_handler = logging.FileHandler(
+                    filename=self.log_file_path, encoding="utf-8"
+                )
             else:
                 file_handler = SafeRotatingFileHandler(
                     filename=self.log_file_path,
@@ -196,6 +222,33 @@ class EnhancedLogger:
 
             console_handler.setFormatter(console_formatter)
             root_logger.addHandler(console_handler)
+
+            # Wrap emit to guard against console encoding errors (Windows cp1252)
+            orig_emit = console_handler.emit
+
+            def safe_emit(record):
+                try:
+                    orig_emit(record)
+                except UnicodeEncodeError:
+                    # Attempt to write a safe ASCII-fallback message
+                    try:
+                        record.msg = (
+                            str(record.getMessage())
+                            .encode("utf-8", errors="replace")
+                            .decode("utf-8", errors="replace")
+                        )
+                        record.args = ()
+                        orig_emit(record)
+                    except Exception:
+                        # Last resort: write minimal information to stderr
+                        try:
+                            sys.stderr.write(
+                                f"[LOG] {record.levelname}: {record.name}\n"
+                            )
+                        except Exception:
+                            pass
+
+            console_handler.emit = safe_emit
 
         # Setup specific logger configurations
         self._setup_specific_loggers()
@@ -259,6 +312,33 @@ class ContextualLogger:
         extra = kwargs.get("extra", {})
         extra.update(self.context)
         kwargs["extra"] = extra
+
+        # In test/dev "lean" mode, sanitize messages for console encoding
+        try:
+            lean_mode = (
+                os.environ.get("APP_DEV_LEAN_MODE", "").lower() == "true"
+                or os.environ.get("TESTING")
+                or os.environ.get("PYTEST_CURRENT_TEST")
+            )
+        except Exception:
+            lean_mode = False
+
+        if lean_mode and isinstance(message, str):
+            # Try to re-encode the message to the console encoding with replacement
+            try:
+                target_enc = getattr(sys.stdout, "encoding", None) or "utf-8"
+                message = message.encode(target_enc, errors="replace").decode(
+                    target_enc, errors="replace"
+                )
+            except Exception:
+                # Fallback to UTF-8 replacement
+                try:
+                    message = message.encode("utf-8", errors="replace").decode(
+                        "utf-8", errors="replace"
+                    )
+                except Exception:
+                    # Give up and leave the message as-is
+                    pass
 
         self.logger.log(level, message, *args, **kwargs)
 

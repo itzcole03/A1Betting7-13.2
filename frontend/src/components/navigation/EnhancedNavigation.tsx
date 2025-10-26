@@ -66,6 +66,16 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({ isOpen, onToggl
     }
   })();
 
+  // Optionally force-open navigation for E2E runs when a storage key is set
+  const forceOpenForE2E = (() => {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return false;
+      return window.localStorage.getItem('e2e_nav_open') === '1';
+    } catch {
+      return false;
+    }
+  })();
+
   // Signal navigation readiness on mount
   useEffect(() => {
     signalNavReady();
@@ -327,7 +337,7 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({ isOpen, onToggl
 
       {/* Navigation Sidebar */}
       <AnimatePresence>
-        {isOpen && (
+        {(isOpen || forceOpenForE2E) && (
           <motion.div
             initial={{ x: -400, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -366,13 +376,15 @@ const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({ isOpen, onToggl
               {/* Search */}
               <div className='relative'>
                 <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
-                <input
-                  type='text'
-                  placeholder='Search features...'
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className='w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all text-sm'
-                />
+                {!forceOpenForE2E && (
+                  <input
+                    type='text'
+                    placeholder='Search features...'
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className='w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all text-sm'
+                  />
+                )}
               </div>
             </div>
 

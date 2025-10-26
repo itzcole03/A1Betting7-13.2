@@ -8,7 +8,7 @@ Supports environment variables, file-based config, and runtime overrides.
 import json
 import logging
 import os
-from dataclasses import dataclass, field, field
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union
@@ -120,24 +120,24 @@ class MLConfig:
 @dataclass
 class LLMConfig:
     """LLM (Large Language Model) configuration"""
-    
+
     # Provider settings
-    provider: str = "local_stub"  # "openai" | "local_stub" 
+    provider: str = "local_stub"  # "openai" | "local_stub"
     max_tokens: int = 512
     temperature: float = 0.2
     timeout_sec: int = 25
     prompt_template_version: str = "v1"
-    
+
     # Rate limiting
     rate_limit_per_min: int = 60
-    
+
     # Caching
     cache_ttl_sec: int = 3600  # 1 hour
     allow_batch_prefetch: bool = True
-    
+
     # Logging and debugging
     log_prompt_debug: bool = False  # Enable truncated prompt logging
-    
+
     # OpenAI specific settings
     openai_model: str = "gpt-3.5-turbo"
     openai_organization: Optional[str] = None
@@ -199,7 +199,7 @@ class PerformanceConfig:
     # Monitoring
     performance_monitoring_enabled: bool = True
     metrics_collection_enabled: bool = True
-    
+
     # CLV Metrics
     enable_clv_metrics: bool = True
 
@@ -207,21 +207,21 @@ class PerformanceConfig:
 @dataclass
 class StreamingConfig:
     """Real-time market data streaming configuration"""
-    
+
     # Polling facade settings
     poll_interval_sec: int = 20
     jitter_sec: int = 5
     event_buffer: int = 1000
-    
+
     # Provider management
     provider_default_enabled: bool = True
     provider_health_check_interval_sec: int = 300  # 5 minutes
     provider_timeout_sec: int = 30
-    
+
     # Delta detection settings
     valuation_recompute_debounce_sec: int = 10
     optimization_live_refresh_min_changed_edges: int = 1
-    
+
     # Portfolio rationale settings
     portfolio_rationale_cache_ttl_sec: int = 3600  # 1 hour
     llm_portfolio_rationale_enabled: bool = True
@@ -233,13 +233,13 @@ class CorrelationConfig:
 
     # Minimum samples required for correlation calculation
     min_samples: int = 8
-    
+
     # Correlation threshold for clustering
     threshold_cluster: float = 0.4
-    
+
     # Correlation adjustment factor for parlay calculations
     adjustment_factor: float = 0.5
-    
+
     # Enable correlation-adjusted probability calculations
     allow_correlation_adjustment: bool = True
 
@@ -251,13 +251,13 @@ class TicketingConfig:
     # Ticket constraints
     max_legs: int = 6
     min_legs: int = 2
-    
+
     # Maximum average correlation allowed within a ticket
     max_avg_correlation: float = 0.6
-    
+
     # Base payout multiplier (placeholder for more sophisticated payout schema)
     parlay_base_multiplier: float = 3.0
-    
+
     # LLM integration
     llm_prefetch_on_ticket: bool = False
 
@@ -265,37 +265,39 @@ class TicketingConfig:
 @dataclass
 class OptimizationConfig:
     """Portfolio optimization configuration"""
-    
+
     # Optimization engine settings
     enabled: bool = True
-    default_objective: str = "max_ev"  # "max_ev", "max_ev_var_ratio", "target_probability"
-    
+    default_objective: str = (
+        "max_ev"  # "max_ev", "max_ev_var_ratio", "target_probability"
+    )
+
     # Beam search parameters
     default_beam_width: int = 100
     max_beam_width: int = 1000
     default_max_iterations: int = 1000
     max_iterations_limit: int = 10000
-    
+
     # Portfolio constraints
     max_total_stake: float = 10000.0
     min_edge_threshold: float = 0.02
     max_correlation_threshold: float = 0.7
     max_props_per_portfolio: int = 50
-    
+
     # Correlation method preferences
     default_correlation_method: str = "factor"  # "pairwise", "factor", "copula"
     enable_factor_model: bool = True
     enable_copula_modeling: bool = True
-    
+
     # Performance settings
     enable_parallel_processing: bool = True
     max_worker_threads: int = 4
     computation_timeout_sec: int = 300  # 5 minutes
-    
+
     # Caching
     cache_optimization_results: bool = True
     optimization_cache_ttl_sec: int = 3600  # 1 hour
-    
+
     # Task scheduling
     enable_background_optimization: bool = True
     default_task_priority: str = "medium"  # "low", "medium", "high"
@@ -305,32 +307,32 @@ class OptimizationConfig:
 @dataclass
 class MonteCarloConfig:
     """Monte Carlo simulation configuration"""
-    
+
     # Simulation parameters
     default_min_simulations: int = 10000
     default_max_simulations: int = 100000
     max_simulations_limit: int = 1000000
     default_confidence_level: float = 0.95
-    
+
     # Convergence criteria
     convergence_tolerance: float = 0.001
     convergence_window: int = 1000
     adaptive_stopping_enabled: bool = True
-    
+
     # Performance optimization
     enable_factor_acceleration: bool = True
     batch_size: int = 1000
     enable_parallel_sampling: bool = True
-    
+
     # Correlation modeling
     default_correlation_method: str = "factor"  # "pairwise", "factor", "copula"
     correlation_lookback_days: int = 30
     min_correlation_observations: int = 20
-    
+
     # Caching
     cache_simulation_results: bool = True
     simulation_cache_ttl_sec: int = 1800  # 30 minutes
-    
+
     # Statistical validation
     enable_statistical_tests: bool = True
     ks_test_threshold: float = 0.05
@@ -340,32 +342,32 @@ class MonteCarloConfig:
 @dataclass
 class PortfolioCorrelationConfig:
     """Advanced correlation modeling configuration"""
-    
+
     # Data requirements
     min_observations: int = 20
     max_lookback_days: int = 365
     default_lookback_days: int = 30
-    
+
     # Correlation matrix computation
     enable_psd_enforcement: bool = True  # Positive Semi-Definite enforcement
     shrinkage_enabled: bool = True
     shrinkage_intensity: float = 0.1
-    
+
     # Factor model settings
     auto_select_factors: bool = True
     max_factors: int = 10
     min_factor_variance_explained: float = 0.8
     factor_rotation: str = "varimax"  # "varimax", "promax", "none"
-    
+
     # Copula modeling
     copula_type: str = "gaussian"  # "gaussian", "t", "clayton", "gumbel"
     copula_fit_method: str = "mle"  # "mle", "ifm", "cmle"
-    
+
     # Validation and diagnostics
     enable_correlation_diagnostics: bool = True
     eigenvalue_tolerance: float = 1e-8
     condition_number_threshold: float = 1e12
-    
+
     # Caching
     cache_correlation_matrices: bool = True
     correlation_cache_ttl_sec: int = 7200  # 2 hours
@@ -395,17 +397,17 @@ class SecurityConfig:
 @dataclass
 class RiskManagementConfig:
     """Risk management and exposure configuration"""
-    
+
     # Bankroll Management
     risk_min_stake: float = 1.0
     risk_max_stake_pct_bankroll: float = 0.05  # 5% max stake per bet
-    
+
     # Exposure Limits (as percentage of bankroll)
     exposure_max_player_pct: float = 0.15  # 15% max exposure per player
     exposure_max_prop_type_pct: float = 0.25  # 25% max exposure per prop type
-    exposure_max_cluster_pct: float = 0.20  # 20% max exposure per correlation cluster  
+    exposure_max_cluster_pct: float = 0.20  # 20% max exposure per correlation cluster
     exposure_max_daily_stake: float = 0.3  # 30% max daily aggregate exposure
-    
+
     # Risk Analysis Thresholds
     risk_max_correlated_edges: int = 5  # Max edges in same correlation cluster
     risk_max_edges_per_player: int = 3  # Max edges per player
@@ -413,17 +415,17 @@ class RiskManagementConfig:
     risk_max_legs_per_cluster: int = 3  # Max legs per cluster in single ticket
     risk_low_ev_threshold: float = 0.02  # 2% EV threshold for "low EV" classification
     risk_min_combined_probability: float = 0.01  # 1% minimum combined probability
-    
+
     # Alert System
     alert_evaluation_interval_seconds: int = 60  # Alert evaluation interval
     alert_cooldown_min_sec: int = 300  # 5 minutes between same alert
     alert_max_batch: int = 50  # Max alerts per batch
     bankroll_drawdown_threshold: float = 0.7  # Alert when bankroll drops to 70%
-    
+
     # Personalization
     interest_decay_rate: float = 0.1  # Daily decay rate for interest signals
     edge_recommendation_limit: int = 50  # Max edges returned in recommendations
-    
+
     # LLM Integration
     llm_explain_stake: bool = False  # Enable LLM stake explanations
 
@@ -431,71 +433,81 @@ class RiskManagementConfig:
 @dataclass
 class SportsConfig:
     """Multi-sport configuration"""
-    
+
     # Supported sports and their enablement status
-    sports_enabled: Dict[str, bool] = field(default_factory=lambda: {
-        "NBA": True,  # Currently supported
-        "NFL": False,  # Future implementation
-        "MLB": False,  # Future implementation
-        "NHL": False,  # Future implementation
-        "NCAA_BB": False,  # Future implementation
-        "NCAA_FB": False,  # Future implementation
-    })
-    
+    sports_enabled: Dict[str, bool] = field(
+        default_factory=lambda: {
+            "NBA": True,  # Currently supported
+            "NFL": False,  # Future implementation
+            "MLB": False,  # Future implementation
+            "NHL": False,  # Future implementation
+            "NCAA_BB": False,  # Future implementation
+            "NCAA_FB": False,  # Future implementation
+        }
+    )
+
     # Default sport for legacy functionality
     default_sport: str = "NBA"
-    
+
     # Per-sport polling intervals (seconds)
-    polling_intervals: Dict[str, int] = field(default_factory=lambda: {
-        "NBA": 20,   # Fast polling for active NBA season
-        "NFL": 30,   # Slower for weekly games
-        "MLB": 15,   # Frequent for daily games
-        "NHL": 25,   # Medium polling
-        "NCAA_BB": 30,  # Tournament dependent
-        "NCAA_FB": 60,  # Weekly games
-    })
-    
-    # Per-sport provider configurations
-    provider_configs: Dict[str, Dict[str, Any]] = field(default_factory=lambda: {
-        "NBA": {
-            "enabled_providers": ["stub", "draftkings", "fanduel"],
-            "priority_provider": "stub",
-            "timeout_sec": 30,
-            "max_retries": 3,
-        },
-        "NFL": {
-            "enabled_providers": ["stub"],
-            "priority_provider": "stub", 
-            "timeout_sec": 45,
-            "max_retries": 2,
-        },
-        "MLB": {
-            "enabled_providers": ["stub"],
-            "priority_provider": "stub",
-            "timeout_sec": 30,
-            "max_retries": 3,
+    polling_intervals: Dict[str, int] = field(
+        default_factory=lambda: {
+            "NBA": 20,  # Fast polling for active NBA season
+            "NFL": 30,  # Slower for weekly games
+            "MLB": 15,  # Frequent for daily games
+            "NHL": 25,  # Medium polling
+            "NCAA_BB": 30,  # Tournament dependent
+            "NCAA_FB": 60,  # Weekly games
         }
-    })
-    
+    )
+
+    # Per-sport provider configurations
+    provider_configs: Dict[str, Dict[str, Any]] = field(
+        default_factory=lambda: {
+            "NBA": {
+                "enabled_providers": ["stub", "draftkings", "fanduel"],
+                "priority_provider": "stub",
+                "timeout_sec": 30,
+                "max_retries": 3,
+            },
+            "NFL": {
+                "enabled_providers": ["stub"],
+                "priority_provider": "stub",
+                "timeout_sec": 45,
+                "max_retries": 2,
+            },
+            "MLB": {
+                "enabled_providers": ["stub"],
+                "priority_provider": "stub",
+                "timeout_sec": 30,
+                "max_retries": 3,
+            },
+        }
+    )
+
     # Sport-specific data retention policies
-    data_retention_days: Dict[str, int] = field(default_factory=lambda: {
-        "NBA": 180,  # Full season + playoffs
-        "NFL": 365,  # Longer retention for weekly data
-        "MLB": 180,  # Baseball season
-        "NHL": 180,  # Hockey season
-        "NCAA_BB": 90,  # Tournament season
-        "NCAA_FB": 120, # College football season
-    })
-    
+    data_retention_days: Dict[str, int] = field(
+        default_factory=lambda: {
+            "NBA": 180,  # Full season + playoffs
+            "NFL": 365,  # Longer retention for weekly data
+            "MLB": 180,  # Baseball season
+            "NHL": 180,  # Hockey season
+            "NCAA_BB": 90,  # Tournament season
+            "NCAA_FB": 120,  # College football season
+        }
+    )
+
     # Sport-specific ingestion limits
-    ingestion_limits: Dict[str, int] = field(default_factory=lambda: {
-        "NBA": 500,   # High prop volume
-        "NFL": 1000,  # Many prop types
-        "MLB": 400,   # Moderate volume
-        "NHL": 300,   # Moderate volume  
-        "NCAA_BB": 200,  # Tournament focus
-        "NCAA_FB": 250,  # Weekend focus
-    })
+    ingestion_limits: Dict[str, int] = field(
+        default_factory=lambda: {
+            "NBA": 500,  # High prop volume
+            "NFL": 1000,  # Many prop types
+            "MLB": 400,  # Moderate volume
+            "NHL": 300,  # Moderate volume
+            "NCAA_BB": 200,  # Tournament focus
+            "NCAA_FB": 250,  # Weekend focus
+        }
+    )
 
 
 @dataclass
@@ -522,11 +534,13 @@ class ApplicationConfig:
     security: SecurityConfig = field(default_factory=SecurityConfig)
     risk: RiskManagementConfig = field(default_factory=RiskManagementConfig)
     sports: SportsConfig = field(default_factory=SportsConfig)
-    
+
     # New portfolio optimization configurations
     optimization: OptimizationConfig = field(default_factory=OptimizationConfig)
     monte_carlo: MonteCarloConfig = field(default_factory=MonteCarloConfig)
-    portfolio_correlation: PortfolioCorrelationConfig = field(default_factory=PortfolioCorrelationConfig)
+    portfolio_correlation: PortfolioCorrelationConfig = field(
+        default_factory=PortfolioCorrelationConfig
+    )
 
 
 class UnifiedConfigManager:
@@ -541,7 +555,15 @@ class UnifiedConfigManager:
 
     def __init__(self, config_dir: str = "backend/config"):
         self.config_dir = Path(config_dir)
-        self.config_dir.mkdir(exist_ok=True)
+        # Ensure parent directories are created to avoid FileNotFoundError in test environments
+        try:
+            self.config_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            # If directory creation fails for any reason, log and continue; tests may mock filesystem
+            logging.getLogger("unified_config").warning(
+                "Could not create config directory '%s' during initialization",
+                str(self.config_dir),
+            )
 
         self._config: ApplicationConfig = ApplicationConfig()
         self._config_sources: Dict[str, ConfigSource] = {}
@@ -638,50 +660,102 @@ class UnifiedConfigManager:
             # Environment
             "ENVIRONMENT": ("environment", str),
             "DEBUG": ("debug", bool),
-            
             # Portfolio optimization settings
             "OPTIMIZATION_ENABLED": ("optimization.enabled", bool),
             "OPTIMIZATION_DEFAULT_OBJECTIVE": ("optimization.default_objective", str),
             "OPTIMIZATION_BEAM_WIDTH": ("optimization.default_beam_width", int),
             "OPTIMIZATION_MAX_ITERATIONS": ("optimization.default_max_iterations", int),
             "OPTIMIZATION_MAX_TOTAL_STAKE": ("optimization.max_total_stake", float),
-            "OPTIMIZATION_MIN_EDGE_THRESHOLD": ("optimization.min_edge_threshold", float),
-            "OPTIMIZATION_MAX_CORRELATION_THRESHOLD": ("optimization.max_correlation_threshold", float),
-            "OPTIMIZATION_CORRELATION_METHOD": ("optimization.default_correlation_method", str),
-            "OPTIMIZATION_ENABLE_FACTOR_MODEL": ("optimization.enable_factor_model", bool),
+            "OPTIMIZATION_MIN_EDGE_THRESHOLD": (
+                "optimization.min_edge_threshold",
+                float,
+            ),
+            "OPTIMIZATION_MAX_CORRELATION_THRESHOLD": (
+                "optimization.max_correlation_threshold",
+                float,
+            ),
+            "OPTIMIZATION_CORRELATION_METHOD": (
+                "optimization.default_correlation_method",
+                str,
+            ),
+            "OPTIMIZATION_ENABLE_FACTOR_MODEL": (
+                "optimization.enable_factor_model",
+                bool,
+            ),
             "OPTIMIZATION_MAX_WORKER_THREADS": ("optimization.max_worker_threads", int),
             "OPTIMIZATION_TIMEOUT_SEC": ("optimization.computation_timeout_sec", int),
-            
             # Monte Carlo settings
             "MONTE_CARLO_MIN_SIMULATIONS": ("monte_carlo.default_min_simulations", int),
             "MONTE_CARLO_MAX_SIMULATIONS": ("monte_carlo.default_max_simulations", int),
-            "MONTE_CARLO_CONFIDENCE_LEVEL": ("monte_carlo.default_confidence_level", float),
-            "MONTE_CARLO_CONVERGENCE_TOLERANCE": ("monte_carlo.convergence_tolerance", float),
-            "MONTE_CARLO_ENABLE_FACTOR_ACCELERATION": ("monte_carlo.enable_factor_acceleration", bool),
+            "MONTE_CARLO_CONFIDENCE_LEVEL": (
+                "monte_carlo.default_confidence_level",
+                float,
+            ),
+            "MONTE_CARLO_CONVERGENCE_TOLERANCE": (
+                "monte_carlo.convergence_tolerance",
+                float,
+            ),
+            "MONTE_CARLO_ENABLE_FACTOR_ACCELERATION": (
+                "monte_carlo.enable_factor_acceleration",
+                bool,
+            ),
             "MONTE_CARLO_BATCH_SIZE": ("monte_carlo.batch_size", int),
-            "MONTE_CARLO_CORRELATION_METHOD": ("monte_carlo.default_correlation_method", str),
+            "MONTE_CARLO_CORRELATION_METHOD": (
+                "monte_carlo.default_correlation_method",
+                str,
+            ),
             "MONTE_CARLO_LOOKBACK_DAYS": ("monte_carlo.correlation_lookback_days", int),
-            
             # Portfolio correlation settings
-            "PORTFOLIO_CORRELATION_MIN_OBSERVATIONS": ("portfolio_correlation.min_observations", int),
-            "PORTFOLIO_CORRELATION_LOOKBACK_DAYS": ("portfolio_correlation.default_lookback_days", int),
-            "PORTFOLIO_CORRELATION_ENABLE_PSD": ("portfolio_correlation.enable_psd_enforcement", bool),
-            "PORTFOLIO_CORRELATION_SHRINKAGE_ENABLED": ("portfolio_correlation.shrinkage_enabled", bool),
-            "PORTFOLIO_CORRELATION_MAX_FACTORS": ("portfolio_correlation.max_factors", int),
-            "PORTFOLIO_CORRELATION_COPULA_TYPE": ("portfolio_correlation.copula_type", str),
-            
+            "PORTFOLIO_CORRELATION_MIN_OBSERVATIONS": (
+                "portfolio_correlation.min_observations",
+                int,
+            ),
+            "PORTFOLIO_CORRELATION_LOOKBACK_DAYS": (
+                "portfolio_correlation.default_lookback_days",
+                int,
+            ),
+            "PORTFOLIO_CORRELATION_ENABLE_PSD": (
+                "portfolio_correlation.enable_psd_enforcement",
+                bool,
+            ),
+            "PORTFOLIO_CORRELATION_SHRINKAGE_ENABLED": (
+                "portfolio_correlation.shrinkage_enabled",
+                bool,
+            ),
+            "PORTFOLIO_CORRELATION_MAX_FACTORS": (
+                "portfolio_correlation.max_factors",
+                int,
+            ),
+            "PORTFOLIO_CORRELATION_COPULA_TYPE": (
+                "portfolio_correlation.copula_type",
+                str,
+            ),
             # Streaming settings
             "STREAM_POLL_INTERVAL_SEC": ("streaming.poll_interval_sec", int),
             "STREAM_JITTER_SEC": ("streaming.jitter_sec", int),
             "STREAM_EVENT_BUFFER": ("streaming.event_buffer", int),
             "PROVIDER_DEFAULT_ENABLED": ("streaming.provider_default_enabled", bool),
-            "PROVIDER_HEALTH_CHECK_INTERVAL_SEC": ("streaming.provider_health_check_interval_sec", int),
+            "PROVIDER_HEALTH_CHECK_INTERVAL_SEC": (
+                "streaming.provider_health_check_interval_sec",
+                int,
+            ),
             "PROVIDER_TIMEOUT_SEC": ("streaming.provider_timeout_sec", int),
-            "VALUATION_RECOMPUTE_DEBOUNCE_SEC": ("streaming.valuation_recompute_debounce_sec", int),
-            "OPTIMIZATION_LIVE_REFRESH_MIN_CHANGED_EDGES": ("streaming.optimization_live_refresh_min_changed_edges", int),
-            "PORTFOLIO_RATIONALE_CACHE_TTL_SEC": ("streaming.portfolio_rationale_cache_ttl_sec", int),
-            "LLM_PORTFOLIO_RATIONALE_ENABLED": ("streaming.llm_portfolio_rationale_enabled", bool),
-            
+            "VALUATION_RECOMPUTE_DEBOUNCE_SEC": (
+                "streaming.valuation_recompute_debounce_sec",
+                int,
+            ),
+            "OPTIMIZATION_LIVE_REFRESH_MIN_CHANGED_EDGES": (
+                "streaming.optimization_live_refresh_min_changed_edges",
+                int,
+            ),
+            "PORTFOLIO_RATIONALE_CACHE_TTL_SEC": (
+                "streaming.portfolio_rationale_cache_ttl_sec",
+                int,
+            ),
+            "LLM_PORTFOLIO_RATIONALE_ENABLED": (
+                "streaming.llm_portfolio_rationale_enabled",
+                bool,
+            ),
             # Sports settings
             "SPORTS_DEFAULT": ("sports.default_sport", str),
             "SPORTS_NBA_ENABLED": ("sports.sports_enabled.NBA", bool),
@@ -854,11 +928,11 @@ class UnifiedConfigManager:
                 "EDGE_RECOMMENDATION_LIMIT": "risk.edge_recommendation_limit",
                 "LLM_EXPLAIN_STAKE": "risk.llm_explain_stake",
             }
-            
+
             # Map direct keys to config paths
             if path in risk_config_keys:
                 path = risk_config_keys[path]
-            
+
             path_parts = path.split(".")
             current = self._config
 
@@ -888,10 +962,14 @@ class UnifiedConfigManager:
         """Get configuration summary for debugging"""
         # Handle environment safely in case it's not an enum
         try:
-            env_value = self._config.environment.value if hasattr(self._config.environment, 'value') else str(self._config.environment)
+            env_value = (
+                self._config.environment.value
+                if hasattr(self._config.environment, "value")
+                else str(self._config.environment)
+            )
         except Exception:
             env_value = str(self._config.environment)
-            
+
         return {
             "environment": env_value,
             "debug": self._config.debug,

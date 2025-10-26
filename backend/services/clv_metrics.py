@@ -245,6 +245,8 @@ class CLVMetricsService:
                 "reason": "disabled_by_flag",
                 "prometheus_available": PROMETHEUS_AVAILABLE,
                 "metrics_available": False,
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "meta": {"source": "clv_metrics", "version": "v1"},
             }
 
         total_operations = self._enrichment_count + self._failure_count
@@ -301,6 +303,9 @@ class CLVMetricsService:
             "cache_hit_rate": round(cache_hit_rate, 2),
             "window_size": "runtime",
             "prometheus_available": PROMETHEUS_AVAILABLE,
+            # Add stable metadata for diagnostics consumers/tests
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "meta": {"source": "clv_metrics", "version": "v1"},
         }
 
         return diagnostics
@@ -323,9 +328,13 @@ def _get_clv_metrics_instance() -> Optional[CLVMetricsService]:
     None to keep callers resilient.
     """
     try:
-        logger.info("clv_metrics: constructing CLVMetricsService instance via constructor")
+        logger.info(
+            "clv_metrics: constructing CLVMetricsService instance via constructor"
+        )
         # TEMP TRACE
-        print(f"TRACE: about to call CLVMetricsService constructor object={CLVMetricsService!r}")
+        print(
+            f"TRACE: about to call CLVMetricsService constructor object={CLVMetricsService!r}"
+        )
         return CLVMetricsService()
     except Exception:
         try:
@@ -334,7 +343,9 @@ def _get_clv_metrics_instance() -> Optional[CLVMetricsService]:
             logger.info("clv_metrics: constructor failed; trying get_instance()")
             return CLVMetricsService.get_instance()
         except Exception:
-            logger.info("clv_metrics: Could not obtain CLV metrics instance via constructor or get_instance")
+            logger.info(
+                "clv_metrics: Could not obtain CLV metrics instance via constructor or get_instance"
+            )
             return None
 
 
@@ -353,23 +364,35 @@ def get_metrics_service() -> Optional[CLVMetricsService]:
     """
     # Prefer direct construction (so tests that patch the class are exercised)
     try:
-        logger.info("clv_metrics.get_metrics_service: CLVMetricsService constructor object=%r", CLVMetricsService)
+        logger.info(
+            "clv_metrics.get_metrics_service: CLVMetricsService constructor object=%r",
+            CLVMetricsService,
+        )
         # TEMP TRACE
-        print(f"TRACE: get_metrics_service sees constructor object={CLVMetricsService!r}")
+        print(
+            f"TRACE: get_metrics_service sees constructor object={CLVMetricsService!r}"
+        )
         inst = CLVMetricsService()
         # TEMP TRACE
         print(f"TRACE: get_metrics_service constructed instance={inst!r}")
         logger.info("clv_metrics.get_metrics_service: constructed instance=%r", inst)
         return inst
     except Exception as exc:  # pragma: no cover - defensive
-        logger.info("clv_metrics.get_metrics_service: constructor raised %s, falling back to get_instance", exc)
+        logger.info(
+            "clv_metrics.get_metrics_service: constructor raised %s, falling back to get_instance",
+            exc,
+        )
         try:
             inst = CLVMetricsService.get_instance()
-            logger.info("clv_metrics.get_metrics_service: get_instance returned %r", inst)
+            logger.info(
+                "clv_metrics.get_metrics_service: get_instance returned %r", inst
+            )
             print(f"TRACE: get_metrics_service fallback get_instance returned={inst!r}")
             return inst
         except Exception:
-            logger.info("clv_metrics.get_metrics_service: could not obtain instance via get_instance()")
+            logger.info(
+                "clv_metrics.get_metrics_service: could not obtain instance via get_instance()"
+            )
             print("TRACE: get_metrics_service could not obtain instance")
             return None
 
@@ -394,7 +417,9 @@ def record_failure(
         return
     try:
         logger.info("clv_metrics: invoking record_failure on metrics instance %r", inst)
-        print(f"DEBUG: clv_metrics.record_failure calling inst.record_failure on {inst!r} with duration={duration_ms}")
+        print(
+            f"DEBUG: clv_metrics.record_failure calling inst.record_failure on {inst!r} with duration={duration_ms}"
+        )
         inst.record_failure(duration_ms, endpoint)
     except Exception as exc:
         logger.info("CLV record_failure failed: %s", exc)
@@ -439,13 +464,22 @@ def get_snapshot() -> Dict[str, Any]:
 # underlying service at call-time using the wrappers above rather than
 # instantiating a singleton at import time.
 class _CLVMetricsFacade:
-    def record_success(self, duration_ms: float, endpoint: str = "propfinder_opportunities") -> None:
+    def record_success(
+        self, duration_ms: float, endpoint: str = "propfinder_opportunities"
+    ) -> None:
         return record_success(duration_ms, endpoint)
 
-    def record_failure(self, duration_ms: float, endpoint: str = "propfinder_opportunities") -> None:
+    def record_failure(
+        self, duration_ms: float, endpoint: str = "propfinder_opportunities"
+    ) -> None:
         return record_failure(duration_ms, endpoint)
 
-    def record_batch(self, count: int, duration_ms: float = 0.0, endpoint: str = "propfinder_opportunities") -> None:
+    def record_batch(
+        self,
+        count: int,
+        duration_ms: float = 0.0,
+        endpoint: str = "propfinder_opportunities",
+    ) -> None:
         return record_batch(count, duration_ms, endpoint)
 
     def get_snapshot(self) -> Dict[str, Any]:

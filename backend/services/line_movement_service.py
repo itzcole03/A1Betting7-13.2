@@ -241,7 +241,9 @@ class LineMovementService:
         if not self._use_redis:
             # Intentionally not attempting to connect to Redis for this
             # instance - use in-memory fallback.
-            logger.debug("Instance configured for in-memory storage; skipping Redis connect")
+            logger.debug(
+                "Instance configured for in-memory storage; skipping Redis connect"
+            )
             return None
 
         if not REDIS_AVAILABLE or redis is None:
@@ -530,15 +532,15 @@ class LineMovementService:
 
         keys = []
         if redis_client:
+            try:
+                keys = await redis_client.keys(pattern)
+            except Exception as e:
+                logger.warning(f"Redis keys operation failed: {e}")
                 try:
-                    keys = await redis_client.keys(pattern)
-                except Exception as e:
-                    logger.warning(f"Redis keys operation failed: {e}")
-                    try:
-                        self.redis = None
-                    except Exception:
-                        pass
-                    keys = list(self._in_memory_store.keys())
+                    self.redis = None
+                except Exception:
+                    pass
+                keys = list(self._in_memory_store.keys())
         else:
             # Use in-memory keys
             if sport:
@@ -1023,6 +1025,25 @@ class LegacyLineMovementServiceAdapter:
     def init_storage(self):
         self._initialized = True
 
+    # --- Compatibility helpers to accept both dicts and attr-objects ---
+    def _get(self, obj: Any, key: str, default: Any = None) -> Any:
+        try:
+            if isinstance(obj, dict):
+                return obj.get(key, default)
+            return getattr(obj, key, default)
+        except Exception:
+            return default
+
+    def _set(self, obj: Any, key: str, value: Any) -> None:
+        try:
+            if isinstance(obj, dict):
+                obj[key] = value
+            else:
+                setattr(obj, key, value)
+        except Exception:
+            # keep non-fatal
+            pass
+
     def _as_str(self, value: Any) -> str:
         # Handle Enums or objects with `value`, otherwise str()
         try:
@@ -1034,9 +1055,9 @@ class LegacyLineMovementServiceAdapter:
         return str(value)
 
     def _build_id(self, opp: Any) -> str:
-        sport = self._as_str(getattr(opp, "sport", ""))
-        player = self._as_str(getattr(opp, "player", ""))
-        market = self._as_str(getattr(opp, "market", ""))
+        sport = self._as_str(self._get(opp, "sport", ""))
+        player = self._as_str(self._get(opp, "player", ""))
+        market = self._as_str(self._get(opp, "market", ""))
         return f"{sport}:{player}:{market}"
 
     def record_snapshot(self, opp: Any) -> None:
@@ -1052,8 +1073,8 @@ class LegacyLineMovementServiceAdapter:
         if last is not None and (now - last) < self.THROTTLE_SECONDS:
             return
 
-        line = getattr(opp, "line", None)
-        odds = getattr(opp, "odds", None)
+        line = self._get(opp, "line", None)
+        odds = self._get(opp, "odds", None)
 
         snap = {
             "ts": datetime.now(timezone.utc).isoformat(),
@@ -1079,15 +1100,15 @@ class LegacyLineMovementServiceAdapter:
 
         if not history:
             # Initialize baseline from current values
-            opening_line = getattr(opp, "line", None)
-            opening_odds = getattr(opp, "odds", None)
-            setattr(opp, "openingLine", opening_line)
-            setattr(opp, "latestLine", opening_line)
-            setattr(opp, "openingOdds", opening_odds)
-            setattr(opp, "latestOdds", opening_odds)
-            setattr(opp, "lineChange", 0.0)
-            setattr(opp, "oddsChange", 0)
-            setattr(opp, "movementDirection", "flat")
+            opening_line = self._get(opp, "line", None)
+            opening_odds = self._get(opp, "odds", None)
+            self._set(opp, "openingLine", opening_line)
+            self._set(opp, "latestLine", opening_line)
+            self._set(opp, "openingOdds", opening_odds)
+            self._set(opp, "latestOdds", opening_odds)
+            self._set(opp, "lineChange", 0.0)
+            self._set(opp, "oddsChange", 0)
+            self._set(opp, "movementDirection", "flat")
             return
 
         opening = history[0]
@@ -1097,13 +1118,13 @@ class LegacyLineMovementServiceAdapter:
 
         opening_line = opening.get("line")
         latest_line = (
-            getattr(opp, "line", latest.get("line"))
+            self._get(opp, "line", latest.get("line"))
             if multiple_snapshots
             else latest.get("line")
         )
         opening_odds = opening.get("odds")
         latest_odds = (
-            getattr(opp, "odds", latest.get("odds"))
+            self._get(opp, "odds", latest.get("odds"))
             if multiple_snapshots
             else latest.get("odds")
         )
@@ -1114,17 +1135,20 @@ class LegacyLineMovementServiceAdapter:
         if force_flat_baseline and opening_odds is not None:
             latest_odds = opening_odds
 
-        setattr(opp, "openingLine", opening_line)
-        setattr(opp, "latestLine", latest_line)
-        setattr(opp, "openingOdds", opening_odds)
-        setattr(opp, "latestOdds", latest_odds)
+        self._set(opp, "openingLine", opening_line)
+        self._set(opp, "latestLine", latest_line)
+        self._set(opp, "openingOdds", opening_odds)
+        self._set(opp, "latestOdds", latest_odds)
 
         # Compute changes
         if opening_line is not None and latest_line is not None:
-            line_change = round(float(latest_line) - float(opening_line), 3)
+            try:
+                line_change = round(float(latest_line) - float(opening_line), 3)
+            except Exception:
+                line_change = 0.0
         else:
             line_change = 0.0
-        setattr(opp, "lineChange", line_change)
+        self._set(opp, "lineChange", line_change)
 
         if opening_odds is not None and latest_odds is not None:
             try:
@@ -1133,19 +1157,22 @@ class LegacyLineMovementServiceAdapter:
                 odds_change = 0
         else:
             odds_change = 0
-        setattr(opp, "oddsChange", odds_change)
+        self._set(opp, "oddsChange", odds_change)
 
         # Direction
         if opening_line is None or latest_line is None:
             direction = "flat"
         else:
-            if latest_line > opening_line:
-                direction = "up"
-            elif latest_line < opening_line:
-                direction = "down"
-            else:
+            try:
+                if float(latest_line) > float(opening_line):
+                    direction = "up"
+                elif float(latest_line) < float(opening_line):
+                    direction = "down"
+                else:
+                    direction = "flat"
+            except Exception:
                 direction = "flat"
-        setattr(opp, "movementDirection", direction)
+        self._set(opp, "movementDirection", direction)
 
     def get_history(self, opp_id: str, limit: int = 10) -> List[Dict[str, Any]]:
         history = self._history_store.get(opp_id, [])

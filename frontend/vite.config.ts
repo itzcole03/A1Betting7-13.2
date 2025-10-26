@@ -3,6 +3,8 @@ import autoprefixer from 'autoprefixer';
 import tailwindcss from '@tailwindcss/postcss';
 import dns from 'node:dns';
 import path from 'path';
+import http from 'node:http';
+import https from 'node:https';
 import { defineConfig, loadEnv } from 'vite';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
 
@@ -61,7 +63,53 @@ export default defineConfig(({ mode, command }) => {
       },
     },
 
-    plugins: [react(), viteTsconfigPaths()],
+    plugins: [
+      react(),
+      viteTsconfigPaths(),
+      // Dev-only plugin: respond to OPTIONS preflight for /api/* locally so
+      // browsers don't receive 405 from backends that don't implement OPTIONS.
+      // This keeps dev experience smooth while still proxying actual requests.
+      ...(mode === 'development' && !isElectron
+        ? [
+            {
+              name: 'dev-preflight-options',
+              configureServer(server) {
+                server.middlewares.use((req, res, next) => {
+                  try {
+                    // Handle OPTIONS preflight locally to avoid 405s
+                    if (req.method === 'OPTIONS' && req.url && req.url.startsWith('/api')) {
+                      res.statusCode = 204;
+                      res.setHeader('Access-Control-Allow-Origin', '*');
+                      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD');
+                      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+                      res.end();
+                      return;
+                    }
+
+                    // Some monitoring/fetch libraries issue HEAD requests to probe endpoints.
+                    // Many backend endpoints don't implement HEAD and will return 405. For
+                    // the dev experience we respond locally with a lightweight 204 and
+                    // CORS headers so probes succeed and don't block chunks or other
+                    // dynamic imports. This avoids generating load on the backend.
+                    if (req.method === 'HEAD' && req.url && req.url.startsWith('/api')) {
+                      res.statusCode = 204;
+                      res.setHeader('Access-Control-Allow-Origin', '*');
+                      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD');
+                      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+                      // No body for HEAD; end immediately
+                      res.end();
+                      return;
+                    }
+                  } catch (e) {
+                    // ignore middleware errors and continue
+                  }
+                  return next();
+                });
+              },
+            },
+          ]
+        : []),
+    ],
     // Force PostCSS to resolve plugins from the frontend workspace
     css: {
       postcss: {
@@ -110,40 +158,45 @@ export default defineConfig(({ mode, command }) => {
         ],
       },
 
-      // Conditional proxy setup
-      proxy:
-        mode === 'development' && !isElectron
-          ? {
-              '/api': {
-                target: env.VITE_BACKEND_URL || 'http://127.0.0.1:8000',
-                changeOrigin: true,
-                secure: false,
-                ws: false,
-              },
-              '/auth': {
-                target: env.VITE_BACKEND_URL || 'http://127.0.0.1:8000',
-                changeOrigin: true,
-                secure: false,
-              },
-              '/mlb': {
-                target: env.VITE_BACKEND_URL || 'http://127.0.0.1:8000',
-                changeOrigin: true,
-                secure: false,
-              },
-              '/health': {
-                target: env.VITE_BACKEND_URL || 'http://127.0.0.1:8000',
-                changeOrigin: true,
-                secure: false,
-              },
-              '/ws': {
-                // Use VITE_BACKEND_URL if provided, converting http(s) -> ws(s). Fallback to 127.0.0.1 to avoid localhost/IPv6 resolution issues.
-                target:
-                  env.VITE_BACKEND_URL?.replace(/^http/, 'ws') || 'ws://127.0.0.1:8000',
-                ws: true,
-                changeOrigin: true,
-              },
-            }
-          : undefined,
+      // Dev: always provide a sensible proxy mapping so /api requests are
+      // forwarded to the backend (avoids Vite answering API paths itself).
+      proxy: mode === 'development' && !isElectron
+        ? {
+            '/api': {
+              target: env.VITE_BACKEND_URL || 'http://127.0.0.1:8000',
+              changeOrigin: true,
+              secure: false,
+              ws: false,
+              // Helpful for debugging during local dev
+              logLevel: 'debug',
+            },
+            '/auth': {
+              target: env.VITE_BACKEND_URL || 'http://127.0.0.1:8000',
+              changeOrigin: true,
+              secure: false,
+              logLevel: 'debug',
+            },
+            '/mlb': {
+              target: env.VITE_BACKEND_URL || 'http://127.0.0.1:8000',
+              changeOrigin: true,
+              secure: false,
+              logLevel: 'debug',
+            },
+            '/health': {
+              target: env.VITE_BACKEND_URL || 'http://127.0.0.1:8000',
+              changeOrigin: true,
+              secure: false,
+              logLevel: 'debug',
+            },
+            '/ws': {
+              // Use VITE_BACKEND_URL if provided, converting http(s) -> ws(s). Fallback to 127.0.0.1 to avoid localhost/IPv6 resolution issues.
+              target: env.VITE_BACKEND_URL?.replace(/^http/, 'ws') || 'ws://127.0.0.1:8000',
+              ws: true,
+              changeOrigin: true,
+              logLevel: 'debug',
+            },
+          }
+        : undefined,
     },
 
     build: {

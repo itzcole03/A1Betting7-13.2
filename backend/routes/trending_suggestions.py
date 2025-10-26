@@ -3,11 +3,12 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Query, status
 
-# Avoid making HTTP calls at import time; lazy-import httpx inside functions
-
-from backend.exceptions.api_exceptions import BusinessLogicException
+from backend.core.exceptions import BusinessLogicException
 from backend.services.trending_suggestions_service import get_trending_suggestions
 from backend.utils.response_envelope import ok
+
+# Avoid making HTTP calls at import time; lazy-import httpx inside functions
+
 
 router = APIRouter(tags=["Trending Suggestions"])
 
@@ -39,6 +40,6 @@ def trending_suggestions(
         # Convert to BusinessLogicException so the test-local exception handler
         # will serialize a consistent error envelope with success=False
         raise BusinessLogicException(
-            detail=f"Failed to fetch trending suggestions: {str(e)}",
+            message=f"Failed to fetch trending suggestions: {str(e)}",
             error_code="trending_error",
         )

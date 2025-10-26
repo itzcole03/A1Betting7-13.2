@@ -8,6 +8,7 @@ Provides endpoints for tracking betting line changes over time.
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Query
 from datetime import datetime
+from backend.core.exceptions import BusinessLogicException
 
 from ..models.line_movement import (
     LineMovementResponse,
@@ -16,7 +17,6 @@ from ..models.line_movement import (
     DEFAULT_MOVEMENT_CONFIG
 )
 from ..services.line_movement_service import (
-from backend.core.exceptions import BusinessLogicException
     get_line_movement_service,
     trigger_snapshot
 )
@@ -55,7 +55,7 @@ async def get_line_movement(
         return analysis
         
     except Exception as e:
-        raise BusinessLogicException(f"Failed to retrieve line movement data: {str(e, status_code=500)}"
+        raise BusinessLogicException(f"Failed to retrieve line movement data: {str(e)}, status_code=500)"
         )
 
 
@@ -100,7 +100,7 @@ async def get_recent_movements(
         }
         
     except Exception as e:
-        raise BusinessLogicException(f"Failed to retrieve recent movements: {str(e, status_code=500)}"
+        raise BusinessLogicException(f"Failed to retrieve recent movements: {str(e)}, status_code=500)"
         )
 
 
@@ -144,7 +144,7 @@ async def record_movement_snapshot(
         }
         
     except Exception as e:
-        raise BusinessLogicException(f"Failed to record snapshot: {str(e, status_code=500)}"
+        raise BusinessLogicException(f"Failed to record snapshot: {str(e)}, status_code=500)"
         )
 
 
@@ -162,7 +162,7 @@ async def get_movement_metrics():
         return metrics
         
     except Exception as e:
-        raise BusinessLogicException(f"Failed to retrieve metrics: {str(e, status_code=500)}"
+        raise BusinessLogicException(f"Failed to retrieve metrics: {str(e)}, status_code=500)"
         )
 
 
@@ -204,7 +204,7 @@ async def cleanup_expired_snapshots():
         }
         
     except Exception as e:
-        raise BusinessLogicException(f"Failed to cleanup snapshots: {str(e, status_code=500)}"
+        raise BusinessLogicException(f"Failed to cleanup snapshots: {str(e)}, status_code=500)"
         )
 
 
@@ -282,7 +282,7 @@ async def get_player_movements(
         }
         
     except Exception as e:
-        raise BusinessLogicException(f"Failed to retrieve player movements: {str(e, status_code=500)}"
+        raise BusinessLogicException(f"Failed to retrieve player movements: {str(e)}, status_code=500)"
         )
 
 
@@ -325,5 +325,5 @@ async def get_market_movements(
         }
         
     except Exception as e:
-        raise BusinessLogicException(f"Failed to retrieve market movements: {str(e, status_code=500)}"
+        raise BusinessLogicException(f"Failed to retrieve market movements: {str(e)}, status_code=500)"
         )

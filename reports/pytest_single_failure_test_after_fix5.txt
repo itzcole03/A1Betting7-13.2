@@ -1,0 +1,12 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-8.4.1, pluggy-1.6.0 -- C:\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\bcmad\Downloads\A1Betting7-13.2
+configfile: pytest.ini
+plugins: anyio-4.9.0, asyncio-1.2.0, cov-6.2.1, typeguard-4.4.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 1 item
+
+tests/backend/test_clv_metrics_failure_path.py::test_clv_metrics_failure_path PASSED [100%]
+
+======================== 1 passed, 5 warnings in 6.60s ========================
