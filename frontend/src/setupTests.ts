@@ -90,7 +90,23 @@ console.warn = (...args: unknown[]) => {
   ) {
     return;
   }
-  _consoleWarn(...args);
+  // Filter noisy logger/websocket warnings that can fire after Jest teardown.
+  if (
+    msg.includes('Console Ninja failed to send logs') ||
+    msg.includes('logger websocket error') ||
+    msg.includes('Console Ninja')
+  ) {
+    return;
+  }
+  // Guard against "Cannot log after tests are done" errors by swallowing
+  // exceptions thrown when Jest tears down the console. This keeps noisy
+  // async logging from external helpers (e.g., logger websockets) from
+  // failing tests that already completed.
+  try {
+    _consoleWarn(...args);
+  } catch (_) {
+    // swallow logging errors during teardown
+  }
 };
 
 // Suppress framer-motion DOM prop warnings in tests by filtering props
