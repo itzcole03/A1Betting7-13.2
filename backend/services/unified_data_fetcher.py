@@ -196,7 +196,7 @@ class UnifiedDataFetcher:
             dict: Player info
         """
         correlation_id = (
-            correlation_id or f"playerinfo-{player_id}-{datetime.utcnow().timestamp()}"
+            correlation_id or f"playerinfo-{player_id}-{datetime.now(timezone.utc).timestamp()}"
         )
         for attempt in range(1, self.config.max_retries + 1):
             try:
@@ -233,7 +233,7 @@ class UnifiedDataFetcher:
         Uses unified error handler and structured logging.
         """
         correlation_id = (
-            correlation_id or f"playerstats-{player_id}-{datetime.utcnow().timestamp()}"
+            correlation_id or f"playerstats-{player_id}-{datetime.now(timezone.utc).timestamp()}"
         )
         for attempt in range(1, self.config.max_retries + 1):
             try:
@@ -281,7 +281,7 @@ class UnifiedDataFetcher:
         Uses unified error handler and structured logging.
         """
         correlation_id = (
-            correlation_id or f"recentgames-{player_id}-{datetime.utcnow().timestamp()}"
+            correlation_id or f"recentgames-{player_id}-{datetime.now(timezone.utc).timestamp()}"
         )
         for attempt in range(1, self.config.max_retries + 1):
             try:
@@ -326,7 +326,7 @@ class UnifiedDataFetcher:
         Uses unified error handler and structured logging.
         """
         correlation_id = (
-            correlation_id or f"prophistory-{player_id}-{datetime.utcnow().timestamp()}"
+            correlation_id or f"prophistory-{player_id}-{datetime.now(timezone.utc).timestamp()}"
         )
         for attempt in range(1, self.config.max_retries + 1):
             try:
@@ -361,7 +361,7 @@ class UnifiedDataFetcher:
         Uses unified error handler and structured logging.
         """
         correlation_id = (
-            correlation_id or f"trends-{player_id}-{datetime.utcnow().timestamp()}"
+            correlation_id or f"trends-{player_id}-{datetime.now(timezone.utc).timestamp()}"
         )
         for attempt in range(1, self.config.max_retries + 1):
             try:

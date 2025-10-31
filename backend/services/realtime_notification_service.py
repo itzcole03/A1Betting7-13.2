@@ -6,7 +6,7 @@ Comprehensive notification infrastructure for live betting updates
 import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Set, Any, Callable
 from enum import Enum
 from dataclasses import dataclass, asdict
@@ -52,7 +52,7 @@ class NotificationMessage:
     
     def __post_init__(self):
         if self.timestamp is None:
-            self.timestamp = datetime.utcnow()
+            self.timestamp = datetime.now(timezone.utc)
         if self.tags is None:
             self.tags = []
     
@@ -113,8 +113,8 @@ class WebSocketConnection:
     def __init__(self, websocket: WebSocket, user_id: Optional[str] = None):
         self.websocket = websocket
         self.user_id = user_id
-        self.connected_at = datetime.utcnow()
-        self.last_ping = datetime.utcnow()
+        self.connected_at = datetime.now(timezone.utc)
+        self.last_ping = datetime.now(timezone.utc)
         self.subscription_filters: List[SubscriptionFilter] = []
         self.message_count = 0
         self.is_active = True
@@ -140,9 +140,9 @@ class WebSocketConnection:
         try:
             await self.websocket.send_text(json.dumps({
                 "type": "ping",
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
             }))
-            self.last_ping = datetime.utcnow()
+            self.last_ping = datetime.now(timezone.utc)
         except Exception as e:
             logger.error(f"Failed to ping connection {self.user_id}: {e}")
             self.is_active = False
@@ -211,7 +211,7 @@ class RealtimeNotificationService:
         filters: Optional[List[SubscriptionFilter]] = None
     ) -> str:
         """Add new WebSocket connection"""
-        connection_id = f"{user_id or 'anonymous'}_{datetime.utcnow().timestamp()}"
+        connection_id = f"{user_id or 'anonymous'}_{datetime.now(timezone.utc).timestamp()}"
         
         connection = WebSocketConnection(websocket, user_id)
         if filters:
@@ -277,7 +277,7 @@ class RealtimeNotificationService:
     async def broadcast_system_alert(self, title: str, message: str, priority: NotificationPriority = NotificationPriority.MEDIUM):
         """Broadcast system-wide alert"""
         notification = NotificationMessage(
-            id=f"system_alert_{datetime.utcnow().timestamp()}",
+            id=f"system_alert_{datetime.now(timezone.utc).timestamp()}",
             type=NotificationType.SYSTEM_ALERT,
             priority=priority,
             title=title,
@@ -326,7 +326,7 @@ class RealtimeNotificationService:
             try:
                 await asyncio.sleep(30)  # Check every 30 seconds
                 
-                now = datetime.utcnow()
+                now = datetime.now(timezone.utc)
                 inactive_connections = []
                 
                 for connection_id, connection in self.connections.items():
@@ -421,7 +421,7 @@ async def send_odds_change_notification(
 ):
     """Send odds change notification"""
     notification = NotificationMessage(
-        id=f"odds_change_{datetime.utcnow().timestamp()}",
+        id=f"odds_change_{datetime.now(timezone.utc).timestamp()}",
         type=NotificationType.ODDS_CHANGE,
         priority=NotificationPriority.MEDIUM,
         title=f"Odds Changed: {player_name or event}",
@@ -449,7 +449,7 @@ async def send_arbitrage_notification(
 ):
     """Send arbitrage opportunity notification"""
     notification = NotificationMessage(
-        id=f"arbitrage_{datetime.utcnow().timestamp()}",
+        id=f"arbitrage_{datetime.now(timezone.utc).timestamp()}",
         type=NotificationType.ARBITRAGE_OPPORTUNITY,
         priority=NotificationPriority.HIGH,
         title=f"Arbitrage Opportunity: {player_name or event}",
@@ -462,7 +462,7 @@ async def send_arbitrage_notification(
             "player_name": player_name
         },
         tags=["arbitrage", "profit", sport] + sportsbooks,
-        expires_at=datetime.utcnow() + timedelta(minutes=10)  # Arbitrage expires quickly
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=10)  # Arbitrage expires quickly
     )
     
     await notification_service.send_notification(notification)
@@ -479,7 +479,7 @@ async def send_high_value_bet_notification(
     priority = NotificationPriority.HIGH if expected_value > 10 else NotificationPriority.MEDIUM
     
     notification = NotificationMessage(
-        id=f"high_value_bet_{datetime.utcnow().timestamp()}",
+        id=f"high_value_bet_{datetime.now(timezone.utc).timestamp()}",
         type=NotificationType.HIGH_VALUE_BET,
         priority=priority,
         title=f"High Value Bet: {player_name or event}",

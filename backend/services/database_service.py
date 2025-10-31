@@ -7,11 +7,10 @@ This module provides a unified database service with properly configured models.
 from __future__ import annotations
 
 import logging
+import os
 from datetime import datetime, timezone
 from typing import Any, Optional, Type, Union
 
-import os
-from backend.config_manager import get_database_url
 from sqlalchemy import (
     Boolean,
     Column,
@@ -22,9 +21,9 @@ from sqlalchemy import (
     String,
     create_engine,
 )
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session, relationship, sessionmaker
+from sqlalchemy.orm import Session, declarative_base, relationship, sessionmaker
 
+from backend.config_manager import get_database_url
 from backend.models.match import Match
 
 logger = logging.getLogger(__name__)
@@ -95,7 +94,7 @@ class Bet(Base):
     @property
     def profit_loss(self) -> float:
         """Calculate profit/loss for settled bets
-        
+
         Returns:
             Profit/loss amount. Positive for profit, negative for loss, 0 for pending
         """
@@ -130,7 +129,7 @@ class DatabaseService:
 
     def get_session(self) -> sessionmaker:
         """Get database session
-        
+
         Returns:
             Database session factory
         """
@@ -149,7 +148,7 @@ def create_tables() -> None:
 
 def get_db_session() -> sessionmaker:
     """Get database session
-    
+
     Returns:
         Database session (caller responsible for closing)
     """
@@ -177,7 +176,9 @@ try:
             self.Bet = Bet
 
     database_service = _FallbackDatabaseService()
-    logger.info("Database service module imported (lazy initialization). Call initialize_database_for_tests() to create schema.")
+    logger.info(
+        "Database service module imported (lazy initialization). Call initialize_database_for_tests() to create schema."
+    )
 except Exception as e:
     # Extremely defensive fallback
     logger.error(f"Database module import fallback failed: {e}")

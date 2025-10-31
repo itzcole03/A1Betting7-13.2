@@ -334,10 +334,10 @@ class ResponseOptimizer:
                         # Inject fresh ephemeral metadata for this request so
                         # cached responses resemble live responses and tests
                         # that compare full payloads (including meta) remain deterministic.
-                        from datetime import datetime
+                        from datetime import datetime, timezone
 
                         try:
-                            meta["timestamp"] = datetime.utcnow().isoformat() + "Z"
+                            meta["timestamp"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
                         except Exception:
                             pass
 

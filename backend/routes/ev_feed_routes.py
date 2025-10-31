@@ -30,6 +30,24 @@ from backend.services.ev_feed_service import ev_feed_service
 router = APIRouter(prefix="/api/ev", tags=["EV Feed"])
 
 
+# Safe serializer helper (prefer model_dump, then dict, then __dict__)
+def _safe_dump(obj):
+    try:
+        if hasattr(obj, "model_dump") and callable(getattr(obj, "model_dump")):
+            return obj.model_dump()
+    except Exception:
+        pass
+    try:
+        if hasattr(obj, "dict") and callable(getattr(obj, "dict")):
+            return obj.dict()
+    except Exception:
+        pass
+    try:
+        return dict(getattr(obj, "__dict__", {}) or {})
+    except Exception:
+        return str(obj)
+
+
 def _ev_feed_disabled() -> bool:
     return os.getenv("POSITIVE_EV_FEED_DISABLED", "0").lower() in (
         "1",
@@ -53,7 +71,7 @@ async def get_ev_feed(limit: int = Query(20, ge=1, le=500)) -> Dict[str, Any]:
         feed = await ev_feed_service.get_opportunities(limit=limit)
         out = []
         for opp in getattr(feed, "opportunities", []):
-            d = opp.__dict__ if hasattr(opp, "__dict__") else dict(opp)
+            d = _safe_dump(opp)
             if "edge_tier" not in d:
                 d["edge_tier"] = getattr(
                     opp, "edge_tier", None
@@ -86,7 +104,7 @@ async def search_ev_feed(
                 ]
             ).lower()
             if needle in text and getattr(opp, "ev_percent", 0) >= (min_edge or 0):
-                d = opp.__dict__ if hasattr(opp, "__dict__") else dict(opp)
+                d = _safe_dump(opp)
                 if "edge_tier" not in d:
                     d["edge_tier"] = getattr(
                         opp, "edge_tier", None
@@ -117,7 +135,7 @@ async def get_ev_feed_stats() -> Dict[str, Any]:
         else:
             try:
                 # pydantic model or dataclass -> dict()
-                stats_dict = stats.dict()
+                stats_dict = _safe_dump(stats)
             except Exception:
                 try:
                     from dataclasses import asdict

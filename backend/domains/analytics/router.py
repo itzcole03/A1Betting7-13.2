@@ -6,7 +6,7 @@ Consolidates analytics routes into a logical, maintainable structure.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
@@ -459,7 +459,7 @@ async def ingest_metric(
             "status": "ingested",
             "metric_name": metric_name,
             "value": value,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }
 
     except Exception as e:

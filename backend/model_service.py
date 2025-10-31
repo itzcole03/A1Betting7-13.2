@@ -3,9 +3,9 @@ Containerized ML model serving with ensemble predictions, model versioning, and 
 """
 
 import asyncio
-import os
 import json
 import logging
+import os
 import random
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -40,6 +40,7 @@ except ImportError:
     np = None
 
 
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 
@@ -50,9 +51,8 @@ class ModelServiceConfig(BaseSettings):
     model_service_port: int = 8002
     model_service_workers: int = 2
 
-    class Config:
-        env_file = ".env"
-        extra = "allow"
+    # Pydantic v2 settings configuration
+    model_config = ConfigDict(env_file=".env", extra="allow")
 
 
 try:

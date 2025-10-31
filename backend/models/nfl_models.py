@@ -9,6 +9,8 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
+from backend.utils.time_helpers import now_utc
+
 
 class NFLTeam(BaseModel):
     """NFL team data model"""
@@ -203,7 +205,7 @@ class NFLAnalytics(BaseModel):
     metrics: Dict = Field(default_factory=dict)
     insights: List[str] = Field(default_factory=list)
     confidence_score: Optional[float] = None
-    generated_at: datetime = Field(default_factory=datetime.utcnow)
+    generated_at: datetime = Field(default_factory=now_utc)
 
 
 class NFLBetAnalysis(BaseModel):

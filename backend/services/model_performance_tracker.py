@@ -7,7 +7,7 @@ import asyncio
 import json
 import logging
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -198,14 +198,14 @@ class ModelPerformanceTracker:
                 "prediction_value": prediction_value,
                 "actual_value": actual_value,
                 "confidence": confidence,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "metadata": metadata or {},
             }
 
             # Cache in Redis if available
             if self.redis_client:
                 cache_key = (
-                    f"prediction:{model_name}:{sport}:{datetime.utcnow().timestamp()}"
+                    f"prediction:{model_name}:{sport}:{datetime.now(timezone.utc).timestamp()}"
                 )
                 await asyncio.to_thread(
                     self.redis_client.setex,
@@ -239,7 +239,7 @@ class ModelPerformanceTracker:
                 record = ModelPerformanceRecord(
                     model_name=model_name,
                     sport=sport,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     status=ModelStatus.ACTIVE.value,
                     accuracy=metrics.get("accuracy"),
                     precision=metrics.get("precision"),
@@ -293,7 +293,7 @@ class ModelPerformanceTracker:
                     return ModelPerformanceSnapshot(**data)
 
             with self.SessionLocal() as session:
-                end_date = datetime.utcnow()
+                end_date = datetime.now(timezone.utc)
                 start_date = end_date - timedelta(days=days)
 
                 records = (
@@ -467,7 +467,7 @@ class ModelPerformanceTracker:
         """Get performance trends over time"""
         try:
             with self.SessionLocal() as session:
-                end_date = datetime.utcnow()
+                end_date = datetime.now(timezone.utc)
                 start_date = end_date - timedelta(days=days)
 
                 records = (

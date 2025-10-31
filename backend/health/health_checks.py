@@ -9,11 +9,11 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-import aioredis
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+import aioredis
 from backend.config.settings import get_settings
 from backend.utils.structured_logging import app_logger
 
@@ -522,4 +522,16 @@ async def component_health_check(component_name: str):
 
     component_health = await health_methods[component_name]()
 
-    return JSONResponse(status_code=status.HTTP_200_OK, content=component_health.dict())
+    # Serialize component health preferring Pydantic v2's model_dump(),
+    # falling back to .dict(), and finally to __dict__ to be robust
+    try:
+        if hasattr(component_health, "model_dump") and callable(
+            getattr(component_health, "model_dump")
+        ):
+            content = component_health.model_dump()
+        else:
+            content = component_health.dict()
+    except Exception:
+        content = dict(getattr(component_health, "__dict__", {}) or {})
+
+    return JSONResponse(status_code=status.HTTP_200_OK, content=content)

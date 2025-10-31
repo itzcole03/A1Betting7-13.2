@@ -17,8 +17,24 @@ import logging
 import random
 import time
 from dataclasses import asdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Set, Tuple
+
+
+def _safe_dump(obj):
+    """Return a dict-like serialization for Pydantic v2/v1 models with fallbacks."""
+    try:
+        if hasattr(obj, "model_dump") and callable(getattr(obj, "model_dump")):
+            return obj.model_dump()
+    except Exception:
+        pass
+    try:
+        if hasattr(obj, "dict") and callable(getattr(obj, "dict")):
+            return obj.dict()
+    except Exception:
+        pass
+    return getattr(obj, "__dict__", obj)
+
 
 import redis.asyncio as redis
 
@@ -151,8 +167,13 @@ class EVFeedService:
             # Update max_edge
             if ev_pct > self.max_edge:
                 self.max_edge = ev_pct
-            opp_dict = opp.dict()
-            opp_dict["updated_at"] = opp_dict["updated_at"].isoformat()
+            opp_dict = _safe_dump(opp)
+            # ensure updated_at is serialized to isoformat if present
+            try:
+                if opp_dict.get("updated_at"):
+                    opp_dict["updated_at"] = opp_dict["updated_at"].isoformat()
+            except Exception:
+                pass
             opp_dict["edge_tier"] = self.classify_edge(ev_pct)
             opp_dict["added_epoch"] = now_ts
             # Dedup key (without our_fair_odds so replacements considered)
@@ -274,7 +295,7 @@ class EVFeedService:
         async with self._generation_lock:
             opportunities = await self._generate_ev_opportunities()
             await self._store_opportunities(opportunities)
-            self.last_generation_time = datetime.utcnow()
+            self.last_generation_time = datetime.now(timezone.utc)
             self.generation_count += 1
             return opportunities
 
@@ -317,7 +338,7 @@ class EVFeedService:
                 generation_time = int((time.time() - start_time) * 1000)
                 await self._update_stats(opportunities, generation_time)
 
-                self.last_generation_time = datetime.utcnow()
+                self.last_generation_time = datetime.now(timezone.utc)
                 self.generation_count += 1
 
                 logger.info(
@@ -656,8 +677,12 @@ class EVFeedService:
             # Convert to JSON-serializable format
             opportunities_data = []
             for opp in opportunities:
-                opp_dict = opp.dict()
-                opp_dict["updated_at"] = opp_dict["updated_at"].isoformat()
+                opp_dict = _safe_dump(opp)
+                try:
+                    if opp_dict.get("updated_at"):
+                        opp_dict["updated_at"] = opp_dict["updated_at"].isoformat()
+                except Exception:
+                    pass
                 # Supplemental edge classification (non-breaking optional field)
                 opp_dict["edge_tier"] = self.classify_edge(
                     opp_dict.get("ev_percent", 0)
@@ -709,7 +734,7 @@ class EVFeedService:
 
             if opportunities_data:
                 # Record an effective generation timestamp so downstream calls avoid forced refresh.
-                self.last_generation_time = datetime.utcnow()
+                self.last_generation_time = datetime.now(timezone.utc)
 
         except Exception as e:
             logger.error(f"Error storing opportunities: {e}")
@@ -748,16 +773,20 @@ class EVFeedService:
                 by_sport=by_sport,
                 by_tier=by_tier,
                 avg_ev_percent=round(avg_ev, 2),
-                last_generation_time=datetime.utcnow(),
+                last_generation_time=datetime.now(timezone.utc),
                 generation_duration_ms=generation_time_ms,
                 max_edge=round(max_edge, 2),
             )
 
             # Store stats
-            stats_data = stats.dict()
-            stats_data["last_generation_time"] = stats_data[
-                "last_generation_time"
-            ].isoformat()
+            stats_data = _safe_dump(stats)
+            try:
+                if stats_data.get("last_generation_time"):
+                    stats_data["last_generation_time"] = stats_data[
+                        "last_generation_time"
+                    ].isoformat()
+            except Exception:
+                pass
 
             if self.redis_client:
                 await self.redis_client.set(
@@ -825,7 +854,7 @@ class EVFeedService:
                     should_refresh = True
                 else:
                     is_stale = (
-                        datetime.utcnow() - self.last_generation_time
+                        datetime.now(timezone.utc) - self.last_generation_time
                     ) >= timedelta(seconds=self.GENERATION_INTERVAL * 3)
                     should_refresh = is_stale and not self.is_running
 
@@ -860,7 +889,9 @@ class EVFeedService:
             cache_age = 0
             if self.last_generation_time:
                 cache_age = int(
-                    (datetime.utcnow() - self.last_generation_time).total_seconds()
+                    (
+                        datetime.now(timezone.utc) - self.last_generation_time
+                    ).total_seconds()
                 )
 
             # Build response
@@ -874,7 +905,7 @@ class EVFeedService:
                     "source_book": source_book,
                     "limit": limit,
                 },
-                last_updated=self.last_generation_time or datetime.utcnow(),
+                last_updated=self.last_generation_time or datetime.now(timezone.utc),
                 cache_age_seconds=cache_age,
             )
 
@@ -884,7 +915,7 @@ class EVFeedService:
                 opportunities=[],
                 total_count=0,
                 filters_applied={},
-                last_updated=datetime.utcnow(),
+                last_updated=datetime.now(timezone.utc),
                 cache_age_seconds=0,
             )
 

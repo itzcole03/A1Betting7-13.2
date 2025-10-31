@@ -5,7 +5,7 @@ module can be imported safely during tests. Restore full implementation
 from source control after triage.
 """
 from typing import Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter
 
 router = APIRouter(prefix="/api/system", tags=["system-capabilities"])
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/system", tags=["system-capabilities"])
 
 @router.get("/health")
 async def health() -> Dict[str, Any]:
-    return {"success": True, "data": {"status": "healthy", "service": "system_capabilities"}, "timestamp": datetime.utcnow().isoformat(), "error": None}
+    return {"success": True, "data": {"status": "healthy", "service": "system_capabilities"}, "timestamp": datetime.now(timezone.utc).isoformat(), "error": None}
 
 
 @router.get("/_ping")

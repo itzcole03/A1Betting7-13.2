@@ -6,7 +6,7 @@ Consolidates optimization routes into a logical, maintainable structure.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import List, Optional
 
@@ -406,7 +406,7 @@ async def compare_strategies(
                 "confidence": 0.75,
             },
             "time_period": time_period,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }
 
         return comparison

@@ -12,7 +12,7 @@ proper indexing for performance.
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from sqlalchemy import (
@@ -67,8 +67,12 @@ class Player(Base):
     team = Column(String(10), nullable=True)  # Team abbreviation
     position = Column(String(10), nullable=True)
     sport = Column(String(10), nullable=False, default="NBA")
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
 
     # Relationships
     props = relationship("Prop", back_populates="player", cascade="all, delete-orphan")
@@ -98,8 +102,12 @@ class Prop(Base):
     base_unit = Column(String(20), nullable=True)  # "points", "assists", etc.
     sport = Column(String(10), nullable=False, default="NBA")
     active = Column(Boolean, nullable=False, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
 
     # Relationships
     player = relationship("Player", back_populates="props")
@@ -136,9 +144,15 @@ class MarketQuote(Base):
     )  # {"type":"flex","over":1.0,"under":1.0}
     odds_format = Column(String(20), nullable=True)  # "american", "decimal", etc.
     line_hash = Column(String(64), nullable=False)  # Stable hash for change detection
-    first_seen_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    last_seen_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    last_change_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    first_seen_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
+    last_seen_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
+    last_change_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
 
     # Relationships
     prop = relationship("Prop", back_populates="market_quotes")
@@ -172,7 +186,9 @@ class IngestRun(Base):
     id = Column(Integer, primary_key=True)
     sport = Column(String(10), nullable=False)
     source = Column(String(50), nullable=False)  # Provider name
-    started_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    started_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
     finished_at = Column(DateTime, nullable=True)
     status = Column(
         String(20), nullable=False, default="running"
@@ -205,12 +221,33 @@ class IngestRun(Base):
 
     def mark_completed(self, status: str = "success"):
         """Mark the ingestion run as completed with final status."""
-        self.finished_at = datetime.utcnow()
+        self.finished_at = datetime.now(timezone.utc)
         self.status = status
+        # Normalize tzinfo for arithmetic: if started_at (or finished_at) is naive,
+        # assume UTC. This avoids TypeError: can't subtract offset-naive and
+        # offset-aware datetimes when older rows or test fixtures contain naive
+        # datetimes.
         if self.started_at:
-            self.duration_ms = int(
-                (self.finished_at - self.started_at).total_seconds() * 1000
-            )
+            started = self.started_at
+            finished = self.finished_at
+            try:
+                if started.tzinfo is None:
+                    started = started.replace(tzinfo=timezone.utc)
+            except Exception:
+                # Be defensive: if started is not a datetime-like object, skip
+                started = self.started_at
+
+            try:
+                if finished.tzinfo is None:
+                    finished = finished.replace(tzinfo=timezone.utc)
+            except Exception:
+                finished = self.finished_at
+
+            try:
+                self.duration_ms = int((finished - started).total_seconds() * 1000)
+            except Exception:
+                # Fallback: if subtraction fails for any reason, set duration to None
+                self.duration_ms = None
 
     def add_error(
         self, error_type: str, message: str, context: Optional[Dict[str, Any]] = None
@@ -219,7 +256,7 @@ class IngestRun(Base):
         error_entry = {
             "type": error_type,
             "message": message,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "context": context or {},
         }
         if self.errors is None:

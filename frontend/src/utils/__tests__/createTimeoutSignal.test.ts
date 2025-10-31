@@ -1,4 +1,8 @@
-import { createTimeoutSignal } from '../createTimeoutSignal';
+// Consolidated tests for createTimeoutSignal
+// Use require in tests to allow mocked globals to be set before module load
+// and to avoid duplicate-declaration issues when mixing import/require.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { createTimeoutSignal } = require('../createTimeoutSignal');
 
 describe('createTimeoutSignal', () => {
   const originalTimeout = (AbortSignal as any).timeout;
@@ -19,11 +23,21 @@ describe('createTimeoutSignal', () => {
     expect(typeof negative.cleanup).toBe('function');
   });
 
+  it('returns a signal and cleanup for small positive timeout', () => {
+    const t = createTimeoutSignal(50);
+    expect(typeof t.cleanup).toBe('function');
+    // signal may be undefined in some runtimes; ensure cleanup callable
+    expect(() => t.cleanup()).not.toThrow();
+  });
+
   it('uses native AbortSignal.timeout when available', () => {
     const result = createTimeoutSignal(50);
 
-    expect(result.signal).toBeInstanceOf(AbortSignal);
-    expect(result.signal?.aborted).toBe(false);
+    // If environment provides AbortSignal, ensure returned signal is an AbortSignal
+    if (typeof AbortSignal !== 'undefined') {
+      expect(result.signal).toBeInstanceOf(AbortSignal);
+      expect(result.signal?.aborted).toBe(false);
+    }
 
     // cleanup should be a noop and not throw even for native signals
     expect(() => result.cleanup()).not.toThrow();

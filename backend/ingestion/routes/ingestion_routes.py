@@ -18,6 +18,21 @@ from ..pipeline import run_nba_ingestion
 
 logger = logging.getLogger(__name__)
 
+
+def _safe_dump(obj):
+    try:
+        if hasattr(obj, "model_dump") and callable(getattr(obj, "model_dump")):
+            return obj.model_dump()
+    except Exception:
+        pass
+    try:
+        if hasattr(obj, "dict") and callable(getattr(obj, "dict")):
+            return obj.dict()
+    except Exception:
+        pass
+    return getattr(obj, "__dict__", obj)
+
+
 # Create router
 router = APIRouter(prefix="/api/v1/ingestion", tags=["Data Ingestion"])
 
@@ -97,7 +112,7 @@ async def run_nba_ingestion_endpoint(
         logger.info(
             f"NBA ingestion completed with status={result.status}: {result.total_raw} props, {result.total_line_changes} changes"
         )
-        return result.dict()
+        return _safe_dump(result)
 
     except Exception as e:
         logger.error(f"NBA ingestion endpoint error: {e}", exc_info=True)
@@ -190,9 +205,7 @@ async def _run_ingestion_background(
         TASKS[task_id]["finished_at"] = time.time()
         # store serializable result (attempt dict() where possible)
         try:
-            TASKS[task_id]["result"] = (
-                result.dict() if hasattr(result, "dict") else result
-            )
+            TASKS[task_id]["result"] = _safe_dump(result)
         except Exception:
             TASKS[task_id]["result"] = str(result)
 

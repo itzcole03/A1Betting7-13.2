@@ -6,7 +6,7 @@ factor rebuilds, and other sensitive operations.
 """
 
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Dict, List, Optional, Set, Any, Callable, Tuple
 from dataclasses import dataclass, field
@@ -101,7 +101,7 @@ class User:
         """Check if user session is still valid"""
         if not self.session_expires_at:
             return True
-        return datetime.utcnow() < self.session_expires_at
+        return datetime.now(timezone.utc) < self.session_expires_at
 
 
 @dataclass
@@ -125,7 +125,7 @@ class ApiKey:
         """Check if API key is valid"""
         if not self.is_active:
             return False
-        if self.expires_at and datetime.utcnow() > self.expires_at:
+        if self.expires_at and datetime.now(timezone.utc) > self.expires_at:
             return False
         return True
     
@@ -349,7 +349,7 @@ class RoleBasedAccessControl:
         # Calculate expiry
         expires_at = None
         if expires_in_days:
-            expires_at = datetime.utcnow() + timedelta(days=expires_in_days)
+            expires_at = datetime.now(timezone.utc) + timedelta(days=expires_in_days)
         
         api_key = ApiKey(
             key_id=key_id,
@@ -376,8 +376,8 @@ class RoleBasedAccessControl:
             return None
         
         if extend_session:
-            user.last_login = datetime.utcnow()
-            user.session_expires_at = datetime.utcnow() + timedelta(hours=self.session_timeout_hours)
+            user.last_login = datetime.now(timezone.utc)
+            user.session_expires_at = datetime.now(timezone.utc) + timedelta(hours=self.session_timeout_hours)
         
         return user
     
@@ -394,7 +394,7 @@ class RoleBasedAccessControl:
                     return None
                 
                 # Update usage
-                api_key.last_used = datetime.utcnow()
+                api_key.last_used = datetime.now(timezone.utc)
                 api_key.usage_count += 1
                 
                 return api_key
@@ -477,7 +477,7 @@ class RoleBasedAccessControl:
         """Log access attempt"""
         
         attempt = AccessAttempt(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             user_id=user_id,
             api_key_id=api_key_id,
             permission=permission,
@@ -505,7 +505,7 @@ class RoleBasedAccessControl:
         
         api_key = self._api_keys[key_id]
         api_key.is_active = False
-        api_key.metadata["revoked_at"] = datetime.utcnow().isoformat()
+        api_key.metadata["revoked_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         
         self.logger.info(f"Revoked API key {key_id}")
         return True
@@ -518,7 +518,7 @@ class RoleBasedAccessControl:
         
         user = self._users[user_id]
         user.is_active = False
-        user.metadata["deactivated_at"] = datetime.utcnow().isoformat()
+        user.metadata["deactivated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         
         # Revoke all API keys for this user
         for api_key in self._api_keys.values():
@@ -577,7 +577,7 @@ class RoleBasedAccessControl:
         successful_attempts = sum(1 for attempt in self._access_log if attempt.success)
         
         # Recent activity (last 24 hours)
-        recent_cutoff = datetime.utcnow() - timedelta(hours=24)
+        recent_cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
         recent_attempts = [attempt for attempt in self._access_log if attempt.timestamp > recent_cutoff]
         
         return {

@@ -8,7 +8,7 @@ including request/response validation and error handling.
 import pytest
 from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
-from datetime import datetime
+from datetime import datetime, timezone
 
 from backend.ingestion.models.dto import IngestResult
 from backend.ingestion.pipeline.nba_ingestion_pipeline import NBAIngestionPipeline
@@ -21,7 +21,7 @@ def mock_successful_ingest_result():
         status="success",
         sport="NBA",
         source="nba_provider_stub",
-        started_at=datetime.utcnow(),
+        started_at=datetime.now(timezone.utc),
         total_raw=50,
         total_new_quotes=25,
         total_line_changes=10,
@@ -41,7 +41,7 @@ def mock_partial_ingest_result():
         status="partial",
         sport="NBA",
         source="nba_provider_stub",
-        started_at=datetime.utcnow(),
+        started_at=datetime.now(timezone.utc),
         total_raw=50,
         total_new_quotes=20,
         total_line_changes=8,
@@ -68,7 +68,7 @@ class TestIngestionEndpoints:
                 status="success",
                 sport="NBA", 
                 source="test",
-                started_at=datetime.utcnow()
+                started_at=datetime.now(timezone.utc)
             )
             
             response = client.post("/api/v1/ingestion/nba/run")
@@ -195,7 +195,7 @@ class TestIngestionEndpoints:
             status="success",
             sport="NBA",
             source="nba_provider_stub",
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
             total_raw=100
         )
         result.changed_quote_ids = [1, 2, 3, 4, 5]
@@ -243,7 +243,7 @@ class TestIngestionEndpoints:
             status="success",
             sport="NBA",
             source="test",
-            started_at=datetime.utcnow()
+            started_at=datetime.now(timezone.utc)
         )
         mock_run.return_value = mock_result
         
@@ -273,7 +273,7 @@ class TestIngestionEndpoints:
             status="success",
             sport="NBA",
             source="test",
-            started_at=datetime.utcnow()
+            started_at=datetime.now(timezone.utc)
         )
         
         response = client.post("/api/v1/ingestion/nba/run")

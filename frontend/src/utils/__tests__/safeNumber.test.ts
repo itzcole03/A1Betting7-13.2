@@ -1,20 +1,43 @@
-import {
-  safeNumber,
-  safePercentage,
-  safeCurrency,
-  safeCompactNumber,
-  safeDivision,
-  safePercentageChange,
-  SafeNumberInput,
-} from '../safeNumber';
+describe('safeNumber utilities', () => {
+  test('safeNumber and related formatters', () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const {
+      safeNumber,
+      safePercentage,
+      safeCurrency,
+      safeCompactNumber,
+      safeDivision,
+      safePercentageChange,
+    } = require('../safeNumber');
+
+    expect(safeNumber(12.3456, 2)).toBe('12.35');
+    expect(safeNumber('bad', 2)).toBe('0.00');
+    expect(safePercentage(0.85)).toBe('85.0%');
+    expect(safeCurrency(5, 2, '$')).toBe('$5.00');
+    expect(safeCompactNumber(1500)).toMatch(/K$/);
+    expect(safeDivision(10, 2)).toBe(5);
+    expect(safeDivision(10, 0)).toBe(0);
+    expect(typeof safePercentageChange(10, 12)).toBe('string');
+  });
+});
 
 describe('safeNumber utils', () => {
+  // Require module to avoid duplicate import/require in same file
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const {
+    safeCompactNumber,
+    safeCurrency,
+    safeDivision,
+    safeNumber,
+    safePercentage,
+    safePercentageChange,
+  } = require('../safeNumber');
   // Test safeNumber
   it('safeNumber should format a number correctly', () => {
     expect(safeNumber(123.456, 2)).toBe('123.46');
     expect(safeNumber(123, 0)).toBe('123');
     expect(safeNumber(0.123, 3)).toBe('0.123');
-    expect(safeNumber(100.00, 2)).toBe('100.00');
+    expect(safeNumber(100.0, 2)).toBe('100.00');
   });
 
   it('safeNumber should handle string input', () => {
@@ -105,4 +128,4 @@ describe('safeNumber utils', () => {
     expect(safePercentageChange('abc', 10)).toBe('0.0%');
     expect(safePercentageChange(10, 'xyz')).toBe('0.0%');
   });
-}); 
+});

@@ -6,15 +6,23 @@ Following 2024-2025 logging best practices for production environments.
 import json
 import logging
 import logging.config
-import sys
 import os
-from datetime import datetime
+import sys
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
-from pythonjsonlogger import jsonlogger
+try:
+    # Newer pythonjsonlogger exposes the JsonFormatter under pythonjsonlogger.json
+    from pythonjsonlogger.json import JsonFormatter
+except Exception:
+    # Fallback for older versions
+    from pythonjsonlogger import jsonlogger as _jsonlogger
+
+    JsonFormatter = _jsonlogger.JsonFormatter
 
 # Import settings
 from backend.config.settings import get_settings
+
 
 class SafeStreamHandler(logging.StreamHandler):
     """StreamHandler that handles encoding errors gracefully"""
@@ -27,13 +35,14 @@ class SafeStreamHandler(logging.StreamHandler):
             msg = self.format(record)
             try:
                 # Try to encode with UTF-8 and replace errors
-                safe_msg = msg.encode('utf-8', errors='replace').decode('utf-8')
+                safe_msg = msg.encode("utf-8", errors="replace").decode("utf-8")
                 record.msg = safe_msg
                 super().emit(record)
             except Exception:
                 # Last resort: use ASCII-safe version
                 import re
-                safe_msg = re.sub(r'[^\x00-\x7F]+', '?', msg)
+
+                safe_msg = re.sub(r"[^\x00-\x7F]+", "?", msg)
                 record.msg = safe_msg
                 super().emit(record)
 
@@ -58,14 +67,16 @@ class CorrelationIdFilter(logging.Filter):
         return True
 
 
-class EnhancedJSONFormatter(jsonlogger.JsonFormatter):
+class EnhancedJSONFormatter(JsonFormatter):
     """Enhanced JSON formatter with additional fields"""
 
     def add_fields(self, log_record, record, message_dict):
         super().add_fields(log_record, record, message_dict)
 
         # Add timestamp in ISO format
-        log_record["timestamp"] = datetime.utcnow().isoformat() + "Z"
+        log_record["timestamp"] = (
+            datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        )
 
         # Add application information
         settings = get_settings()
@@ -185,14 +196,22 @@ def setup_logging():
                 },
                 "file": {
                     "level": log_level,
-                    "class": "logging.FileHandler" if testing else "logging.handlers.RotatingFileHandler",
+                    "class": (
+                        "logging.FileHandler"
+                        if testing
+                        else "logging.handlers.RotatingFileHandler"
+                    ),
                     "formatter": "json",
                     "filters": ["correlation_id"],
                     "filename": "logs/app.log",
                 },
                 "error_file": {
                     "level": "ERROR",
-                    "class": "logging.FileHandler" if testing else "logging.handlers.RotatingFileHandler",
+                    "class": (
+                        "logging.FileHandler"
+                        if testing
+                        else "logging.handlers.RotatingFileHandler"
+                    ),
                     "formatter": "json",
                     "filters": ["correlation_id"],
                     "filename": "logs/error.log",

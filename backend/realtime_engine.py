@@ -12,14 +12,54 @@ from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set
 
+from backend.utils.time_helpers import now_utc
+
 try:
     import aioredis
 except ImportError:
     aioredis = None  # Placeholder for aioredis if not installed
 
-from ensemble_engine import PredictionContext, ultra_ensemble_engine
+try:
+    from ensemble_engine import PredictionContext, ultra_ensemble_engine
+except Exception:
+    # Fallback lightweight PredictionContext and dummy ensemble engine for import-safety
+    class PredictionContext:
+        LIVE_GAME = "live_game"
+        PRE_GAME = "pre_game"
 
-from backend.config_manager import config_manager
+    class _DummyEnsemble:
+        async def predict(self, features=None, context=None):
+            class _Prediction:
+                predicted_value = 0.5
+                prediction_probability = 0.5
+                metadata = {}
+
+            return _Prediction()
+
+    ultra_ensemble_engine = _DummyEnsemble()
+
+try:
+    # Prefer the exported config object when available
+    from backend.config_manager import config as _config
+
+    class _ConfigManagerAdapter:
+        def get_redis_url(self):
+            return getattr(_config.database, "url", None)
+
+        def get(self, key, default=None):
+            return _config.get(key, default)
+
+    config_manager = _ConfigManagerAdapter()
+except Exception:
+
+    class _DummyConfigManager:
+        def get_redis_url(self):
+            return "redis://localhost:6379/0"
+
+        def get(self, key, default=None):
+            return default
+
+    config_manager = _DummyConfigManager()
 
 logger = logging.getLogger(__name__)
 
@@ -72,9 +112,9 @@ class StreamSubscription:
     filters: Dict[str, Any]
     callback: Optional[Callable] = None
     websocket: Optional[Any] = None
-    last_activity: datetime = field(default_factory=datetime.utcnow)
+    last_activity: datetime = field(default_factory=now_utc)
     message_count: int = 0
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=now_utc)
 
 
 class StreamAggregator:

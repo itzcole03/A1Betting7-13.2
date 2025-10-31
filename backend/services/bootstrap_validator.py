@@ -14,7 +14,7 @@ from contextlib import asynccontextmanager
 import logging
 import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Union
@@ -486,7 +486,7 @@ class BootstrapValidator:
             CorrelationScope = None
             async_correlation_context = None
         
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         # Create correlation context for validation tracking
         if use_correlation and async_correlation_context and CorrelationScope:
@@ -606,7 +606,7 @@ class BootstrapValidator:
                     else:
                         print(f"Failed to get config summary: {e}")
             
-            summary.validation_end_time = datetime.utcnow()
+            summary.validation_end_time = datetime.now(timezone.utc)
             
             # 9. Log comprehensive summary
             self._log_bootstrap_summary(summary)
@@ -616,7 +616,7 @@ class BootstrapValidator:
     def _log_bootstrap_summary(self, summary: BootstrapSummary):
         """Log comprehensive bootstrap validation summary"""
         if summary.validation_end_time is None:
-            summary.validation_end_time = datetime.utcnow()
+            summary.validation_end_time = datetime.now(timezone.utc)
             
         duration = (summary.validation_end_time - summary.validation_start_time).total_seconds()
         

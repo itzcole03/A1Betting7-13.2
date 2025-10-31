@@ -9,8 +9,10 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic.types import NonNegativeFloat, PositiveFloat, PositiveInt
+
+from backend.utils.time_helpers import now_utc
 
 # =============================================================================
 # ENUMS AND CONSTANTS
@@ -76,20 +78,22 @@ class DataSource(str, Enum):
 class BaseAPIModel(BaseModel):
     """Base model for all API responses"""
 
-    class Config:
-        use_enum_values = True
-        validate_by_name = True  # Updated for Pydantic v2
-        json_encoders = {
+    # Pydantic v2 configuration
+    model_config = ConfigDict(
+        use_enum_values=True,
+        validate_by_name=True,  # keep name-based validation compatibility
+        json_encoders={
             datetime: lambda dt: dt.isoformat(),
             Decimal: lambda d: float(d),
             UUID: lambda u: str(u),
-        }
+        },
+    )
 
 
 class TimestampMixin(BaseModel):
     """Mixin for timestamp fields"""
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=now_utc)
     updated_at: Optional[datetime] = Field(default=None)
 
 
@@ -349,7 +353,7 @@ class WebSocketMessage(BaseAPIModel):
     message_id: str = Field(..., description="Unique message identifier")
     message_type: str = Field(..., description="Type of message")
     channel: str = Field(..., description="Channel/topic")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=now_utc)
     payload: Dict[str, Any] = Field(..., description="Message payload")
 
     # Optional metadata
@@ -363,7 +367,7 @@ class LiveGameUpdate(BaseAPIModel):
 
     game_id: str = Field(..., description="Game identifier")
     update_type: str = Field(..., description="Type of update")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=now_utc)
 
     # Game state
     home_score: int = Field(..., description="Current home score")
@@ -420,7 +424,7 @@ class PerformanceMetrics(BaseAPIModel):
     """System and user performance metrics"""
 
     metrics_id: str = Field(..., description="Unique metrics identifier")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=now_utc)
     period: str = Field(..., description="Metrics period (daily/weekly/monthly)")
 
     # System metrics
@@ -453,7 +457,7 @@ class APIResponse(BaseAPIModel):
 
     success: bool = Field(..., description="Whether the request was successful")
     message: str = Field(..., description="Response message")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=now_utc)
     request_id: Optional[str] = Field(None, description="Request tracking ID")
 
     @field_validator("message")

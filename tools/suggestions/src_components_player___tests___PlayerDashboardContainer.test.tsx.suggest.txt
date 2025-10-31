@@ -1,0 +1,28 @@
+# Suggestions for frontend\src\components\player\__tests__\PlayerDashboardContainer.test.tsx
+---
+Replace the following import lines with require() equivalents to avoid mixing require+import in the same test file.
+
+--- original ---
+
+import { PlayerDashboardContainer } from '../PlayerDashboardContainer';
+--- replacement ---
+const { PlayerDashboardContainer } = require('../PlayerDashboardContainer');
+
+--- original ---
+
+
+import _masterServiceRegistry from '../../../services/MasterServiceRegistry';
+--- replacement ---
+const _masterServiceRegistry = (function(){ const m = require('../../../services/MasterServiceRegistry'); return (m && m.__esModule && m.default) ? m.default : m; })();
+
+--- original ---
+
+import UnifiedErrorService from '../../../services/unified/UnifiedErrorService';
+--- replacement ---
+const UnifiedErrorService = (function(){ const m = require('../../../services/unified/UnifiedErrorService'); return (m && m.__esModule && m.default) ? m.default : m; })();
+
+--- original ---
+
+import UnifiedStateService from '../../../services/unified/UnifiedStateService';
+--- replacement ---
+const UnifiedStateService = (function(){ const m = require('../../../services/unified/UnifiedStateService'); return (m && m.__esModule && m.default) ? m.default : m; })();

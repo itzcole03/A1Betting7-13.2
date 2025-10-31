@@ -5,6 +5,25 @@ from pydantic import BaseModel, Field
 
 from backend.core.response_models import ResponseBuilder
 
+
+# Safe serializer helper (prefer model_dump then dict then __dict__)
+def _safe_dump(obj):
+    try:
+        if hasattr(obj, "model_dump") and callable(getattr(obj, "model_dump")):
+            return obj.model_dump()
+    except Exception:
+        pass
+    try:
+        if hasattr(obj, "dict") and callable(getattr(obj, "dict")):
+            return obj.dict()
+    except Exception:
+        pass
+    try:
+        return dict(getattr(obj, "__dict__", {}) or {})
+    except Exception:
+        return str(obj)
+
+
 router = APIRouter(prefix="/api/arbitrage", tags=["Hardened Arbitrage"])
 
 
@@ -104,7 +123,12 @@ async def update_arbitrage_config(
     # Pass validated dict to the underlying service. Using pydantic ensures
     # starlette/fastapi will return 422 for invalid payloads (e.g. negative
     # min_profit_pct) which aligns with the tests.
-    updated = await service.update_arbitrage_config(config.dict())
+    try:
+        payload = _safe_dump(config)
+    except Exception:
+        payload = dict(getattr(config, "__dict__", {}) or {})
+
+    updated = await service.update_arbitrage_config(payload)
     return ResponseBuilder.success(data=updated)
 
 

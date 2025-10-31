@@ -6,7 +6,7 @@ Part of the basic user alert MVP implementation.
 import asyncio
 import logging
 from collections import defaultdict, deque
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from backend.models.alert_models import (
     AlertRule, AlertTrigger, AlertType, AlertEvaluationContext, AlertStats,
@@ -114,7 +114,7 @@ class AlertService:
             for rules in self.user_alert_rules.values()
         )
         
-        today = datetime.utcnow().date()
+        today = datetime.now(timezone.utc).date()
         fired_today = len([
             alert for alert in self.fired_alerts 
             if alert.triggered_at.date() == today
@@ -163,7 +163,7 @@ class AlertService:
     async def _evaluate_all_alerts(self):
         """Evaluate all active alert rules"""
         try:
-            self.last_evaluation = datetime.utcnow()
+            self.last_evaluation = datetime.now(timezone.utc)
             
             # Get evaluation context (current market data)
             context = await self._get_evaluation_context()

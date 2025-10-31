@@ -1,0 +1,41 @@
+{
+  "data": {
+    "opportunities": [
+      {
+        "id": "opp-100",
+        "player_name": "John Doe",
+        "team_name": "Sharks",
+        "opponent_name": "Tigers",
+        "sport": "Hockey",
+        "market": "Goals",
+        "line": "2.5",
+        "odds": "150",
+        "bookmakers": [
+          {
+            "display_name": "Book A",
+            "price": "150",
+            "total": "2.5",
+            "implied_probability": "0.4",
+            "last_updated": "2025-10-30T10:00:00Z"
+          },
+          { "bookmaker": "Book B", "odds": -120, "line": "3" }
+        ],
+        "tags": ["popular", "early"]
+      },
+      {
+        "opportunity_id": "opp-101",
+        "player": "Jane Smith",
+        "market_type": "Assists",
+        "projected_line": 1,
+        "price": "-110",
+        "clv_metrics": { "clv_percent": "5.2", "closing_line": "1", "closing_odds": "-105" }
+      }
+    ],
+    "summary": {
+      "total": 2,
+      "avgConfidence": "8.1",
+      "maxEdge": "4",
+      "lastUpdated": "2025-10-30T12:00:00Z"
+    }
+  }
+}

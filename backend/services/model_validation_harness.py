@@ -6,7 +6,7 @@ Provides nightly validation, test inference cases, and regression delta tracking
 import asyncio
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Callable
 import logging
@@ -260,7 +260,7 @@ class ModelValidationHarness:
         
         # Create validation run
         validation_run = ValidationRun(
-            run_id=f"validation_{model_id}_{int(datetime.utcnow().timestamp())}",
+            run_id=f"validation_{model_id}_{int(datetime.now(timezone.utc).timestamp())}",
             model_id=model_id,
             model_version=model.version,
             status=ValidationStatus.RUNNING,
@@ -306,7 +306,7 @@ class ModelValidationHarness:
         
         # Finalize validation run
         validation_run.avg_execution_time_ms /= len(applicable_cases) if applicable_cases else 1
-        validation_run.completed_at = datetime.utcnow()
+        validation_run.completed_at = datetime.now(timezone.utc)
         
         # Determine overall status
         if validation_run.error_tests > 0:
@@ -330,7 +330,7 @@ class ModelValidationHarness:
     
     async def _run_single_test(self, model, test_case: TestCase) -> ValidationResult:
         """Run a single test case against a model"""
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         try:
             # Get the appropriate validation runner
@@ -342,7 +342,7 @@ class ModelValidationHarness:
             # Execute the test
             prediction_output, confidence_score = await runner_func(model, test_case.input_data)
             
-            end_time = datetime.utcnow()
+            end_time = datetime.now(timezone.utc)
             execution_time_ms = (end_time - start_time).total_seconds() * 1000
             
             # Create result
@@ -551,7 +551,7 @@ class ModelValidationHarness:
     
     def get_validation_history(self, model_id: Optional[str] = None, days: int = 30) -> List[ValidationRun]:
         """Get validation history for analysis"""
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
         
         history = [
             run for run in self.validation_history 

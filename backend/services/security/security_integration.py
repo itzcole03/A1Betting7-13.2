@@ -5,7 +5,7 @@ Provides integrated security features for API endpoints including
 rate limiting, RBAC, data redaction, and HMAC validation.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 from fastapi import Request, HTTPException
 import logging
@@ -51,7 +51,7 @@ class SecurityService:
             "client_ip": get_client_ip(request),
             "endpoint_category": endpoint_category,
             "permission": required_permission.value,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
         
         # Extract authentication info
@@ -285,7 +285,7 @@ def secure_endpoint(
 
                 # Sanitize the response to ensure it's JSON-serializable
                 from unittest.mock import Mock, AsyncMock
-                from datetime import date, datetime
+                from datetime import date, datetime, timezone
 
                 def _sanitize(obj):
                     # Primitives

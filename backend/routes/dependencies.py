@@ -5,7 +5,7 @@ Exports a tiny APIRouter with health endpoints so imports succeed while
 we triage corrupted route modules. Restore full implementations later.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 from fastapi import APIRouter
@@ -26,7 +26,7 @@ router = APIRouter(prefix="/dependencies", tags=["dependencies"])
 @router.get("/health")
 async def get_dependency_health() -> Dict[str, Any]:
     return ResponseBuilder.success(
-        {"status": "ok", "timestamp": datetime.utcnow().isoformat()}
+        {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")}
     )
 
 

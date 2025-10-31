@@ -1,0 +1,58 @@
+name: Playwright E2E
+
+on:
+  push:
+    branches: [main, chore/shims-quickcheck]
+  pull_request:
+    branches: [main, chore/shims-quickcheck]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: |
+          npm ci
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: |
+          npx playwright install --with-deps
+
+      - name: Start frontend dev server
+        working-directory: frontend
+        run: |
+          npm run dev &
+          # wait for dev server
+          for i in {1..30}; do
+            if curl -sSf http://localhost:5173 > /dev/null; then
+              echo "Frontend ready";
+              break;
+            fi
+            sleep 1
+          done
+
+      - name: Run Playwright tests
+        working-directory: frontend
+        env:
+          CI: "true"
+          # Force mock mode if you prefer to run against route mocks
+          E2E_USE_MOCKS: "1"
+        run: |
+          npm run test:e2e -- --reporter=list
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-reports
+          path: frontend/tests/e2e/reports

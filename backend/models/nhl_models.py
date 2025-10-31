@@ -11,6 +11,8 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from backend.utils.time_helpers import now_utc
+
 
 class GameType(Enum):
     """NHL Game Types"""
@@ -497,7 +499,7 @@ class NHLBetAnalysis(BaseModel):
     confidence: str = Field(default="medium")  # low, medium, high
 
     # Metadata
-    generatedAt: datetime = Field(default_factory=datetime.utcnow)
+    generatedAt: datetime = Field(default_factory=now_utc)
     model_version: str = "1.0"
 
 

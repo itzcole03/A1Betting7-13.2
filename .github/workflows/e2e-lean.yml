@@ -1,0 +1,42 @@
+name: E2E (lean, mock server)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e-lean:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: |
+          npm ci
+
+      - name: Run lean E2E runner (start mock server + Playwright)
+        env:
+          CI: true
+        working-directory: .
+        run: |
+          node tests/e2e/run_e2e_lean.js
+
+      - name: Upload test artifacts (if any)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: |
+            tests/e2e/test-results/**
+            tests/e2e/reports/**
+            tests/e2e/screenshots/**
+            tests/e2e/**/trace.zip

@@ -4,7 +4,7 @@ Provides intelligent model selection based on feature flags, A/B testing, and pe
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 
@@ -344,7 +344,7 @@ class ModelSelectionService:
         """Get cached model selection if still valid"""
         if cache_key in self._selection_cache:
             result, timestamp = self._selection_cache[cache_key]
-            if datetime.utcnow() - timestamp < self._cache_ttl:
+            if datetime.now(timezone.utc) - timestamp < self._cache_ttl:
                 return result
             else:
                 # Remove expired cache entry
@@ -353,7 +353,7 @@ class ModelSelectionService:
     
     async def _cache_selection(self, cache_key: str, result: ModelSelectionResult):
         """Cache model selection result"""
-        self._selection_cache[cache_key] = (result, datetime.utcnow())
+        self._selection_cache[cache_key] = (result, datetime.now(timezone.utc))
         
         # Clean up old cache entries periodically
         if len(self._selection_cache) > 1000:
@@ -361,7 +361,7 @@ class ModelSelectionService:
     
     async def _cleanup_cache(self):
         """Clean up expired cache entries"""
-        cutoff_time = datetime.utcnow() - self._cache_ttl
+        cutoff_time = datetime.now(timezone.utc) - self._cache_ttl
         expired_keys = [
             key for key, (_, timestamp) in self._selection_cache.items()
             if timestamp < cutoff_time

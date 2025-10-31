@@ -1,0 +1,92 @@
+{
+  "id": "nba_12",
+  "player": "Karl-Anthony Towns",
+  "playerImage": null,
+  "team": "Timberwolves",
+  "teamLogo": null,
+  "opponent": "Nuggets",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.REBOUNDS",
+  "line": 9.5,
+  "pick": "Pick.OVER",
+  "odds": -105,
+  "impliedProbability": 69.4,
+  "aiProbability": 76.8,
+  "edge": 7.4,
+  "confidence": 78.7,
+  "projectedValue": 1.8500000000000003,
+  "volume": 29000,
+  "trend": "Trend.RISING",
+  "trendStrength": 7,
+  "timeToGame": "6h 31m",
+  "venue": "Venue.AWAY",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9,
+    92.1
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 10.24,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 9.0,
+    "current": 9.5,
+    "direction": "Direction.DOWN"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": -112,
+      "line": 9.5
+    },
+    {
+      "name": "FanDuel",
+      "odds": -103,
+      "line": 9.5
+    },
+    {
+      "name": "BetMGM",
+      "odds": -109,
+      "line": 9.0
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "High Volume",
+    "Sharp Money"
+  ],
+  "socialSentiment": 72,
+  "sharpMoney": "SharpMoney.HEAVY",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": true,
+  "alertSeverity": "medium",
+  "bestBookmaker": "Barstool",
+  "lineSpread": 0.5,
+  "oddsSpread": 12,
+  "numBookmakers": 3,
+  "evValue": 0.5365,
+  "evPercent": 53.65,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": true,
+  "arbitrageProfitPct": 2.91,
+  "openingLine": 9.5,
+  "openingOdds": -105,
+  "latestLine": 9.5,
+  "latestOdds": -105,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 0.0,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

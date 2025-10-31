@@ -9,7 +9,7 @@ TODO: Replace with real provider client implementation.
 
 import asyncio
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 import logging
 
@@ -121,7 +121,7 @@ class NBAProviderStub:
             over_odds, under_odds = self._generate_odds()
             
             # Create timestamp with slight variations for testing
-            base_time = datetime.utcnow()
+            base_time = datetime.now(timezone.utc)
             variation_seconds = random.randint(-300, 0)  # Up to 5 minutes ago
             timestamp = base_time + timedelta(seconds=variation_seconds)
             

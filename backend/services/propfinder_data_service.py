@@ -62,7 +62,7 @@ class Sport(Enum):
     NHL = "NHL"
 
 
-MOCK_ALLOWED_SPORTS: Set[Sport] = {Sport.NFL}
+MOCK_ALLOWED_SPORTS: Set[Sport] = {Sport.NFL, Sport.MLB, Sport.NBA}
 
 class MarketType(Enum):
     POINTS = "Points"
@@ -1572,6 +1572,63 @@ class PropFinderDataService:
                 "bookmakers": [
                     Bookmaker(name="Air Raid", odds=-110, line=88.5),
                     Bookmaker(name="Vertical", odds=-115, line=89.0),
+                ],
+            },
+            {
+                "id": "fallback_mlb_hits",
+                "player": "Sample Batter",
+                "team": "NYY",
+                "opponent": "BOS",
+                "sport": Sport.MLB,
+                "market": MarketType.HITS,
+                "line": 1.5,
+                "pick": Pick.OVER,
+                "odds": -110,
+                "recent_form": [1.0, 2.0, 1.5],
+                "matchup": MatchupHistory(games=5, average=1.6, hitRate=55),
+                "trend": Trend.UP,
+                "trend_strength": 65,
+                "bookmakers": [
+                    Bookmaker(name="Demo MLB", odds=-110, line=1.5),
+                    Bookmaker(name="Alt MLB", odds=-112, line=1.5),
+                ],
+            },
+            {
+                "id": "fallback_mlb_home_runs",
+                "player": "Sample Power",
+                "team": "LAD",
+                "opponent": "SF",
+                "sport": Sport.MLB,
+                "market": MarketType.HOME_RUNS,
+                "line": 0.5,
+                "pick": Pick.OVER,
+                "odds": -105,
+                "recent_form": [0.0, 1.0, 0.0],
+                "matchup": MatchupHistory(games=4, average=0.5, hitRate=45),
+                "trend": Trend.STABLE,
+                "trend_strength": 60,
+                "bookmakers": [
+                    Bookmaker(name="Power Play", odds=-105, line=0.5),
+                    Bookmaker(name="Slugger", odds=-108, line=0.5),
+                ],
+            },
+            {
+                "id": "fallback_nba_points",
+                "player": "Sample Guard",
+                "team": "LAL",
+                "opponent": "GSW",
+                "sport": Sport.NBA,
+                "market": MarketType.POINTS,
+                "line": 25.5,
+                "pick": Pick.OVER,
+                "odds": -110,
+                "recent_form": [28.0, 22.0, 26.0],
+                "matchup": MatchupHistory(games=5, average=25.0, hitRate=60),
+                "trend": Trend.UP,
+                "trend_strength": 70,
+                "bookmakers": [
+                    Bookmaker(name="Demo NBA", odds=-110, line=25.5),
+                    Bookmaker(name="Alt NBA", odds=-112, line=26.0),
                 ],
             },
         ]

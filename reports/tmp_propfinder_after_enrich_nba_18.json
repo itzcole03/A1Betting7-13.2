@@ -1,0 +1,93 @@
+{
+  "id": "nba_18",
+  "player": "Tyrese Haliburton",
+  "playerImage": null,
+  "team": "Pacers",
+  "teamLogo": null,
+  "opponent": "Knicks",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.ASSISTS",
+  "line": 10.5,
+  "pick": "Pick.OVER",
+  "odds": -105,
+  "impliedProbability": 69.8,
+  "aiProbability": 77.2,
+  "edge": 7.4,
+  "confidence": 78.7,
+  "projectedValue": 1.8500000000000003,
+  "volume": 38000,
+  "trend": "Trend.RISING",
+  "trendStrength": 7,
+  "timeToGame": "4h 37m",
+  "venue": "Venue.AWAY",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9,
+    92.1,
+    88.4
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 11.24,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 10.0,
+    "current": 10.5,
+    "direction": "Direction.DOWN"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": -114,
+      "line": 10.0
+    },
+    {
+      "name": "FanDuel",
+      "odds": -105,
+      "line": 11.0
+    },
+    {
+      "name": "BetMGM",
+      "odds": -111,
+      "line": 10.5
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "High Volume",
+    "Sharp Money"
+  ],
+  "socialSentiment": 72,
+  "sharpMoney": "SharpMoney.HEAVY",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": true,
+  "alertSeverity": "medium",
+  "bestBookmaker": "FanDuel",
+  "lineSpread": 1.0,
+  "oddsSpread": 9,
+  "numBookmakers": 3,
+  "evValue": 0.5365,
+  "evPercent": 53.65,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": true,
+  "arbitrageProfitPct": 2.09,
+  "openingLine": 10.5,
+  "openingOdds": -105,
+  "latestLine": 10.5,
+  "latestOdds": -105,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 0.0,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

@@ -4,7 +4,7 @@ Provides small compatibility endpoints so the module imports during triage.
 Full implementation can be restored after import-time issues are resolved.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 from fastapi import APIRouter
@@ -17,7 +17,7 @@ async def health() -> Dict[str, Any]:
     return {
         "success": True,
         "data": {"status": "healthy"},
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 

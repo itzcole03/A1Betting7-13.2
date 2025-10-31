@@ -1,6 +1,6 @@
 """Model registry (simple) import-safe stub for tests."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List
 
 from fastapi import APIRouter
@@ -13,7 +13,7 @@ async def health() -> Dict[str, Any]:
     return {
         "success": True,
         "data": {"status": "healthy"},
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -32,7 +32,7 @@ async def health() -> Dict[str, Any]:
     return {
         "success": True,
         "data": {"status": "healthy"},
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -41,7 +41,7 @@ async def list_models() -> Dict[str, Any]:
     return {
         "success": True,
         "data": {"models": []},
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -50,7 +50,7 @@ async def get_model(model_id: str) -> Dict[str, Any]:
     return {
         "success": True,
         "data": {"model_id": model_id, "status": "not_found"},
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 

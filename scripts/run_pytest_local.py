@@ -11,7 +11,7 @@ p = subprocess.Popen(
 out, _ = p.communicate()
 path = "reports/pytest_run_local.txt"
 with open(path, "w", encoding="utf-8") as f:
-    f.write("RUN AT: " + datetime.datetime.utcnow().isoformat() + "Z\n")
+    f.write("RUN AT: " + datetime.datetime.now(timezone.utc).isoformat().replace("+00:00", "Z") + "Z\n")
     f.write("EXIT CODE: " + str(p.returncode) + "\n\n")
     f.write(out)
 print("wrote", path)

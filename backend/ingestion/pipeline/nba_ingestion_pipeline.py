@@ -8,7 +8,7 @@ and comprehensive observability.
 
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from sqlalchemy import select, text, update
@@ -23,6 +23,21 @@ from ..normalization import PropMappingError, map_raw_to_normalized, taxonomy_se
 from ..sources import ProviderError, default_nba_provider
 
 logger = logging.getLogger("nba_ingestion_pipeline")
+
+
+def _safe_dump(obj):
+    """Return a dict-like serialization for Pydantic v2/v1 models with fallbacks."""
+    try:
+        if hasattr(obj, "model_dump") and callable(getattr(obj, "model_dump")):
+            return obj.model_dump()
+    except Exception:
+        pass
+    try:
+        if hasattr(obj, "dict") and callable(getattr(obj, "dict")):
+            return obj.dict()
+    except Exception:
+        pass
+    return getattr(obj, "__dict__", obj)
 
 
 class NBAIngestionPipeline:
@@ -60,7 +75,7 @@ class NBAIngestionPipeline:
             status="running",
             sport="NBA",
             source=self.provider.provider_name,
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
             finished_at=None,
             duration_ms=None,
             ingest_run_id=None,
@@ -358,7 +373,7 @@ class NBAIngestionPipeline:
                         existing_player.name = normalized_prop.player_name
                         existing_player.team = normalized_prop.team_abbreviation
                         existing_player.position = normalized_prop.position
-                        existing_player.updated_at = datetime.utcnow()
+                        existing_player.updated_at = datetime.now(timezone.utc)
                         await session.commit()
                     return existing_player
 
@@ -376,7 +391,7 @@ class NBAIngestionPipeline:
                     if not existing_player.external_refs:
                         existing_player.external_refs = {}
                     existing_player.external_refs[normalized_prop.source] = provider_id
-                    existing_player.updated_at = datetime.utcnow()
+                    existing_player.updated_at = datetime.now(timezone.utc)
                     await session.commit()
                 return existing_player
 
@@ -428,7 +443,7 @@ class NBAIngestionPipeline:
                 # Update existing prop
                 if allow_upsert:
                     existing_prop.active = True
-                    existing_prop.updated_at = datetime.utcnow()
+                    existing_prop.updated_at = datetime.now(timezone.utc)
                     await session.commit()
                 return existing_prop
 
@@ -483,7 +498,7 @@ class NBAIngestionPipeline:
 
             if existing_quote:
                 # Line unchanged - just update last_seen_at
-                existing_quote.last_seen_at = datetime.utcnow()
+                existing_quote.last_seen_at = datetime.now(timezone.utc)
                 await session.commit()
                 result.total_unchanged += 1
                 logger.debug(
@@ -496,12 +511,12 @@ class NBAIngestionPipeline:
                 prop_id=prop.id,
                 source=normalized_prop.source,
                 offered_line=normalized_prop.offered_line,
-                payout_schema=normalized_prop.payout_schema.dict(),
+                payout_schema=_safe_dump(normalized_prop.payout_schema),
                 odds_format="american",  # Default for stub data
                 line_hash=normalized_prop.line_hash,
-                first_seen_at=datetime.utcnow(),
-                last_seen_at=datetime.utcnow(),
-                last_change_at=datetime.utcnow(),
+                first_seen_at=datetime.now(timezone.utc),
+                last_seen_at=datetime.now(timezone.utc),
+                last_change_at=datetime.now(timezone.utc),
             )
 
             session.add(new_quote)
@@ -540,7 +555,7 @@ class NBAIngestionPipeline:
 
             # Copy errors from result to ingest run
             if result.errors:
-                ingest_run.errors = [error.dict() for error in result.errors]
+                ingest_run.errors = [_safe_dump(error) for error in result.errors]
 
             await session.commit()
             logger.info(

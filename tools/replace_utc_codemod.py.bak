@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""
+Conservative codemod to replace datetime.utcnow() with timezone-aware equivalents.
+Runs inplace on .py files under 'backend' and 'scripts'. Creates .bak backups.
+
+Replacements performed (best-effort):
+- from datetime import datetime -> from datetime import datetime, timezone
+- datetime.utcnow() -> datetime.now(timezone.utc)
+- datetime.utcnow().isoformat() + "Z" -> datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+- datetime.utcnow().isoformat() -> datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+- datetime.utcnow().timestamp() -> datetime.now(timezone.utc).timestamp()
+
+This script is intentionally conservative and idempotent.
+"""
+import io
+import os
+import re
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+TARGET_DIRS = [ROOT / "backend", ROOT / "scripts"]
+
+PY_FILE_RE = re.compile(r"\.py$", re.I)
+
+
+def process_file(p: Path):
+    text = p.read_text(encoding="utf-8")
+    orig = text
+
+    # Ensure import adds timezone when datetime imported from datetime
+    # Only modify if 'datetime' is imported and 'timezone' not present in that import
+    text = re.sub(
+        r"from\s+datetime\s+import\s+([\w\s,]+)\b",
+        lambda m: add_timezone_to_import(m.group(0), m.group(1)),
+        text,
+    )
+
+    # Replace common patterns
+    text = text.replace(
+        'datetime.utcnow().isoformat() + "Z"',
+        "datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')",
+    )
+    text = text.replace(
+        "datetime.utcnow().isoformat()",
+        "datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')",
+    )
+    text = text.replace("datetime.utcnow()", "datetime.now(timezone.utc)")
+    text = text.replace(
+        "datetime.utcnow().timestamp()", "datetime.now(timezone.utc).timestamp()"
+    )
+
+    if text != orig:
+        bak = p.with_suffix(p.suffix + ".bak")
+        if not bak.exists():
+            p.replace(bak)
+            bak.write_text(orig, encoding="utf-8")
+            # write new content to original path
+            p.write_text(text, encoding="utf-8")
+            print(f"Patched {p.relative_to(ROOT)}")
+        else:
+            # If .bak already exists, just overwrite file
+            p.write_text(text, encoding="utf-8")
+            print(f"Patched {p.relative_to(ROOT)} (bak exists)")
+
+
+def add_timezone_to_import(import_stmt: str, names: str) -> str:
+    # names is the capture group of imported names
+    parts = [n.strip() for n in names.split(",") if n.strip()]
+    if "datetime" in parts and "timezone" not in parts:
+        parts.append("timezone")
+        return "from datetime import " + ", ".join(parts)
+    return import_stmt
+
+
+def gather_files():
+    files = []
+    for d in TARGET_DIRS:
+        if not d.exists():
+            continue
+        for p in d.rglob("*.py"):
+            files.append(p)
+    return files
+
+
+def main():
+    files = gather_files()
+    print(f"Found {len(files)} python files under targets")
+    for p in files:
+        try:
+            process_file(p)
+        except Exception as e:
+            print(f"ERROR processing {p}: {e}")
+
+
+if __name__ == "__main__":
+    main()

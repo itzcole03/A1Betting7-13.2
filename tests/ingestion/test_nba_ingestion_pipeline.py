@@ -68,6 +68,19 @@ def mock_async_session():
     session_mock.refresh = AsyncMock()
     session_mock.add = MagicMock()
     session_mock.close = AsyncMock()
+    # Provide common AsyncSession methods used by the pipeline to avoid
+    # creating stray coroutine objects that are never awaited during tests.
+    # session.execute(...) is often used and its return value may be chained
+    # with .scalars().all(), so mock a return object with the expected chain.
+    session_mock.execute = AsyncMock(
+        return_value=MagicMock(
+            scalars=MagicMock(return_value=MagicMock(all=AsyncMock(return_value=None)))
+        )
+    )
+    # SQLModel's exec() may also be used; provide a reasonable async stub.
+    session_mock.exec = AsyncMock(
+        return_value=MagicMock(all=AsyncMock(return_value=[]))
+    )
     return session_mock
 
 
@@ -93,7 +106,14 @@ class TestNBAIngestionPipeline:
             with patch(
                 "backend.ingestion.pipeline.nba_ingestion_pipeline.AsyncSession"
             ) as mock_session_class:
+                # Ensure AsyncSession() used as async context manager returns our async mock
                 mock_session_class.return_value = mock_async_session
+                mock_session_class.return_value.__aenter__.return_value = (
+                    mock_async_session
+                )
+                mock_session_class.return_value.__aexit__.return_value = AsyncMock(
+                    return_value=None
+                )
 
                 # Mock database models
                 mock_ingest_run = MagicMock(spec=IngestRun)
@@ -152,6 +172,12 @@ class TestNBAIngestionPipeline:
                 "backend.ingestion.pipeline.nba_ingestion_pipeline.AsyncSession"
             ) as mock_session_class:
                 mock_session_class.return_value = mock_async_session
+                mock_session_class.return_value.__aenter__.return_value = (
+                    mock_async_session
+                )
+                mock_session_class.return_value.__aexit__.return_value = AsyncMock(
+                    return_value=None
+                )
 
                 # Mock existing data for idempotency test
                 existing_player = MagicMock(spec=Player)
@@ -204,6 +230,12 @@ class TestNBAIngestionPipeline:
                 "backend.ingestion.pipeline.nba_ingestion_pipeline.AsyncSession"
             ) as mock_session_class:
                 mock_session_class.return_value = mock_async_session
+                mock_session_class.return_value.__aenter__.return_value = (
+                    mock_async_session
+                )
+                mock_session_class.return_value.__aexit__.return_value = AsyncMock(
+                    return_value=None
+                )
 
                 existing_player = MagicMock(spec=Player)
                 existing_player.id = 1
@@ -269,6 +301,12 @@ class TestNBAIngestionPipeline:
                 "backend.ingestion.pipeline.nba_ingestion_pipeline.AsyncSession"
             ) as mock_session_class:
                 mock_session_class.return_value = mock_async_session
+                mock_session_class.return_value.__aenter__.return_value = (
+                    mock_async_session
+                )
+                mock_session_class.return_value.__aexit__.return_value = AsyncMock(
+                    return_value=None
+                )
 
                 mock_ingest_run = MagicMock(spec=IngestRun)
                 mock_ingest_run.id = 126
@@ -306,6 +344,12 @@ class TestNBAIngestionPipeline:
                 "backend.ingestion.pipeline.nba_ingestion_pipeline.AsyncSession"
             ) as mock_session_class:
                 mock_session_class.return_value = mock_async_session
+                mock_session_class.return_value.__aenter__.return_value = (
+                    mock_async_session
+                )
+                mock_session_class.return_value.__aexit__.return_value = AsyncMock(
+                    return_value=None
+                )
 
                 # Test external ID matching
                 existing_player = MagicMock(spec=Player)

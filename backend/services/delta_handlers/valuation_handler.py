@@ -6,7 +6,7 @@ for affected props and related entities.
 """
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from .base_handler import BaseDeltaHandler, DeltaContext, ProcessingResult
@@ -135,7 +135,7 @@ class ValuationDeltaHandler(BaseDeltaHandler):
             #     prop_id=context.prop_id,
             #     provider=context.provider, 
             #     calculated_value=calculated_value,
-            #     calculation_timestamp=datetime.utcnow(),
+            #     calculation_timestamp=datetime.now(timezone.utc),
             #     confidence=0.75,
             #     metadata={
             #         "line_value": prop_data.get("line_value"),

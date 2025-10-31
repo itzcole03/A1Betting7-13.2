@@ -6,7 +6,7 @@ of market data providers.
 """
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from backend.services.providers.base_provider import BaseMarketDataProvider
@@ -308,7 +308,7 @@ class ProviderRegistry:
         try:
             is_healthy = await provider.health_check()
             self._provider_health[provider_key] = is_healthy
-            self._last_health_check[provider_key] = datetime.utcnow()
+            self._last_health_check[provider_key] = datetime.now(timezone.utc)
             
             if is_healthy:
                 self.logger.debug(f"Provider {name} ({sport}) health check: OK")
@@ -319,7 +319,7 @@ class ProviderRegistry:
             
         except Exception as e:
             self._provider_health[provider_key] = False
-            self._last_health_check[provider_key] = datetime.utcnow()
+            self._last_health_check[provider_key] = datetime.now(timezone.utc)
             self.logger.error(f"Provider {name} ({sport}) health check error: {str(e)}")
             return False
             

@@ -2,7 +2,7 @@
 A1Betting Unified Backend Application
 
 This is the consolidated backend application that implements the new domain architecture
-as specified in the roadmap. It replaces the complex service proliferation with a 
+as specified in the roadmap. It replaces the complex service proliferation with a
 streamlined, maintainable structure.
 
 Key Changes:
@@ -14,31 +14,32 @@ Key Changes:
 
 import asyncio
 import logging
-import time
 import os
+import time
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import JSONResponse
 import uvicorn
+from docs.enhanced_openapi import generate_enhanced_openapi
 
 # Import domain routers
 from domains import DOMAIN_ROUTERS, DOMAIN_SERVICES
-from domains.prediction import UnifiedPredictionService
 from domains.database import (
-    UnifiedCacheService, SchemaManager, get_schema_manager,
-    cache_service
+    SchemaManager,
+    UnifiedCacheService,
+    cache_service,
+    get_schema_manager,
 )
-from docs.enhanced_openapi import generate_enhanced_openapi
+from domains.prediction import UnifiedPredictionService
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import JSONResponse
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -53,14 +54,14 @@ global_cache_service = cache_service
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan management"""
-    
+
     # Startup
     logger.info("🚀 Starting A1Betting Unified Backend with Database Optimization...")
 
     try:
         # Initialize database schema manager
         global schema_manager
-        database_url = os.getenv('DATABASE_URL', 'sqlite:///./a1betting.db')
+        database_url = os.getenv("DATABASE_URL", "sqlite:///./a1betting.db")
         schema_manager = get_schema_manager(database_url)
         logger.info("✅ Database schema manager initialized")
 
@@ -73,13 +74,15 @@ async def lifespan(app: FastAPI):
             logger.info(f"Initializing {domain_name} service...")
 
             # Pass database and cache to services that need them
-            if domain_name in ['prediction', 'data', 'analytics']:
-                service = service_class(schema_manager=schema_manager, cache_service=global_cache_service)
+            if domain_name in ["prediction", "data", "analytics"]:
+                service = service_class(
+                    schema_manager=schema_manager, cache_service=global_cache_service
+                )
             else:
                 service = service_class()
 
             # Initialize service if it has an initialize method
-            if hasattr(service, 'initialize'):
+            if hasattr(service, "initialize"):
                 success = await service.initialize()
                 if not success:
                     logger.error(f"Failed to initialize {domain_name} service")
@@ -88,27 +91,29 @@ async def lifespan(app: FastAPI):
             services[domain_name] = service
             logger.info(f"✅ {domain_name} service initialized successfully")
 
-        logger.info("🎯 All services initialized successfully with optimized architecture")
-        
+        logger.info(
+            "🎯 All services initialized successfully with optimized architecture"
+        )
+
         yield
-        
+
     except Exception as e:
         logger.error(f"Startup failed: {e}")
         raise
-    
+
     finally:
         # Shutdown
         logger.info("Shutting down A1Betting Unified Backend...")
-        
+
         # Cleanup services
         for domain_name, service in services.items():
-            if hasattr(service, 'cleanup'):
+            if hasattr(service, "cleanup"):
                 try:
                     await service.cleanup()
                     logger.info(f"{domain_name} service cleaned up")
                 except Exception as e:
                     logger.error(f"Failed to cleanup {domain_name} service: {e}")
-        
+
         logger.info("Shutdown complete")
 
 
@@ -124,20 +129,19 @@ app = FastAPI(
     contact={
         "name": "A1Betting API Support",
         "url": "https://a1betting.com/support",
-        "email": "api-support@a1betting.com"
+        "email": "api-support@a1betting.com",
     },
-    license_info={
-        "name": "Proprietary",
-        "url": "https://a1betting.com/license"
-    },
-    terms_of_service="https://a1betting.com/terms"
+    license_info={"name": "Proprietary", "url": "https://a1betting.com/license"},
+    terms_of_service="https://a1betting.com/terms",
 )
+
 
 # Apply enhanced OpenAPI schema
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     return generate_enhanced_openapi(app)
+
 
 app.openapi = custom_openapi
 
@@ -169,15 +173,15 @@ async def add_process_time_header(request: Request, call_next):
 async def global_exception_handler(request: Request, exc: Exception):
     """Global exception handler"""
     logger.error(f"Unhandled exception: {exc}", exc_info=True)
-    
+
     return JSONResponse(
         status_code=500,
         content={
             "error_code": "INTERNAL_ERROR",
             "message": "Internal server error",
-            "timestamp": datetime.utcnow().isoformat(),
-            "path": str(request.url.path)
-        }
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "path": str(request.url.path),
+        },
     )
 
 
@@ -188,29 +192,48 @@ async def health_check():
     try:
         health_status = {
             "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "version": "2.0.0",
-            "domains": {}
+            "domains": {},
         }
-        
+
         # Check each domain service
         for domain_name, service in services.items():
             try:
-                if hasattr(service, 'health_check'):
+                if hasattr(service, "health_check"):
                     domain_health = await service.health_check()
-                    health_status["domains"][domain_name] = domain_health.dict()
+                    # Prefer Pydantic v2 model_dump(), fall back to .dict(), then __dict__
+                    try:
+                        if hasattr(domain_health, "model_dump") and callable(
+                            getattr(domain_health, "model_dump")
+                        ):
+                            health_status["domains"][
+                                domain_name
+                            ] = domain_health.model_dump()
+                        else:
+                            health_status["domains"][domain_name] = domain_health.dict()
+                    except Exception:
+                        health_status["domains"][domain_name] = dict(
+                            getattr(domain_health, "__dict__", {}) or {}
+                        )
                 else:
                     health_status["domains"][domain_name] = {"status": "active"}
             except Exception as e:
                 logger.error(f"Health check failed for {domain_name}: {e}")
-                health_status["domains"][domain_name] = {"status": "unhealthy", "error": str(e)}
-        
+                health_status["domains"][domain_name] = {
+                    "status": "unhealthy",
+                    "error": str(e),
+                }
+
         # Determine overall status
-        if any(domain.get("status") == "unhealthy" for domain in health_status["domains"].values()):
+        if any(
+            domain.get("status") == "unhealthy"
+            for domain in health_status["domains"].values()
+        ):
             health_status["status"] = "degraded"
-        
+
         return health_status
-        
+
     except Exception as e:
         logger.error(f"Global health check failed: {e}")
         return JSONResponse(
@@ -218,8 +241,10 @@ async def health_check():
             content={
                 "status": "unhealthy",
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.now(timezone.utc)
+                .isoformat()
+                .replace("+00:00", "Z"),
+            },
         )
 
 
@@ -238,7 +263,7 @@ async def root():
         "version": "2.0.0",
         "docs": "/api/docs",
         "health": "/api/health",
-        "domains": list(DOMAIN_ROUTERS.keys())
+        "domains": list(DOMAIN_ROUTERS.keys()),
     }
 
 
@@ -258,18 +283,18 @@ async def api_info():
                     "POST /api/v1/predictions/batch",
                     "GET /api/v1/predictions/{id}",
                     "GET /api/v1/predictions/explain/{id}",
-                    "POST /api/v1/predictions/optimize/quantum"
-                ]
+                    "POST /api/v1/predictions/optimize/quantum",
+                ],
             },
-                "data": {
+            "data": {
                 "description": "Data integration and processing capabilities",
                 "endpoints": [
                     "POST /api/v1/data/",
                     "GET /api/v1/data/sports/{sport}/games",
                     "GET /api/v1/data/sports/{sport}/players",
                     "GET /api/v1/data/odds/live",
-                    "POST /api/v1/data/validate"
-                ]
+                    "POST /api/v1/data/validate",
+                ],
             },
             "analytics": {
                 "description": "Performance tracking and analytics",
@@ -278,8 +303,8 @@ async def api_info():
                     "GET /api/v1/analytics/performance",
                     "GET /api/v1/analytics/models/performance",
                     "GET /api/v1/analytics/system/health",
-                    "GET /api/v1/analytics/dashboard/{id}"
-                ]
+                    "GET /api/v1/analytics/dashboard/{id}",
+                ],
             },
             "integration": {
                 "description": "External API integrations and sportsbooks",
@@ -288,8 +313,8 @@ async def api_info():
                     "POST /api/v1/integration/external/data",
                     "GET /api/v1/integration/arbitrage",
                     "GET /api/v1/integration/status",
-                    "POST /api/v1/integration/webhooks/register"
-                ]
+                    "POST /api/v1/integration/webhooks/register",
+                ],
             },
             "optimization": {
                 "description": "Portfolio optimization and risk management",
@@ -298,16 +323,16 @@ async def api_info():
                     "POST /api/v1/optimization/kelly",
                     "POST /api/v1/optimization/arbitrage",
                     "POST /api/v1/optimization/risk",
-                    "GET /api/v1/optimization/strategies/compare"
-                ]
-            }
+                    "GET /api/v1/optimization/strategies/compare",
+                ],
+            },
         },
         "features": [
             "Quantum-inspired optimization",
-            "SHAP explainability", 
+            "SHAP explainability",
             "Real-time predictions",
             "Advanced ensemble methods",
-            "Performance monitoring"
+            "Performance monitoring",
         ],
         "consolidation_stats": {
             "original_routes": 57,
@@ -316,8 +341,8 @@ async def api_info():
             "consolidated_services": 5,
             "complexity_reduction": "73%",
             "performance_improvement": "60%",
-            "maintainability_improvement": "80%"
-        }
+            "maintainability_improvement": "80%",
+        },
     }
 
 
@@ -329,5 +354,5 @@ if __name__ == "__main__":
         port=8000,
         reload=True,
         reload_dirs=["backend"],
-        log_level="info"
+        log_level="info",
     )

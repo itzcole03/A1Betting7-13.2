@@ -1,0 +1,21 @@
+FROM python:3.11-slim
+WORKDIR /app
+
+# Install OS deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy test requirements and install. requirements-test.txt currently
+# includes -r requirements.txt so this falls back to the main list.
+COPY requirements-test.txt ./requirements-test.txt
+RUN pip install --no-cache-dir -r requirements-test.txt || pip install --no-cache-dir -r requirements.txt
+
+# Copy source
+COPY . /app
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+CMD ["python", "-m", "uvicorn", "backend.core.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]

@@ -6,7 +6,7 @@ implementation. Replace with the real implementation once the repo
 is stabilized.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 from fastapi import APIRouter, Query
@@ -19,7 +19,7 @@ async def health() -> Dict[str, Any]:
     return {
         "success": True,
         "data": {"status": "healthy"},
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 

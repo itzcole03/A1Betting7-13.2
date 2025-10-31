@@ -6,7 +6,7 @@ Integrates 2024-2025 FastAPI best practices with existing A1Betting infrastructu
 import logging
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -206,7 +206,7 @@ except ImportError:
                 "total_bases",
                 "runs_scored",
             ],
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }
 
     HEALTH_CHECKS_AVAILABLE = False

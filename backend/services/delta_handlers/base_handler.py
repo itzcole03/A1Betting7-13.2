@@ -7,7 +7,7 @@ triggering downstream updates to valuations, edges, and portfolio optimization.
 
 import asyncio
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Set
 from dataclasses import dataclass
 import uuid
@@ -109,7 +109,7 @@ class BaseDeltaHandler(ABC):
             return None
             
         self.is_processing = True
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         try:
             self.logger.debug(f"Processing delta {context.event_type} for {context.prop_id} ({context.sport})")
@@ -118,7 +118,7 @@ class BaseDeltaHandler(ABC):
             
             # Update handler state
             self.processing_count += 1
-            self.last_processed = datetime.utcnow()
+            self.last_processed = datetime.now(timezone.utc)
             
             # Update sport-specific counts
             if context.sport not in self.sport_processing_counts:
@@ -152,7 +152,7 @@ class BaseDeltaHandler(ABC):
             return ProcessingResult(
                 success=False,
                 handler_name=self.name,
-                processing_time_ms=int((datetime.utcnow() - start_time).total_seconds() * 1000),
+                processing_time_ms=int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000),
                 affected_entities=[],
                 errors=[str(e)],
                 dependencies_triggered=[],

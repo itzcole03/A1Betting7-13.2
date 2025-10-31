@@ -1,6 +1,6 @@
 /**
  * Bootstrap App Tests - Simplified Verification
- * 
+ *
  * Tests the core bootstrap functionality with minimal mocking complexity.
  * Focus on idempotency behavior and environment detection.
  */
@@ -32,14 +32,37 @@ Object.defineProperty(window, 'localStorage', {
 
 Object.defineProperty(window, 'performance', {
   value: {
-    now: jest.fn().mockReturnValue(100)
+    now: jest.fn().mockReturnValue(100),
   },
   writable: true,
 });
 
-// Simple location mock
-delete (window as any).location;
-(window as any).location = { search: '', reload: jest.fn() };
+// Simple location mock — mutate existing mock to avoid deleting window.location (which
+// can trigger jsdom navigation behavior). Ensure reload is a jest mock for assertions.
+if (!(window as any).location) {
+  Object.defineProperty(window, 'location', {
+    configurable: false,
+    enumerable: true,
+    value: { search: '', reload: jest.fn() },
+  });
+} else {
+  try {
+    (window as any).location.search = '';
+  } catch (e) {
+    // ignore if the host environment prevents mutating search
+  }
+  // Try to replace reload with a jest mock if possible; some jsdom Location
+  // implementations make this read-only/non-configurable, so ignore failures.
+  try {
+    Object.defineProperty((window as any).location, 'reload', {
+      configurable: true,
+      writable: true,
+      value: jest.fn(),
+    });
+  } catch (e) {
+    // ignore - cannot redefine reload on this environment
+  }
+}
 
 // Mock the environment detection
 jest.mock('../env', () => ({
@@ -52,14 +75,14 @@ jest.mock('../env', () => ({
   }),
 }));
 
-import { isBootstrapped, __resetBootstrapForTesting } from '../bootstrapApp';
+import { __resetBootstrapForTesting, isBootstrapped } from '../bootstrapApp';
 import { getRuntimeEnv } from '../env';
 
 describe('Bootstrap App - Core Functionality', () => {
   beforeEach(() => {
     // Reset bootstrap state before each test
     __resetBootstrapForTesting();
-    
+
     // Clear localStorage mock
     (window.localStorage.getItem as jest.Mock).mockClear();
   });
@@ -90,9 +113,9 @@ describe('Bootstrap App - Core Functionality', () => {
 
     it('should detect when bootstrap state is reset', () => {
       expect(isBootstrapped()).toBe(false);
-      
+
       __resetBootstrapForTesting();
-      
+
       expect(isBootstrapped()).toBe(false);
     });
   });

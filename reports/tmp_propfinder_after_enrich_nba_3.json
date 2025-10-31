@@ -1,0 +1,92 @@
+{
+  "id": "nba_3",
+  "player": "Giannis Antetokounmpo",
+  "playerImage": null,
+  "team": "Bucks",
+  "teamLogo": null,
+  "opponent": "Celtics",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.REBOUNDS",
+  "line": 11.5,
+  "pick": "Pick.UNDER",
+  "odds": 105,
+  "impliedProbability": 67.9,
+  "aiProbability": 58.4,
+  "edge": -9.5,
+  "confidence": 70.25,
+  "projectedValue": -2.375,
+  "volume": 15500,
+  "trend": "Trend.STABLE",
+  "trendStrength": 9,
+  "timeToGame": "5h 22m",
+  "venue": "Venue.HOME",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9,
+    92.1,
+    88.4
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 10.55,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 12.0,
+    "current": 11.5,
+    "direction": "Direction.UP"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": 100,
+      "line": 11.0
+    },
+    {
+      "name": "FanDuel",
+      "odds": 105,
+      "line": 12.0
+    },
+    {
+      "name": "BetMGM",
+      "odds": 100,
+      "line": 11.5
+    }
+  ],
+  "isBookmarked": true,
+  "tags": [
+    "Trending"
+  ],
+  "socialSentiment": 56,
+  "sharpMoney": "SharpMoney.MODERATE",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": false,
+  "alertSeverity": null,
+  "bestBookmaker": "FanDuel",
+  "lineSpread": 1.0,
+  "oddsSpread": 5,
+  "numBookmakers": 3,
+  "evValue": 0.4401,
+  "evPercent": 44.01,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": false,
+  "arbitrageProfitPct": 0.0,
+  "openingLine": 11.5,
+  "openingOdds": 105,
+  "latestLine": 11.5,
+  "latestOdds": 105,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 0.0,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

@@ -9,7 +9,7 @@ all ingestion pipelines.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Optional, Set
 from threading import Lock
 
@@ -153,7 +153,7 @@ class TaxonomyService:
                 "Jazz": "UTA", "Wizards": "WAS",
             }
             
-            self._last_reload_ts = datetime.utcnow()
+            self._last_reload_ts = datetime.now(timezone.utc)
             logger.info(f"Loaded {len(self._prop_mapping_cache)} prop mappings and "
                        f"{len(self._team_mapping_cache)} team mappings")
     

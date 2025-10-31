@@ -4,12 +4,12 @@ Smart Signals Models - Data models for smart betting signals
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import List, Optional
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from enum import Enum
+from typing import List, Optional
 
-from sqlalchemy import Column, DateTime, Float, Integer, String, Text, JSON
+from sqlalchemy import JSON, Column, DateTime, Float, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.models.base import Base
@@ -17,6 +17,7 @@ from backend.models.base import Base
 
 class SignalType(Enum):
     """Types of smart signals"""
+
     HIGH_EV = "high_ev"
     CONSISTENT_TREND = "consistent_trend"
     LOW_JUICE = "low_juice"
@@ -27,15 +28,17 @@ class SignalType(Enum):
 
 class SignalStrength(Enum):
     """Signal strength levels"""
-    WEAK = "weak"          # 40-60
+
+    WEAK = "weak"  # 40-60
     MODERATE = "moderate"  # 60-75
-    STRONG = "strong"      # 75-85
+    STRONG = "strong"  # 75-85
     VERY_STRONG = "very_strong"  # 85+
 
 
 @dataclass
 class SignalComponent:
     """Individual component of a smart signal"""
+
     component_type: str
     score: float
     weight: float
@@ -46,6 +49,7 @@ class SignalComponent:
 @dataclass
 class SignalRationale:
     """Rationale for why a signal qualified"""
+
     reason: str
     value: str
     impact: float  # 0-1 scale
@@ -53,48 +57,67 @@ class SignalRationale:
 
 class SmartSignal(Base):
     """Database model for smart betting signals"""
+
     __tablename__ = "smart_signals"
     __table_args__ = {"extend_existing": True}
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    
+
     # Signal identification
     sport: Mapped[str] = mapped_column(String, nullable=False, index=True)
     game_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
     player_name: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
-    market_type: Mapped[str] = mapped_column(String, nullable=False)  # "over_under", "spread", "moneyline"
-    stat_type: Mapped[str | None] = mapped_column(String, nullable=True)  # "points", "rebounds", etc.
-    
+    market_type: Mapped[str] = mapped_column(
+        String, nullable=False
+    )  # "over_under", "spread", "moneyline"
+    stat_type: Mapped[str | None] = mapped_column(
+        String, nullable=True
+    )  # "points", "rebounds", etc.
+
     # Line information
     line: Mapped[float | None] = mapped_column(Float, nullable=True)
     over_odds: Mapped[float | None] = mapped_column(Float, nullable=True)
     under_odds: Mapped[float | None] = mapped_column(Float, nullable=True)
     sportsbook: Mapped[str | None] = mapped_column(String, nullable=True)
-    
+
     # Signal scoring
     overall_score: Mapped[float] = mapped_column(Float, nullable=False, index=True)
-    signal_strength: Mapped[str] = mapped_column(String, nullable=False)  # SignalStrength enum
-    signal_types: Mapped[str] = mapped_column(Text, nullable=False)  # JSON array of SignalType enums
-    
+    signal_strength: Mapped[str] = mapped_column(
+        String, nullable=False
+    )  # SignalStrength enum
+    signal_types: Mapped[str] = mapped_column(
+        Text, nullable=False
+    )  # JSON array of SignalType enums
+
     # Scoring components (0-100 scale)
     ev_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     trend_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     juice_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     line_movement_score: Mapped[float | None] = mapped_column(Float, nullable=True)
-    
+
     # Supporting data
     expected_value_percent: Mapped[float | None] = mapped_column(Float, nullable=True)
-    hit_rate_trend: Mapped[float | None] = mapped_column(Float, nullable=True)  # Last 10 games
+    hit_rate_trend: Mapped[float | None] = mapped_column(
+        Float, nullable=True
+    )  # Last 10 games
     juice_percent: Mapped[float | None] = mapped_column(Float, nullable=True)
-    line_movement: Mapped[float | None] = mapped_column(Float, nullable=True)  # Positive = favorable
-    
+    line_movement: Mapped[float | None] = mapped_column(
+        Float, nullable=True
+    )  # Positive = favorable
+
     # Rationales and metadata
-    rationales: Mapped[str] = mapped_column(Text, nullable=False)  # JSON array of rationale strings
-    component_breakdown: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON breakdown
-    
+    rationales: Mapped[str] = mapped_column(
+        Text, nullable=False
+    )  # JSON array of rationale strings
+    component_breakdown: Mapped[str | None] = mapped_column(
+        Text, nullable=True
+    )  # JSON breakdown
+
     # Tracking
     is_active: Mapped[bool] = mapped_column(default=True)
-    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
@@ -127,7 +150,7 @@ class SmartSignal(Base):
     def to_dict(self) -> dict:
         """Convert to dictionary for API responses"""
         import json
-        
+
         return {
             "id": self.id,
             "sport": self.sport,
@@ -151,7 +174,11 @@ class SmartSignal(Base):
             "juice_percent": self.juice_percent,
             "line_movement": self.line_movement,
             "rationales": json.loads(self.rationales) if self.rationales else [],
-            "component_breakdown": json.loads(self.component_breakdown) if self.component_breakdown else None,
+            "component_breakdown": (
+                json.loads(self.component_breakdown)
+                if self.component_breakdown
+                else None
+            ),
             "is_active": self.is_active,
             "is_qualified": self.is_qualified,
             "strength_level": self.strength_level.value,
@@ -163,6 +190,7 @@ class SmartSignal(Base):
 @dataclass
 class SmartSignalRequest:
     """Request model for smart signals API"""
+
     sport: str = "MLB"
     min_score: float = 70.0
     limit: int = 50
@@ -174,6 +202,7 @@ class SmartSignalRequest:
 @dataclass
 class SmartSignalResponse:
     """Response model for smart signals API"""
+
     signals: List[dict]
     total_count: int
     qualified_count: int

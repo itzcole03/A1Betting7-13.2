@@ -11,7 +11,9 @@ if (typeof HTMLCanvasElement !== 'undefined' && !HTMLCanvasElement.prototype.get
       return {
         fillRect: () => {},
         clearRect: () => {},
-        getImageData: (x: number, y: number, w: number, h: number) => ({ data: new Array(w * h * 4) }),
+        getImageData: (x: number, y: number, w: number, h: number) => ({
+          data: new Array(w * h * 4),
+        }),
         putImageData: () => {},
         createImageData: () => [],
         setTransform: () => {},
@@ -42,11 +44,50 @@ if (typeof URL !== 'undefined' && !URL.createObjectURL) {
   URL.revokeObjectURL = (url: string) => {};
 }
 
+// Make `window.location` configurable and mockable to avoid jsdom navigation
+// errors when tests delete/replace it or call assign()/reload(). Some tests
+// replace `window.location` directly which in recent jsdom versions can
+// trigger a Not implemented: navigation error. Provide a safe, configurable
+// default that tests can override.
+try {
+  if (typeof window !== 'undefined') {
+    const safeLocation = {
+      href: 'http://localhost/',
+      assign: typeof jest !== 'undefined' ? jest.fn() : () => {},
+      reload: typeof jest !== 'undefined' ? jest.fn() : () => {},
+      replace: typeof jest !== 'undefined' ? jest.fn() : () => {},
+      search: '',
+      pathname: '/',
+      hostname: 'localhost',
+      origin: 'http://localhost',
+    } as any;
+
+    // Define a configurable location property so tests can delete/override it
+    // without hitting jsdom's non-configurable descriptor.
+    try {
+      // Make this property non-configurable so test code that uses `delete window.location`
+      // cannot remove it and trigger jsdom's internal navigation behavior. Tests that need
+      // to override the location can still call the provided helpers or set properties on
+      // the mock object (e.g. window.location.href = '...').
+      Object.defineProperty(window, 'location', {
+        configurable: false,
+        enumerable: true,
+        value: safeLocation,
+      });
+    } catch (e) {
+      // If environment doesn't allow redefining location, ignore.
+    }
+  }
+} catch (_) {}
+
 // Silence console warnings from navigation/getContext in some jest environments
 const _consoleWarn = console.warn;
 console.warn = (...args: unknown[]) => {
   const msg = String(args[0] ?? '');
-  if (msg.includes('Not implemented: navigation') || msg.includes('Not implemented: HTMLCanvasElement.prototype.getContext')) {
+  if (
+    msg.includes('Not implemented: navigation') ||
+    msg.includes('Not implemented: HTMLCanvasElement.prototype.getContext')
+  ) {
     return;
   }
   _consoleWarn(...args);
@@ -63,7 +104,12 @@ try {
     const el = originalCreateElement.call(document, tagName, options);
     const originalSetAttribute = el.setAttribute.bind(el);
     el.setAttribute = function (name: string, value: string) {
-      if (name === 'whilehover' || name === 'whiletap' || name === 'whileHover' || name === 'whileTap') {
+      if (
+        name === 'whilehover' ||
+        name === 'whiletap' ||
+        name === 'whileHover' ||
+        name === 'whileTap'
+      ) {
         return;
       }
       return originalSetAttribute(name, value);
@@ -103,9 +149,11 @@ if (typeof window !== 'undefined' && typeof window.location !== 'undefined') {
 export const __resetLocationMocks = () => {
   try {
     // @ts-ignore
-    if (window?.location?.assign && (window.location.assign as any).mockReset) (window.location.assign as any).mockReset();
+    if (window?.location?.assign && (window.location.assign as any).mockReset)
+      (window.location.assign as any).mockReset();
     // @ts-ignore
-    if (window?.location?.reload && (window.location.reload as any).mockReset) (window.location.reload as any).mockReset();
+    if (window?.location?.reload && (window.location.reload as any).mockReset)
+      (window.location.reload as any).mockReset();
   } catch (_) {}
 };
 
@@ -121,51 +169,55 @@ try {
   // Allow opt-out via env var TEST_ALLOW_HEALTH_SHIM=false so we can run
   // validator unit tests without the shim when desired.
   // Default behavior: enable shim (for legacy noisy tests).
-  const allowShim = (process && process.env && process.env.TEST_ALLOW_HEALTH_SHIM) === 'false' ? false : true;
+  const allowShim =
+    (process && process.env && process.env.TEST_ALLOW_HEALTH_SHIM) === 'false' ? false : true;
   if (allowShim) {
-  // Require the health validator module and wrap its export
-  // Path is relative to this file
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
-  const healthMod = require('./utils/validateHealthResponse');
-  if (healthMod && typeof healthMod.validateHealthResponse === 'function') {
-    const orig = healthMod.validateHealthResponse;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    healthMod.validateHealthResponse = function (raw: any) {
-      try {
-        return orig(raw);
-      } catch (err: any) {
+    // Require the health validator module and wrap its export
+    // Path is relative to this file
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
+    const healthMod = require('./utils/validateHealthResponse');
+    if (healthMod && typeof healthMod.validateHealthResponse === 'function') {
+      const orig = healthMod.validateHealthResponse;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      healthMod.validateHealthResponse = function (raw: any) {
         try {
-          // If the error is the shape mismatch, decide whether to swallow it.
-          // We will NOT swallow it if the call originates from a test file (so
-          // unit tests for the validator keep original behavior). Inspect the
-          // stack trace for hints that a __tests__ module is the caller.
-          const isShape = err && err.code === 'HEALTH_SHAPE_MISMATCH';
-          if (isShape) {
-            const stack = (new Error().stack || '').toLowerCase();
-            const calledFromTest = stack.includes('__tests__') || stack.includes('/__tests__/') || stack.includes('\\__tests__\\');
-            if (calledFromTest) {
-              // Rethrow so validator unit tests assert original behavior
-              throw err;
+          return orig(raw);
+        } catch (err: any) {
+          try {
+            // If the error is the shape mismatch, decide whether to swallow it.
+            // We will NOT swallow it if the call originates from a test file (so
+            // unit tests for the validator keep original behavior). Inspect the
+            // stack trace for hints that a __tests__ module is the caller.
+            const isShape = err && err.code === 'HEALTH_SHAPE_MISMATCH';
+            if (isShape) {
+              const stack = (new Error().stack || '').toLowerCase();
+              const calledFromTest =
+                stack.includes('__tests__') ||
+                stack.includes('/__tests__/') ||
+                stack.includes('\\__tests__\\');
+              if (calledFromTest) {
+                // Rethrow so validator unit tests assert original behavior
+                throw err;
+              }
+              // Otherwise return a minimal, safe validated payload for test callers
+              return {
+                overall_status: 'down',
+                services: [],
+                performance: {},
+                cache: {},
+                infrastructure: {},
+                timestamp: new Date().toISOString(),
+                uptime_seconds: 0,
+                __validated: true,
+              };
             }
-            // Otherwise return a minimal, safe validated payload for test callers
-            return {
-              overall_status: 'down',
-              services: [],
-              performance: {},
-              cache: {},
-              infrastructure: {},
-              timestamp: new Date().toISOString(),
-              uptime_seconds: 0,
-              __validated: true,
-            };
+          } catch (_) {
+            // fall through to rethrow
           }
-        } catch (_) {
-          // fall through to rethrow
+          throw err;
         }
-        throw err;
-      }
-    };
-  }
+      };
+    }
   }
 } catch (e) {
   // If anything goes wrong here, don't block tests — keep setup lightweight
@@ -190,7 +242,10 @@ try {
   const rewriteSelectors = function (this: Document | Element, selectors: string) {
     // Look for legacy condensed id requests and return matching nodes
     if (shouldRewrite(selectors)) {
-      return origDocQSAll.call(this, '[data-condensed-testid="condensed-prop-card"], [data-testid="prop-card"], [aria-label^="condensed-prop-card-"]');
+      return origDocQSAll.call(
+        this,
+        '[data-condensed-testid="condensed-prop-card"], [data-testid="prop-card"], [aria-label^="condensed-prop-card-"]'
+      );
     }
     return (this instanceof Document ? origDocQSAll : origElQSAll).call(this, selectors);
   } as any;
@@ -217,3 +272,27 @@ console.error = (...args: unknown[]) => {
   } catch (_) {}
   _consoleError(...args);
 };
+
+// Global fetch shim for tests: many suites assume fetch is available or mock it
+// per-test. In some CI runs real network calls leak and produce ECONNRESET which
+// fails tests. Provide a lightweight default that returns an empty successful
+// response if no test-local mock has been installed. Tests that need specific
+// responses should still mock `global.fetch` in their own setup.
+try {
+  // Only install in the test environment where `jest` globals are available
+  // and don't clobber an existing fetch mock.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (typeof (global as any).fetch === 'undefined') {
+    // @ts-ignore - jest is available in setupFilesAfterEnv
+    (global as any).fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({}),
+        text: async () => '',
+      })
+    );
+  }
+} catch (e) {
+  // If anything goes wrong here, don't block tests — keep setup lightweight
+}

@@ -66,13 +66,13 @@ except Exception:
         # in-memory stubs that expose the attributes the routes expect.
         class _Conn:
             def __init__(self, client_id="test-client"):
-                from datetime import datetime
+                from datetime import datetime, timezone
 
                 self.client_id = client_id
                 self.user_id = None
                 self.authenticated = False
-                self.connected_at = datetime.utcnow()
-                self.last_heartbeat = datetime.utcnow()
+                self.connected_at = datetime.now(timezone.utc)
+                self.last_heartbeat = datetime.now(timezone.utc)
                 self.subscriptions = set()
 
         class _Room:
@@ -83,8 +83,8 @@ except Exception:
                 self.subscription_type = subscription_type
                 self.filters = filters or {}
                 self.subscribers = set()
-                self.created_at = datetime.utcnow()
-                self.last_update = datetime.utcnow()
+                self.created_at = datetime.now(timezone.utc)
+                self.last_update = datetime.now(timezone.utc)
 
         class _SubscriptionManager:
             def __init__(self):

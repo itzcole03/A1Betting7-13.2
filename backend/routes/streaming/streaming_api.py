@@ -3,7 +3,7 @@
 Expose provider_registry, market_streamer, portfolio_rationale_service and router.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from types import SimpleNamespace
 from typing import Any, Dict
 
@@ -37,7 +37,7 @@ async def streaming_health():
     return {
         "healthy": True,
         "components": components,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 

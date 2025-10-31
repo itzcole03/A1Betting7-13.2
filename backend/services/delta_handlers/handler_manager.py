@@ -6,7 +6,7 @@ event routing, and dependency resolution.
 """
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 
@@ -82,7 +82,7 @@ class DeltaHandlerManager:
         
         try:
             self.metrics.events_received += 1
-            self.metrics.last_event_timestamp = datetime.utcnow()
+            self.metrics.last_event_timestamp = datetime.now(timezone.utc)
             
             self.logger.debug(f"Processing market event: {event_type}")
             
@@ -143,9 +143,9 @@ class DeltaHandlerManager:
                 try:
                     timestamp = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
                 except (ValueError, AttributeError):
-                    timestamp = datetime.utcnow()
+                    timestamp = datetime.now(timezone.utc)
             else:
-                timestamp = datetime.utcnow()
+                timestamp = datetime.now(timezone.utc)
                 
             # Map event type to delta event type
             delta_event_type = self._map_event_type(event_type, payload)

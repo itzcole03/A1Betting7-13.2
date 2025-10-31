@@ -35,7 +35,7 @@ class APIResponse(BaseModel):
 
     def __init__(self, **data):
         if 'timestamp' not in data:
-            data['timestamp'] = datetime.utcnow()
+            data['timestamp'] = datetime.now(timezone.utc)
         super().__init__(**data)
 
 
@@ -111,7 +111,7 @@ class EnhancedAPIService:
             # Check various service health
             health_data = {
                 "status": "healthy",
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(timezone.utc),
                 "services": {
                     "api": "operational",
                     "cache": "operational",
@@ -316,7 +316,7 @@ class EnhancedAPIService:
                 "status": "scheduled",
                 "venue": "Oracle Park",
                 "matchup": "Dodgers @ Giants",
-                "last_updated": datetime.utcnow().isoformat() + "Z",
+                "last_updated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             },
             {
                 "id": "mock_game_2",
@@ -327,7 +327,7 @@ class EnhancedAPIService:
                 "status": "scheduled",
                 "venue": "Yankee Stadium",
                 "matchup": "Red Sox @ Yankees",
-                "last_updated": datetime.utcnow().isoformat() + "Z",
+                "last_updated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             },
         ]
 
@@ -423,7 +423,7 @@ class EnhancedAPIService:
                 "matchup": "Dodgers @ Giants",
                 "team": "LAD",
                 "opponent": "SF",
-                "start_time": datetime.utcnow().isoformat() + "Z",
+                "start_time": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "provider": "mock",
                 "bookmakers": [],
                 "volume": random.randint(200, 600),
@@ -443,7 +443,7 @@ class EnhancedAPIService:
                 "matchup": "Dodgers @ Giants",
                 "team": "LAD",
                 "opponent": "SF",
-                "start_time": datetime.utcnow().isoformat() + "Z",
+                "start_time": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "provider": "mock",
                 "bookmakers": [],
                 "volume": random.randint(200, 600),
@@ -594,7 +594,7 @@ class EnhancedAPIService:
                 "source": "mock",
                 "ensemble_models": ["xgboost", "random_forest", "lstm"],
                 "features_used": 47,
-                "last_trained": datetime.utcnow().isoformat() + "Z",
+                "last_trained": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             },
         }
 

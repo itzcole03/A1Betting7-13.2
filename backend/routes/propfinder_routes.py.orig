@@ -1038,6 +1038,7 @@ async def get_prop_opportunities(
             # Try keyword args first (most implementations accept these).
             try:
                 result = fetch_fn(
+                    sport_filter=sport_filter,
                     confidence_range=confidence_range,
                     edge_range=edge_range,
                     limit=limit,
@@ -1048,6 +1049,7 @@ async def get_prop_opportunities(
                 # Some test doubles (MagicMock) or legacy implementations may
                 # not accept keywords; try positional args as a fallback.
                 result = fetch_fn(
+                    sport_filter,
                     confidence_range,
                     edge_range,
                     limit,

@@ -1,0 +1,91 @@
+{
+  "id": "nba_11",
+  "player": "Anthony Edwards",
+  "playerImage": null,
+  "team": "Timberwolves",
+  "teamLogo": null,
+  "opponent": "Nuggets",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.POINTS",
+  "line": 22.5,
+  "pick": "Pick.OVER",
+  "odds": -112,
+  "impliedProbability": 73.1,
+  "aiProbability": 80.6,
+  "edge": 7.5,
+  "confidence": 78.75,
+  "projectedValue": 1.875,
+  "volume": 27500,
+  "trend": "Trend.RISING",
+  "trendStrength": 7,
+  "timeToGame": "5h 30m",
+  "venue": "Venue.HOME",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 23.25,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 23.0,
+    "current": 22.5,
+    "direction": "Direction.DOWN"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": -119,
+      "line": 23.0
+    },
+    {
+      "name": "FanDuel",
+      "odds": -110,
+      "line": 23.0
+    },
+    {
+      "name": "BetMGM",
+      "odds": -116,
+      "line": 22.5
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "High Volume",
+    "Sharp Money"
+  ],
+  "socialSentiment": 72,
+  "sharpMoney": "SharpMoney.HEAVY",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": true,
+  "alertSeverity": "medium",
+  "bestBookmaker": "Caesars",
+  "lineSpread": 0.5,
+  "oddsSpread": 12,
+  "numBookmakers": 4,
+  "evValue": 0.4906,
+  "evPercent": 49.06,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": true,
+  "arbitrageProfitPct": 2.72,
+  "openingLine": 22.5,
+  "openingOdds": -112,
+  "latestLine": 22.5,
+  "latestOdds": -112,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 1.2,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

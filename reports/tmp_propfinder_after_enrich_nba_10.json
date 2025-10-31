@@ -1,0 +1,93 @@
+{
+  "id": "nba_10",
+  "player": "Devin Booker",
+  "playerImage": null,
+  "team": "Suns",
+  "teamLogo": null,
+  "opponent": "Mavericks",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.POINTS",
+  "line": 24.5,
+  "pick": "Pick.UNDER",
+  "odds": 110,
+  "impliedProbability": 64.2,
+  "aiProbability": 58.8,
+  "edge": -5.4,
+  "confidence": 72.3,
+  "projectedValue": -1.35,
+  "volume": 26000,
+  "trend": "Trend.STABLE",
+  "trendStrength": 5,
+  "timeToGame": "4h 29m",
+  "venue": "Venue.AWAY",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9,
+    92.1,
+    88.4,
+    76.8
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 23.96,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 24.0,
+    "current": 24.5,
+    "direction": "Direction.UP"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": 101,
+      "line": 24.0
+    },
+    {
+      "name": "FanDuel",
+      "odds": 110,
+      "line": 25.0
+    },
+    {
+      "name": "BetMGM",
+      "odds": 104,
+      "line": 24.5
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "Trending"
+  ],
+  "socialSentiment": 60,
+  "sharpMoney": "SharpMoney.MODERATE",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": false,
+  "alertSeverity": null,
+  "bestBookmaker": "FanDuel",
+  "lineSpread": 1.0,
+  "oddsSpread": 9,
+  "numBookmakers": 3,
+  "evValue": 0.5183,
+  "evPercent": 51.83,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": true,
+  "arbitrageProfitPct": 2.18,
+  "openingLine": 24.5,
+  "openingOdds": 110,
+  "latestLine": 24.5,
+  "latestOdds": 110,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 0.0,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

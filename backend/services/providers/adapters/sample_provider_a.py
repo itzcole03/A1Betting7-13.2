@@ -5,7 +5,7 @@ Simulates a fast, reliable provider with minor variations in data.
 """
 
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 from backend.services.providers.base_provider import BaseMarketDataProvider, ExternalPropRecord
@@ -66,7 +66,7 @@ class SampleProviderA(BaseMarketDataProvider):
                         team_code=team,
                         prop_category=market_type,
                         line_value=round(line_value, 1),
-                        updated_ts=datetime.utcnow(),
+                        updated_ts=datetime.now(timezone.utc),
                         payout_type="decimal",
                         status="active",
                         odds_value=random.uniform(1.80, 2.20),
@@ -88,7 +88,7 @@ class SampleProviderA(BaseMarketDataProvider):
         await asyncio.sleep(random.uniform(0.1, 0.3))
         
         # Update timestamps to current time
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
         updated_props = []
         
         props_to_return = self._mock_props[:limit] if limit else self._mock_props
@@ -126,7 +126,7 @@ class SampleProviderA(BaseMarketDataProvider):
         
         # Simulate some props having updates
         updated_props = []
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
         
         # Randomly select 10-20% of props to have "updates"
         num_updates = random.randint(len(self._mock_props) // 10, len(self._mock_props) // 5)

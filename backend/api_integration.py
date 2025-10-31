@@ -46,6 +46,25 @@ except ImportError:
 
 from backend.utils.response_envelope import fail, ok
 
+
+# Safe serializer helper: prefer Pydantic v2 model_dump, fall back to dict(), then __dict__
+def _safe_dump(obj):
+    try:
+        if hasattr(obj, "model_dump") and callable(getattr(obj, "model_dump")):
+            return obj.model_dump()
+    except Exception:
+        pass
+    try:
+        if hasattr(obj, "dict") and callable(getattr(obj, "dict")):
+            return obj.dict()
+    except Exception:
+        pass
+    try:
+        return dict(getattr(obj, "__dict__", {}) or {})
+    except Exception:
+        return str(obj)
+
+
 # ============================================================================
 # ODDS AGGREGATION SYSTEM
 # ============================================================================
@@ -2033,7 +2052,7 @@ async def get_player_props(player_id: str):
         ],
     )
 
-    return api_response(player_details.dict())
+    return api_response(_safe_dump(player_details))
 
 
 @api_router.post("/lineups", response_model=Dict[str, Any])
@@ -2045,14 +2064,16 @@ async def submit_lineup(
 
     if not is_valid:
         return api_response(
-            LineupResponse(
-                id="",
-                totalOdds=0.0,
-                potentialPayout=0.0,
-                confidence=0,
-                isValid=False,
-                violations=violations,
-            ).dict()
+            _safe_dump(
+                LineupResponse(
+                    id="",
+                    totalOdds=0.0,
+                    potentialPayout=0.0,
+                    confidence=0,
+                    isValid=False,
+                    violations=violations,
+                )
+            )
         )
 
     # Calculate odds and payout
@@ -2066,14 +2087,16 @@ async def submit_lineup(
     lineup_id = str(uuid.uuid4())
 
     return api_response(
-        LineupResponse(
-            id=lineup_id,
-            totalOdds=total_odds,
-            potentialPayout=potential_payout,
-            confidence=int(total_confidence),
-            isValid=True,
-            violations=None,
-        ).dict()
+        _safe_dump(
+            LineupResponse(
+                id=lineup_id,
+                totalOdds=total_odds,
+                potentialPayout=potential_payout,
+                confidence=int(total_confidence),
+                isValid=True,
+                violations=None,
+            )
+        )
     )
 
 
@@ -2142,7 +2165,7 @@ async def analyze_prediction(request: AnalysisRequest):
         oddsExplanation="No analysis available without real data integration",
     )
 
-    return api_response(analysis.dict())
+    return api_response(_safe_dump(analysis))
 
 
 # --- User Management Routes ---
@@ -2199,7 +2222,7 @@ async def get_bankroll(current_user: Dict[str, Any] = Depends(get_current_user))
         },
     )
 
-    return api_response(BankrollInfo(**bankroll).dict())
+    return api_response(_safe_dump(BankrollInfo(**bankroll)))
 
 
 @api_router.post("/users/bankroll/transaction", response_model=Dict[str, Any])
@@ -2255,7 +2278,7 @@ async def create_transaction(
         timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
-    return api_response(transaction.dict())
+    return api_response(_safe_dump(transaction))
 
 
 # --- Analytics Routes ---
@@ -2340,7 +2363,7 @@ async def get_market_trends():
         ),
     ]
 
-    return api_response([trend.dict() for trend in trends])
+    return api_response([_safe_dump(trend) for trend in trends])
 
 
 # --- AI Chat Routes ---
@@ -2708,7 +2731,7 @@ async def compare_odds(
 
         return api_response(
             {
-                **response_data.dict(),
+                **_safe_dump(response_data),
                 "processing_time_ms": round(processing_time, 1),
                 "summary": {
                     "total_bookmakers": len(bookmakers),

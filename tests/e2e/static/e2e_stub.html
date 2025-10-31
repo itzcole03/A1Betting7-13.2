@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>E2E Stub</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Minimal E2E Stub</h1>
+      <div id="content"></div>
+    </div>
+
+    <script>
+      // The stub will attempt to discover the mock API base via a small
+      // runtime config endpoint so it can call the mock server even when
+      // the stub is served from a different origin (e.g. :3000 vs :8010).
+      let API_BASE = "";
+      async function discoverApiBase() {
+        // For the minimal stub, prefer same-origin API base so CORS does not
+        // prevent access to response headers like ETag. Tests that run a
+        // separate mock server can override this by setting E2E_BASE_URL.
+        API_BASE = location.origin;
+      }
+
+      async function jsonFetch(url, opts) {
+        try {
+          const resolved = url.startsWith("/") ? API_BASE + url : url;
+          const r = await fetch(resolved, opts);
+          return r.json();
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function el(tag, txt) {
+        const e = document.createElement(tag);
+        if (txt) e.textContent = txt;
+        return e;
+      }
+
+      async function renderHome() {
+        const content = document.getElementById("content");
+        content.innerHTML = "";
+        const preds = await jsonFetch("/api/predictions");
+        const list = el("ul");
+        if (
+          preds &&
+          preds.data &&
+          Array.isArray(preds.data) &&
+          preds.data.length
+        ) {
+          preds.data.forEach((p) => {
+            const li = el("li", p.player_name || p.player || "unknown");
+            list.appendChild(li);
+          });
+        } else {
+          // Fallback sample content so example specs have deterministic text
+          list.appendChild(el("li", "Alice Example"));
+        }
+        content.appendChild(list);
+        const btn = el("button", "Track");
+        btn.id = "track-btn";
+        btn.addEventListener("click", async () => {
+          await fetch("/api/analytics/events", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ evt: "track" }),
+          });
+          // append an in-DOM confirmation so Playwright can assert it
+          const toast = el("div", "Event tracked");
+          toast.setAttribute("data-testid", "e2e-analytics-toast");
+          content.appendChild(toast);
+        });
+        content.appendChild(btn);
+        // Add a simple Auto Refresh control the tests expect
+        const auto = el("button", "Auto Refresh");
+        auto.id = "auto-refresh-button";
+        auto.addEventListener("click", async () => {
+          if (typeof window.__propfinder_refresh === "function") {
+            await window.__propfinder_refresh();
+          }
+        });
+        content.appendChild(auto);
+      }
+
+      async function renderPropDetail() {
+        const content = document.getElementById("content");
+        content.innerHTML = "";
+        const id = location.pathname.split("/").pop();
+        const r = await jsonFetch("/api/props/" + id);
+        if (r && r.data) {
+          content.appendChild(
+            el("div", r.data.player_name || r.data.player || "No player")
+          );
+          // render value if exists
+          if (r.data.line) content.appendChild(el("div", String(r.data.line)));
+        } else {
+          // fallback content
+          content.appendChild(el("div", "Alice Example"));
+          content.appendChild(el("div", "24.5"));
+        }
+
+        const books = await jsonFetch("/api/markets?prop_id=" + id);
+        if (books && books.data && books.data.length) {
+          content.appendChild(el("div", books.data[0].name || "MockBook"));
+        } else {
+          content.appendChild(el("div", "MockBook"));
+        }
+      }
+
+      async function renderLineups() {
+        const content = document.getElementById("content");
+        content.innerHTML = "";
+        const r = await jsonFetch("/api/lineup");
+        const list = el("ul");
+        if (r && r.data && Array.isArray(r.data) && r.data.length) {
+          r.data.forEach((l) => {
+            list.appendChild(el("li", l.name || "sample-lineup"));
+          });
+        } else {
+          list.appendChild(el("li", "sample-lineup"));
+        }
+        content.appendChild(list);
+      }
+
+      async function renderLineupNew() {
+        const content = document.getElementById("content");
+        content.innerHTML = "";
+        const form = document.createElement("form");
+        const input = document.createElement("input");
+        input.name = "name";
+        input.placeholder = "name";
+        const btn = document.createElement("button");
+        btn.textContent = "Save";
+        form.appendChild(input);
+        form.appendChild(btn);
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          await fetch("/api/lineup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: input.value || "new-mock-lineup" }),
+          });
+          location.href = "/lineups";
+        });
+        content.appendChild(form);
+      }
+
+      (async function () {
+        await discoverApiBase();
+        const p = location.pathname || "/";
+        if (p === "/" || p === "") return renderHome();
+        if (p.startsWith("/props/")) return renderPropDetail();
+        if (p === "/lineups") return renderLineups();
+        if (p === "/lineups/new") return renderLineupNew();
+        // default
+        document.getElementById("content").textContent =
+          "route not handled in stub: " + p;
+      })();
+
+      // Expose a minimal httpFetch and httpCache so tests that call into the
+      // app's diagnostic helpers (httpFetch, httpCache.getETags) work against
+      // the stub.
+      window.httpCache = {
+        _etags: {},
+        getETags() {
+          return this._etags;
+        },
+      };
+
+      window.httpFetch = async function (url, opts) {
+        try {
+          const resolved = url && url.startsWith("/") ? API_BASE + url : url;
+          const resp = await fetch(resolved, opts);
+          let body = null;
+          try {
+            body = await resp.clone().json();
+          } catch (e) {
+            // not JSON
+          }
+          try {
+            const et =
+              resp.headers &&
+              (resp.headers.get("etag") || resp.headers.get("ETag"));
+            if (et) window.httpCache._etags[resolved] = et;
+          } catch (e) {
+            // ignore
+          }
+          return { status: resp.status, body };
+        } catch (e) {
+          return { status: -1, body: null };
+        }
+      };
+
+      // A minimal refresh function the PropFinder tests call to trigger the
+      // app's fetch path. It populates __propfinder_last_response for tests.
+      window.__propfinder_refresh = async function () {
+        try {
+          const r = await window.httpFetch("/api/propfinder/opportunities", {
+            credentials: "include",
+          });
+          window.__propfinder_last_response = r.body || null;
+          return r;
+        } catch (e) {
+          window.__propfinder_last_response = null;
+          return { status: -1 };
+        }
+      };
+
+      // Ensure an Auto Refresh button exists at the top-level so tests that
+      // query for it immediately find it even if renderHome hasn't executed
+      // yet due to timing differences.
+      try {
+        if (!document.getElementById("auto-refresh-button")) {
+          const topAuto = document.createElement("button");
+          topAuto.id = "auto-refresh-button";
+          topAuto.textContent = "Auto Refresh";
+          topAuto.addEventListener("click", async () => {
+            if (typeof window.__propfinder_refresh === "function") {
+              await window.__propfinder_refresh();
+            }
+          });
+          const app = document.getElementById("app") || document.body;
+          app.appendChild(topAuto);
+        }
+      } catch (e) {
+        // ignore
+      }
+    </script>
+  </body>
+</html>

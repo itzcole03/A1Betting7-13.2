@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, Mock, patch
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi.testclient import TestClient
 import json
 
@@ -157,20 +157,20 @@ class TestTrendsService:
         filters = TrendLeaderboardFilters(limit=5)
         
         # First request should compute
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         response1 = await trends_service_instance.get_trends_leaderboard(filters)
-        first_request_time = datetime.utcnow() - start_time
+        first_request_time = datetime.now(timezone.utc) - start_time
         
         # Second request should be cached (faster)
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         response2 = await trends_service_instance.get_trends_leaderboard(filters)
-        second_request_time = datetime.utcnow() - start_time
+        second_request_time = datetime.now(timezone.utc) - start_time
         
         assert response1.data == response2.data
         assert response2.cache_timestamp is not None
         # Second request should be significantly faster (cached)
         # Note: This might be flaky in CI, so just check cache timestamp exists
-        assert response2.cache_timestamp <= datetime.utcnow()
+        assert response2.cache_timestamp <= datetime.now(timezone.utc)
     
     @pytest.mark.asyncio
     async def test_cache_invalidation(self, trends_service_instance):

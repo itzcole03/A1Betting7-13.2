@@ -19,10 +19,9 @@ from sqlalchemy.orm import Session
 
 from backend.database import SessionLocal
 from backend.models.correlation_ticketing import HistoricalPropOutcome
-from backend.models.modeling import ModelPrediction, DistributionFamily
+from backend.models.modeling import DistributionFamily, ModelPrediction
 from backend.services.unified_config import get_correlation_config
 from backend.services.unified_logging import get_logger
-
 
 logger = get_logger(__name__)
 
@@ -30,7 +29,7 @@ logger = get_logger(__name__)
 class HistoricalDataProvider:
     """
     Provides historical prop outcomes for correlation analysis.
-    
+
     Generates synthetic historical data based on model predictions when real
     historical data is not available. Caches results to avoid re-generation.
     """
@@ -40,20 +39,18 @@ class HistoricalDataProvider:
         self._cache = {}  # Simple in-memory cache
 
     def ensure_minimum_history(
-        self,
-        prop_id: int,
-        min_samples: Optional[int] = None
+        self, prop_id: int, min_samples: Optional[int] = None
     ) -> List[float]:
         """
         Ensure minimum historical samples exist for a prop.
-        
+
         Args:
             prop_id: The prop ID to generate history for
             min_samples: Minimum samples needed (defaults to config)
-            
+
         Returns:
             List of historical actual values
-            
+
         TODO: Replace with real stat ingestion when available
         """
         if min_samples is None:
@@ -66,16 +63,22 @@ class HistoricalDataProvider:
         session = SessionLocal()
         try:
             # Check existing historical data
-            existing_count = session.query(HistoricalPropOutcome).filter(
-                HistoricalPropOutcome.prop_id == prop_id
-            ).count()
+            existing_count = (
+                session.query(HistoricalPropOutcome)
+                .filter(HistoricalPropOutcome.prop_id == prop_id)
+                .count()
+            )
 
             if existing_count >= min_samples:
                 # Load existing data
-                outcomes = session.query(HistoricalPropOutcome).filter(
-                    HistoricalPropOutcome.prop_id == prop_id
-                ).order_by(desc(HistoricalPropOutcome.event_date)).limit(min_samples).all()
-                
+                outcomes = (
+                    session.query(HistoricalPropOutcome)
+                    .filter(HistoricalPropOutcome.prop_id == prop_id)
+                    .order_by(desc(HistoricalPropOutcome.event_date))
+                    .limit(min_samples)
+                    .all()
+                )
+
                 values = [outcome.actual_value for outcome in outcomes]
                 self._cache[cache_key] = values
                 return values
@@ -89,14 +92,18 @@ class HistoricalDataProvider:
             # Persist synthetic outcomes
             for outcome in synthetic_outcomes:
                 session.add(outcome)
-            
+
             session.commit()
 
             # Return all values (existing + new)
-            all_outcomes = session.query(HistoricalPropOutcome).filter(
-                HistoricalPropOutcome.prop_id == prop_id
-            ).order_by(desc(HistoricalPropOutcome.event_date)).limit(min_samples).all()
-            
+            all_outcomes = (
+                session.query(HistoricalPropOutcome)
+                .filter(HistoricalPropOutcome.prop_id == prop_id)
+                .order_by(desc(HistoricalPropOutcome.event_date))
+                .limit(min_samples)
+                .all()
+            )
+
             values = [outcome.actual_value for outcome in all_outcomes]
             self._cache[cache_key] = values
 
@@ -106,8 +113,8 @@ class HistoricalDataProvider:
                     "prop_id": prop_id,
                     "samples_generated": samples_needed,
                     "total_samples": len(values),
-                    "action": "ensure_minimum_history"
-                }
+                    "action": "ensure_minimum_history",
+                },
             )
 
             return values
@@ -115,31 +122,31 @@ class HistoricalDataProvider:
             session.close()
 
     def _generate_synthetic_outcomes(
-        self,
-        session: Session,
-        prop_id: int,
-        count: int
+        self, session: Session, prop_id: int, count: int
     ) -> List[HistoricalPropOutcome]:
         """
         Generate synthetic historical outcomes based on model predictions.
-        
+
         Args:
             session: Database session
             prop_id: Prop ID to generate for
             count: Number of samples to generate
-            
+
         Returns:
             List of HistoricalPropOutcome instances (not yet persisted)
         """
         # Get the latest model prediction for this prop
-        prediction = session.query(ModelPrediction).filter(
-            ModelPrediction.prop_id == prop_id
-        ).order_by(desc(ModelPrediction.generated_at)).first()
+        prediction = (
+            session.query(ModelPrediction)
+            .filter(ModelPrediction.prop_id == prop_id)
+            .order_by(desc(ModelPrediction.generated_at))
+            .first()
+        )
 
         if not prediction:
             logger.warning(
                 "No model prediction found for prop",
-                extra={"prop_id": prop_id, "action": "generate_synthetic"}
+                extra={"prop_id": prop_id, "action": "generate_synthetic"},
             )
             # Fallback to default distribution
             mean, variance = 15.0, 25.0  # Generic basketball points-like default
@@ -163,7 +170,9 @@ class HistoricalDataProvider:
                 # Standard negative binomial (variance > mean)
                 p = mean / variance
                 n = mean * p / (1 - p)
-                samples = np.random.negative_binomial(n=max(1, int(n)), p=min(0.99, p), size=count)
+                samples = np.random.negative_binomial(
+                    n=max(1, int(n)), p=min(0.99, p), size=count
+                )
             else:
                 # Fallback to Poisson if variance <= mean
                 samples = np.random.poisson(lam=mean, size=count)
@@ -176,7 +185,7 @@ class HistoricalDataProvider:
         # Convert to float and create outcome records
         outcomes = []
         base_date = datetime.now() - timedelta(days=count + 10)
-        
+
         for i, sample_value in enumerate(samples):
             outcome = HistoricalPropOutcome(
                 prop_id=prop_id,
@@ -184,32 +193,30 @@ class HistoricalDataProvider:
                 prop_type=prop_type,
                 event_date=base_date + timedelta(days=i + 1),
                 actual_value=float(sample_value),
-                source="synthetic"
+                source="synthetic",
             )
             outcomes.append(outcome)
 
         return outcomes
 
     def get_aligned_history(
-        self,
-        prop_ids: List[int],
-        min_samples: Optional[int] = None
+        self, prop_ids: List[int], min_samples: Optional[int] = None
     ) -> Tuple[List[int], List[List[float]]]:
         """
         Get aligned historical data for multiple props.
-        
+
         Since we're using synthetic data, alignment is by sample index rather
         than actual game dates. In a real implementation, this would align by
         actual game dates.
-        
+
         Args:
             prop_ids: List of prop IDs
             min_samples: Minimum samples for each prop
-            
+
         Returns:
             Tuple of (prop_ids, aligned_data_matrix)
             where aligned_data_matrix[i] corresponds to prop_ids[i]
-            
+
         TODO: Implement real game-date alignment when historical ingestion available
         """
         if min_samples is None:
@@ -232,8 +239,8 @@ class HistoricalDataProvider:
                             "prop_id": prop_id,
                             "available_samples": len(history),
                             "required_samples": min_samples,
-                            "action": "get_aligned_history"
-                        }
+                            "action": "get_aligned_history",
+                        },
                     )
             except Exception as e:
                 logger.error(
@@ -241,8 +248,8 @@ class HistoricalDataProvider:
                     extra={
                         "prop_id": prop_id,
                         "error": str(e),
-                        "action": "get_aligned_history"
-                    }
+                        "action": "get_aligned_history",
+                    },
                 )
 
         logger.info(
@@ -251,8 +258,8 @@ class HistoricalDataProvider:
                 "requested_props": len(prop_ids),
                 "valid_props": len(valid_prop_ids),
                 "samples_per_prop": min_samples,
-                "action": "get_aligned_history"
-            }
+                "action": "get_aligned_history",
+            },
         )
 
         return valid_prop_ids, aligned_data
@@ -266,7 +273,7 @@ class HistoricalDataProvider:
         """Get cache statistics for monitoring"""
         return {
             "cached_props": len(self._cache),
-            "cache_keys": list(self._cache.keys())
+            "cache_keys": list(self._cache.keys()),
         }
 
 
@@ -275,14 +282,15 @@ historical_data_provider = HistoricalDataProvider()
 
 
 # Convenience functions
-def ensure_minimum_history(prop_id: int, min_samples: Optional[int] = None) -> List[float]:
+def ensure_minimum_history(
+    prop_id: int, min_samples: Optional[int] = None
+) -> List[float]:
     """Convenience function for ensuring minimum history"""
     return historical_data_provider.ensure_minimum_history(prop_id, min_samples)
 
 
 def get_aligned_history(
-    prop_ids: List[int],
-    min_samples: Optional[int] = None
+    prop_ids: List[int], min_samples: Optional[int] = None
 ) -> Tuple[List[int], List[List[float]]]:
     """Convenience function for getting aligned history"""
     return historical_data_provider.get_aligned_history(prop_ids, min_samples)

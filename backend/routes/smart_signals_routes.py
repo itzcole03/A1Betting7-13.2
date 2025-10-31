@@ -4,7 +4,7 @@ Provides endpoints for accessing smart signal analysis.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException, Query
@@ -113,7 +113,7 @@ async def get_smart_signals(
                 },
                 "detail": message,
                 "meta": {
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "severity": "HIGH",
                     "category": "DEPENDENCY",
                     "retryable": True,

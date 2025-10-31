@@ -11,11 +11,11 @@ stages of the ingestion pipeline:
 All DTOs use Pydantic for validation and serialization.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class PayoutType(str, Enum):
@@ -86,7 +86,8 @@ class RawExternalPropDTO(BaseModel):
         default_factory=dict, description="Additional provider-specific data"
     )
 
-    @validator("updated_ts")
+    @field_validator("updated_ts")
+    @classmethod
     def validate_timestamp(cls, v):
         """Ensure timestamp is valid ISO8601 format."""
         try:
@@ -95,8 +96,8 @@ class RawExternalPropDTO(BaseModel):
         except ValueError:
             raise ValueError(f"Invalid timestamp format: {v}")
 
-    class Config:
-        extra = "allow"  # Allow additional fields from providers
+    # Pydantic v2 configuration
+    model_config = ConfigDict(extra="allow")
 
 
 class PayoutSchema(BaseModel):
@@ -136,7 +137,8 @@ class PayoutSchema(BaseModel):
         default_factory=dict, description="Original provider format"
     )
 
-    @validator("over_multiplier", "under_multiplier")
+    @field_validator("over_multiplier", "under_multiplier")
+    @classmethod
     def validate_multipliers(cls, v):
         """Ensure multipliers are reasonable values (typically 1.0 to 50.0)."""
         if v is not None and (v < 0.1 or v > 100.0):
@@ -168,8 +170,8 @@ class PayoutSchema(BaseModel):
             base *= self.boost_multiplier
         return base
 
-    class Config:
-        extra = "forbid"
+    # Pydantic v2 configuration
+    model_config = ConfigDict(extra="forbid")
 
 
 class NormalizedPropDTO(BaseModel):
@@ -203,8 +205,8 @@ class NormalizedPropDTO(BaseModel):
     position: Optional[str] = Field(None, description="Player position")
     sport: str = Field(default="NBA", description="Sport identifier")
 
-    class Config:
-        extra = "forbid"
+    # Pydantic v2 configuration
+    model_config = ConfigDict(extra="forbid")
 
 
 class ErrorDetail(BaseModel):
@@ -216,7 +218,8 @@ class ErrorDetail(BaseModel):
         default_factory=dict, description="Additional error context"
     )
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="When error occurred"
+        default_factory=lambda: datetime.now(timezone.utc),
+        description="When error occurred",
     )
     external_prop_id: Optional[str] = Field(
         None, description="External prop ID that caused error"
@@ -285,10 +288,24 @@ class IngestResult(BaseModel):
     def mark_completed(self):
         """Mark the result as completed and calculate duration."""
         if not self.finished_at:
-            self.finished_at = datetime.utcnow()
+            self.finished_at = datetime.now(timezone.utc)
 
         if self.duration_ms is None and self.finished_at:
-            duration = self.finished_at - self.started_at
+            # Normalize naive datetimes by assuming UTC when tzinfo is missing
+            sa = self.started_at
+            fa = self.finished_at
+            try:
+                if sa.tzinfo is None:
+                    sa = sa.replace(tzinfo=timezone.utc)
+            except Exception:
+                sa = sa
+            try:
+                if fa.tzinfo is None:
+                    fa = fa.replace(tzinfo=timezone.utc)
+            except Exception:
+                fa = fa
+
+            duration = fa - sa
             self.duration_ms = int(duration.total_seconds() * 1000)
 
     def add_error(
@@ -322,8 +339,8 @@ class IngestResult(BaseModel):
         """Check if any errors occurred."""
         return len(self.errors) > 0
 
-    class Config:
-        extra = "forbid"
+    # Pydantic v2 configuration
+    model_config = ConfigDict(extra="forbid")
 
 
 class ProviderHealth(BaseModel):

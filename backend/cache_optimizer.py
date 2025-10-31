@@ -18,8 +18,31 @@ from typing import Any, Callable, Dict, List, Optional
 import numpy as np
 import redis.asyncio as redis
 
-from backend.config_manager import config_manager
+try:
+    # Prefer the exported config object when available
+    from backend.config_manager import config as _config
+
+    class _ConfigManagerAdapter:
+        def get_redis_url(self):
+            # Try common attribute names used in the repo
+            return getattr(_config.database, "url", None)
+
+        def get(self, key, default=None):
+            return _config.get(key, default)
+
+    config_manager = _ConfigManagerAdapter()
+except Exception:
+    # Fallback stub for test/import environments where full config isn't available
+    class _DummyConfigManager:
+        def get_redis_url(self):
+            return "redis://localhost:6379/0"
+
+        def get(self, key, default=None):
+            return default
+
+    config_manager = _DummyConfigManager()
 from backend.utils.serialization_utils import safe_dumps, safe_loads
+from backend.utils.time_helpers import now_utc
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +88,7 @@ class CacheMetrics:
     avg_access_time: float = 0.0
     hit_rate: float = 0.0
     memory_usage: float = 0.0
-    last_updated: datetime = field(default_factory=datetime.utcnow)
+    last_updated: datetime = field(default_factory=now_utc)
 
 
 @dataclass

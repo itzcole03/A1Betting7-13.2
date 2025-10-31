@@ -8,7 +8,7 @@ Supports multiple alert types including edge thresholds, line movement, valuatio
 import asyncio
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -156,7 +156,7 @@ class AlertRuleEvaluator:
                 events.extend(await self._evaluate_bankroll_alert(rule))
 
             if events:
-                self.last_evaluation_time[rule_id] = datetime.utcnow()
+                self.last_evaluation_time[rule_id] = datetime.now(timezone.utc)
 
         except Exception as e:
             logger.error(f"Error evaluating rule {rule_id} of type {alert_type}: {e}")
@@ -185,8 +185,8 @@ class AlertRuleEvaluator:
                         "sportsbook": edge.get("sportsbook"),
                         "threshold": threshold,
                     },
-                    triggered_at=datetime.utcnow(),
-                    expires_at=datetime.utcnow() + timedelta(hours=2),
+                    triggered_at=datetime.now(timezone.utc),
+                    expires_at=datetime.now(timezone.utc) + timedelta(hours=2),
                 )
                 events.append(event)
 
@@ -234,7 +234,7 @@ class AlertRuleEvaluator:
             if isinstance(movement_time, datetime):
                 triggered_at = movement_time
             else:
-                triggered_at = datetime.utcnow()
+                triggered_at = datetime.now(timezone.utc)
 
             event = AlertEvent(
                 alert_rule_id=rule["id"],
@@ -302,8 +302,8 @@ class AlertRuleEvaluator:
                         "new_valuation": change["new_valuation"],
                         "change_reason": change.get("reason", "Unknown"),
                     },
-                    triggered_at=datetime.utcnow(),
-                    expires_at=datetime.utcnow() + timedelta(hours=2),
+                    triggered_at=datetime.now(timezone.utc),
+                    expires_at=datetime.now(timezone.utc) + timedelta(hours=2),
                 )
                 events.append(event)
 
@@ -331,8 +331,8 @@ class AlertRuleEvaluator:
                     "affected_tickets": finding.get("affected_tickets", []),
                     "recommendation": finding.get("recommendation"),
                 },
-                triggered_at=datetime.utcnow(),
-                expires_at=datetime.utcnow() + timedelta(hours=6),
+                triggered_at=datetime.now(timezone.utc),
+                expires_at=datetime.now(timezone.utc) + timedelta(hours=6),
             )
             events.append(event)
 
@@ -360,8 +360,8 @@ class AlertRuleEvaluator:
                     "balance_percentage": bankroll_status["balance_percentage"],
                     "recent_losses": bankroll_status.get("recent_losses", 0),
                 },
-                triggered_at=datetime.utcnow(),
-                expires_at=datetime.utcnow() + timedelta(days=1),
+                triggered_at=datetime.now(timezone.utc),
+                expires_at=datetime.now(timezone.utc) + timedelta(days=1),
             )
             events.append(event)
 
@@ -389,8 +389,8 @@ class AlertRuleEvaluator:
                         "limit": data["limit"],
                         "utilization": data["utilization"],
                     },
-                    triggered_at=datetime.utcnow(),
-                    expires_at=datetime.utcnow() + timedelta(hours=4),
+                    triggered_at=datetime.now(timezone.utc),
+                    expires_at=datetime.now(timezone.utc) + timedelta(hours=4),
                 )
                 events.append(event)
 
@@ -419,8 +419,8 @@ class AlertRuleEvaluator:
                     "update_type": update["update_type"],
                     "details": update.get("details", {}),
                 },
-                triggered_at=datetime.utcnow(),
-                expires_at=datetime.utcnow() + timedelta(hours=12),
+                triggered_at=datetime.now(timezone.utc),
+                expires_at=datetime.now(timezone.utc) + timedelta(hours=12),
             )
             events.append(event)
 
@@ -432,7 +432,7 @@ class AlertRuleEvaluator:
         if last_time is None:
             return True
 
-        time_since_last = datetime.utcnow() - last_time
+        time_since_last = datetime.now(timezone.utc) - last_time
         return time_since_last.total_seconds() >= (cooldown_minutes * 60)
 
     def _calculate_edge_severity(self, edge_percentage: float) -> str:

@@ -1,0 +1,92 @@
+{
+  "id": "nba_7",
+  "player": "Damian Lillard",
+  "playerImage": null,
+  "team": "Bucks",
+  "teamLogo": null,
+  "opponent": "Celtics",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.THREE_POINTERS",
+  "line": 3.5,
+  "pick": "Pick.OVER",
+  "odds": 100,
+  "impliedProbability": 68.5,
+  "aiProbability": 75.2,
+  "edge": 6.7,
+  "confidence": 78.35,
+  "projectedValue": 1.675,
+  "volume": 21500,
+  "trend": "Trend.RISING",
+  "trendStrength": 6,
+  "timeToGame": "5h 26m",
+  "venue": "Venue.HOME",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9,
+    92.1
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 4.17,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 4.0,
+    "current": 3.5,
+    "direction": "Direction.DOWN"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": 100,
+      "line": 3.75
+    },
+    {
+      "name": "FanDuel",
+      "odds": 104,
+      "line": 3.5
+    },
+    {
+      "name": "BetMGM",
+      "odds": 100,
+      "line": 3.25
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "High Volume",
+    "Sharp Money"
+  ],
+  "socialSentiment": 71,
+  "sharpMoney": "SharpMoney.MODERATE",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": true,
+  "alertSeverity": "medium",
+  "bestBookmaker": "Caesars",
+  "lineSpread": 0.75,
+  "oddsSpread": 7,
+  "numBookmakers": 4,
+  "evValue": 0.567,
+  "evPercent": 56.7,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": false,
+  "arbitrageProfitPct": 0.0,
+  "openingLine": 3.5,
+  "openingOdds": 100,
+  "latestLine": 3.5,
+  "latestOdds": 100,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 0.0,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

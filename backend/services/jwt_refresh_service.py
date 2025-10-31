@@ -99,7 +99,7 @@ class TokenBlacklist:
         if ttl_seconds > 0:
             unified_cache_service.set(
                 f"blacklist:{token_jti}",
-                {"blacklisted_at": datetime.utcnow().isoformat(), "reason": "revoked"},
+                {"blacklisted_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"), "reason": "revoked"},
                 ttl=ttl_seconds
             )
             
@@ -189,7 +189,7 @@ class JWTManager:
         user_tokens.append({
             "jti": token_jti,
             "expires_at": expires_at.isoformat(),
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         })
         
         # Limit tokens per user

@@ -12,7 +12,7 @@ import time
 import uuid
 from contextlib import asynccontextmanager
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set, Union
 
@@ -404,7 +404,7 @@ class ServiceCapabilityRegistry:
                     self._logger.warning(f"Service {capability.name} already registered, updating", context)
                 
             self._capabilities.services[capability.name] = capability
-            self._capabilities.last_updated = datetime.utcnow()
+            self._capabilities.last_updated = datetime.now(timezone.utc)
             
             # Start health check task if monitoring is active
             if self._monitoring_active and capability.health_check.enabled:
@@ -448,14 +448,14 @@ class ServiceCapabilityRegistry:
         service = self._capabilities.services[service_name]
         old_status = service.status
         service.status = status
-        service.last_check = datetime.utcnow()
+        service.last_check = datetime.now(timezone.utc)
         
         if status == ServiceStatus.UP:
-            service.last_success = datetime.utcnow()
+            service.last_success = datetime.now(timezone.utc)
             service.recovery_count += 1
             service.failure_count = 0  # Reset failure count on success
         elif status in [ServiceStatus.DOWN, ServiceStatus.DEGRADED]:
-            service.last_failure = datetime.utcnow()
+            service.last_failure = datetime.now(timezone.utc)
             service.failure_count += 1
         
         # Update performance metrics if provided
@@ -470,7 +470,7 @@ class ServiceCapabilityRegistry:
         
         # Update global status
         self._update_global_status()
-        self._capabilities.last_updated = datetime.utcnow()
+        self._capabilities.last_updated = datetime.now(timezone.utc)
         
         # Log status change
         if old_status != status and UNIFIED_SERVICES_AVAILABLE and LogContext and LogComponent:

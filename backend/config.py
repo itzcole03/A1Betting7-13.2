@@ -14,7 +14,7 @@ import os
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import field_validator
+from pydantic import ConfigDict, field_validator
 from pydantic_settings import BaseSettings
 
 logger = logging.getLogger(__name__)
@@ -155,10 +155,11 @@ class BackendConfig(BaseSettings):
             raise ValueError("Ensemble weights must sum to 1.0")
         return v
 
-    class Config:
-        env_file = ".env"
-        env_prefix = "A1BETTING_"
-        extra = "allow"  # Accept extra fields for robust .env loading
+    model_config = ConfigDict(
+        env_file=".env",
+        env_prefix="A1BETTING_",
+        extra="allow",  # Accept extra fields for robust .env loading
+    )
 
 
 @dataclass

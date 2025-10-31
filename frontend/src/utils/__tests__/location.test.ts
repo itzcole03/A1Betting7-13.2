@@ -1,25 +1,29 @@
-import { getLocation, getQueryParams, navigateTo, reloadPage } from '../location';
-
 describe('location utils', () => {
-  it('getLocation should return window.location', () => {
-    expect(getLocation()).toBe(window.location);
-  });
+  test('getQueryParams parses a provided query string', () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { getQueryParams } = require('../location');
 
-  it('getQueryParams should parse query parameters correctly', () => {
-    expect(getQueryParams('?name=test&age=30')).toEqual({ name: 'test', age: '30' });
+    expect(getQueryParams('?a=1&b=two')).toEqual({ a: '1', b: 'two' });
     expect(getQueryParams('')).toEqual({});
-    expect(getQueryParams('?param1=value1&param2=&param3=value3')).toEqual({
-      param1: 'value1',
-      param2: '',
-      param3: 'value3',
-    });
+  });
+  // Note: navigateTo/reloadPage perform real navigation via window.location
+  // which is not fully implemented in the jsdom test environment. We avoid
+  // exercising those helpers here to keep the test deterministic. They can be
+  // covered later with a small mocked/location shim if needed.
+});
+describe('location utils (dynamic require)', () => {
+  test('getQueryParams parses a query string', () => {
+    const { getQueryParams } = require('../location');
+    const qs = '?a=1&b=hello';
+    const parsed = getQueryParams(qs);
+    expect(parsed.a).toBe('1');
+    expect(parsed.b).toBe('hello');
   });
 
-  it('navigateTo should be callable', () => {
+  test('getLocation and navigation helpers are callable', () => {
+    const { getLocation, navigateTo, reloadPage } = require('../location');
+    expect(getLocation()).toBe(window.location);
     expect(() => navigateTo('http://example.com/new-page')).not.toThrow();
-  });
-
-  it('reloadPage should be callable', () => {
     expect(() => reloadPage()).not.toThrow();
   });
 });

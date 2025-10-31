@@ -7,7 +7,7 @@ to avoid optional dependency failures while allowing the application to import t
 module successfully during triage and tests.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 from fastapi import APIRouter
@@ -36,7 +36,7 @@ async def comprehensive_health_check() -> Dict[str, Any]:
     """Return a minimal comprehensive health payload."""
     payload = {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "system_metrics": {"memory_usage_mb": None, "cpu_percent": None},
     }
     return _success(payload)
@@ -45,7 +45,7 @@ async def comprehensive_health_check() -> Dict[str, Any]:
 @router.get("/health/background-tasks")
 async def background_tasks_health() -> Dict[str, Any]:
     """Return a minimal background tasks health payload."""
-    payload = {"status": "background_ok", "timestamp": datetime.utcnow().isoformat()}
+    payload = {"status": "background_ok", "timestamp": datetime.now(timezone.utc).isoformat()}
     return _success(payload)
 
 
@@ -54,7 +54,7 @@ async def get_error_summary() -> Dict[str, Any]:
     """Return a small error summary placeholder."""
     payload = {
         "status": "no_errors_recorded",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     return _success(payload)
 
@@ -68,6 +68,6 @@ async def stress_test_background_tasks(
         "status": "stubbed",
         "num_tasks": int(num_tasks),
         "concurrent_workers": int(concurrent_workers),
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     return _success(payload)

@@ -9,10 +9,12 @@ import asyncio
 import hashlib
 import logging
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from sqlmodel import SQLModel, delete, desc, func, select
+
+from backend.services.unified_session_utils import unified_session_execute
 
 try:
     from backend.enhanced_database import db_manager
@@ -181,10 +183,10 @@ class CLVPersistenceService:
                 if player:
                     stmt = stmt.where(CLVHistory.player == player)
                 if hours_back:
-                    cutoff = datetime.utcnow() - timedelta(hours=hours_back)
+                    cutoff = datetime.now(timezone.utc) - timedelta(hours=hours_back)
                     stmt = stmt.where(CLVHistory.computed_at >= cutoff)
 
-                result = await session.execute(stmt)
+                result = await unified_session_execute(session, stmt)
                 return list(result.scalars().all())
 
         except Exception as e:
@@ -200,7 +202,7 @@ class CLVPersistenceService:
 
         try:
             async with db_manager.get_session() as session:
-                cutoff = datetime.utcnow() - timedelta(hours=hours_back)
+                cutoff = datetime.now(timezone.utc) - timedelta(hours=hours_back)
 
                 stmt = (
                     select(
@@ -217,7 +219,7 @@ class CLVPersistenceService:
                 if sport:
                     stmt = stmt.where(CLVHistory.sport == sport)
 
-                result = await session.execute(stmt)
+                result = await unified_session_execute(session, stmt)
                 row = result.first()
 
                 if not row:
@@ -257,7 +259,8 @@ class CLVPersistenceService:
                 # Auto-create tables using SQLAlchemy text() for compatibility
                 from sqlmodel import text
 
-                await session.execute(
+                await unified_session_execute(
+                    session,
                     text(
                         """
                     CREATE TABLE IF NOT EXISTS clv_history (
@@ -277,37 +280,40 @@ class CLVPersistenceService:
                         batch_id TEXT
                     )
                 """
-                    )
+                    ),
                 )
 
                 # Create composite index for performance (sport + computed_at DESC)
-                await session.execute(
+                await unified_session_execute(
+                    session,
                     text(
                         """
                     CREATE INDEX IF NOT EXISTS idx_clv_sport_computed_at 
                     ON clv_history (sport, computed_at DESC)
                 """
-                    )
+                    ),
                 )
 
                 # Create index for opportunity_hash lookups
-                await session.execute(
+                await unified_session_execute(
+                    session,
                     text(
                         """
                     CREATE INDEX IF NOT EXISTS idx_clv_opportunity_hash 
                     ON clv_history (opportunity_hash)
                 """
-                    )
+                    ),
                 )
 
                 # Create unique constraint to prevent duplicates (opportunity_hash + computed_at)
-                await session.execute(
+                await unified_session_execute(
+                    session,
                     text(
                         """
                     CREATE UNIQUE INDEX IF NOT EXISTS idx_clv_unique_opportunity_time
                     ON clv_history (opportunity_hash, date(computed_at))
                 """
-                    )
+                    ),
                 )
 
                 await session.commit()
@@ -320,16 +326,17 @@ class CLVPersistenceService:
         if not self.enabled or db_manager is None or CLVHistory is None:
             return 0
 
-        cutoff = datetime.utcnow() - timedelta(days=days)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
 
         try:
             async with db_manager.get_session() as session:
                 # Delete old records using SQLAlchemy text() for safety
                 from sqlmodel import text
 
-                result = await session.execute(
+                result = await unified_session_execute(
+                    session,
                     text("DELETE FROM clv_history WHERE computed_at < :cutoff"),
-                    {"cutoff": cutoff},
+                    params={"cutoff": cutoff},
                 )
                 await session.commit()
                 deleted_count = getattr(result, "rowcount", 0) or 0

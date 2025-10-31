@@ -76,6 +76,10 @@ class IntelligentCacheService:
             os.environ.get("APP_DEV_LEAN_MODE", "").lower() == "true"
             or os.environ.get("DISABLE_STARTUP_HOOKS", "").lower() == "true"
         )
+        # Tests should prefer memory fallback to avoid external dependencies
+        self._testing_mode = os.environ.get("TESTING", "").lower() in ("1", "true")
+        if self._testing_mode:
+            self._use_memory_fallback = True
         if self._lean_mode:
             self._use_memory_fallback = True
 
@@ -115,7 +119,9 @@ class IntelligentCacheService:
                     log_level="info",
                     schedule_reconnect=False,
                 )
-                logger.info("✅ Intelligent cache service running in memory-only mode (lean environment)")
+                logger.info(
+                    "✅ Intelligent cache service running in memory-only mode (lean environment)"
+                )
                 return
 
             self._use_memory_fallback = False
@@ -143,7 +149,9 @@ class IntelligentCacheService:
 
             except Exception as e:
                 await self._switch_to_memory_fallback(f"Redis not available: {e}")
-                logger.info("✅ Intelligent cache service initialized with memory fallback")
+                logger.info(
+                    "✅ Intelligent cache service initialized with memory fallback"
+                )
 
     async def _start_background_tasks(self):
         """Start background processing tasks"""
@@ -226,7 +234,9 @@ class IntelligentCacheService:
             if isinstance(current, redis_error_types):
                 return True
             visited.add(id(current))
-            current = getattr(current, "__cause__", None) or getattr(current, "__context__", None)
+            current = getattr(current, "__cause__", None) or getattr(
+                current, "__context__", None
+            )
 
         return False
 
@@ -279,14 +289,18 @@ class IntelligentCacheService:
         finally:
             self._reconnect_task = None
 
-    async def get(self, key: str, default: Any = None, user_context: Optional[str] = None) -> Any:
+    async def get(
+        self, key: str, default: Any = None, user_context: Optional[str] = None
+    ) -> Any:
         """Enhanced get with pattern tracking"""
         start_time = time.time()
 
         try:
             await self._ensure_initialized()
             if not self._use_memory_fallback and self._redis_pool is None:
-                await self._switch_to_memory_fallback("Redis pool unavailable after initialization")
+                await self._switch_to_memory_fallback(
+                    "Redis pool unavailable after initialization"
+                )
                 return await self._memory_get(key, default)
             # Track access pattern
             await self._track_access_pattern(key, user_context)
@@ -334,7 +348,9 @@ class IntelligentCacheService:
         try:
             await self._ensure_initialized()
             if not self._use_memory_fallback and self._redis_pool is None:
-                await self._switch_to_memory_fallback("Redis pool unavailable after initialization")
+                await self._switch_to_memory_fallback(
+                    "Redis pool unavailable after initialization"
+                )
                 return await self._memory_set(key, value, ttl_seconds)
             # Calculate intelligent TTL based on patterns
             smart_ttl = await self._calculate_smart_ttl(key, ttl_seconds, user_context)
@@ -367,7 +383,9 @@ class IntelligentCacheService:
         try:
             await self._ensure_initialized()
             if not self._use_memory_fallback and self._redis_pool is None:
-                await self._switch_to_memory_fallback("Redis pool unavailable after initialization")
+                await self._switch_to_memory_fallback(
+                    "Redis pool unavailable after initialization"
+                )
                 return await self._memory_get_many(keys, user_context)
             if self._use_memory_fallback:
                 return await self._memory_get_many(keys, user_context)
@@ -394,7 +412,9 @@ class IntelligentCacheService:
         try:
             await self._ensure_initialized()
             if not self._use_memory_fallback and self._redis_pool is None:
-                await self._switch_to_memory_fallback("Redis pool unavailable after initialization")
+                await self._switch_to_memory_fallback(
+                    "Redis pool unavailable after initialization"
+                )
                 return await self._memory_set_many(items, user_context)
             if self._use_memory_fallback:
                 return await self._memory_set_many(items, user_context)
@@ -453,7 +473,11 @@ class IntelligentCacheService:
         """Set sport data with intelligent TTL based on volatility models"""
         try:
             await self._ensure_initialized()
-            from backend.services.sport_volatility_models import sport_volatility_models, SportType, DataCategory
+            from backend.services.sport_volatility_models import (
+                DataCategory,
+                SportType,
+                sport_volatility_models,
+            )
 
             # Convert strings to enums
             sport_enum = SportType(sport.lower()) if sport else None
@@ -461,15 +485,15 @@ class IntelligentCacheService:
 
             # Map data category string to enum
             category_mapping = {
-                'live_scores': DataCategory.LIVE_SCORES,
-                'live_odds': DataCategory.LIVE_ODDS,
-                'pre_game_odds': DataCategory.PRE_GAME_ODDS,
-                'player_stats': DataCategory.PLAYER_STATS,
-                'team_stats': DataCategory.TEAM_STATS,
-                'injury_reports': DataCategory.INJURY_REPORTS,
-                'game_schedules': DataCategory.GAME_SCHEDULES,
-                'player_props': DataCategory.PLAYER_PROPS,
-                'news_updates': DataCategory.NEWS_UPDATES
+                "live_scores": DataCategory.LIVE_SCORES,
+                "live_odds": DataCategory.LIVE_ODDS,
+                "pre_game_odds": DataCategory.PRE_GAME_ODDS,
+                "player_stats": DataCategory.PLAYER_STATS,
+                "team_stats": DataCategory.TEAM_STATS,
+                "injury_reports": DataCategory.INJURY_REPORTS,
+                "game_schedules": DataCategory.GAME_SCHEDULES,
+                "player_props": DataCategory.PLAYER_PROPS,
+                "news_updates": DataCategory.NEWS_UPDATES,
             }
 
             category_enum = category_mapping.get(data_category.lower())
@@ -485,17 +509,21 @@ class IntelligentCacheService:
                     data_category=category_enum,
                     game_id=game_id,
                     user_id=user_id,
-                    access_count=access_count
+                    access_count=access_count,
                 )
 
                 # Track user access
                 if user_id:
-                    await sport_volatility_models.track_user_access(user_id, sport_enum, category_enum)
+                    await sport_volatility_models.track_user_access(
+                        user_id, sport_enum, category_enum
+                    )
 
                 # Use the dynamic TTL
                 ttl_to_use = dynamic_ttl
 
-                logger.debug(f"🎯 Sport-aware cache set: {key} with TTL {ttl_to_use}s ({sport}:{data_category})")
+                logger.debug(
+                    f"🎯 Sport-aware cache set: {key} with TTL {ttl_to_use}s ({sport}:{data_category})"
+                )
 
             else:
                 # Fallback to base TTL if provided, otherwise default
@@ -504,10 +532,7 @@ class IntelligentCacheService:
 
             # Set with calculated TTL
             return await self.set(
-                key=key,
-                value=value,
-                ttl_seconds=ttl_to_use,
-                user_context=user_id
+                key=key, value=value, ttl_seconds=ttl_to_use, user_context=user_id
             )
 
         except Exception as e:
@@ -526,7 +551,11 @@ class IntelligentCacheService:
         """Get sport data with user tracking for volatility optimization"""
         try:
             await self._ensure_initialized()
-            from backend.services.sport_volatility_models import sport_volatility_models, SportType, DataCategory
+            from backend.services.sport_volatility_models import (
+                DataCategory,
+                SportType,
+                sport_volatility_models,
+            )
 
             # Get the data
             result = await self.get(key, default, user_context=user_id)
@@ -535,20 +564,22 @@ class IntelligentCacheService:
             try:
                 sport_enum = SportType(sport.lower()) if sport else None
                 category_mapping = {
-                    'live_scores': DataCategory.LIVE_SCORES,
-                    'live_odds': DataCategory.LIVE_ODDS,
-                    'pre_game_odds': DataCategory.PRE_GAME_ODDS,
-                    'player_stats': DataCategory.PLAYER_STATS,
-                    'team_stats': DataCategory.TEAM_STATS,
-                    'injury_reports': DataCategory.INJURY_REPORTS,
-                    'game_schedules': DataCategory.GAME_SCHEDULES,
-                    'player_props': DataCategory.PLAYER_PROPS,
-                    'news_updates': DataCategory.NEWS_UPDATES
+                    "live_scores": DataCategory.LIVE_SCORES,
+                    "live_odds": DataCategory.LIVE_ODDS,
+                    "pre_game_odds": DataCategory.PRE_GAME_ODDS,
+                    "player_stats": DataCategory.PLAYER_STATS,
+                    "team_stats": DataCategory.TEAM_STATS,
+                    "injury_reports": DataCategory.INJURY_REPORTS,
+                    "game_schedules": DataCategory.GAME_SCHEDULES,
+                    "player_props": DataCategory.PLAYER_PROPS,
+                    "news_updates": DataCategory.NEWS_UPDATES,
                 }
                 category_enum = category_mapping.get(data_category.lower())
 
                 if sport_enum and category_enum and user_id:
-                    await sport_volatility_models.track_user_access(user_id, sport_enum, category_enum)
+                    await sport_volatility_models.track_user_access(
+                        user_id, sport_enum, category_enum
+                    )
 
             except Exception as e:
                 logger.debug(f"⚠️ Error tracking sport data access: {e}")
@@ -559,11 +590,16 @@ class IntelligentCacheService:
             logger.error(f"❌ Error in sport-aware cache get: {e}")
             return await self.get(key, default)
 
-    async def warm_sport_cache(self, sport: str, priority_data: Optional[List[str]] = None) -> int:
+    async def warm_sport_cache(
+        self, sport: str, priority_data: Optional[List[str]] = None
+    ) -> int:
         """Warm cache for sport-specific data based on volatility priorities"""
         try:
             await self._ensure_initialized()
-            from backend.services.sport_volatility_models import sport_volatility_models, SportType
+            from backend.services.sport_volatility_models import (
+                SportType,
+                sport_volatility_models,
+            )
 
             sport_enum = SportType(sport.lower()) if sport else None
             if not sport_enum:
@@ -571,7 +607,9 @@ class IntelligentCacheService:
                 return 0
 
             # Get cache warming priorities
-            priorities = await sport_volatility_models.get_cache_warming_priorities(sport_enum)
+            priorities = await sport_volatility_models.get_cache_warming_priorities(
+                sport_enum
+            )
 
             warming_count = 0
 
@@ -579,7 +617,9 @@ class IntelligentCacheService:
             for data_category, priority_score in priorities[:5]:  # Top 5 priorities
                 try:
                     # Generate cache warming patterns for this data category
-                    patterns = self._generate_warming_patterns(sport, data_category.value)
+                    patterns = self._generate_warming_patterns(
+                        sport, data_category.value
+                    )
 
                     if patterns:
                         # Create a dummy data fetcher for warming
@@ -591,13 +631,15 @@ class IntelligentCacheService:
                         await self.warm_cache(
                             patterns=patterns,
                             data_fetcher=sport_data_fetcher,
-                            priority="high" if priority_score > 100 else "normal"
+                            priority="high" if priority_score > 100 else "normal",
                         )
 
                         warming_count += len(patterns)
 
                 except Exception as e:
-                    logger.error(f"❌ Error warming cache for {data_category.value}: {e}")
+                    logger.error(
+                        f"❌ Error warming cache for {data_category.value}: {e}"
+                    )
 
             logger.info(f"🔥 Warmed {warming_count} cache patterns for {sport}")
             return warming_count
@@ -614,11 +656,14 @@ class IntelligentCacheService:
         """
         try:
             stats = {
-                "hit_rate_percent": getattr(self.metrics, "hit_rate", 0.0) * 100
-                if getattr(self.metrics, "hit_rate", None) is not None
-                else 0.0,
+                "hit_rate_percent": (
+                    getattr(self.metrics, "hit_rate", 0.0) * 100
+                    if getattr(self.metrics, "hit_rate", None) is not None
+                    else 0.0
+                ),
                 "total_requests": self.metrics.hits + self.metrics.misses,
-                "memory_usage_mb": getattr(self.metrics, "total_memory_used", 0) // (1024 * 1024),
+                "memory_usage_mb": getattr(self.metrics, "total_memory_used", 0)
+                // (1024 * 1024),
                 "hits": self.metrics.hits,
                 "misses": self.metrics.misses,
                 "evictions": self.metrics.evictions,
@@ -645,31 +690,31 @@ class IntelligentCacheService:
         patterns = []
 
         base_patterns = {
-            'live_scores': [
+            "live_scores": [
                 f"sportradar_live_{sport}",
                 f"{sport}_live_games",
-                f"live_scores_{sport}_today"
+                f"live_scores_{sport}_today",
             ],
-            'live_odds': [
+            "live_odds": [
                 f"odds_live_{sport}",
                 f"{sport}_live_betting",
-                f"live_odds_{sport}_games"
+                f"live_odds_{sport}_games",
             ],
-            'player_stats': [
+            "player_stats": [
                 f"player_stats_{sport}_*",
                 f"{sport}_player_profiles_*",
-                f"stats_{sport}_players_*"
+                f"stats_{sport}_players_*",
             ],
-            'injury_reports': [
+            "injury_reports": [
                 f"injuries_{sport}",
                 f"{sport}_injury_report",
-                f"injury_updates_{sport}"
+                f"injury_updates_{sport}",
             ],
-            'game_schedules': [
+            "game_schedules": [
                 f"schedule_{sport}",
                 f"{sport}_upcoming_games",
-                f"games_{sport}_schedule"
-            ]
+                f"games_{sport}_schedule",
+            ],
         }
 
         return base_patterns.get(data_category, [f"{sport}_{data_category}"])
@@ -688,10 +733,18 @@ class IntelligentCacheService:
                 try:
                     await client.ping()
                     latency = (time.time() - start) * 1000.0
-                    return {"status": "healthy", "latency_ms": latency, "test_passed": True}
+                    return {
+                        "status": "healthy",
+                        "latency_ms": latency,
+                        "test_passed": True,
+                    }
                 except Exception:
                     latency = (time.time() - start) * 1000.0
-                    return {"status": "degraded", "latency_ms": latency, "test_passed": False}
+                    return {
+                        "status": "degraded",
+                        "latency_ms": latency,
+                        "test_passed": False,
+                    }
             else:
                 latency = (time.time() - start) * 1000.0
                 return {"status": "healthy", "latency_ms": latency, "test_passed": True}
@@ -720,7 +773,9 @@ class IntelligentCacheService:
             # Analyze cache keys by sport
             sport_analysis = {}
             for key in list(self.access_patterns.keys())[:100]:  # Sample first 100 keys
-                sport_type, data_category, user_id = self._parse_cache_key_for_volatility(key)
+                sport_type, data_category, user_id = (
+                    self._parse_cache_key_for_volatility(key)
+                )
 
                 if sport_type:
                     sport_name = sport_type.value
@@ -729,20 +784,25 @@ class IntelligentCacheService:
                             "total_keys": 0,
                             "categories": {},
                             "avg_access_frequency": 0,
-                            "total_accesses": 0
+                            "total_accesses": 0,
                         }
 
                     sport_analysis[sport_name]["total_keys"] += 1
 
                     if data_category:
                         category_name = data_category.value
-                        if category_name not in sport_analysis[sport_name]["categories"]:
+                        if (
+                            category_name
+                            not in sport_analysis[sport_name]["categories"]
+                        ):
                             sport_analysis[sport_name]["categories"][category_name] = 0
                         sport_analysis[sport_name]["categories"][category_name] += 1
 
                     # Add access frequency
                     pattern = self.access_patterns[key]
-                    sport_analysis[sport_name]["total_accesses"] += pattern.access_frequency
+                    sport_analysis[sport_name][
+                        "total_accesses"
+                    ] += pattern.access_frequency
 
             # Calculate averages
             for sport_data in sport_analysis.values():
@@ -755,8 +815,10 @@ class IntelligentCacheService:
                 "base_metrics": asdict(base_metrics),
                 "volatility_models": volatility_summary,
                 "sport_analysis": sport_analysis,
-                "total_sport_aware_keys": sum(s["total_keys"] for s in sport_analysis.values()),
-                "timestamp": datetime.now(timezone.utc).isoformat()
+                "total_sport_aware_keys": sum(
+                    s["total_keys"] for s in sport_analysis.values()
+                ),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         except Exception as e:
@@ -1160,10 +1222,16 @@ class IntelligentCacheService:
         """Calculate intelligent TTL based on access patterns and sport volatility models"""
         # Try to use sport-specific volatility models first
         try:
-            from backend.services.sport_volatility_models import sport_volatility_models, SportType, DataCategory
+            from backend.services.sport_volatility_models import (
+                DataCategory,
+                SportType,
+                sport_volatility_models,
+            )
 
             # Parse sport and data category from cache key
-            sport_type, data_category, user_id = self._parse_cache_key_for_volatility(key, user_context)
+            sport_type, data_category, user_id = self._parse_cache_key_for_volatility(
+                key, user_context
+            )
 
             if sport_type and data_category:
                 # Get access count for this user and data type
@@ -1180,14 +1248,18 @@ class IntelligentCacheService:
                     data_category=data_category,
                     game_id=game_id or "",
                     user_id=user_id or "",
-                    access_count=access_count
+                    access_count=access_count,
                 )
 
                 # Track user access for future optimization
                 if user_id:
-                    await sport_volatility_models.track_user_access(user_id, sport_type, data_category)
+                    await sport_volatility_models.track_user_access(
+                        user_id, sport_type, data_category
+                    )
 
-                logger.debug(f"🎯 Using sport volatility model TTL: {dynamic_ttl}s for {key}")
+                logger.debug(
+                    f"🎯 Using sport volatility model TTL: {dynamic_ttl}s for {key}"
+                )
                 return dynamic_ttl
 
         except Exception as e:
@@ -1214,10 +1286,12 @@ class IntelligentCacheService:
         # Ensure reasonable bounds
         return max(300, min(smart_ttl, 86400))  # 5 minutes to 24 hours
 
-    def _parse_cache_key_for_volatility(self, key: str, user_context: Optional[str] = None) -> Tuple[Optional[Any], Optional[Any], Optional[str]]:
+    def _parse_cache_key_for_volatility(
+        self, key: str, user_context: Optional[str] = None
+    ) -> Tuple[Optional[Any], Optional[Any], Optional[str]]:
         """Parse cache key to extract sport type and data category for volatility models"""
         try:
-            from backend.services.sport_volatility_models import SportType, DataCategory
+            from backend.services.sport_volatility_models import DataCategory, SportType
 
             key_lower = key.lower()
 
@@ -1231,15 +1305,15 @@ class IntelligentCacheService:
             # Detect data category
             data_category = None
             category_keywords = {
-                DataCategory.LIVE_SCORES: ['live', 'score', 'game_live'],
-                DataCategory.LIVE_ODDS: ['live_odds', 'odds_live'],
-                DataCategory.PRE_GAME_ODDS: ['odds', 'betting', 'line'],
-                DataCategory.PLAYER_STATS: ['player', 'stats', 'profile'],
-                DataCategory.TEAM_STATS: ['team', 'roster'],
-                DataCategory.INJURY_REPORTS: ['injury', 'injured'],
-                DataCategory.GAME_SCHEDULES: ['schedule', 'calendar', 'upcoming'],
-                DataCategory.PLAYER_PROPS: ['props', 'proposition'],
-                DataCategory.NEWS_UPDATES: ['news', 'update', 'headlines']
+                DataCategory.LIVE_SCORES: ["live", "score", "game_live"],
+                DataCategory.LIVE_ODDS: ["live_odds", "odds_live"],
+                DataCategory.PRE_GAME_ODDS: ["odds", "betting", "line"],
+                DataCategory.PLAYER_STATS: ["player", "stats", "profile"],
+                DataCategory.TEAM_STATS: ["team", "roster"],
+                DataCategory.INJURY_REPORTS: ["injury", "injured"],
+                DataCategory.GAME_SCHEDULES: ["schedule", "calendar", "upcoming"],
+                DataCategory.PLAYER_PROPS: ["props", "proposition"],
+                DataCategory.NEWS_UPDATES: ["news", "update", "headlines"],
             }
 
             for category, keywords in category_keywords.items():
@@ -1249,12 +1323,13 @@ class IntelligentCacheService:
 
             # Extract user ID from context or key
             user_id = None
-            if user_context and 'user' in user_context:
+            if user_context and "user" in user_context:
                 user_id = user_context
-            elif 'user_' in key_lower:
+            elif "user_" in key_lower:
                 # Try to extract user ID from key pattern like "user_123_data"
                 import re
-                match = re.search(r'user_(\w+)', key_lower)
+
+                match = re.search(r"user_(\w+)", key_lower)
                 if match:
                     user_id = match.group(1)
 
@@ -1268,12 +1343,13 @@ class IntelligentCacheService:
         """Extract game ID from cache key if present"""
         try:
             import re
+
             # Look for patterns like "game_12345" or "12345_game" or similar
             patterns = [
-                r'game_([a-zA-Z0-9\-_]+)',
-                r'([a-zA-Z0-9\-_]+)_game',
-                r'event_([a-zA-Z0-9\-_]+)',
-                r'match_([a-zA-Z0-9\-_]+)'
+                r"game_([a-zA-Z0-9\-_]+)",
+                r"([a-zA-Z0-9\-_]+)_game",
+                r"event_([a-zA-Z0-9\-_]+)",
+                r"match_([a-zA-Z0-9\-_]+)",
             ]
 
             for pattern in patterns:

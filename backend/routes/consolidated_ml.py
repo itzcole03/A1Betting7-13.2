@@ -12,7 +12,7 @@ this file when re-enabling full ML functionality.
 
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict
 
 from fastapi import APIRouter
@@ -30,7 +30,7 @@ async def health_check():
     return ResponseBuilder.success(
         {
             "status": "consolidated_ml_stub",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "note": "Consolidated ML endpoints are disabled in the test stub.",
         }
     )

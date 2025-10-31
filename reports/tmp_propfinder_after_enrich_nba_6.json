@@ -1,0 +1,91 @@
+{
+  "id": "nba_6",
+  "player": "Nikola Jokic",
+  "playerImage": null,
+  "team": "Nuggets",
+  "teamLogo": null,
+  "opponent": "Timberwolves",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.REBOUNDS",
+  "line": 12.5,
+  "pick": "Pick.OVER",
+  "odds": -110,
+  "impliedProbability": 74.2,
+  "aiProbability": 82.1,
+  "edge": 7.9,
+  "confidence": 78.95,
+  "projectedValue": 1.975,
+  "volume": 20000,
+  "trend": "Trend.RISING",
+  "trendStrength": 7,
+  "timeToGame": "4h 25m",
+  "venue": "Venue.AWAY",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 13.29,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 12.0,
+    "current": 12.5,
+    "direction": "Direction.DOWN"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": -112,
+      "line": 12.5
+    },
+    {
+      "name": "FanDuel",
+      "odds": -118,
+      "line": 12.5
+    },
+    {
+      "name": "BetMGM",
+      "odds": -109,
+      "line": 12.0
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "High Volume",
+    "Sharp Money"
+  ],
+  "socialSentiment": 72,
+  "sharpMoney": "SharpMoney.HEAVY",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": true,
+  "alertSeverity": "medium",
+  "bestBookmaker": "BetRivers",
+  "lineSpread": 1.0,
+  "oddsSpread": 12,
+  "numBookmakers": 5,
+  "evValue": 0.5072,
+  "evPercent": 50.72,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": true,
+  "arbitrageProfitPct": 2.75,
+  "openingLine": 12.5,
+  "openingOdds": -110,
+  "latestLine": 12.5,
+  "latestOdds": -110,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 1.44,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

@@ -9,7 +9,7 @@ import hashlib
 import hmac
 import time
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Dict, Optional, Tuple, Any, List
 from dataclasses import dataclass, field
@@ -43,7 +43,7 @@ class WebhookKey:
         """Check if key is expired"""
         if not self.expires_at:
             return False
-        return datetime.utcnow() > self.expires_at
+        return datetime.now(timezone.utc) > self.expires_at
     
     def is_valid_for_endpoint(self, endpoint: str) -> bool:
         """Check if key is valid for given endpoint"""
@@ -124,8 +124,8 @@ class HMACWebhookSigner:
                 key_id=key_config["key_id"],
                 secret_key=key_config["secret"],
                 algorithm=key_config["algorithm"],
-                created_at=datetime.utcnow(),
-                expires_at=datetime.utcnow() + timedelta(days=365),  # 1 year expiry
+                created_at=datetime.now(timezone.utc),
+                expires_at=datetime.now(timezone.utc) + timedelta(days=365),  # 1 year expiry
                 is_active=False,  # Inactive until real integration
                 allowed_endpoints=key_config["endpoints"],
                 metadata=key_config["metadata"]
@@ -153,13 +153,13 @@ class HMACWebhookSigner:
         # Calculate expiry
         expires_at = None
         if expires_in_days:
-            expires_at = datetime.utcnow() + timedelta(days=expires_in_days)
+            expires_at = datetime.now(timezone.utc) + timedelta(days=expires_in_days)
         
         webhook_key = WebhookKey(
             key_id=key_id,
             secret_key=secret_key,
             algorithm=algorithm,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             expires_at=expires_at,
             is_active=True,
             allowed_endpoints=allowed_endpoints or [],
@@ -188,7 +188,7 @@ class HMACWebhookSigner:
         key.secret_key = secrets.token_urlsafe(32)
         key.is_active = True
         key.metadata["status"] = "active"
-        key.metadata["activated_at"] = datetime.utcnow().isoformat()
+        key.metadata["activated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         
         self.logger.info(f"Activated placeholder webhook key: {key_id}")
         return True
@@ -302,7 +302,7 @@ class HMACWebhookSigner:
             if self.require_timestamp and timestamp:
                 try:
                     request_time = datetime.fromtimestamp(int(timestamp))
-                    now = datetime.utcnow()
+                    now = datetime.now(timezone.utc)
                     time_diff = abs((now - request_time).total_seconds())
                     
                     if time_diff > self._max_timestamp_drift.total_seconds():
@@ -325,7 +325,7 @@ class HMACWebhookSigner:
                     return result
                 
                 # Store nonce
-                self._nonce_cache[nonce_key] = datetime.utcnow()
+                self._nonce_cache[nonce_key] = datetime.now(timezone.utc)
             
             # Reconstruct signing string
             signing_components = [
@@ -378,7 +378,7 @@ class HMACWebhookSigner:
     
     def _cleanup_nonce_cache(self):
         """Clean up expired nonces from cache"""
-        cutoff = datetime.utcnow() - self._nonce_cache_ttl
+        cutoff = datetime.now(timezone.utc) - self._nonce_cache_ttl
         expired_nonces = [
             nonce_key for nonce_key, timestamp in self._nonce_cache.items()
             if timestamp < cutoff
@@ -400,7 +400,7 @@ class HMACWebhookSigner:
         
         # Generate new secret
         key.secret_key = secrets.token_urlsafe(32)
-        key.metadata["rotated_at"] = datetime.utcnow().isoformat()
+        key.metadata["rotated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         key.metadata["rotation_count"] = key.metadata.get("rotation_count", 0) + 1
         
         self.logger.info(f"Rotated webhook key {key_id} (old secret: {old_secret})")
@@ -414,7 +414,7 @@ class HMACWebhookSigner:
         
         key = self._keys[key_id]
         key.is_active = False
-        key.metadata["revoked_at"] = datetime.utcnow().isoformat()
+        key.metadata["revoked_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         
         self.logger.info(f"Revoked webhook key {key_id}")
         return True

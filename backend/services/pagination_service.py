@@ -9,7 +9,7 @@ import json
 import math
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, Union, Callable
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 import logging
 
@@ -157,7 +157,7 @@ class CursorGenerator:
         cursor_data = {
             "sort_value": item.get(sort_field),
             "id": item.get("id", item.get("prop_id", "")),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
         
         cursor_json = json.dumps(cursor_data, sort_keys=True, separators=(',', ':'))
@@ -206,7 +206,7 @@ class PaginationService:
     ) -> PaginationResult:
         """Main pagination method supporting multiple strategies"""
         
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         # Try cache first
         if cache_key and self.cache:
@@ -242,7 +242,7 @@ class PaginationService:
         result.hydrated_fields = hydrated_fields
         
         # Calculate query time
-        query_time = (datetime.utcnow() - start_time).total_seconds() * 1000
+        query_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
         result.query_time_ms = int(query_time)
         
         # Cache result

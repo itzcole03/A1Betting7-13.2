@@ -6,7 +6,7 @@ when edges and valuations are updated.
 """
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Set
 
 from .base_handler import BaseDeltaHandler, DeltaContext, ProcessingResult
@@ -60,7 +60,7 @@ class PortfolioRefreshHandler(BaseDeltaHandler):
             self.affected_props.add(context.prop_id)
             
             # Check rate limiting
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             if (self.last_optimization and 
                 now - self.last_optimization < self.min_optimization_interval):
                 
@@ -132,7 +132,7 @@ class PortfolioRefreshHandler(BaseDeltaHandler):
             
             if optimization_result:
                 # TODO: Store optimization result in database
-                optimization_id = f"opt_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+                optimization_id = f"opt_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
                 
                 affected.append(optimization_id)
                 
@@ -142,7 +142,7 @@ class PortfolioRefreshHandler(BaseDeltaHandler):
                 )
                 
                 # Update timing
-                self.last_optimization = datetime.utcnow()
+                self.last_optimization = datetime.now(timezone.utc)
                 self.affected_props.clear()
                 
             return affected
@@ -163,11 +163,11 @@ class PortfolioRefreshHandler(BaseDeltaHandler):
                 
                 # Create synthetic context for batch optimization
                 batch_context = DeltaContext(
-                    event_id=f"batch_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
+                    event_id=f"batch_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}",
                     provider="batch",
                     prop_id="batch",
                     event_type="BATCH_OPTIMIZATION",
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     metadata={"affected_props": list(self.affected_props)}
                 )
                 
@@ -193,7 +193,7 @@ class PortfolioRefreshHandler(BaseDeltaHandler):
                     "min_edge": 0.02,
                     "max_correlation": 0.5
                 },
-                "timestamp": datetime.utcnow()
+                "timestamp": datetime.now(timezone.utc)
             }
             
             # Simulate gathering edge data
@@ -264,7 +264,7 @@ class PortfolioRefreshHandler(BaseDeltaHandler):
                 "selected_props": selected_props,
                 "total_exposure": total_exposure,
                 "expected_return": sum(prop["expected_return"] for prop in selected_props),
-                "optimization_timestamp": datetime.utcnow(),
+                "optimization_timestamp": datetime.now(timezone.utc),
                 "algorithm": "greedy_edge_sort"
             }
             

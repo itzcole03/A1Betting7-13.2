@@ -9,6 +9,24 @@ router = APIRouter()
 LOGS: List[Dict] = []
 
 
+# Safe serializer helper (prefer model_dump then dict then __dict__)
+def _safe_dump(obj):
+    try:
+        if hasattr(obj, "model_dump") and callable(getattr(obj, "model_dump")):
+            return obj.model_dump()
+    except Exception:
+        pass
+    try:
+        if hasattr(obj, "dict") and callable(getattr(obj, "dict")):
+            return obj.dict()
+    except Exception:
+        pass
+    try:
+        return dict(getattr(obj, "__dict__", {}) or {})
+    except Exception:
+        return str(obj)
+
+
 class LogEntry(BaseModel):
     timestamp: str
     level: str
@@ -34,7 +52,7 @@ def get_logs():
 
 @router.post("/admin/logs")
 def add_log(entry: LogEntry):
-    LOGS.append(entry.dict())
+    LOGS.append(_safe_dump(entry))
     return {"status": "ok"}
 
 

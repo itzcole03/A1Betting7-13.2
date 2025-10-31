@@ -1,0 +1,174 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - 'button "Dev: View Dashboard" [ref=e4] [cursor=pointer]'
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic "Backend API health" [ref=e7]: API Online
+      - generic [ref=e9]: "WebSocket: Disconnected"
+    - button "Open Navigation" [ref=e10] [cursor=pointer]:
+      - img [ref=e12]
+    - generic [ref=e14]:
+      - generic [ref=e16]:
+        - generic [ref=e19]:
+          - heading "PropFinder 🎯 LIVE" [level=1] [ref=e20]:
+            - text: PropFinder
+            - generic [ref=e21]: 🎯
+            - generic [ref=e22]: LIVE
+          - paragraph [ref=e23]: Elite prop betting opportunities with multi-bookmaker best lines
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - img [ref=e27]
+              - textbox "Search players, markets, or teams..." [ref=e30]
+            - button "Filters" [ref=e31] [cursor=pointer]:
+              - img [ref=e32]
+              - text: Filters
+            - button "🔄 Auto Refresh" [ref=e34] [cursor=pointer]
+          - generic [ref=e35]:
+            - generic [ref=e36]: "Sort by:"
+            - generic [ref=e37]:
+              - button "Default" [ref=e38] [cursor=pointer]:
+                - img [ref=e39]
+                - text: Default
+                - img [ref=e43]
+              - button "EV %" [ref=e45] [cursor=pointer]:
+                - img [ref=e46]
+                - text: EV %
+              - button "Confidence" [ref=e48] [cursor=pointer]:
+                - img [ref=e49]
+                - text: Confidence
+              - button "Arbitrage" [ref=e51] [cursor=pointer]:
+                - img [ref=e52]
+                - text: Arbitrage
+            - button "Bookmarked Only" [ref=e55] [cursor=pointer]:
+              - img [ref=e56]
+              - text: Bookmarked Only
+            - button "Show CLV" [ref=e58] [cursor=pointer]:
+              - img [ref=e59]
+              - text: Show CLV
+            - button "Live Arbitrage" [ref=e62] [cursor=pointer]:
+              - img [ref=e63]
+              - text: Live Arbitrage
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e67]: Quick Filters
+              - generic [ref=e68]:
+                - button "High Value (Elite opportunities)" [ref=e69] [cursor=pointer]:
+                  - img [ref=e70]
+                  - generic [ref=e72]: High Value
+                  - generic [ref=e73]: (Elite opportunities)
+                - button "Premium Only (Premium confidence)" [ref=e74] [cursor=pointer]:
+                  - img [ref=e75]
+                  - generic [ref=e77]: Premium Only
+                  - generic [ref=e78]: (Premium confidence)
+                - button "Value Plays (Value opportunities)" [ref=e79] [cursor=pointer]:
+                  - img [ref=e80]
+                  - generic [ref=e84]: Value Plays
+                  - generic [ref=e85]: (Value opportunities)
+                - button "Arbitrage (Arbitrage opportunities)" [ref=e86] [cursor=pointer]:
+                  - img [ref=e87]
+                  - generic [ref=e90]: Arbitrage
+                  - generic [ref=e91]: (Arbitrage opportunities)
+            - generic [ref=e92]:
+              - generic [ref=e93]:
+                - generic [ref=e94]: Sports
+                - generic [ref=e95]:
+                  - generic [ref=e96]:
+                    - checkbox "🏀 NBA" [checked] [ref=e97]
+                    - generic [ref=e98]: 🏀 NBA
+                  - generic [ref=e99]:
+                    - checkbox "⚾ MLB" [checked] [ref=e100]
+                    - generic [ref=e101]: ⚾ MLB
+                  - generic [ref=e102]:
+                    - checkbox "🏈 NFL" [ref=e103]
+                    - generic [ref=e104]: 🏈 NFL
+                  - generic [ref=e105]:
+                    - checkbox "🏒 NHL" [ref=e106]
+                    - generic [ref=e107]: 🏒 NHL
+              - generic [ref=e108]:
+                - generic [ref=e109]: "Confidence: 0% - 100%"
+                - generic [ref=e110]:
+                  - slider [ref=e111] [cursor=pointer]: "0"
+                  - slider [ref=e112] [cursor=pointer]: "100"
+              - generic [ref=e113]:
+                - generic [ref=e114]: "Edge: 0% - 20%"
+                - generic [ref=e115]:
+                  - slider [ref=e116] [cursor=pointer]: "0"
+                  - slider [ref=e117] [cursor=pointer]: "20"
+            - generic [ref=e118]:
+              - generic [ref=e119]:
+                - generic [ref=e120]: "EV Range: 0% - 100%"
+                - generic [ref=e121]:
+                  - slider [ref=e122] [cursor=pointer]: "0"
+                  - slider [ref=e123] [cursor=pointer]: "25"
+              - generic [ref=e124]:
+                - generic [ref=e125]: EV Tiers
+                - generic [ref=e126]:
+                  - generic [ref=e127]:
+                    - checkbox "High (8%+)" [checked] [ref=e128]
+                    - generic [ref=e129]: High (8%+)
+                  - generic [ref=e130]:
+                    - checkbox "Moderate (3-8%)" [checked] [ref=e131]
+                    - generic [ref=e132]: Moderate (3-8%)
+                  - generic [ref=e133]:
+                    - checkbox "Low (0-3%)" [checked] [ref=e134]
+                    - generic [ref=e135]: Low (0-3%)
+                  - generic [ref=e136]:
+                    - checkbox "Negative (<0%)" [checked] [ref=e137]
+                    - generic [ref=e138]: Negative (<0%)
+            - generic [ref=e139]:
+              - generic [ref=e141]:
+                - checkbox "🎯 Arbitrage Opportunities Only" [ref=e142]
+                - generic [ref=e143]: 🎯 Arbitrage Opportunities Only
+              - generic [ref=e145]:
+                - checkbox "⚡ Low Juice Only" [ref=e146]
+                - generic [ref=e147]: ⚡ Low Juice Only
+              - generic [ref=e148]:
+                - generic [ref=e149]: "Min Bookmakers: 1"
+                - slider [ref=e150] [cursor=pointer]: "1"
+              - generic [ref=e151]:
+                - generic [ref=e152]: Sharp Money
+                - generic [ref=e153]:
+                  - generic [ref=e154]:
+                    - checkbox "heavy" [ref=e155]
+                    - generic [ref=e156]: heavy
+                  - generic [ref=e157]:
+                    - checkbox "moderate" [ref=e158]
+                    - generic [ref=e159]: moderate
+                  - generic [ref=e160]:
+                    - checkbox "light" [ref=e161]
+                    - generic [ref=e162]: light
+            - generic [ref=e163]:
+              - generic [ref=e164]:
+                - generic [ref=e165]: "Min EV: 0.0%"
+                - slider [ref=e166] [cursor=pointer]: "0"
+                - generic [ref=e167]:
+                  - generic [ref=e168]: "-10%"
+                  - generic [ref=e169]: 0%
+                  - generic [ref=e170]: +20%
+              - generic [ref=e171]:
+                - generic [ref=e172]: "Value Threshold: +5.0%"
+                - slider [ref=e173] [cursor=pointer]: "5"
+                - generic [ref=e174]: Opportunities above this % show "Value" badge
+              - generic [ref=e175]:
+                - generic [ref=e176]:
+                  - checkbox "❤️ Show Bookmarked Only" [ref=e177]
+                  - generic [ref=e178]: ❤️ Show Bookmarked Only
+                - generic [ref=e179]: 0 opportunities bookmarked
+              - generic [ref=e180]:
+                - generic [ref=e181]: "Volatility Min: 0.0"
+                - slider [ref=e182] [cursor=pointer]: "0"
+                - generic [ref=e183]: Based on recent performance variation
+        - paragraph [ref=e185]: Showing 0 of 0 opportunities (server total 0)
+        - generic [ref=e186]:
+          - img [ref=e187]
+          - generic [ref=e191]: No opportunities match your current filters
+          - generic [ref=e192]: Try adjusting your filters or search criteria
+      - generic [ref=e195]:
+        - generic [ref=e196]: PropFinder Debug
+        - generic [ref=e197]:
+          - button "Show Server Items" [ref=e198] [cursor=pointer]
+          - button "Open" [ref=e199] [cursor=pointer]
+```

@@ -3,7 +3,7 @@ import re
 import json
 from collections import Counter, defaultdict
 from typing import List, Tuple, Dict
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Path to the GitIngest digest file
 DIGEST_FILE = 'A1Betting7-13.2_digest.txt'  # Adjusted to match file in project root
@@ -26,7 +26,7 @@ TODO_PATTERN = re.compile(r'(TODO|FIXME|#|//).*', re.IGNORECASE)
 
 
 def get_timestamp() -> str:
-    return datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')
+    return datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
 
 
 def extract_digest_sections(digest_path: str) -> Tuple[List[str], List[str], Counter[str], List[str], List[str], List[str], List[str], Dict[str, List[str]], Dict[str, Dict]]:

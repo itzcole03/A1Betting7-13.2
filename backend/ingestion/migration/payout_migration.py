@@ -8,7 +8,7 @@ compatibility and triggers recomputation of affected line hashes and edges.
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from sqlalchemy import create_engine, text
@@ -45,7 +45,7 @@ def migrate_payout_schemas():
     SessionLocal = sessionmaker(bind=engine)
 
     migration_stats = {
-        "started_at": datetime.utcnow(),
+        "started_at": datetime.now(timezone.utc),
         "total_quotes": 0,
         "migrated_quotes": 0,
         "failed_quotes": 0,
@@ -101,7 +101,7 @@ def migrate_payout_schemas():
                         # Update quote with canonical schema and new hash
                         quote.payout_schema = canonical_schema.dict()
                         quote.line_hash = new_hash
-                        quote.last_change_at = datetime.utcnow()
+                        quote.last_change_at = datetime.now(timezone.utc)
 
                         migration_stats["migrated_quotes"] += 1
 
@@ -117,7 +117,7 @@ def migrate_payout_schemas():
                         error_info = {
                             "quote_id": quote.id,
                             "error": str(e),
-                            "timestamp": datetime.utcnow().isoformat(),
+                            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                         }
                         migration_stats["errors"].append(error_info)
                         logger.error(f"Failed to migrate quote {quote.id}: {e}")
@@ -133,7 +133,7 @@ def migrate_payout_schemas():
                 )
 
             # Complete migration run
-            migration_stats["finished_at"] = datetime.utcnow()
+            migration_stats["finished_at"] = datetime.now(timezone.utc)
             migration_run.status = (
                 "completed" if migration_stats["failed_quotes"] == 0 else "partial"
             )
@@ -160,11 +160,11 @@ def migrate_payout_schemas():
 
         except Exception as e:
             session.rollback()
-            migration_stats["finished_at"] = datetime.utcnow()
+            migration_stats["finished_at"] = datetime.now(timezone.utc)
             migration_stats["errors"].append(
                 {
                     "error": f"Migration failed: {e}",
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 }
             )
             logger.error(f"Canonical payout migration failed: {e}")
@@ -224,7 +224,7 @@ def _convert_to_canonical(legacy_schema: Dict[str, Any], source: str) -> PayoutS
         payout_type=payout_type,
         over_odds=over_odds,
         under_odds=under_odds,
-        updated_ts=datetime.utcnow().isoformat(),
+        updated_ts=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         provider_name=source,
         additional_data=(
             {"boost_multiplier": boost_multiplier} if boost_multiplier else {}

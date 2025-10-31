@@ -1,0 +1,94 @@
+{
+  "id": "nba_24",
+  "player": "De'Aaron Fox",
+  "playerImage": null,
+  "team": "Kings",
+  "teamLogo": null,
+  "opponent": "Blazers",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.POINTS",
+  "line": 23.5,
+  "pick": "Pick.OVER",
+  "odds": -108,
+  "impliedProbability": 70.9,
+  "aiProbability": 78.6,
+  "edge": 7.7,
+  "confidence": 78.85,
+  "projectedValue": 1.925,
+  "volume": 47000,
+  "trend": "Trend.RISING",
+  "trendStrength": 7,
+  "timeToGame": "6h 43m",
+  "venue": "Venue.AWAY",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9,
+    92.1,
+    88.4,
+    76.8
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 24.27,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 23.0,
+    "current": 23.5,
+    "direction": "Direction.DOWN"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": -111,
+      "line": 24.0
+    },
+    {
+      "name": "FanDuel",
+      "odds": -102,
+      "line": 24.0
+    },
+    {
+      "name": "BetMGM",
+      "odds": -108,
+      "line": 23.5
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "High Volume",
+    "Sharp Money"
+  ],
+  "socialSentiment": 72,
+  "sharpMoney": "SharpMoney.HEAVY",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": true,
+  "alertSeverity": "medium",
+  "bestBookmaker": "FanDuel",
+  "lineSpread": 1.0,
+  "oddsSpread": 12,
+  "numBookmakers": 5,
+  "evValue": 0.5186,
+  "evPercent": 51.86,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": true,
+  "arbitrageProfitPct": 2.86,
+  "openingLine": 23.5,
+  "openingOdds": -108,
+  "latestLine": 23.5,
+  "latestOdds": -108,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 0.49,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

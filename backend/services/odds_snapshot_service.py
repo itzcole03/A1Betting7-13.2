@@ -20,6 +20,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from backend.database import async_engine
 from backend.models.odds_snapshot_sqlmodel import OddsSnapshotRecord
+from backend.services.unified_session_utils import unified_session_execute
 
 
 class OddsSnapshotService:
@@ -46,7 +47,9 @@ class OddsSnapshotService:
         try:
             async with AsyncSession(async_engine) as session:
                 # Truncate all snapshot rows to guarantee deterministic test expectations
-                await session.execute(text("DELETE FROM oddssnapshotrecord"))
+                await unified_session_execute(
+                    session, text("DELETE FROM oddssnapshotrecord")
+                )
                 await session.commit()
         except Exception:
             pass

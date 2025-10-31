@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, validator
-from typing import Literal, Optional, List
-from datetime import datetime, timezone
 import uuid
+from datetime import datetime, timezone
+from typing import List, Literal, Optional
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 Side = Literal["over", "under"]
 
@@ -17,7 +18,7 @@ class BetCreate(BaseModel):
     stake: float = Field(gt=0)
     placed_odds: int
 
-    @validator("sport", "market")
+    @field_validator("sport", "market")
     def not_empty(cls, v: str):
         if not v or not v.strip():
             raise ValueError("must not be empty")
@@ -39,11 +40,10 @@ class BetRecord(BaseModel):
     closing_implied_prob: Optional[float] = None
     clv_pct: Optional[float] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(orm_mode=True)
 
     @classmethod
-    def from_create(cls, data: 'BetCreate', placed_implied_prob: float) -> 'BetRecord':
+    def from_create(cls, data: "BetCreate", placed_implied_prob: float) -> "BetRecord":
         return cls(
             id=str(uuid.uuid4()),
             sport=data.sport,
@@ -62,7 +62,7 @@ class ClosingUpdateRequest(BaseModel):
     ids: Optional[List[str]] = None
     sport: Optional[str] = None
 
-    @validator("ids")
+    @field_validator("ids")
     def non_empty_ids(cls, v):
         if v is not None and len(v) == 0:
             raise ValueError("ids cannot be empty list")

@@ -77,11 +77,39 @@ async def props_compat(
 
         mod = import_module("backend.routes.consolidated_prizepicks")
         func = getattr(mod, "get_prizepicks_props")
-        return await func(sport=sport, min_confidence=min_confidence, enhanced=enhanced)
+        resp = await func(sport=sport, min_confidence=min_confidence, enhanced=enhanced)
     except Exception:
-        # Fallback shape expected by legacy clients: canonical envelope or raw list.
-        # We return the raw data shape (list) to match legacy /api/prizepicks behavior.
+        # Fallback to the legacy raw shape when consolidated implementation
+        # is unavailable.
         return {"props": []}
+
+    # Normalize consolidated responses into the legacy top-level shape
+    try:
+        # If the consolidated implementation returned a canonical envelope
+        # with a 'data' field, prefer the contained value.
+        if isinstance(resp, dict):
+            inner = resp.get("data", resp)
+        else:
+            inner = resp
+
+        # If inner is a dict that contains 'props', return that directly
+        if isinstance(inner, dict) and "props" in inner:
+            return {"props": inner.get("props")}
+
+        # If inner is a list, assume it's the props list
+        if isinstance(inner, list):
+            return {"props": inner}
+
+        # If inner is a dict that appears to be a single prop, wrap it
+        if isinstance(inner, dict):
+            return {"props": [inner]}
+
+    except Exception:
+        # Fall back to safe empty list on any normalization error
+        return {"props": []}
+
+    # Default fallback
+    return {"props": []}
 
 
 @legacy_router.get("/recommendations")

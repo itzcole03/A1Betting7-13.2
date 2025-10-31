@@ -6,7 +6,7 @@ import logging
 import os
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger("propollama.smart_signals")
 
@@ -144,7 +144,7 @@ class SmartSignalsService:
                 score=composite_score,
                 factors=factors,
                 confidence=confidence,
-                timestamp=datetime.utcnow().isoformat()
+                timestamp=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
             )
             
             logger.debug(f"Computed signal score: {composite_score:.2f} with {len(factors)} factors")

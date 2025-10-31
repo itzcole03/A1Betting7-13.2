@@ -7,7 +7,7 @@ import asyncio
 import json
 import logging
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -219,7 +219,7 @@ class MultiSportEnsembleManager:
             # Generate predictions from all models
             model_predictions = {}
             model_confidences = {}
-            processing_start = datetime.utcnow()
+            processing_start = datetime.now(timezone.utc)
 
             for model_name in available_models:
                 try:
@@ -264,11 +264,11 @@ class MultiSportEnsembleManager:
                 ensemble_result, consensus_metrics, historical_performance
             )
 
-            processing_time = (datetime.utcnow() - processing_start).total_seconds()
+            processing_time = (datetime.now(timezone.utc) - processing_start).total_seconds()
 
             # Create ensemble prediction object
             prediction = EnsemblePrediction(
-                request_id=f"ensemble_{sport}_{event_id}_{datetime.utcnow().timestamp()}",
+                request_id=f"ensemble_{sport}_{event_id}_{datetime.now(timezone.utc).timestamp()}",
                 sport=sport,
                 event_id=event_id,
                 player_name=player_name,
@@ -293,7 +293,7 @@ class MultiSportEnsembleManager:
                 confidence_interval=betting_recommendations["confidence_interval"],
                 models_used=list(model_predictions.keys()),
                 processing_time=processing_time,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 metadata={
                     "voting_strategy": voting_strategy.value,
                     "total_models": len(model_predictions),
@@ -369,7 +369,7 @@ class MultiSportEnsembleManager:
         """Generate comprehensive ensemble performance report"""
         try:
             report = {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "sports_analysis": {},
                 "cross_sport_insights": [],
                 "performance_alerts": [],

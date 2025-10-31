@@ -7,7 +7,7 @@ Manages background tasks, polling intervals, and integration with the alerting p
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Set, Any
 from dataclasses import dataclass
 from enum import Enum
@@ -97,7 +97,7 @@ class AlertScheduler:
             
         logger.info("Starting Alert Scheduler")
         self.status = SchedulerStatus.STARTING
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(timezone.utc)
         
         try:
             # Start the rule evaluator loop
@@ -169,18 +169,18 @@ class AlertScheduler:
         
         while self.status == SchedulerStatus.RUNNING:
             try:
-                start_time = datetime.utcnow()
+                start_time = datetime.now(timezone.utc)
                 
                 # Process any queued alerts or scheduled tasks
                 await self._process_scheduled_alerts()
                 
                 # Update uptime statistics
                 if self.start_time:
-                    uptime = (datetime.utcnow() - self.start_time).total_seconds()
+                    uptime = (datetime.now(timezone.utc) - self.start_time).total_seconds()
                     self.stats.uptime_seconds = int(uptime)
                 
                 # Update evaluation duration
-                duration = (datetime.utcnow() - start_time).total_seconds() * 1000
+                duration = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
                 self.stats.evaluation_duration_ms = int(duration)
                 self.stats.last_evaluation_time = start_time
                 

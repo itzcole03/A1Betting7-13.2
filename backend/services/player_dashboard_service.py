@@ -11,7 +11,7 @@ Provides player data, statistics, trends, and predictions for the dashboard
 import asyncio
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from .baseball_savant_client import BaseballSavantClient
@@ -102,7 +102,7 @@ class PlayerDashboardService:
         self, player_id: str, request
     ) -> "PlayerDashboardResponse":
         """Get comprehensive player dashboard data with unified fetcher, 30 min cache, and error/correlation handling"""
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         from ..models.player_models import (
             PlayerDashboardResponse,
@@ -117,7 +117,7 @@ class PlayerDashboardService:
         cache_key = f"player_dashboard:{sport}:{player_id}"
         correlation_id = (
             request.headers.get("X-Correlation-ID")
-            or f"playerdash-{player_id}-{datetime.utcnow().timestamp()}"
+            or f"playerdash-{player_id}-{datetime.now(timezone.utc).timestamp()}"
         )
         try:
             # Check cache (30 min TTL)

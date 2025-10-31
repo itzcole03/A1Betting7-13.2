@@ -17,7 +17,7 @@ import logging
 import time
 from contextlib import asynccontextmanager
 from typing import Any, Dict, Optional, Tuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import FastAPI, Request, Response
@@ -121,7 +121,7 @@ class StructuredFormatter(logging.Formatter):
 
     def format(self, record):
         log_entry = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -369,7 +369,7 @@ class HealthCheckManager:
         """Run all health checks"""
         results = {
             "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "checks": {},
         }
 
@@ -421,15 +421,15 @@ class MonitoringDashboard:
     """Monitoring dashboard data aggregator"""
 
     def __init__(self):
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(timezone.utc)
 
     def get_system_metrics(self) -> Dict[str, Any]:
         """Get system metrics for dashboard"""
-        uptime = datetime.utcnow() - self.start_time
+        uptime = datetime.now(timezone.utc) - self.start_time
 
         return {
             "uptime_seconds": uptime.total_seconds(),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "metrics": {
                 "active_connections": ACTIVE_CONNECTIONS._value._value,
                 "background_tasks": BACKGROUND_TASKS._value._value,
@@ -500,13 +500,13 @@ def create_observability_routes(
     @router.get("/health/live")
     async def liveness_check():
         """Kubernetes liveness check"""
-        return {"status": "alive", "timestamp": datetime.utcnow().isoformat()}
+        return {"status": "alive", "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")}
 
     @router.get("/health/ready")
     async def readiness_check():
         """Kubernetes readiness check"""
         # Basic readiness check - can be extended
-        return {"status": "ready", "timestamp": datetime.utcnow().isoformat()}
+        return {"status": "ready", "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")}
 
     @router.get("/dashboard/system")
     async def system_dashboard():

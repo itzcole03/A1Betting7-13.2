@@ -10,7 +10,7 @@ import json
 import os
 import signal
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional, List, TextIO
 from dataclasses import asdict
@@ -164,7 +164,7 @@ class FileAuditStore:
 
     def _generate_filename(self) -> str:
         """Generate filename with timestamp."""
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         return f"inference_audit_{timestamp}.ndjson"
 
     def _rotate_file(self) -> None:
@@ -217,7 +217,7 @@ class FileAuditStore:
                 record_dict = asdict(result)
                 
                 # Add file-specific metadata
-                record_dict["recorded_at"] = datetime.utcnow().isoformat()
+                record_dict["recorded_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
                 record_dict["file_store_version"] = "1.0"
                 
                 # Convert to NDJSON line

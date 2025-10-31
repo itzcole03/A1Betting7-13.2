@@ -1097,3 +1097,6 @@ export function usePropFinderData(options?: UsePropfinderOptions): PropfinderRes
 export default function usePropfinderData(options?: UsePropfinderOptions): PropfinderResult {
   return usePropFinderDataInternal(options);
 }
+
+// Export internal helpers for unit testing of edge cases
+export { buildQueryParams, mergeFilters };

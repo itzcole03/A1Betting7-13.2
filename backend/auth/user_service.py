@@ -197,6 +197,8 @@ class UserService:
             statement = select(User).where(
                 (User.username == username) | (User.email == username)
             )
+            # session is a SQLModel AsyncSession here; prefer `exec()` for SQLModel
+            # which returns a SQLModel Result with convenient helpers like `.first()`.
             result = await session.exec(statement)
             user = result.first()
             if not user:

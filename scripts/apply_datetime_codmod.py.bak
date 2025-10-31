@@ -1,0 +1,126 @@
+"""AST/text codemod to replace datetime.utcnow() with timezone-aware equivalents.
+
+Behavior:
+- Walks the `backend/` directory (recursively).
+- Skips files in tests, any file matching *.bak, *.orig, or the skip list.
+- Makes a .bak backup for each modified file.
+- Replaces occurrences of:
+    - "from datetime import datetime" -> "from datetime import datetime, timezone" (if timezone not present)
+    - "datetime.utcnow()" -> "datetime.now(timezone.utc)"
+    - "datetime.utcnow().isoformat() + \"Z\"" -> "datetime.now(timezone.utc).isoformat().replace('+00:00','Z')"
+
+This is intentionally conservative and text-based (not full AST) to minimize surprises.
+
+Run with:
+    python scripts/apply_datetime_codmod.py --apply
+
+Without --apply it will show a dry-run summary.
+"""
+
+import argparse
+import os
+import re
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+BACKEND = ROOT / "backend"
+
+SKIP_FILES = {
+    # intentionally keep these untouched because tests rely on naive datetimes
+    str(BACKEND / "services" / "trends_service.py").lower(),
+    str(BACKEND / "routes" / "testing_compat_shims_minimal.py").lower(),
+    str(BACKEND / "routes" / "propfinder_routes.py").lower(),
+}
+
+IGNORED_SUFFIXES = (".bak", ".orig", ".pyc", ".pyo")
+
+PAT_UUTC = re.compile(r"datetime\.utcnow\(\)")
+PAT_IMPORT = re.compile(r"from\s+datetime\s+import\s+([^\n]+)")
+PAT_ISO_Z = re.compile(r"datetime\.utcnow\(\)\.isoformat\(\)\s*\+\s*['\"]Z['\"]")
+
+modified = []
+proposed = []
+
+
+def should_skip(path: Path) -> bool:
+    lp = str(path).lower()
+    if "/tests/" in lp or "\\tests\\" in lp:
+        return True
+    # Skip virtualenv or site-packages folders that may exist under backend
+    if "/venv/" in lp or "\\venv\\" in lp or "site-packages" in lp:
+        return True
+    if any(lp.endswith(suf) for suf in IGNORED_SUFFIXES):
+        return True
+    if lp in SKIP_FILES:
+        return True
+    return False
+
+
+def process_file(path: Path, apply: bool) -> bool:
+    text = path.read_text(encoding="utf-8")
+    orig = text
+    changed = False
+
+    if PAT_ISO_Z.search(text):
+        text = PAT_ISO_Z.sub(
+            "datetime.now(timezone.utc).isoformat().replace('+00:00','Z')", text
+        )
+        changed = True
+
+    if PAT_UUTC.search(text):
+        text = PAT_UUTC.sub("datetime.now(timezone.utc)", text)
+        changed = True
+
+    if changed:
+        # Ensure timezone imported when datetime imported
+        m = PAT_IMPORT.search(text)
+        if m:
+            groups = m.group(1)
+            if "timezone" not in groups:
+                new_import = m.group(0).replace(groups, groups + ", timezone")
+                text = text.replace(m.group(0), new_import, 1)
+
+    if changed:
+        proposed.append(str(path))
+        if apply:
+            bak = path.with_suffix(path.suffix + ".bak")
+            if not bak.exists():
+                path.write_text(text, encoding="utf-8")
+                bak.write_text(orig, encoding="utf-8")
+            else:
+                # If backup exists, still write changed file but don't overwrite backup
+                path.write_text(text, encoding="utf-8")
+            modified.append(str(path))
+        return True
+    return False
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--apply", action="store_true", help="Apply changes (default: dry-run)"
+    )
+    args = parser.parse_args()
+
+    for p in BACKEND.rglob("*.py"):
+        if should_skip(p):
+            continue
+        try:
+            process_file(p, apply=args.apply)
+        except Exception as e:
+            print(f"Error processing {p}: {e}")
+
+    print("\nCodemod dry-run summary:" if not args.apply else "\nCodemod applied:")
+    print(f"Proposed files: {len(proposed)}")
+    for f in proposed[:200]:
+        print(" -", f)
+    if args.apply:
+        print(f"\nModified files: {len(modified)}")
+        for f in modified[:200]:
+            print(" *", f)
+    else:
+        print("\nRun with --apply to write changes and create .bak backups")
+
+
+if __name__ == "__main__":
+    main()

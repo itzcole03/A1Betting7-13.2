@@ -8,7 +8,7 @@ to provide comprehensive NHL data including teams, players, games, standings, an
 import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 import aiohttp
@@ -324,7 +324,38 @@ class NHLServiceClient(SportServiceBase):
                 gameType=game_type,
                 season=str(game_data.get("season", "")),
                 gameDate=game_date,
-                teams={"home": home_team.dict(), "away": away_team.dict()},
+                teams={
+                    "home": (
+                        (
+                            home_team.model_dump()
+                            if hasattr(home_team, "model_dump")
+                            and callable(getattr(home_team, "model_dump"))
+                            else None
+                        )
+                        or (
+                            home_team.dict()
+                            if hasattr(home_team, "dict")
+                            and callable(getattr(home_team, "dict"))
+                            else None
+                        )
+                        or dict(getattr(home_team, "__dict__", {}) or {})
+                    ),
+                    "away": (
+                        (
+                            away_team.model_dump()
+                            if hasattr(away_team, "model_dump")
+                            and callable(getattr(away_team, "model_dump"))
+                            else None
+                        )
+                        or (
+                            away_team.dict()
+                            if hasattr(away_team, "dict")
+                            and callable(getattr(away_team, "dict"))
+                            else None
+                        )
+                        or dict(getattr(away_team, "__dict__", {}) or {})
+                    ),
+                },
                 homeTeam=home_team,
                 awayTeam=away_team,
                 venue=game_data.get("venue"),
@@ -357,7 +388,17 @@ class NHLServiceClient(SportServiceBase):
                         arbitrageOpportunities=[],
                     )
 
-                    odds_comparisons.append(odds_comparison.dict())
+                    try:
+                        if hasattr(odds_comparison, "model_dump") and callable(
+                            getattr(odds_comparison, "model_dump")
+                        ):
+                            odds_comparisons.append(odds_comparison.model_dump())
+                        else:
+                            odds_comparisons.append(odds_comparison.dict())
+                    except Exception:
+                        odds_comparisons.append(
+                            dict(getattr(odds_comparison, "__dict__", {}) or {})
+                        )
 
                 except Exception as e:
                     logger.warning(
@@ -372,7 +413,9 @@ class NHLServiceClient(SportServiceBase):
                 "games_with_odds": len(odds_comparisons),
                 "odds_comparisons": odds_comparisons,
                 "message": "NHL odds comparison data retrieved (Note: NHL API doesn't provide direct odds)",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc)
+                .isoformat()
+                .replace("+00:00", "Z"),
             }
 
         except Exception as e:
@@ -404,7 +447,9 @@ class NHLServiceClient(SportServiceBase):
                     "service": "NHL",
                     "api_status": "responsive",
                     "message": "NHL service operational via official NHL APIs",
-                    "last_updated": datetime.utcnow().isoformat(),
+                    "last_updated": datetime.now(timezone.utc)
+                    .isoformat()
+                    .replace("+00:00", "Z"),
                     "total_teams": total_teams,
                     "endpoints_tested": ["teams", "schedule", "standings"],
                     "response_time_ms": round(response_time, 2),

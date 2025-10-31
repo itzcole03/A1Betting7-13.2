@@ -1,0 +1,93 @@
+{
+  "id": "nba_13",
+  "player": "Russell Westbrook",
+  "playerImage": null,
+  "team": "Clippers",
+  "teamLogo": null,
+  "opponent": "Warriors",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.ASSISTS",
+  "line": 6.5,
+  "pick": "Pick.OVER",
+  "odds": 105,
+  "impliedProbability": 67.3,
+  "aiProbability": 74.1,
+  "edge": 6.8,
+  "confidence": 78.4,
+  "projectedValue": 1.7000000000000002,
+  "volume": 30500,
+  "trend": "Trend.RISING",
+  "trendStrength": 6,
+  "timeToGame": "3h 32m",
+  "venue": "Venue.HOME",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9,
+    92.1,
+    88.4
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 7.18,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 7.0,
+    "current": 6.5,
+    "direction": "Direction.DOWN"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": 102,
+      "line": 7.0
+    },
+    {
+      "name": "FanDuel",
+      "odds": 111,
+      "line": 6.75
+    },
+    {
+      "name": "BetMGM",
+      "odds": 105,
+      "line": 6.5
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "High Volume",
+    "Sharp Money"
+  ],
+  "socialSentiment": 71,
+  "sharpMoney": "SharpMoney.MODERATE",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": true,
+  "alertSeverity": "medium",
+  "bestBookmaker": "FanDuel",
+  "lineSpread": 1.0,
+  "oddsSpread": 11,
+  "numBookmakers": 5,
+  "evValue": 0.6072,
+  "evPercent": 60.72,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": true,
+  "arbitrageProfitPct": 2.68,
+  "openingLine": 6.5,
+  "openingOdds": 105,
+  "latestLine": 6.5,
+  "latestOdds": 105,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 0.0,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

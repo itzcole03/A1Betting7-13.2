@@ -5,7 +5,7 @@ Simulates a slower provider with occasional missing props and connection issues.
 """
 
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 from backend.services.providers.base_provider import (
@@ -71,7 +71,7 @@ class SampleProviderB(BaseMarketDataProvider):
                         team_code=team,
                         prop_category=market_type,
                         line_value=round(line_value, 1),
-                        updated_ts=datetime.utcnow(),
+                        updated_ts=datetime.now(timezone.utc),
                         payout_type="american",
                         status="active",
                         odds_value=random.uniform(1.70, 2.40),
@@ -110,7 +110,7 @@ class SampleProviderB(BaseMarketDataProvider):
         import asyncio
         await asyncio.sleep(random.uniform(0.5, 1.5))
         
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
         updated_props = []
         
         props_to_return = self._mock_props[:limit] if limit else self._mock_props
@@ -163,7 +163,7 @@ class SampleProviderB(BaseMarketDataProvider):
         await asyncio.sleep(random.uniform(0.2, 0.8))
         
         updated_props = []
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
         
         # More aggressive update simulation - 20-40% of props
         num_updates = random.randint(len(self._mock_props) // 5, (len(self._mock_props) * 2) // 5)

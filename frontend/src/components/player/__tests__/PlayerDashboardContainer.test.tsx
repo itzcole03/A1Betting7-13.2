@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { setupServer } from 'msw/node';
-import { PlayerDashboardContainer } from '../PlayerDashboardContainer';
+import { setupServer } from 'msw/node';const { PlayerDashboardContainer } = require('../PlayerDashboardContainer');
 
 // Mock getEnvVar to prevent ReferenceError in OllamaService
 jest.mock('../../../utils/getEnvVar', () => ({
@@ -89,11 +88,7 @@ function safeGetHeader(req: any, header: string) {
   }
 }
 
-const server = setupServer();
-
-import _masterServiceRegistry from '../../../services/MasterServiceRegistry';
-import UnifiedErrorService from '../../../services/unified/UnifiedErrorService';
-import UnifiedStateService from '../../../services/unified/UnifiedStateService';
+const server = setupServer();const _masterServiceRegistry = (function(){ const m = require('../../../services/MasterServiceRegistry'); return (m && m.__esModule && m.default) ? m.default : m; })();const UnifiedErrorService = (function(){ const m = require('../../../services/unified/UnifiedErrorService'); return (m && m.__esModule && m.default) ? m.default : m; })();const UnifiedStateService = (function(){ const m = require('../../../services/unified/UnifiedStateService'); return (m && m.__esModule && m.default) ? m.default : m; })();
 
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());

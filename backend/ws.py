@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
@@ -20,7 +20,7 @@ def create_websocket_envelope(
     envelope = {
         "type": message_type,
         "status": status,
-        "timestamp": timestamp or datetime.utcnow().isoformat()
+        "timestamp": timestamp or datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     }
     
     if data is not None:

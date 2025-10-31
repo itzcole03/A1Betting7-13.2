@@ -1,7 +1,7 @@
 import os
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 OUT_DIR = "reports"
 OUT_FILE = os.path.join(OUT_DIR, "pytest_full_output.txt")
@@ -11,7 +11,7 @@ if not os.path.exists(OUT_DIR):
 cmd = [sys.executable, "-m", "pytest", "--verbose", "--tb=short"]
 proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
 with open(OUT_FILE, "w", encoding="utf-8") as f:
-    f.write(f"RUN AT: {datetime.utcnow().isoformat()}Z\n")
+    f.write(f"RUN AT: {datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")}Z\n")
     f.write(f"EXIT CODE: {proc.returncode}\n\n")
     f.write(proc.stdout)
     if proc.stderr:

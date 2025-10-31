@@ -27,6 +27,7 @@ from sklearn.preprocessing import StandardScaler
 from backend.feature_engineering import FeatureEngineering
 from backend.shap_explainer import ShapExplainer
 from backend.utils.llm_engine import llm_engine
+from backend.utils.time_helpers import now_utc
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -185,7 +186,7 @@ class MarketAnalysis(BaseModel):
     confidence_intervals: Dict[str, Tuple[float, float]] = Field(default_factory=dict)
 
     # Metadata
-    prediction_timestamp: datetime = Field(default_factory=datetime.utcnow)
+    prediction_timestamp: datetime = Field(default_factory=now_utc)
     processing_time: float = Field(..., description="Total processing time (ms)")
     model_versions: Dict[str, str] = Field(default_factory=dict)
     data_quality_score: float = Field(..., description="Input data quality assessment")

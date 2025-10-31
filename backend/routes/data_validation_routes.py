@@ -5,7 +5,7 @@ This module provides small, well-formed endpoints used during triage
 so pytest can collect. Full implementation will be restored later.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 from fastapi import APIRouter
@@ -26,7 +26,7 @@ router = APIRouter(prefix="/api/validation", tags=["data-validation"])
 @router.get("/health")
 async def validation_health() -> Dict[str, Any]:
     return ResponseBuilder.success(
-        {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
+        {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")}
     )
 
 
@@ -36,7 +36,7 @@ async def get_validation_metrics() -> Dict[str, Any]:
         {
             "integration_metrics": {},
             "quality_metrics": {},
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }
     )
 

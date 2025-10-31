@@ -11,7 +11,7 @@ import statistics
 import sys
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -231,7 +231,7 @@ class UnifiedTestSuite:
                 "test_status": "COMPLETED",
                 "test_results": self.test_results,
                 "performance_summary": performance_summary,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "architecture_metrics": await self._get_architecture_metrics(),
             }
 
@@ -241,7 +241,7 @@ class UnifiedTestSuite:
                 "test_status": "FAILED",
                 "error": str(e),
                 "partial_results": self.test_results,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             }
 
     async def _initialize_services(self):
@@ -816,7 +816,7 @@ async def run_performance_benchmark():
         results = await test_suite.run_comprehensive_tests()
 
         # Save results to file
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         results_file = f"backend/testing/test_results_{timestamp}.json"
 
         with open(results_file, "w") as f:

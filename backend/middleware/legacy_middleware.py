@@ -307,6 +307,25 @@ class LegacyMiddleware(BaseHTTPMiddleware):
         # result in empty bodies being observed by TestClient in tests.
         try:
             legacy_alias_health_paths = {"/health", "/api/health", "/api/v2/health"}
+            # If a dedicated health compatibility module is available, prefer
+            # delegating to it so legacy tests that expect the older top-level
+            # health shape receive the exact payload. This keeps the compatibility
+            # logic centralized in backend.routes.health_compat.
+            if path in legacy_alias_health_paths:
+                try:
+                    from backend.routes import health_compat as _hc
+
+                    try:
+                        # Prefer the API-shaped top-level payload when possible
+                        return await _hc.health_api()
+                    except Exception:
+                        try:
+                            return await _hc.health_root()
+                        except Exception:
+                            pass
+                except Exception:
+                    # health_compat not present or failed; fall back to canonical
+                    pass
             if path in legacy_alias_health_paths:
                 try:
                     from fastapi.responses import JSONResponse
@@ -402,6 +421,18 @@ class LegacyMiddleware(BaseHTTPMiddleware):
                     else:
                         resp = JSONResponse(status_code=200, content=canonical)
                     resp.headers["X-Legacy-Endpoint"] = "true"
+                    # If we detected a forwarding target for this legacy path,
+                    # expose it as a header so legacy clients/tests can observe
+                    # the migration hint even when LEGACY_DEPRECATION_HINTS is
+                    # not set to include the forward field in the body.
+                    try:
+                        if getattr(request.state, "legacy_forward", None):
+                            resp.headers["X-Forward-To"] = request.state.legacy_forward
+                            resp.headers["X-Deprecated-Warning"] = (
+                                f"Use {request.state.legacy_forward} instead"
+                            )
+                    except Exception:
+                        pass
                     # Ensure rate-limit headers are present for legacy alias
                     try:
                         rl = getattr(request.state, "rate_limit_headers", None)

@@ -7,7 +7,7 @@ including bet selection reasoning, risk analysis, and market insights.
 
 import asyncio
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Union, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
@@ -375,7 +375,7 @@ class PortfolioRationaleService:
             tracker.original_composition = request.ticket_composition.copy()
             tracker.original_hash = current_hash
             tracker.change_count += 1
-            tracker.last_updated = datetime.utcnow()
+            tracker.last_updated = datetime.now(timezone.utc)
             
             # Invalidate cache entries for this run_id
             self._invalidate_cache_for_run_id(run_id)
@@ -404,7 +404,7 @@ class PortfolioRationaleService:
         
     def _check_run_rate_limit(self, run_id: str) -> bool:
         """Check if run_id is within rate limits"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         window_start = now - timedelta(minutes=1)
         
         # Get run_id's request history
@@ -464,7 +464,7 @@ class PortfolioRationaleService:
         
     def _update_cache_hit_rate(self) -> None:
         """Update cache hit rate history for monitoring"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         total_requests = self.cache_hits + self.cache_misses
         
         if total_requests > 0:
@@ -480,7 +480,7 @@ class PortfolioRationaleService:
         if not self.cache_hit_history:
             return 0.0
             
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         window_start = now - timedelta(minutes=window_minutes)
         
         recent_entries = [rate for timestamp, rate in self.cache_hit_history if timestamp > window_start]
@@ -622,7 +622,7 @@ class PortfolioRationaleService:
                         confidence=confidence,
                         generation_time_ms=0,
                         model_info=llm_result.get("model_info", {"model": "llm", "version": "unknown"}),
-                        timestamp=datetime.utcnow(),
+                        timestamp=datetime.now(timezone.utc),
                         metadata={"from_llm": True}
                     )
             except AttributeError:
@@ -704,7 +704,7 @@ class PortfolioRationaleService:
             confidence=0.75 + (hash(request_id) % 25) / 100,  # 0.75-0.99
             generation_time_ms=0,  # Will be set by caller
             model_info={"model": "mock", "version": "1.0"},
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             metadata={"props_analyzed": len(selected_props)}
         )
         
@@ -732,7 +732,7 @@ class PortfolioRationaleService:
                     confidence=confidence,
                     generation_time_ms=0,
                     model_info=result.get("model_info", {"model": "llm", "version": "unknown"}),
-                    timestamp=datetime.utcnow()
+                    timestamp=datetime.now(timezone.utc)
                 )
         except AttributeError:
             # _call_llm_service not implemented - fall back to mock
@@ -815,7 +815,7 @@ class PortfolioRationaleService:
             confidence=0.75 + (hash(request_id) % 25) / 100,  # 0.75-0.99
             generation_time_ms=0,  # Will be set by caller
             model_info={"model": "mock_v2", "version": "2.0"},
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             template_version=RationaleTemplate.V2_STRUCTURED,
             structured_sections=sections,
             token_estimation=token_estimation,
@@ -1152,7 +1152,7 @@ class PortfolioRationaleService:
     def _check_rate_limit(self, user_id: str) -> bool:
         """Check if user is within rate limits"""
         
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         window_start = now - timedelta(minutes=1)
         
         # Get user's request history
@@ -1181,14 +1181,14 @@ class PortfolioRationaleService:
         cache_entry = self.cache[cache_key]
         
         # Check TTL
-        age = datetime.utcnow() - cache_entry.created_at
+        age = datetime.now(timezone.utc) - cache_entry.created_at
         if age.total_seconds() > cache_entry.ttl_seconds:
             del self.cache[cache_key]
             return None
             
         # Update access metrics
         cache_entry.access_count += 1
-        cache_entry.last_accessed = datetime.utcnow()
+        cache_entry.last_accessed = datetime.now(timezone.utc)
         
         return cache_entry.response
         
@@ -1202,7 +1202,7 @@ class PortfolioRationaleService:
         
         cache_entry = RationaleCache(
             response=response,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             ttl_seconds=self.cache_ttl_seconds,
             composition_hash=response.metadata.get('composition_hash') if response.metadata else None
         )
@@ -1216,7 +1216,7 @@ class PortfolioRationaleService:
     def _cleanup_cache(self) -> None:
         """Clean up expired cache entries"""
         
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         expired_keys = []
         
         for key, entry in self.cache.items():

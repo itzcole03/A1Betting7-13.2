@@ -6,7 +6,7 @@ Enhanced database operations with query optimization, connection pooling, and mo
 import asyncio
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Union
 import logging
 
@@ -39,7 +39,7 @@ class QueryPerformanceMonitor:
             'query': query[:200],  # Truncate long queries
             'duration_ms': duration_ms,
             'rows_affected': rows_affected,
-            'timestamp': datetime.utcnow(),
+            'timestamp': datetime.now(timezone.utc),
             'is_slow': duration_ms > self.slow_query_threshold
         }
         
@@ -60,7 +60,7 @@ class QueryPerformanceMonitor:
         
         recent_metrics = [
             m for m in self.query_metrics 
-            if datetime.utcnow() - m['timestamp'] < timedelta(minutes=5)
+            if datetime.now(timezone.utc) - m['timestamp'] < timedelta(minutes=5)
         ]
         
         if not recent_metrics:
@@ -293,14 +293,14 @@ class OptimizedDatabaseService:
                 'connection_time_ms': round(connection_time, 2),
                 'pool_stats': pool_stats,
                 'performance_stats': perf_stats,
-                'timestamp': datetime.utcnow().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
             }
             
         except Exception as e:
             return {
                 'status': 'unhealthy',
                 'error': str(e),
-                'timestamp': datetime.utcnow().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
             }
     
     async def close(self) -> None:

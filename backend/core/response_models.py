@@ -5,7 +5,7 @@ Core response models and builders for consistent API contract compliance
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
 from fastapi.responses import JSONResponse
@@ -46,7 +46,7 @@ class StandardAPIResponse(BaseModel, Generic[T]):
     # here so FastAPI will include/validate it when response_model is used.
     meta: Optional[Dict[str, Any]] = Field(
         default_factory=lambda: {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "version": "1.0.0",
         },
         description="Response metadata including timestamp and version",
@@ -68,7 +68,7 @@ class ResponseBuilder:
             "message": resolved_message,
             # Compatibility meta block expected by standardized tests
             "meta": {
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "version": "1.0.0",
             },
         }
@@ -934,7 +934,7 @@ class ResponseBuilder:
             "status": "error",
             "message": message,
             "meta": {
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "version": "1.0.0",
             },
         }

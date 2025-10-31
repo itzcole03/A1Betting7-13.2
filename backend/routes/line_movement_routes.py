@@ -7,7 +7,7 @@ Provides endpoints for tracking betting line changes over time.
 
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Query
-from datetime import datetime
+from datetime import datetime, timezone
 from backend.core.exceptions import BusinessLogicException
 
 from ..models.line_movement import (
@@ -96,7 +96,7 @@ async def get_recent_movements(
                 "hours_back": hours_back,
                 "min_magnitude": min_magnitude
             },
-            "generated_at": datetime.utcnow().isoformat()
+            "generated_at": datetime.now(timezone.utc).isoformat()
         }
         
     except Exception as e:
@@ -200,7 +200,7 @@ async def cleanup_expired_snapshots():
             "status": "success",
             "message": f"Cleanup completed successfully",
             "cleaned_keys": cleaned_count,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
     except Exception as e:
@@ -228,7 +228,7 @@ async def check_movement_service_health():
             "fallback_mode": redis_client is None,
             "active_tracked_lines": test_metrics.active_tracked_lines,
             "total_snapshots": test_metrics.total_snapshots,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "service_available": True
         }
         
@@ -238,7 +238,7 @@ async def check_movement_service_health():
             "error": str(e),
             "redis_connected": False,
             "fallback_mode": True,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "service_available": False
         }
 
@@ -278,7 +278,7 @@ async def get_player_movements(
             "movements": player_movements,
             "total_movements": len(player_movements),
             "hours_back": hours_back,
-            "generated_at": datetime.utcnow().isoformat()
+            "generated_at": datetime.now(timezone.utc).isoformat()
         }
         
     except Exception as e:
@@ -321,7 +321,7 @@ async def get_market_movements(
             "total_movements": len(market_movements),
             "hours_back": hours_back,
             "min_magnitude": min_magnitude,
-            "generated_at": datetime.utcnow().isoformat()
+            "generated_at": datetime.now(timezone.utc).isoformat()
         }
         
     except Exception as e:

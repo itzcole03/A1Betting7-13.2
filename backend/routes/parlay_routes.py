@@ -4,7 +4,7 @@ This module provides only a couple lightweight endpoints so the package can
 be imported during triage. Restore the full implementation later.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 from fastapi import APIRouter
@@ -18,7 +18,7 @@ async def health() -> Dict[str, Any]:
     return {
         "success": True,
         "data": {"status": "healthy"},
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -28,7 +28,7 @@ async def ping() -> Dict[str, Any]:
     return {
         "success": True,
         "data": {"service": "parlay_routes", "status": "healthy"},
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 

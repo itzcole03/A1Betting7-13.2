@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 from fastapi import APIRouter, Response
@@ -28,7 +28,7 @@ router = APIRouter(tags=["infrastructure", "health", "performance"])
 async def extended_health():
     payload = {
         "status": "ok",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "uptime_seconds": 0,
     }
     return ResponseBuilder.success(payload)
@@ -36,5 +36,5 @@ async def extended_health():
 
 @router.get("/performance/stats")
 async def performance_stats():
-    payload = {"timestamp": datetime.utcnow().isoformat(), "cache": {"hits": 0}}
+    payload = {"timestamp": datetime.now(timezone.utc).isoformat(), "cache": {"hits": 0}}
     return ResponseBuilder.success(payload)

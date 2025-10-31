@@ -6,7 +6,7 @@ Modern testing framework with async support, mocking, and comprehensive coverage
 import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -285,16 +285,16 @@ class TestAsyncTaskManager:
 
         tasks = [
             TaskStatus(
-                task_id="completed_1", status="completed", created_at=datetime.utcnow()
+                task_id="completed_1", status="completed", created_at=datetime.now(timezone.utc)
             ),
             TaskStatus(
-                task_id="failed_1", status="failed", created_at=datetime.utcnow()
+                task_id="failed_1", status="failed", created_at=datetime.now(timezone.utc)
             ),
             TaskStatus(
-                task_id="pending_1", status="pending", created_at=datetime.utcnow()
+                task_id="pending_1", status="pending", created_at=datetime.now(timezone.utc)
             ),
             TaskStatus(
-                task_id="completed_2", status="completed", created_at=datetime.utcnow()
+                task_id="completed_2", status="completed", created_at=datetime.now(timezone.utc)
             ),
         ]
 
@@ -449,7 +449,7 @@ class TestPerformance:
         ]
 
         # Process bets concurrently
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         results = await asyncio.gather(
             *[
@@ -460,7 +460,7 @@ class TestPerformance:
             ]
         )
 
-        end_time = datetime.utcnow()
+        end_time = datetime.now(timezone.utc)
         processing_time = (end_time - start_time).total_seconds()
 
         # Verify all bets processed successfully
@@ -477,7 +477,7 @@ class TestPerformance:
         self, task_manager_instance: AsyncTaskManager
     ):
         """Test background task creation and management performance"""
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # Create multiple background tasks
         task_ids = []
@@ -495,7 +495,7 @@ class TestPerformance:
             ]
         )
 
-        end_time = datetime.utcnow()
+        end_time = datetime.now(timezone.utc)
         total_time = (end_time - start_time).total_seconds()
 
         # Verify results

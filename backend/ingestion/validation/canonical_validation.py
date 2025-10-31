@@ -13,7 +13,7 @@ Run this script before deploying the canonical representation changes.
 import asyncio
 import logging
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, List, Optional
 
 from ..models.dto import (
@@ -40,7 +40,7 @@ async def validate_canonical_representation():
         Validation results and any issues found
     """
     validation_results = {
-        "started_at": datetime.utcnow(),
+        "started_at": datetime.now(timezone.utc),
         "test_results": {},
         "issues": [],
         "summary": {
@@ -68,7 +68,7 @@ async def validate_canonical_representation():
     await _test_edge_cases(validation_results)
     
     # Calculate summary
-    validation_results["finished_at"] = datetime.utcnow()
+    validation_results["finished_at"] = datetime.now(timezone.utc)
     validation_results["duration_ms"] = int(
         (validation_results["finished_at"] - validation_results["started_at"]).total_seconds() * 1000
     )
@@ -442,7 +442,7 @@ def _create_raw_prop(provider: str, payout_type: PayoutType, over_odds: Optional
         payout_type=payout_type,
         over_odds=over_odds,
         under_odds=under_odds,
-        updated_ts=datetime.utcnow().isoformat(),
+        updated_ts=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         provider_name=provider
     )
 
@@ -506,7 +506,7 @@ if __name__ == "__main__":
             # Generate and save report
             report = generate_validation_report(results)
             
-            timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+            timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
             report_filename = f"canonical_representation_validation_{timestamp}.md"
             
             with open(report_filename, 'w') as f:

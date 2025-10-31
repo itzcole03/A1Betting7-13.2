@@ -13,7 +13,7 @@ Keep this file intentionally small and side-effect free.
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Query
@@ -71,7 +71,7 @@ async def get_odds_comparison(
 @router.get("/todays-games")
 async def get_todays_games() -> Dict[str, Any]:
     """Return a minimal today/games envelope."""
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     return ResponseBuilder.success({"status": "ok", "games": [], "timestamp": now})
 
 

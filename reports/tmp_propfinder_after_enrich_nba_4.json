@@ -1,0 +1,94 @@
+{
+  "id": "nba_4",
+  "player": "Jayson Tatum",
+  "playerImage": null,
+  "team": "Celtics",
+  "teamLogo": null,
+  "opponent": "Bucks",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.POINTS",
+  "line": 26.5,
+  "pick": "Pick.OVER",
+  "odds": -120,
+  "impliedProbability": 78.4,
+  "aiProbability": 85.6,
+  "edge": 7.2,
+  "confidence": 78.6,
+  "projectedValue": 1.8000000000000003,
+  "volume": 17000,
+  "trend": "Trend.RISING",
+  "trendStrength": 7,
+  "timeToGame": "6h 23m",
+  "venue": "Venue.AWAY",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9,
+    92.1,
+    88.4,
+    76.8
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 27.22,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 26.0,
+    "current": 26.5,
+    "direction": "Direction.DOWN"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": -125,
+      "line": 27.0
+    },
+    {
+      "name": "FanDuel",
+      "odds": -116,
+      "line": 27.0
+    },
+    {
+      "name": "BetMGM",
+      "odds": -122,
+      "line": 26.5
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "High Volume",
+    "Sharp Money"
+  ],
+  "socialSentiment": 72,
+  "sharpMoney": "SharpMoney.HEAVY",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": true,
+  "alertSeverity": "medium",
+  "bestBookmaker": "Barstool",
+  "lineSpread": 0.5,
+  "oddsSpread": 14,
+  "numBookmakers": 5,
+  "evValue": 0.441,
+  "evPercent": 44.1,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": true,
+  "arbitrageProfitPct": 3.04,
+  "openingLine": 26.5,
+  "openingOdds": -120,
+  "latestLine": 26.5,
+  "latestOdds": -120,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 2.54,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

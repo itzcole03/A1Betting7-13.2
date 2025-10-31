@@ -23,10 +23,10 @@ class Bet(Base):
     match_id: Mapped[int] = mapped_column(
         ForeignKey("matches.id"), nullable=False, index=True
     )
-    
+
     # Legacy fields (keeping for backward compatibility)
     amount: Mapped[float] = mapped_column(Float, nullable=False)
-    
+
     # Enhanced bankroll management fields
     stake: Mapped[float] = mapped_column(Float, nullable=False)  # Amount wagered
     odds: Mapped[float] = mapped_column(Float, nullable=False)  # Decimal odds
@@ -42,7 +42,7 @@ class Bet(Base):
     kelly_fraction_used: Mapped[float | None] = mapped_column(
         Float, nullable=True
     )  # Kelly fraction used for bet sizing
-    
+
     # Additional bankroll tracking
     fair_odds: Mapped[float | None] = mapped_column(
         Float, nullable=True
@@ -59,7 +59,7 @@ class Bet(Base):
     bet_size_percent: Mapped[float | None] = mapped_column(
         Float, nullable=True
     )  # Percentage of bankroll wagered
-    
+
     bet_type: Mapped[str] = mapped_column(
         String, nullable=False
     )  # match_winner, over_under, etc.
@@ -70,14 +70,14 @@ class Bet(Base):
     status: Mapped[str] = mapped_column(
         String, default="pending"
     )  # pending, won, lost, void
-    
+
     # Additional context
     sportsbook: Mapped[str | None] = mapped_column(String, nullable=True)
     market: Mapped[str | None] = mapped_column(String, nullable=True)
     player_name: Mapped[str | None] = mapped_column(String, nullable=True)
     confidence_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
-    
+
     placed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
@@ -106,7 +106,7 @@ class Bet(Base):
         # Use explicit pnl if available, otherwise calculate from result
         if self.pnl is not None:
             return self.pnl
-        
+
         if self.result == "win":
             return self.stake * (self.odds - 1)
         elif self.result == "loss":
@@ -119,18 +119,22 @@ class Bet(Base):
             return -self.amount
         else:
             return 0.0
-    
+
     @property
     def roi_percent(self):
         """Calculate return on investment percentage"""
         if self.stake and self.stake > 0:
             return (self.profit_loss / self.stake) * 100
         return 0.0
-    
+
     @property
     def is_settled(self):
         """Check if bet is settled"""
-        return self.result in ["win", "loss", "push", "void"] or self.status in ["won", "lost", "void"]
+        return self.result in ["win", "loss", "push", "void"] or self.status in [
+            "won",
+            "lost",
+            "void",
+        ]
 
     def to_dict(self):
         """Convert bet to dictionary for API responses"""

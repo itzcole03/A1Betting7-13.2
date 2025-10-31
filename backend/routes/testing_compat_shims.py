@@ -1,15 +1,110 @@
-"""Small proxy to the minimal testing compat shim.
-
-This file intentionally keeps no additional code to avoid stale/corrupt
-fragments being interpreted. It simply re-exports the minimal shim.
-"""
 """Compatibility shim proxy (minimal).
 
-This module intentionally keeps the surface tiny and import-safe. It
-re-exports the router and a small set of shim helpers from
-``backend.routes.testing_compat_shims_minimal``. If the minimal shim cannot
-be imported (very unlikely), a tiny fallback router is provided so test
-collection and imports remain stable.
+This module is intentionally small and import-safe so pytest collection
+can import it without side-effects. It prefers to re-export the canonical
+implementation from ``backend.routes.testing_compat_shims_minimal`` but
+provides a compact fallback when that import fails.
+"""
+
+from typing import Any, Dict
+
+try:
+    # Preferred: import canonical minimal shim used by tests
+    from backend.routes.testing_compat_shims_minimal import (
+        router,
+        canonical_success,
+        shim_propfinder_opportunities,
+        shim_propfinder_opportunity_detail,
+        shim_clv_status,
+        shim_seed_fixture,
+        shim_seed_status,
+        shim_ready,
+        shim_ml_predict,
+    )
+
+    __all__ = [
+        "router",
+        "canonical_success",
+        "shim_propfinder_opportunities",
+        "shim_propfinder_opportunity_detail",
+        "shim_clv_status",
+        "shim_seed_fixture",
+        "shim_seed_status",
+        "shim_ready",
+        "shim_ml_predict",
+    ]
+
+except Exception:
+    # Fallback: minimal, deterministic handlers with no external deps.
+    from fastapi import APIRouter, Request
+
+    router = APIRouter()
+
+
+    def canonical_success(data: Any, meta: Dict[str, Any] | None = None) -> Dict[str, Any]:
+        return {"success": True, "data": data, "error": None, "meta": meta or {}}
+
+
+    @router.get("/api/propfinder/opportunities")
+    async def shim_propfinder_opportunities(*args, **kwargs):
+        return canonical_success({"opportunities": [], "total": 0, "filtered": 0})
+
+
+    @router.get("/api/propfinder/opportunities/{opportunity_id}")
+    async def shim_propfinder_opportunity_detail(opportunity_id: str, *args, **kwargs):
+        return canonical_success({"opportunity": None, "found": False})
+
+
+    @router.get("/api/propfinder/clv-status")
+    async def shim_clv_status(*args, **kwargs):
+        return canonical_success({"status": "unavailable"})
+
+
+    @router.post("/api/testing/propfinder/seed")
+    async def shim_seed_fixture(request: Request):
+        try:
+            _ = await request.json()
+        except Exception:
+            pass
+        return canonical_success({"seeded": False})
+
+
+    @router.get("/api/testing/propfinder/seed_status")
+    async def shim_seed_status(*args, **kwargs):
+        return canonical_success({"seeded": False})
+
+
+    @router.get("/api/testing/ready")
+    async def shim_ready(*args, **kwargs):
+        return canonical_success({"ready": True})
+
+
+    @router.post("/api/v2/ml/predict")
+    async def shim_ml_predict(request: Request):
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        preds = [{"model": (body.get("models") or ["test-model"])[0], "score": 0.5, "ev": 0.1}]
+        return canonical_success({"predictions": preds, "metadata": {"request_id": body.get("request_id")}})
+
+    __all__ = [
+        "router",
+        "canonical_success",
+        "shim_propfinder_opportunities",
+        "shim_propfinder_opportunity_detail",
+        "shim_clv_status",
+        "shim_seed_fixture",
+        "shim_seed_status",
+        "shim_ready",
+        "shim_ml_predict",
+    ]
+"""Compatibility shim proxy (minimal).
+
+This module re-exports a small, import-safe testing shim implementation
+from ``backend.routes.testing_compat_shims_minimal``. If the minimal shim
+cannot be imported for any reason, a tiny fallback implementation is provided
+so pytest collection remains stable.
 """
 
 from typing import Any, Dict
@@ -20,7 +115,11 @@ try:
         router,
         canonical_success,
         shim_propfinder_opportunities,
+        shim_propfinder_opportunity_detail,
         shim_clv_status,
+        shim_seed_fixture,
+        shim_seed_status,
+        shim_ready,
         shim_ml_predict,
     )
 
@@ -28,128 +127,286 @@ try:
         "router",
         "canonical_success",
         "shim_propfinder_opportunities",
+        "shim_propfinder_opportunity_detail",
         "shim_clv_status",
+        "shim_seed_fixture",
+        "shim_seed_status",
+        "shim_ready",
         "shim_ml_predict",
     ]
 
 except Exception:
     # Last-resort safe fallback to keep imports working during tests.
-    from fastapi import APIRouter
+    from fastapi import APIRouter, Request
 
     router = APIRouter()
 
-    @router.get("/health/compat-proxy")
-    async def _compat_probe() -> Dict[str, Any]:
-        return {"success": True, "data": {"shim": "compat-proxy"}, "error": None}
 
-    # Expose a minimal set of placeholders so importers don't crash.
-    def canonical_success(payload: Any) -> Dict[str, Any]:
-        return {"success": True, "data": payload, "error": None}
+    def canonical_success(data: Any, meta: Dict[str, Any] | None = None) -> Dict[str, Any]:
+        return {"success": True, "data": data, "error": None, "meta": meta or {}}
 
+
+    @router.get("/api/propfinder/opportunities")
     async def shim_propfinder_opportunities(*args, **kwargs):
-        return canonical_success({"opportunities": [], "total": 0})
+        return canonical_success({"opportunities": [], "total": 0, "filtered": 0})
 
+
+    @router.get("/api/propfinder/opportunities/{opportunity_id}")
+    async def shim_propfinder_opportunity_detail(opportunity_id: str, *args, **kwargs):
+        return canonical_success({"opportunity": None, "found": False})
+
+
+    @router.get("/api/propfinder/clv-status")
     async def shim_clv_status(*args, **kwargs):
         return canonical_success({"status": "unavailable"})
 
-    async def shim_ml_predict(*args, **kwargs):
-        return canonical_success({"predictions": []})
+
+    @router.post("/api/testing/propfinder/seed")
+    async def shim_seed_fixture(request: Request):
+        try:
+            _ = await request.json()
+        except Exception:
+            pass
+        return canonical_success({"seeded": False})
+
+
+    @router.get("/api/testing/propfinder/seed_status")
+    async def shim_seed_status(*args, **kwargs):
+        return canonical_success({"seeded": False})
+
+
+    @router.get("/api/testing/ready")
+    async def shim_ready(*args, **kwargs):
+        return canonical_success({"ready": True})
+
+
+    @router.post("/api/v2/ml/predict")
+    async def shim_ml_predict(request: Request):
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        preds = [{"model": (body.get("models") or ["test-model"])[0], "score": 0.5, "ev": 0.1}]
+        return canonical_success({"predictions": preds, "metadata": {"request_id": body.get("request_id")}})
 
     __all__ = [
         "router",
         "canonical_success",
         "shim_propfinder_opportunities",
+        "shim_propfinder_opportunity_detail",
         "shim_clv_status",
+        "shim_seed_fixture",
+        "shim_seed_status",
+        "shim_ready",
         "shim_ml_predict",
     ]
 
-    return canonical_success(payload)
+
+This module re-exports a small, import-safe testing shim implementation
+from ``backend.routes.testing_compat_shims_minimal``. The minimal shim
+provides a deterministic, lightweight set of endpoints used by the
+test-suite. If the minimal shim cannot be imported for any reason, a
+tiny fallback implementation is provided so pytest collection remains
+stable.
+"""
+
+from typing import Any, Dict
+
+try:
+    # Import the canonical, minimal shim implementation
+    from backend.routes.testing_compat_shims_minimal import (
+        router,
+        canonical_success,
+        shim_propfinder_opportunities,
+        shim_propfinder_opportunity_detail,
+        shim_clv_status,
+        shim_seed_fixture,
+        shim_seed_status,
+        shim_ready,
+        shim_ml_predict,
+    )
+
+    __all__ = [
+        "router",
+        "canonical_success",
+        "shim_propfinder_opportunities",
+        "shim_propfinder_opportunity_detail",
+        "shim_clv_status",
+        "shim_seed_fixture",
+        "shim_seed_status",
+        "shim_ready",
+        "shim_ml_predict",
+    ]
+
+except Exception:
+    # Last-resort safe fallback to keep imports working during tests.
+    from fastapi import APIRouter, Request
+
+    router = APIRouter()
 
 
-@router.get("/api/propfinder/clv-status")
-async def shim_clv_status():
-    return canonical_success(dict(_clv_status))
+    def canonical_success(data: Any, meta: Dict[str, Any] | None = None) -> Dict[str, Any]:
+        return {"success": True, "data": data, "error": None, "meta": meta or {}}
 
 
-@router.post("/api/v2/ml/predict")
-async def shim_ml_predict(request: Request):
-    try:
-        body = await request.json()
-    except Exception:
-        body = {}
+    @router.get("/api/propfinder/opportunities")
+    async def shim_propfinder_opportunities(*args, **kwargs):
+        return canonical_success({"opportunities": [], "total": 0, "filtered": 0})
 
-    example_result = {"predictions": [{"model": (body.get("models") or ["test-model"])[0], "score": 0.5, "ev": 1.0, "ev_pct": 4.0}], "metadata": {"request_id": body.get("request_id")}}
-    return canonical_success(example_result)
-        items = items[:limit]
 
-    def _normalize(opp: Dict[str, Any]) -> Dict[str, Any]:
-        opening = opp.get("openingLine")
-        latest = opp.get("latestLine")
-        opening_odds = opp.get("openingOdds")
-        latest_odds = opp.get("latestOdds")
+    @router.get("/api/propfinder/opportunities/{opportunity_id}")
+    async def shim_propfinder_opportunity_detail(opportunity_id: str, *args, **kwargs):
+        return canonical_success({"opportunity": None, "found": False})
 
-        line_change = None
-        movement = None
+
+    @router.get("/api/propfinder/clv-status")
+    async def shim_clv_status(*args, **kwargs):
+        return canonical_success({"status": "unavailable"})
+
+
+    @router.post("/api/testing/propfinder/seed")
+    async def shim_seed_fixture(request: Request):
         try:
-            if opening is not None and latest is not None:
-                line_change = round(float(latest) - float(opening), 3)
-                movement = "up" if line_change > 0 else ("down" if line_change < 0 else "flat")
+            body = await request.json()
         except Exception:
-            line_change = None
+            body = {}
+        return canonical_success({"seeded": False})
 
-        odds_change = None
+
+    @router.get("/api/testing/propfinder/seed_status")
+    async def shim_seed_status(*args, **kwargs):
+        return canonical_success({"seeded": False})
+
+
+    @router.get("/api/testing/ready")
+    async def shim_ready(*args, **kwargs):
+        return canonical_success({"ready": True})
+
+
+    @router.post("/api/v2/ml/predict")
+    async def shim_ml_predict(request: Request):
         try:
-            if opening_odds is not None and latest_odds is not None:
-                odds_change = int(latest_odds) - int(opening_odds)
+            body = await request.json()
         except Exception:
-            odds_change = None
+            body = {}
+        preds = [{"model": (body.get("models") or ["test-model"])[0], "score": 0.5, "ev": 0.1}]
+        return canonical_success({"predictions": preds, "metadata": {"request_id": body.get("request_id")}})
 
-        ev_pct = opp.get("ev_pct")
-        evPercent = opp.get("evPercent") or ev_pct
-        evValue = opp.get("evValue") or evPercent
+    __all__ = [
+        "router",
+        "canonical_success",
+        "shim_propfinder_opportunities",
+        "shim_propfinder_opportunity_detail",
+        "shim_clv_status",
+        "shim_seed_fixture",
+        "shim_seed_status",
+        "shim_ready",
+        "shim_ml_predict",
+    ]
+"""Compatibility shim proxy (minimal).
 
-        return {
-            "id": opp.get("id"),
-            "player": opp.get("player"),
-            "confidence": opp.get("confidence"),
-            "ev_pct": ev_pct if ev_pct is not None else evPercent,
-            "evPercent": evPercent,
-            "evValue": evValue,
-            "edge": opp.get("edge", 0.0),
-            "openingLine": opening,
-            "latestLine": latest,
-            "lineChange": line_change,
-            "openingOdds": opening_odds,
-            "latestOdds": latest_odds,
-            "oddsChange": odds_change,
-            "movementDirection": movement,
-            "validationWarnings": [],
-        }
+This module re-exports a small, import-safe testing shim implementation
+from ``backend.routes.testing_compat_shims_minimal``. The minimal shim
+provides a deterministic, lightweight set of endpoints used by the
+test-suite. If the minimal shim cannot be imported for any reason, a
+tiny fallback implementation is provided so pytest collection remains
+stable.
+"""
 
-    normalized = [_normalize(i) for i in items]
+from typing import Any, Dict
 
-    if force_flat_baseline:
-        for n in normalized:
-            if n.get("openingLine") is None:
-                n["openingLine"] = 0.0
-            if n.get("latestLine") is None:
-                n["latestLine"] = 0.0
-            n["lineChange"] = 0.0
-            n["movementDirection"] = "flat"
+try:
+    # Import the canonical, minimal shim implementation
+    from backend.routes.testing_compat_shims_minimal import (
+        router,
+        canonical_success,
+        shim_propfinder_opportunities,
+        shim_propfinder_opportunity_detail,
+        shim_clv_status,
+        shim_seed_fixture,
+        shim_seed_status,
+        shim_ready,
+        shim_ml_predict,
+    )
 
-    payload = {"opportunities": normalized, "total": len(normalized), "filtered": len(normalized), "summary": {"total_opportunities": len(normalized)}}
+    __all__ = [
+        "router",
+        "canonical_success",
+        "shim_propfinder_opportunities",
+        "shim_propfinder_opportunity_detail",
+        "shim_clv_status",
+        "shim_seed_fixture",
+        "shim_seed_status",
+        "shim_ready",
+        "shim_ml_predict",
+    ]
 
-    try:
-        epoch = int(_time.time())
-        _clv_status["lastRequestedEpoch"] = epoch
-        _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
-        _clv_status["lastIncludeParam"] = bool(include_clv)
-        _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
-        _clv_status["lastReturnedWithCLV"] = False
-    except Exception:
-        pass
+except Exception:
+    # Last-resort safe fallback to keep imports working during tests.
+    from fastapi import APIRouter, Request
 
-    return canonical_success(payload)
+    router = APIRouter()
+
+
+    def canonical_success(data: Any, meta: Dict[str, Any] | None = None) -> Dict[str, Any]:
+        return {"success": True, "data": data, "error": None, "meta": meta or {}}
+
+
+    @router.get("/api/propfinder/opportunities")
+    async def shim_propfinder_opportunities(*args, **kwargs):
+        return canonical_success({"opportunities": [], "total": 0, "filtered": 0})
+
+
+    @router.get("/api/propfinder/opportunities/{opportunity_id}")
+    async def shim_propfinder_opportunity_detail(opportunity_id: str, *args, **kwargs):
+        return canonical_success({"opportunity": None, "found": False})
+
+
+    @router.get("/api/propfinder/clv-status")
+    async def shim_clv_status(*args, **kwargs):
+        return canonical_success({"status": "unavailable"})
+
+
+    @router.post("/api/testing/propfinder/seed")
+    async def shim_seed_fixture(request: Request):
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        return canonical_success({"seeded": False})
+
+
+    @router.get("/api/testing/propfinder/seed_status")
+    async def shim_seed_status(*args, **kwargs):
+        return canonical_success({"seeded": False})
+
+
+    @router.get("/api/testing/ready")
+    async def shim_ready(*args, **kwargs):
+        return canonical_success({"ready": True})
+
+
+    @router.post("/api/v2/ml/predict")
+    async def shim_ml_predict(request: Request):
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        preds = [{"model": (body.get("models") or ["test-model"])[0], "score": 0.5, "ev": 0.1}]
+        return canonical_success({"predictions": preds, "metadata": {"request_id": body.get("request_id")}})
+
+    __all__ = [
+        "router",
+        "canonical_success",
+        "shim_propfinder_opportunities",
+        "shim_propfinder_opportunity_detail",
+        "shim_clv_status",
+        "shim_seed_fixture",
+        "shim_seed_status",
+        "shim_ready",
+        "shim_ml_predict",
+    ]
+
 
 
 @router.get("/api/propfinder/clv-status")
@@ -175,7 +432,7 @@ well-shaped payloads. Keep this file tiny and side-effect free so pytest
 can import it during collection.
 """
 
-from datetime import datetime as _dt
+from datetime import datetime as _dt, timezone
 from typing import Any, Dict, List, Optional
 import time as _time
 
@@ -210,7 +467,7 @@ async def shim_legacy_diagnostics(clv_diag: int = 0):
     except Exception:
         clv_enabled = False
 
-    diag = {"clv_system_enabled": bool(clv_enabled), "timestamp": _dt.utcnow().isoformat() + "Z"}
+    diag = {"clv_system_enabled": bool(clv_enabled), "timestamp": _dt.now(timezone.utc).isoformat().replace("+00:00","Z")}
     return canonical_success(diag)
 
 
@@ -299,7 +556,8 @@ async def shim_propfinder_opportunities(
     try:
         epoch = int(_time.time())
         _clv_status["lastRequestedEpoch"] = epoch
-        _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+        # Use timezone-aware conversion and preserve trailing Z
+        _clv_status["lastRequestedIso"] = _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
         _clv_status["lastIncludeParam"] = bool(include_clv)
         _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
         _clv_status["lastReturnedWithCLV"] = False
@@ -337,7 +595,7 @@ async def shim_legacy_diagnostics(clv_diag: int = 0):
     except Exception:
         clv_enabled = False
 
-    diag = {"clv_system_enabled": bool(clv_enabled), "timestamp": _dt.utcnow().isoformat() + "Z"}
+    diag = {"clv_system_enabled": bool(clv_enabled), "timestamp": _dt.now(timezone.utc).isoformat().replace("+00:00","Z")}
     return canonical_success(diag)
 
 
@@ -429,7 +687,7 @@ async def shim_propfinder_opportunities(
     try:
         epoch = int(_time.time())
         _clv_status["lastRequestedEpoch"] = epoch
-        _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+    _clv_status["lastRequestedIso"] = _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
         _clv_status["lastIncludeParam"] = bool(include_clv)
         _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
         _clv_status["lastReturnedWithCLV"] = False
@@ -459,7 +717,7 @@ imported at pytest collection time without touching DBs or heavy
 initialization. It returns plain dicts that match shapes expected by
 legacy tests (ev aliases, simple CLV snapshot, and a minimal ML predict).
 
-from datetime import datetime as _dt
+from datetime import datetime as _dt, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Request
@@ -494,7 +752,7 @@ _clv_status: Dict[str, Any] = {
 
 @router.get("/api/propfinder/opportunities/diagnostics")
 async def shim_legacy_diagnostics(clv_diag: int = 0):
-    diag = {"clv_system_enabled": False, "timestamp": _dt.utcnow().isoformat() + "Z"}
+    diag = {"clv_system_enabled": False, "timestamp": _dt.now(timezone.utc).isoformat().replace("+00:00","Z")}
     return canonical_success(diag)
 
 
@@ -579,9 +837,9 @@ async def shim_propfinder_opportunities(
     try:
         import time as _time
 
-        epoch = int(_time.time())
-        _clv_status["lastRequestedEpoch"] = epoch
-        _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+    epoch = int(_time.time())
+    _clv_status["lastRequestedEpoch"] = epoch
+    _clv_status["lastRequestedIso"] = _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
         _clv_status["lastIncludeParam"] = bool(include_clv)
         _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
         _clv_status["lastReturnedWithCLV"] = False
@@ -617,7 +875,7 @@ can reliably inspect keys. CLV-specific keys are only included when
 enrichment succeeds.
 """
 
-from datetime import datetime as _dt
+from datetime import datetime as _dt, timezone
 from typing import Any, Dict, List, Optional
 import time as _time
 
@@ -652,7 +910,7 @@ async def shim_legacy_diagnostics(clv_diag: int = 0):
     except Exception:
         clv_enabled = False
 
-    diag = {"clv_system_enabled": bool(clv_enabled), "timestamp": _dt.utcnow().isoformat() + "Z"}
+    diag = {"clv_system_enabled": bool(clv_enabled), "timestamp": _dt.now(timezone.utc).isoformat().replace("+00:00","Z")}
     return canonical_success(diag)
 
 
@@ -733,7 +991,7 @@ async def shim_propfinder_opportunities(
             legacy tests (ev aliases, simple CLV snapshot, and a minimal ML predict).
             """
 
-            from datetime import datetime
+            from datetime import datetime, timezone
             from typing import Any, Dict, List, Optional
 
             from fastapi import APIRouter, Request
@@ -758,7 +1016,7 @@ async def shim_propfinder_opportunities(
 
             @router.get("/api/propfinder/opportunities/diagnostics")
             async def shim_legacy_diagnostics(clv_diag: int = 0):
-                diag = {"clv_system_enabled": False, "timestamp": datetime.utcnow().isoformat() + "Z"}
+                diag = {"clv_system_enabled": False, "timestamp": datetime.now(timezone.utc).isoformat().replace('+00:00','Z')}
                 return canonical_success(diag)
 
 
@@ -850,7 +1108,7 @@ async def shim_propfinder_opportunities(
 
                     epoch = int(_time.time())
                     _clv_status["lastRequestedEpoch"] = epoch
-                    _clv_status["lastRequestedIso"] = datetime.utcfromtimestamp(epoch).isoformat() + "Z"
+                    _clv_status["lastRequestedIso"] = datetime.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
                     _clv_status["lastIncludeParam"] = bool(include_clv)
                     _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
                     _clv_status["lastReturnedWithCLV"] = False
@@ -882,7 +1140,7 @@ async def shim_propfinder_opportunities(
             legacy tests (ev aliases, simple CLV snapshot, and a minimal ML predict).
             """
 
-            from datetime import datetime
+            from datetime import datetime, timezone
             from typing import Any, Dict, List, Optional
 
             from fastapi import APIRouter, Request
@@ -907,7 +1165,7 @@ async def shim_propfinder_opportunities(
 
             @router.get("/api/propfinder/opportunities/diagnostics")
             async def shim_legacy_diagnostics(clv_diag: int = 0):
-                diag = {"clv_system_enabled": False, "timestamp": datetime.utcnow().isoformat() + "Z"}
+                diag = {"clv_system_enabled": False, "timestamp": datetime.now(timezone.utc).isoformat().replace('+00:00','Z')}
                 return canonical_success(diag)
 
 
@@ -999,7 +1257,7 @@ async def shim_propfinder_opportunities(
 
                     epoch = int(_time.time())
                     _clv_status["lastRequestedEpoch"] = epoch
-                    _clv_status["lastRequestedIso"] = datetime.utcfromtimestamp(epoch).isoformat() + "Z"
+                    _clv_status["lastRequestedIso"] = datetime.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
                     _clv_status["lastIncludeParam"] = bool(include_clv)
                     _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
                     _clv_status["lastReturnedWithCLV"] = False
@@ -1087,7 +1345,7 @@ async def shim_propfinder_opportunities(
     try:
         epoch = int(_time.time())
         _clv_status["lastRequestedEpoch"] = epoch
-        _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+        _clv_status["lastRequestedIso"] = _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
         _clv_status["lastIncludeParam"] = bool(include_clv)
         _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
         _clv_status["lastReturnedWithCLV"] = False
@@ -1118,7 +1376,7 @@ well-shaped payloads. The implementation is intentionally defensive
 and avoids heavy import-time work.
 """
 
-from datetime import datetime as _dt
+from datetime import datetime as _dt, timezone
 from typing import Any, Dict, List, Optional
 import inspect as _inspect
 import time as _time
@@ -1186,7 +1444,7 @@ async def shim_legacy_diagnostics(clv_diag: int = 0):
     except Exception:
         clv_enabled = False
 
-    diag = {"clv_system_enabled": bool(clv_enabled), "timestamp": _dt.utcnow().isoformat() + "Z"}
+    diag = {"clv_system_enabled": bool(clv_enabled), "timestamp": _dt.now(timezone.utc).isoformat().replace("+00:00","Z")}
     return canonical_success(diag)
 
 
@@ -1380,7 +1638,7 @@ async def shim_propfinder_opportunities(
         try:
             epoch = int(_time.time())
             _clv_status["lastRequestedEpoch"] = epoch
-            _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+            _clv_status["lastRequestedIso"] = _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
             _clv_status["lastIncludeParam"] = bool(include_clv)
             _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
             _clv_status["lastReturnedWithCLV"] = False
@@ -1532,7 +1790,7 @@ async def shim_propfinder_opportunities(
     try:
         epoch = int(_time.time())
         _clv_status["lastRequestedEpoch"] = epoch
-        _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+        _clv_status["lastRequestedIso"] = _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
         _clv_status["lastIncludeParam"] = bool(include_clv)
         _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
         _clv_status["lastReturnedWithCLV"] = bool(enriched)
@@ -1565,7 +1823,7 @@ This module intentionally provides a single deterministic implementation
 so tests see a stable shape. It guarantees movement fields exist and
 that when force_flat_baseline=True the movement is numeric and flat.
 """
-from datetime import datetime as _dt
+from datetime import datetime as _dt, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Request
@@ -1666,7 +1924,7 @@ _clv_status: Dict[str, Any] = {
             by the test-suite. It intentionally keeps behavior simple and defensive
             so tests can rely on stable shapes.
             """
-            from datetime import datetime as _dt
+            from datetime import datetime as _dt, timezone
             from typing import Any, Dict, List, Optional
 
             from fastapi import APIRouter, Request
@@ -1700,7 +1958,7 @@ _clv_status: Dict[str, Any] = {
                 except Exception:
                     clv_enabled = False
 
-                diag = {"clv_system_enabled": bool(clv_enabled), "timestamp": _dt.utcnow().isoformat() + "Z"}
+                diag = {"clv_system_enabled": bool(clv_enabled), "timestamp": _dt.now(timezone.utc).isoformat().replace("+00:00","Z")}
                 return canonical_success(diag)
 
 
@@ -1817,7 +2075,7 @@ _clv_status: Dict[str, Any] = {
                 try:
                     epoch = int(_time.time())
                     _clv_status["lastRequestedEpoch"] = epoch
-                    _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+                    _clv_status["lastRequestedIso"] = _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
                     _clv_status["lastIncludeParam"] = bool(include_clv)
                     _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
                     _clv_status["lastReturnedWithCLV"] = False
@@ -1942,12 +2200,12 @@ _clv_status: Dict[str, Any] = {
         payload["filtered"] = len(normalized)
         payload.setdefault("summary", {}).update({"total_opportunities": len(normalized)})
 
-        epoch = int(_time.time())
-        _clv_status["lastRequestedEpoch"] = epoch
-        _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
-        _clv_status["lastIncludeParam"] = bool(include_clv)
-        _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
-        _clv_status["lastReturnedWithCLV"] = False
+    epoch = int(_time.time())
+    _clv_status["lastRequestedEpoch"] = epoch
+    _clv_status["lastRequestedIso"] = _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
+    _clv_status["lastIncludeParam"] = bool(include_clv)
+    _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
+    _clv_status["lastReturnedWithCLV"] = False
 
         return canonical_success(payload)
 
@@ -1992,7 +2250,7 @@ services when they're present (so monkeypatches remain effective) but
 falls back to small, well-shaped responses when services are absent.
 """
 
-from datetime import datetime as _dt
+from datetime import datetime as _dt, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Request
@@ -2055,7 +2313,7 @@ async def shim_legacy_diagnostics(clv_diag: int = 0):
 
     diag = {
         "clv_system_enabled": bool(clv_enabled),
-        "timestamp": _dt.utcnow().isoformat() + "Z",
+        "timestamp": _dt.now(timezone.utc).isoformat().replace("+00:00","Z"),
     }
     return canonical_success(diag)
 
@@ -2283,7 +2541,7 @@ async def shim_propfinder_opportunities(
         try:
             epoch = int(_time.time())
             _clv_status["lastRequestedEpoch"] = epoch
-            _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+            _clv_status["lastRequestedIso"] = _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
             _clv_status["lastIncludeParam"] = bool(include_clv)
             _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
             _clv_status["lastReturnedWithCLV"] = False
@@ -2518,7 +2776,7 @@ Key behaviors kept intentionally small and defensive:
 - Only include CLV-specific keys when enrichment succeeded
 """
 
-from datetime import datetime as _dt
+from datetime import datetime as _dt, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Request
@@ -2582,7 +2840,7 @@ async def shim_legacy_diagnostics(clv_diag: int = 0):
 
     diag = {
         "clv_system_enabled": bool(clv_enabled),
-        "timestamp": _dt.utcnow().isoformat() + "Z",
+        "timestamp": _dt.now(timezone.utc).isoformat().replace("+00:00","Z"),
     }
     return canonical_success(diag)
 
@@ -2843,7 +3101,7 @@ async def shim_propfinder_opportunities(
             epoch = int(_time.time())
             _clv_status["lastRequestedEpoch"] = epoch
             _clv_status["lastRequestedIso"] = (
-                _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+                _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
             )
             _clv_status["lastIncludeParam"] = bool(include_clv)
             _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
@@ -3057,7 +3315,7 @@ async def shim_propfinder_opportunities(
     try:
         epoch = int(_time.time())
         _clv_status["lastRequestedEpoch"] = epoch
-        _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+    _clv_status["lastRequestedIso"] = _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
         _clv_status["lastIncludeParam"] = bool(include_clv)
         _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
         _clv_status["lastReturnedWithCLV"] = enriched_final
@@ -3104,7 +3362,7 @@ are patched. It is safe to call from test environments and will swallow
 errors from telemetry helpers.
 """
 
-from datetime import datetime as _dt
+from datetime import datetime as _dt, timezone
 from typing import Any, Dict
 
 from fastapi import APIRouter, Request
@@ -3172,7 +3430,7 @@ async def shim_legacy_diagnostics(clv_diag: int = 0):
         "metrics_available": False,
         "reason": "clv_diag_disabled",
         "clv_system_enabled": bool(clv_enabled),
-        "timestamp": _dt.utcnow().isoformat() + "Z",
+        "timestamp": _dt.now(timezone.utc).isoformat().replace("+00:00","Z"),
     }
 
     return canonical_success(diag)
@@ -3485,7 +3743,7 @@ async def shim_propfinder_opportunities(
     try:
         epoch = int(_time.time())
         _clv_status["lastRequestedEpoch"] = epoch
-        _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+    _clv_status["lastRequestedIso"] = _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
         _clv_status["lastIncludeParam"] = bool(include_clv)
         _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
         _clv_status["lastReturnedWithCLV"] = enriched_final
@@ -3532,7 +3790,7 @@ prefers calling into real services so monkeypatches remain effective.
 All behavior here is intentionally conservative and reversible.
 """
 
-from datetime import datetime as _dt
+from datetime import datetime as _dt, timezone
 from typing import Any, Dict
 
 from fastapi import APIRouter, Request
@@ -3580,7 +3838,7 @@ async def shim_legacy_diagnostics(clv_diag: int = 0):
         "failure_rate": 0.0,
         "avg_latency_ms": None,
         "processed_total": 0,
-        "timestamp": _dt.utcnow().isoformat() + "Z",
+    "timestamp": _dt.now(timezone.utc).isoformat().replace("+00:00","Z"),
     }
 
     return canonical_success(diag)
@@ -3946,7 +4204,7 @@ work). When services are absent, it returns small canonical envelopes
 with the fields tests assert on.
 """
 
-from datetime import datetime as _dt
+from datetime import datetime as _dt, timezone
 from typing import Any, Dict
 
 from fastapi import APIRouter, Request
@@ -4002,7 +4260,7 @@ async def shim_legacy_diagnostics(clv_diag: int = 0):
             "failure_rate": 0.0,
             "avg_latency_ms": None,
             "processed_total": 0,
-            "timestamp": _dt.utcnow().isoformat() + "Z",
+            "timestamp": _dt.now(timezone.utc).isoformat().replace("+00:00","Z"),
         }
 
         return canonical_success(diag)
@@ -4031,7 +4289,7 @@ async def shim_propfinder_opportunities(
     """
     import inspect as _inspect
     import time as _time
-    from datetime import datetime as _dt
+    from datetime import datetime as _dt, timezone
 
     # Helper to robustly record a CLV failure using whatever API is available
     def _record_clv_failure(count: int = 1):
@@ -4181,7 +4439,7 @@ async def shim_propfinder_opportunities(
             "avg_latency_ms": None,
             "processed_total": 0,
             "window_size": None,
-            "timestamp": _dt.utcnow().isoformat() + "Z",
+            "timestamp": _dt.now(timezone.utc).isoformat().replace("+00:00","Z"),
         }
         payload.setdefault("meta", {})
         payload["clv_diagnostics"] = dict(diag)
@@ -4269,7 +4527,7 @@ async def shim_propfinder_opportunities(
             epoch = int(_time.time())
             _clv_status["lastRequestedEpoch"] = epoch
             _clv_status["lastRequestedIso"] = (
-                _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+                _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
             )
             _clv_status["lastIncludeParam"] = bool(include_clv)
             _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
@@ -4599,7 +4857,7 @@ async def shim_propfinder_opportunities(
     try:
         epoch = int(_time.time())
         _clv_status["lastRequestedEpoch"] = epoch
-        _clv_status["lastRequestedIso"] = _dt.utcfromtimestamp(epoch).isoformat() + "Z"
+    _clv_status["lastRequestedIso"] = _dt.fromtimestamp(epoch, timezone.utc).isoformat().replace("+00:00","Z")
         _clv_status["lastIncludeParam"] = bool(include_clv)
         _clv_status["lastOpportunityCount"] = payload.get("filtered", 0)
         _clv_status["lastReturnedWithCLV"] = enriched

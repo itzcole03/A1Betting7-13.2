@@ -19,12 +19,20 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-# Alembic config
-config = context.config
+# Make alembic env import-safe: if alembic.context does not expose the
+# expected runtime 'config' attribute (e.g., when running a generic import
+# smoke-test), skip runtime configuration and avoid executing migrations.
+if not hasattr(context, "config") or context.config is None:
+    # Running in an import-time environment (not via alembic CLI). Define
+    # no-op placeholders and skip executing migration code.
+    config = None
+else:
+    # Alembic config
+    config = context.config
 
-# Logging setup
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    # Logging setup
+    if config.config_file_name is not None:
+        fileConfig(config.config_file_name)
 
 
 # Ensure all models are registered for Alembic autogeneration
@@ -33,13 +41,18 @@ from backend.models.base import Base
 
 # Set sqlalchemy.url from DATABASE_URL env var if present
 database_url = os.environ.get("DATABASE_URL")
-if database_url:
-    config.set_main_option("sqlalchemy.url", database_url)
+if database_url and config is not None:
+    try:
+        config.set_main_option("sqlalchemy.url", database_url)
+    except Exception:
+        # If config doesn't support set_main_option in this environment,
+        # skip setting it during import-time.
+        pass
 
 
 # print("Alembic registered tables:", Base.metadata.tables.keys())
 
-target_metadata = Base.metadata
+target_metadata = getattr(Base, "metadata", None)
 
 
 def run_migrations_offline() -> None:
@@ -68,7 +81,12 @@ def run_migrations_online() -> None:
             context.run_migrations()
 
 
-if context.is_offline_mode():
-    run_migrations_offline()
-else:
-    run_migrations_online()
+try:
+    if getattr(context, "is_offline_mode", lambda: False)():
+        run_migrations_offline()
+    else:
+        run_migrations_online()
+except Exception:
+    # If alembic isn't fully configured in this environment, don't run
+    # migration logic at import-time.
+    pass

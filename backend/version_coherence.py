@@ -5,7 +5,7 @@ Provides version information and compatibility checking between
 frontend and backend components.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import re
 
@@ -131,7 +131,7 @@ def get_version_info() -> Dict[str, Any]:
             "features": FEATURE_COMPATIBILITY
         },
         "metadata": VERSION_METADATA,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "build_info": {
             "environment": "production",  # Should be set by deployment
             "platform": "python",
@@ -194,7 +194,7 @@ def check_version_compatibility(
         "recommendations": _get_compatibility_recommendations(
             frontend_info, backend_info, overall_compatible
         ),
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     }
 
 

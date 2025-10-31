@@ -8,7 +8,7 @@ end-to-end functionality.
 import pytest
 import asyncio
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any
 from unittest.mock import Mock, AsyncMock, patch
 
@@ -45,8 +45,8 @@ def mock_services():
     # Mock provider registry
     mock_registry = Mock()
     mock_registry.get_all_provider_status.return_value = {
-        "test_provider_1": {"status": "active", "last_check": datetime.utcnow()},
-        "test_provider_2": {"status": "inactive", "last_check": datetime.utcnow()}
+        "test_provider_1": {"status": "active", "last_check": datetime.now(timezone.utc)},
+        "test_provider_2": {"status": "inactive", "last_check": datetime.now(timezone.utc)}
     }
     mock_registry.get_provider.return_value = Mock(
         provider_name="test_provider",
@@ -65,7 +65,7 @@ def mock_services():
         "is_running": True,
         "active_providers": ["test_provider_1"],
         "total_events": 1500,
-        "last_cycle_time": datetime.utcnow().isoformat(),
+        "last_cycle_time": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "events_per_second": 25.3
     }
     mock_streamer.start = AsyncMock()
@@ -88,7 +88,7 @@ def mock_services():
         confidence=0.87,
         generation_time_ms=450,
         model_info={"model": "gpt-4", "version": "2024-01"},
-        timestamp=datetime.utcnow()
+        timestamp=datetime.now(timezone.utc)
     ))
     
     return {

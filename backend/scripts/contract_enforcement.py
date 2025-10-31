@@ -15,7 +15,7 @@ import json
 import argparse
 from pathlib import Path
 from typing import Dict, List, Any, Tuple
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class ContractViolation:
@@ -229,7 +229,7 @@ class APIContractEnforcer:
         compliance_percentage = (compliant_files / total_files * 100) if total_files > 0 else 0
         
         report = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "summary": {
                 "total_files": total_files,
                 "files_with_violations": self.stats["files_with_violations"],

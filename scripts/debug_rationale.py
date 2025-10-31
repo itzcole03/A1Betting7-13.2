@@ -8,7 +8,7 @@ sys.path.insert(0, str(REPO_ROOT))
 from fastapi.testclient import TestClient
 from fastapi import FastAPI
 from unittest.mock import Mock, AsyncMock, patch
-from datetime import datetime
+from datetime import datetime, timezone
 
 from backend.routes.streaming.streaming_api import router as streaming_router
 
@@ -27,7 +27,7 @@ def run():
         confidence=0.87,
         generation_time_ms=450,
         model_info={"model": "gpt-4", "version": "2024-01"},
-        timestamp=datetime.utcnow()
+        timestamp=datetime.now(timezone.utc)
     ))
 
     with patch('backend.routes.streaming.streaming_api.portfolio_rationale_service', mock_rationale_service):

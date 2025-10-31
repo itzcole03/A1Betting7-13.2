@@ -7,7 +7,7 @@ Manages alert queuing, delivery preferences, and delivery status tracking.
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Set, Any
 from dataclasses import dataclass, field
 from enum import Enum
@@ -198,9 +198,9 @@ class AlertDispatcher:
                     alert_event_id=f"{alert_event.alert_rule_id}_{alert_event.triggered_at.isoformat()}",
                     channel=channel,
                     attempt_number=self._get_attempt_number(alert_event, channel),
-                    attempted_at=datetime.utcnow(),
+                    attempted_at=datetime.now(timezone.utc),
                     status=DeliveryStatus.SENT if success else DeliveryStatus.FAILED,
-                    delivered_at=datetime.utcnow() if success else None
+                    delivered_at=datetime.now(timezone.utc) if success else None
                 )
                 
                 self.delivery_attempts.append(attempt)
@@ -330,7 +330,7 @@ class AlertDispatcher:
     
     async def _cleanup_old_attempts(self):
         """Clean up old delivery attempts"""
-        cutoff_time = datetime.utcnow() - timedelta(days=7)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(days=7)
         
         before_count = len(self.delivery_attempts)
         self.delivery_attempts = [
@@ -347,7 +347,7 @@ class AlertDispatcher:
         max_retries = 3
         retry_delay_minutes = 15
         
-        retry_cutoff = datetime.utcnow() - timedelta(minutes=retry_delay_minutes)
+        retry_cutoff = datetime.now(timezone.utc) - timedelta(minutes=retry_delay_minutes)
         
         for attempt in self.failed_deliveries[:]:  # Copy list to allow modification
             if (attempt.status == DeliveryStatus.FAILED and 
@@ -362,7 +362,7 @@ class AlertDispatcher:
     
     def _check_rate_limit(self, user_id: int, limit_per_hour: int) -> bool:
         """Check if user is within rate limit"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         hour_ago = now - timedelta(hours=1)
         
         # Get recent delivery times for user
@@ -383,14 +383,14 @@ class AlertDispatcher:
         if user_id not in self.user_delivery_counts:
             self.user_delivery_counts[user_id] = []
         
-        self.user_delivery_counts[user_id].append(datetime.utcnow())
+        self.user_delivery_counts[user_id].append(datetime.now(timezone.utc))
     
     def _is_quiet_hours(self, preferences: UserDeliveryPreferences) -> bool:
         """Check if current time is within user's quiet hours"""
         if not preferences.quiet_hours_start or not preferences.quiet_hours_end:
             return False
         
-        current_hour = datetime.utcnow().hour
+        current_hour = datetime.now(timezone.utc).hour
         start = preferences.quiet_hours_start
         end = preferences.quiet_hours_end
         

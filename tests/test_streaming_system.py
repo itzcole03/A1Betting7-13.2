@@ -9,7 +9,7 @@ import pytest
 import asyncio
 import time
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock, AsyncMock, patch, MagicMock
 from typing import Dict, Any, List
 
@@ -279,7 +279,7 @@ class TestStreamingIntegration:
                 team_code="TST",
                 prop_category="over",
                 line_value=50.5,
-                updated_ts=datetime.utcnow(),
+                updated_ts=datetime.now(timezone.utc),
                 payout_type="decimal",
                 status="active"
             )
@@ -324,7 +324,7 @@ class TestStreamingIntegration:
         event_bus.subscribe("test_integration", test_handler)
         
         # Publish test event
-        test_data = {"integration": "test", "timestamp": datetime.utcnow().isoformat()}
+        test_data = {"integration": "test", "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")}
         await event_bus.publish("test_integration", test_data)
         
         # Verify event was received

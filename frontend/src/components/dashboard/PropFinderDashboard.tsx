@@ -16,6 +16,7 @@ import {
   Zap,
 } from 'lucide-react';
 import React, { useMemo, useRef, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useOddsHistory } from '../../hooks/useOddsHistory';
 import { PropOpportunity, usePropFinderData } from '../../hooks/usePropFinderData';
 import { bookmarkService } from '../../services/BookmarkService';
@@ -178,6 +179,26 @@ const PropFinderDashboard: React.FC = () => {
     localStorage.setItem('propfinder.showCLV', showCLV.toString());
   }, [showCLV]);
 
+  // Memoize options to avoid recreating the object each render which would
+  // cause usePropFinderData's internal `initialFilters` memo to change and
+  // potentially trigger an infinite update loop.
+  const propfinderOptions = React.useMemo(() => {
+    return {
+      autoRefresh: true,
+      refreshInterval: 30,
+      includeCLV: showCLV, // Enable CLV data fetching when column is visible
+      limit: 25, // page size for pagination
+      initialFilters: {
+        sports: selectedSports,
+        confidence_min: confidenceRange[0],
+        confidence_max: confidenceRange[1],
+        edge_min: edgeRange[0],
+        edge_max: edgeRange[1],
+      },
+    } as const;
+    // Only recreate when these dependencies change
+  }, [showCLV, selectedSports, confidenceRange[0], confidenceRange[1], edgeRange[0], edgeRange[1]]);
+
   // Real data integration using our enhanced hook
   const {
     opportunities,
@@ -193,19 +214,7 @@ const PropFinderDashboard: React.FC = () => {
     filters: activeFilters,
     loadMore,
     hasMore,
-  } = usePropFinderData({
-    autoRefresh: true,
-    refreshInterval: 30,
-    includeCLV: showCLV, // Enable CLV data fetching when column is visible
-    limit: 25, // page size for pagination
-    initialFilters: {
-      sports: selectedSports,
-      confidence_min: confidenceRange[0],
-      confidence_max: confidenceRange[1],
-      edge_min: edgeRange[0],
-      edge_max: edgeRange[1],
-    },
-  });
+  } = usePropFinderData(propfinderOptions);
 
   // Odds history for movement analysis
   const {
@@ -1191,16 +1200,37 @@ const PropFinderDashboard: React.FC = () => {
                             }`}
                             data-testid='prop-card'
                           >
-                            <OpportunityRow
-                              opportunity={opportunity}
-                              onBookmarkToggle={handleBookmarkToggle}
-                              customEvThreshold={customEvThreshold}
-                              showCLV={showCLV}
-                              onSetAlert={(_player, _sport, _market, _book) => {
-                                setSelectedOpportunity(opportunity);
-                                setShowLineMovementModal(true);
+                            <ErrorBoundary
+                              FallbackComponent={({ error, resetErrorBoundary }) => (
+                                <div className='text-sm text-red-400'>
+                                  Row failed to render
+                                  <button
+                                    onClick={() => resetErrorBoundary()}
+                                    className='ml-2 underline'
+                                  >
+                                    retry
+                                  </button>
+                                </div>
+                              )}
+                              onError={(error, info) => {
+                                // Development-only telemetry
+                                if (process.env.NODE_ENV === 'development') {
+                                  // eslint-disable-next-line no-console
+                                  console.error('[PropFinder] row render error', error, info);
+                                }
                               }}
-                            />
+                            >
+                              <OpportunityRow
+                                opportunity={opportunity}
+                                onBookmarkToggle={handleBookmarkToggle}
+                                customEvThreshold={customEvThreshold}
+                                showCLV={showCLV}
+                                onSetAlert={(_player, _sport, _market, _book) => {
+                                  setSelectedOpportunity(opportunity);
+                                  setShowLineMovementModal(true);
+                                }}
+                              />
+                            </ErrorBoundary>
                           </div>
                         );
                       })}
@@ -1327,12 +1357,20 @@ const OpportunityRowInner: React.FC<{
   const [isFavorited, setIsFavorited] = useState(Boolean(opportunity.isBookmarked));
 
   const safePlayer = opportunity.player || 'Unknown Player';
-  const safeInitials =
-    safePlayer
-      .split(' ')
-      .filter(Boolean)
-      .map(n => n[0])
-      .join('') || '??';
+  const safeInitials = (() => {
+    try {
+      if (!safePlayer || typeof safePlayer !== 'string') return '??';
+      return (
+        safePlayer
+          .split(' ')
+          .filter(Boolean)
+          .map(n => n[0])
+          .join('') || '??'
+      );
+    } catch {
+      return '??';
+    }
+  })();
   const safeTimeToGame = opportunity.timeToGame || 'Unknown';
 
   const handleBookmarkClick = () => {

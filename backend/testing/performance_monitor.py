@@ -7,7 +7,7 @@ import asyncio
 import time
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any
 import psutil
 import os
@@ -277,7 +277,7 @@ class RealTimePerformanceMonitor:
         }
         
         # Save report
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         report_file = f"backend/testing/monitoring_report_{timestamp}.json"
         
         with open(report_file, 'w') as f:

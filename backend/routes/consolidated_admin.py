@@ -5,7 +5,7 @@ test collection and imports succeed while we triage and restore full
 implementations incrementally.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 from fastapi import APIRouter
@@ -28,5 +28,5 @@ router = APIRouter(prefix="/api/v1/admin", tags=["Admin-Consolidated"])
 @router.get("/ping")
 async def ping() -> Dict[str, Any]:
     return ResponseBuilder.success(
-        {"status": "ok", "timestamp": datetime.utcnow().isoformat()}
+        {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")}
     )

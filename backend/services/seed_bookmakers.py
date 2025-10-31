@@ -1,12 +1,15 @@
 """Idempotent seeding utilities for bookmaker registry."""
-from typing import List
+
 import logging
+from typing import List
 
 try:
     from sqlalchemy import select
     from sqlalchemy.exc import IntegrityError
     from sqlalchemy.orm import Session
-    from backend.models.odds import Bookmaker, INITIAL_BOOKMAKERS
+
+    from backend.models.odds import INITIAL_BOOKMAKERS, Bookmaker
+
     SQLALCHEMY_AVAILABLE = True
 except Exception:
     SQLALCHEMY_AVAILABLE = False
@@ -23,18 +26,20 @@ def seed_bookmakers_sync(session: Session) -> List[Bookmaker]:
         logger.warning("SQLAlchemy or models not available - skipping sync seeding")
         return []
 
-    names = [b['name'] for b in INITIAL_BOOKMAKERS]
-    existing = session.execute(select(Bookmaker).where(Bookmaker.name.in_(names))).scalars().all()
+    names = [b["name"] for b in INITIAL_BOOKMAKERS]
+    existing = (
+        session.exec(select(Bookmaker).where(Bookmaker.name.in_(names))).scalars().all()
+    )
     existing_names = {b.name for b in existing}
 
     to_add = []
     for b in INITIAL_BOOKMAKERS:
-        if b['name'] not in existing_names:
+        if b["name"] not in existing_names:
             to_add.append(Bookmaker(**b))
         else:
             # Update metadata fields non-destructively
             for ex in existing:
-                if ex.name == b['name']:
+                if ex.name == b["name"]:
                     changed = False
                     for k, v in b.items():
                         if hasattr(ex, k) and getattr(ex, k) != v:
@@ -51,7 +56,9 @@ def seed_bookmakers_sync(session: Session) -> List[Bookmaker]:
             session.rollback()
             # Race: fetch again
     # Return current set
-    return session.execute(select(Bookmaker).where(Bookmaker.name.in_(names))).scalars().all()
+    return (
+        session.exec(select(Bookmaker).where(Bookmaker.name.in_(names))).scalars().all()
+    )
 
 
 async def seed_bookmakers_async(async_session) -> List[Bookmaker]:
@@ -59,19 +66,20 @@ async def seed_bookmakers_async(async_session) -> List[Bookmaker]:
     if not SQLALCHEMY_AVAILABLE:
         logger.warning("SQLAlchemy or models not available - skipping async seeding")
         return []
+    existing: List[Bookmaker] = []
 
     async with async_session as session:
-        result = await session.execute(select(Bookmaker))
-        existing = result.scalars().all()
+        result = await session.exec(select(Bookmaker))
+        existing = result.all()
         existing_names = {b.name for b in existing}
 
         to_add = []
         for b in INITIAL_BOOKMAKERS:
-            if b['name'] not in existing_names:
+            if b["name"] not in existing_names:
                 to_add.append(Bookmaker(**b))
             else:
                 for ex in existing:
-                    if ex.name == b['name']:
+                    if ex.name == b["name"]:
                         changed = False
                         for k, v in b.items():
                             if hasattr(ex, k) and getattr(ex, k) != v:
@@ -87,6 +95,5 @@ async def seed_bookmakers_async(async_session) -> List[Bookmaker]:
             except IntegrityError:
                 await session.rollback()
 
-        # Return fresh list
-        res = await session.execute(select(Bookmaker))
-        return res.scalars().all()
+    # Return fresh list (from the session scope above)
+    return existing

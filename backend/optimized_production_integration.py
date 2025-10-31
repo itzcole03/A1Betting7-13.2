@@ -7,7 +7,7 @@ import asyncio
 import logging
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException, Request
@@ -101,7 +101,7 @@ def create_optimized_app() -> FastAPI:
             # Add performance headers
             process_time = time.time() - start_time
             response.headers["X-Process-Time"] = str(round(process_time * 1000, 2))
-            response.headers["X-Timestamp"] = datetime.utcnow().isoformat()
+            response.headers["X-Timestamp"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
             # Log slow requests
             if process_time > 1.0:  # Log requests taking more than 1 second
@@ -128,7 +128,7 @@ def create_optimized_app() -> FastAPI:
                 content={
                     "error": "Internal server error",
                     "message": "An unexpected error occurred",
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                     "path": str(request.url.path),
                 },
             )
@@ -168,7 +168,7 @@ def create_optimized_app() -> FastAPI:
                 "Error Recovery",
                 "Optimized Response Times",
             ],
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }
 
     @app.get("/api/health")
@@ -180,7 +180,7 @@ def create_optimized_app() -> FastAPI:
 
             return {
                 "status": "healthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "services": {
                     "api": "operational",
                     "cache": (
@@ -201,7 +201,7 @@ def create_optimized_app() -> FastAPI:
                 content={
                     "status": "unhealthy",
                     "error": str(e),
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 },
             )
 
@@ -225,7 +225,7 @@ def create_optimized_app() -> FastAPI:
             content={
                 "error": exc.detail,
                 "status_code": exc.status_code,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "path": str(request.url.path),
             },
         )
@@ -239,7 +239,7 @@ def create_optimized_app() -> FastAPI:
             content={
                 "error": "Internal server error",
                 "message": "An unexpected error occurred. Please try again later.",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "path": str(request.url.path),
             },
         )

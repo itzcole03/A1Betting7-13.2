@@ -6,14 +6,14 @@ avoids importing optional services and keeps the module import-safe.
 
 import platform
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 from fastapi import APIRouter, Query, Response
 from fastapi.responses import JSONResponse
 
-from backend.core.response_models import ResponseBuilder
 from backend.services.health_service import get_health_status
+from backend.utils.standard_responses import success_response
 
 router = APIRouter()
 
@@ -26,7 +26,7 @@ async def get_reliability_compat(include_traces: bool = False):
     assert presence/shape of fields pass. This avoids importing heavy
     orchestrator services during test collection.
     """
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     report = {
         "timestamp": now,
         "overall_status": "ok",
@@ -71,7 +71,7 @@ async def get_reliability_compat(include_traces: bool = False):
                 )
             except Exception as exc:
                 # Tests patch the orchestrator to raise; return a structured 500 error as expected
-                now = datetime.utcnow().isoformat()
+                now = datetime.now(timezone.utc).isoformat()
                 error_report = {
                     "timestamp": now,
                     "overall_status": "down",
@@ -122,7 +122,7 @@ async def get_system_diagnostics():
             "llm_initialized": False,
             "llm_client_type": None,
             "model_health": None,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         },
     }
 
@@ -148,9 +148,14 @@ async def get_health(response: Response):
         components = {}
         if getattr(hs, "components", None):
             for name, comp in hs.components.items():
-                # comp may be a pydantic model; use .dict() when available
+                # comp may be a pydantic model; prefer model_dump() then dict(), then __dict__
                 try:
-                    components[name] = comp.dict()
+                    if hasattr(comp, "model_dump") and callable(
+                        getattr(comp, "model_dump")
+                    ):
+                        components[name] = comp.model_dump()
+                    else:
+                        components[name] = comp.dict()
                 except Exception:
                     # Fallback: coerce to a plain dict
                     components[name] = dict(getattr(comp, "__dict__", {}) or {})
@@ -159,7 +164,9 @@ async def get_health(response: Response):
             "status": getattr(hs, "status", "ok"),
             "uptime_seconds": getattr(hs, "uptime_seconds", 0.0),
             "version": getattr(hs, "version", "v2"),
-            "timestamp": getattr(hs, "timestamp", datetime.utcnow().isoformat()),
+            "timestamp": getattr(
+                hs, "timestamp", datetime.now(timezone.utc).isoformat()
+            ),
             "components": components,
             # keep some legacy-friendly fields for backwards compatibility/tests
             "services": [
@@ -183,7 +190,12 @@ async def get_health(response: Response):
             perf = {k: 0.0 for k in perf_required}
         else:
             try:
-                perf = hs.performance.dict()
+                if hasattr(hs.performance, "model_dump") and callable(
+                    getattr(hs.performance, "model_dump")
+                ):
+                    perf = hs.performance.model_dump()
+                else:
+                    perf = hs.performance.dict()
             except Exception:
                 perf = dict(getattr(hs.performance, "__dict__", {}) or {})
 
@@ -198,7 +210,12 @@ async def get_health(response: Response):
             health["cache"] = {"hit_rate": 0.0, "hits": 0, "misses": 0, "evictions": 0}
         else:
             try:
-                health["cache"] = hs.cache.dict()
+                if hasattr(hs.cache, "model_dump") and callable(
+                    getattr(hs.cache, "model_dump")
+                ):
+                    health["cache"] = hs.cache.model_dump()
+                else:
+                    health["cache"] = hs.cache.dict()
             except Exception:
                 health["cache"] = dict(getattr(hs.cache, "__dict__", {}) or {})
 
@@ -212,7 +229,12 @@ async def get_health(response: Response):
             }
         else:
             try:
-                infra = hs.infrastructure.dict()
+                if hasattr(hs.infrastructure, "model_dump") and callable(
+                    getattr(hs.infrastructure, "model_dump")
+                ):
+                    infra = hs.infrastructure.model_dump()
+                else:
+                    infra = hs.infrastructure.dict()
             except Exception:
                 infra = dict(getattr(hs.infrastructure, "__dict__", {}) or {})
 
@@ -229,7 +251,7 @@ async def get_health(response: Response):
         health["infrastructure"] = infra
     except Exception:
         # If health service fails for any reason, return a minimal known-good shape
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         health = {
             "status": "ok",
             "uptime_seconds": 0.0,
@@ -291,7 +313,7 @@ async def _alias_propfinder_diagnostics(clv_diag: int = Query(0)):
                 "reason": "clv_diag_disabled",
             }
 
-        return ResponseBuilder.success(diagnostics)
+    return success_response(diagnostics)
 
 
 # Register lightweight alias routes under the test-friendly prefix used by tests

@@ -7,7 +7,7 @@ with capability flags and incremental update support.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from backend.services.unified_logging import get_logger
@@ -110,7 +110,7 @@ class BaseMarketDataProvider(ABC):
         
     def update_last_fetch_timestamp(self, timestamp: Optional[datetime] = None) -> None:
         """Update last fetch timestamp"""
-        self._last_fetch_timestamp = timestamp or datetime.utcnow()
+        self._last_fetch_timestamp = timestamp or datetime.now(timezone.utc)
 
 
 class ProviderError(Exception):

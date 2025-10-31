@@ -19,6 +19,25 @@ from ..services.trends_service import trends_service
 
 logger = logging.getLogger(__name__)
 
+
+# Safe serializer helper to prefer Pydantic v2 model_dump, fall back to dict()
+def _safe_dump(obj):
+    try:
+        if hasattr(obj, "model_dump") and callable(getattr(obj, "model_dump")):
+            return obj.model_dump()
+    except Exception:
+        pass
+    try:
+        if hasattr(obj, "dict") and callable(getattr(obj, "dict")):
+            return obj.dict()
+    except Exception:
+        pass
+    try:
+        return dict(getattr(obj, "__dict__", {}) or {})
+    except Exception:
+        return str(obj)
+
+
 router = APIRouter(prefix="/api/trends", tags=["trends"])
 
 
@@ -68,8 +87,8 @@ async def get_trends_leaderboard(
             period_days=period_days,
             limit=limit,
         )
-        # Use logger lazy formatting to avoid f-string/parens issues at import-time
-        logger.info("Fetching trends leaderboard with filters: %s", filters.dict())
+        # Use logger lazy formatting and safe dump to avoid Pydantic .dict() deprecation
+        logger.info("Fetching trends leaderboard with filters: %s", _safe_dump(filters))
 
         response = await trends_service.get_trends_leaderboard(filters)
 

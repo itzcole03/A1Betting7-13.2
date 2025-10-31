@@ -1,5 +1,18 @@
+const { SocialSentimentAdapter } = require('../../adapters/SocialSentimentAdapter');
+
+describe('SocialSentimentAdapter (smoke)', () => {
+  test('fetch returns an array and caches it', async () => {
+    const adapter = new SocialSentimentAdapter();
+    const data = await adapter.fetch();
+    expect(Array.isArray(data)).toBe(true);
+    const cached = await adapter.getData();
+    expect(cached).toBeTruthy();
+    adapter.clearCache();
+    const afterClear = await adapter.getData();
+    expect(afterClear).toBeNull();
+  });
+});
 import { beforeEach, describe, expect, it } from '@jest/globals';
-import { SocialSentimentAdapter } from '../SocialSentimentAdapter';
 describe('SocialSentimentAdapter', () => {
   let _adapter: SocialSentimentAdapter;
 

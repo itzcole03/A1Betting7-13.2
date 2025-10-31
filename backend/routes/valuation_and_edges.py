@@ -3,7 +3,7 @@ Valuation and Edge API Routes - RESTful endpoints for the modeling system
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Query
@@ -157,7 +157,7 @@ async def recompute_edges(
     """
     try:
         logger.info(f"Starting edge recomputation for sport: {sport}")
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # Run edge recomputation
         stats = await edge_service.recompute_edges_for_sport(sport)
@@ -354,7 +354,7 @@ async def modeling_health() -> Dict[str, Any]:
     try:
         health_status = {
             "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "components": {
                 "valuation_engine": "healthy",
                 "edge_service": "healthy",
@@ -375,7 +375,7 @@ async def modeling_health() -> Dict[str, Any]:
         logger.error(f"Error in modeling health check: {e}")
         return {
             "status": "degraded",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "error": str(e),
             "components": {
                 "valuation_engine": "unknown",

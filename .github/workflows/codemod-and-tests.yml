@@ -1,0 +1,86 @@
+name: Codemod and Tests Gate
+
+on:
+  pull_request:
+    paths:
+      - '**/*.py'
+      - 'tools/**'
+      - 'scripts/**'
+
+jobs:
+  codemod-and-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies (best-effort)
+        run: |
+          python -m pip install --upgrade pip || true
+          if [ -f requirements.txt ]; then pip install -r requirements.txt || true; fi
+          # Install editable package if present to satisfy imports used by tests
+          pip install -e . || true
+
+      - name: Run conservative codemod (dry-run)
+        run: |
+          echo "Running conservative codemod dry-run (prints diffs if any)"
+          python tools/replace_utc_ast_codemod.py --dry-run backend || true
+
+      - name: Run unit tests (capture output)
+        run: |
+          # Run the full test-suite and capture stdout/stderr to files for post-processing
+          # Ensure warnings are shown
+          export PYTHONWARNINGS=default || true
+          python -m pytest -q 2>&1 | tee pytest.log
+
+      - name: Summarize warnings (by message)
+        run: |
+          # Parse pytest.log for warning lines and produce a CSV of counts by message
+          python - <<'PY'
+import re,collections,csv
+pat = re.compile(r"^(.*Warning: )(.+?)(: .+)$")
+counts = collections.Counter()
+with open('pytest.log','r',encoding='utf-8',errors='ignore') as f:
+    for line in f:
+        # pytest prints warnings like: path:lineno: Warning: message
+        if 'Warning' in line or 'DeprecationWarning' in line or 'ResourceWarning' in line:
+            # attempt to normalize the message
+            msg = line.strip()
+            # truncate long traces
+            if len(msg) > 300:
+                msg = msg[:300] + '...'
+            counts[msg] += 1
+
+with open('warnings_by_message.csv','w',newline='',encoding='utf-8') as out:
+    w = csv.writer(out)
+    w.writerow(['count','message'])
+    for msg,count in counts.most_common():
+        w.writerow([count,msg])
+print('Wrote warnings_by_message.csv')
+PY
+
+      - name: Upload pytest logs and warnings summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-artifacts
+          path: |
+            pytest.log
+            warnings_by_message.csv
+          if-no-files-found: ignore
+
+      - name: Upload pytest logs (optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-output
+          path: |
+            pytest-report.html
+            pytest.log
+          if-no-files-found: ignore

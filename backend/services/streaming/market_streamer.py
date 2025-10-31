@@ -8,7 +8,7 @@ import asyncio
 import hashlib
 import random
 from collections import deque
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Callable, Any, Deque
 from enum import Enum
@@ -130,7 +130,7 @@ class MarketStreamer:
             previous_line=old_prop.get("line_value"),
             new_line=new_prop.line_value,
             line_hash=new_hash,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             player_name=new_prop.player_name,
             team_code=new_prop.team_code,
             market_type=new_prop.market_type,
@@ -223,7 +223,7 @@ class MarketStreamer:
                     previous_line=None,
                     new_line=prop.line_value,
                     line_hash=line_hash,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     player_name=prop.player_name,
                     team_code=prop.team_code,
                     market_type=prop.market_type,
@@ -287,7 +287,7 @@ class MarketStreamer:
                 props = []
                 
             # Update last fetch time
-            self._provider_last_fetch[provider_name] = datetime.utcnow()
+            self._provider_last_fetch[provider_name] = datetime.now(timezone.utc)
 
             # Process and generate events (await the async processor)
             events = await self._process_provider_data(provider_name, props)
@@ -306,7 +306,7 @@ class MarketStreamer:
             
     async def _streaming_cycle(self) -> None:
         """Execute one streaming cycle"""
-        cycle_start = datetime.utcnow()
+        cycle_start = datetime.now(timezone.utc)
         
         # Get active providers
         active_providers = provider_registry.get_active_providers()
@@ -342,7 +342,7 @@ class MarketStreamer:
             await self._emit_event(event)
             
         # Update stats
-        cycle_duration = (datetime.utcnow() - cycle_start).total_seconds() * 1000
+        cycle_duration = (datetime.now(timezone.utc) - cycle_start).total_seconds() * 1000
         self.stats["cycles_completed"] += 1
         self.stats["events_emitted"] += len(all_events)
         self.stats["last_cycle_duration_ms"] = int(cycle_duration)

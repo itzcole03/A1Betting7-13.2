@@ -10,7 +10,7 @@ import json
 import time
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Set
 from urllib.parse import parse_qs, urlparse
 
@@ -31,7 +31,7 @@ class WebSocketConnectionInfo:
     def __init__(self, websocket: WebSocket, connection_id: str):
         self.connection_id = connection_id
         self.websocket = websocket
-        self.connected_at = datetime.utcnow()
+        self.connected_at = datetime.now(timezone.utc)
         self.disconnected_at: Optional[datetime] = None
         self.client_ip = self._extract_client_ip()
         self.user_agent = self._extract_user_agent()
@@ -108,7 +108,7 @@ class WebSocketConnectionInfo:
     
     def update_last_activity(self):
         """Update last activity timestamp"""
-        self.last_activity = datetime.utcnow()
+        self.last_activity = datetime.now(timezone.utc)
     
     def record_message_sent(self, message_size: int = 0):
         """Record outbound message metrics"""
@@ -135,7 +135,7 @@ class WebSocketConnectionInfo:
             'action': 'subscribe',
             'type': subscription_type,
             'filters': filters or {},
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         })
         self.update_last_activity()
     
@@ -145,13 +145,13 @@ class WebSocketConnectionInfo:
         self.subscription_history.append({
             'action': 'unsubscribe',
             'type': subscription_type,
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         })
         self.update_last_activity()
     
     def mark_disconnected(self, reason: Optional[str] = None):
         """Mark connection as disconnected and calculate duration"""
-        self.disconnected_at = datetime.utcnow()
+        self.disconnected_at = datetime.now(timezone.utc)
         self.disconnect_reason = reason
         self.connection_duration_ms = (
             (self.disconnected_at - self.connected_at).total_seconds() * 1000

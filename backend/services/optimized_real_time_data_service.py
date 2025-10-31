@@ -18,7 +18,7 @@ import logging
 import time
 import hashlib
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any, Set, Callable
 from dataclasses import dataclass, field
 from enum import Enum
@@ -246,7 +246,7 @@ class OptimizedRealTimeDataService:
                     'player_id': player_id,
                     'sport': sport,
                     'data': player_data,
-                    'timestamp': datetime.utcnow().isoformat()
+                    'timestamp': datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
                 })
             
             return player_data
@@ -304,7 +304,7 @@ class OptimizedRealTimeDataService:
         
         if aggregated_data:
             aggregated_data['_sources'] = successful_sources
-            aggregated_data['_fetched_at'] = datetime.utcnow().isoformat()
+            aggregated_data['_fetched_at'] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
             return aggregated_data
         
         return None
@@ -571,7 +571,7 @@ class OptimizedRealTimeDataService:
         if fetched_at:
             try:
                 fetch_time = datetime.fromisoformat(fetched_at.replace('Z', '+00:00'))
-                age = datetime.utcnow().replace(tzinfo=fetch_time.tzinfo) - fetch_time
+                age = datetime.now(timezone.utc).replace(tzinfo=fetch_time.tzinfo) - fetch_time
                 if age.total_seconds() > 600:  # 10 minutes
                     return DataQuality.MEDIUM
             except:
@@ -592,7 +592,7 @@ class OptimizedRealTimeDataService:
             'active': bool(data.get('active', True)),
             'injury_status': data.get('injury_status'),
             '_source': source,
-            '_normalized_at': datetime.utcnow().isoformat()
+            '_normalized_at': datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
         
         # Normalize stats
@@ -725,7 +725,7 @@ class OptimizedRealTimeDataService:
                     self.health_metrics[endpoint_name] = {
                         'status': status.value,
                         'failure_count': breaker['failure_count'],
-                        'last_check': datetime.utcnow().isoformat()
+                        'last_check': datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
                     }
                 
                 await asyncio.sleep(30)  # Check every 30 seconds
@@ -932,7 +932,7 @@ class OptimizedRealTimeDataService:
             'service_details': self.health_metrics,
             'websocket_connections': len(self.websocket_connections),
             'active_subscriptions': len(self.active_subscriptions),
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
 
     async def shutdown(self) -> None:

@@ -6,7 +6,7 @@ Provides basic API endpoints to support frontend integration
 
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import urllib.parse
 import threading
@@ -82,7 +82,7 @@ class A1BettingHandler(BaseHTTPRequestHandler):
         """Handle health check endpoint"""
         health_data = {
             "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "version": "2.0.0-phase3",
             "domains": {
                 "prediction": {"status": "healthy"},
@@ -148,7 +148,7 @@ class A1BettingHandler(BaseHTTPRequestHandler):
             ],
             "total": 1,
             "page": 1,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
         self.send_json_response(predictions_data)
     
@@ -184,7 +184,7 @@ class A1BettingHandler(BaseHTTPRequestHandler):
                 "expected_roi": "15.2%",
                 "risk_level": "medium"
             },
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
         self.send_json_response(prediction_response)
     
@@ -204,7 +204,7 @@ class A1BettingHandler(BaseHTTPRequestHandler):
                 }
             },
             "data_sources": ["Sportradar", "ESPN", "The Odds API", "Baseball Savant"],
-            "last_updated": datetime.utcnow().isoformat(),
+            "last_updated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "data_quality": {
                 "completeness": 98.5,
                 "accuracy": 99.2,
@@ -234,7 +234,7 @@ class A1BettingHandler(BaseHTTPRequestHandler):
                 "new_users_today": 89,
                 "total_predictions_requested": 5847
             },
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
         self.send_json_response(analytics_response)
     
@@ -258,7 +258,7 @@ class A1BettingHandler(BaseHTTPRequestHandler):
                 "betmgm": "degraded",
                 "caesars": "healthy"
             },
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
         self.send_json_response(integration_response)
     
@@ -290,7 +290,7 @@ class A1BettingHandler(BaseHTTPRequestHandler):
                     "description": "NBA props showing strong value this week"
                 }
             ],
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
         self.send_json_response(optimization_response)
     
@@ -319,7 +319,7 @@ class A1BettingHandler(BaseHTTPRequestHandler):
                 "sharpe_ratio": 1.82,
                 "max_drawdown": 0.08
             },
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
         self.send_json_response(optimization_result)
     
@@ -328,7 +328,7 @@ class A1BettingHandler(BaseHTTPRequestHandler):
         error_response = {
             "error": "Not Found",
             "message": "The requested endpoint was not found",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "available_endpoints": [
                 "/api/health",
                 "/api/v1/predictions",

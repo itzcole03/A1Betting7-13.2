@@ -5,7 +5,7 @@ in test runs. Rich functionality lives in real implementation but is
 avoided here to prevent import-time errors.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Header, Query
@@ -18,7 +18,7 @@ async def get_application_version_info():
     return {
         "success": True,
         "data": {"app": {"version": "0.0.0"}},
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -29,7 +29,7 @@ async def check_compatibility(
     return {
         "success": True,
         "data": {"compatible": True},
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -38,7 +38,7 @@ async def get_build_information():
     return {
         "success": True,
         "data": {"version": "0.0.0", "build_number": "0"},
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -47,5 +47,5 @@ async def get_version_health():
     return {
         "success": True,
         "data": {"status": "healthy"},
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }

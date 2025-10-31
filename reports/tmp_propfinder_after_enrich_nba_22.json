@@ -1,0 +1,92 @@
+{
+  "id": "nba_22",
+  "player": "Zion Williamson",
+  "playerImage": null,
+  "team": "Pelicans",
+  "teamLogo": null,
+  "opponent": "Grizzlies",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.POINTS",
+  "line": 25.5,
+  "pick": "Pick.OVER",
+  "odds": -115,
+  "impliedProbability": 76.4,
+  "aiProbability": 84.2,
+  "edge": 7.8,
+  "confidence": 78.9,
+  "projectedValue": 1.95,
+  "volume": 44000,
+  "trend": "Trend.RISING",
+  "trendStrength": 7,
+  "timeToGame": "4h 41m",
+  "venue": "Venue.AWAY",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9,
+    92.1
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 26.28,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 25.0,
+    "current": 25.5,
+    "direction": "Direction.DOWN"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": -111,
+      "line": 26.0
+    },
+    {
+      "name": "FanDuel",
+      "odds": -117,
+      "line": 26.0
+    },
+    {
+      "name": "BetMGM",
+      "odds": -108,
+      "line": 25.5
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "High Volume",
+    "Sharp Money"
+  ],
+  "socialSentiment": 72,
+  "sharpMoney": "SharpMoney.HEAVY",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": true,
+  "alertSeverity": "medium",
+  "bestBookmaker": "DraftKings",
+  "lineSpread": 1.0,
+  "oddsSpread": 14,
+  "numBookmakers": 4,
+  "evValue": 0.4751,
+  "evPercent": 47.51,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": true,
+  "arbitrageProfitPct": 3.04,
+  "openingLine": 25.5,
+  "openingOdds": -115,
+  "latestLine": 25.5,
+  "latestOdds": -115,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 1.89,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

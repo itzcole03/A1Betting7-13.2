@@ -23,6 +23,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import Session, SQLModel, select
 
+from backend.services.unified_session_utils import unified_session_execute
+
 backend_path = Path(__file__).parent.parent
 sys.path.insert(0, str(backend_path))
 
@@ -148,8 +150,8 @@ class DatabaseMigrationService:
         if self.sqlite_async_engine:
             try:
                 async with AsyncSession(self.sqlite_async_engine) as session:
-                    result = await session.execute(text("SELECT 1"))
-                    if result.fetchone():
+                    result = await unified_session_execute(session, text("SELECT 1"))
+                    if getattr(result, "fetchone", lambda: None)():
                         results["sqlite"]["available"] = True
                         logger.info("✅ SQLite connectivity confirmed")
             except Exception as e:
@@ -160,8 +162,8 @@ class DatabaseMigrationService:
         if self.postgres_async_engine:
             try:
                 async with AsyncSession(self.postgres_async_engine) as session:
-                    result = await session.execute(text("SELECT 1"))
-                    if result.fetchone():
+                    result = await unified_session_execute(session, text("SELECT 1"))
+                    if getattr(result, "fetchone", lambda: None)():
                         results["postgresql"]["available"] = True
                         logger.info("✅ PostgreSQL connectivity confirmed")
             except Exception as e:
@@ -188,8 +190,17 @@ class DatabaseMigrationService:
                 raise ValueError(f"{database_type} engine not available")
 
             async with AsyncSession(engine) as session:
-                result = await session.execute(query)
-                tables = [row[0] for row in result.fetchall()]
+                result = await unified_session_execute(session, query)
+                # result may be DBAPI cursor-like or SQLAlchemy result - handle fetchall
+                fetchall = getattr(result, "fetchall", None)
+                if callable(fetchall):
+                    tables = [row[0] for row in result.fetchall()]
+                else:
+                    # Fallback for SQLModel .exec() result which may expose .all() on scalars
+                    try:
+                        tables = [r[0] for r in result]
+                    except Exception:
+                        tables = []
 
             logger.info(f"📋 Found {len(tables)} tables in {database_type} database")
             return tables
@@ -216,8 +227,17 @@ class DatabaseMigrationService:
             query = text(f"SELECT COUNT(*) FROM {table_name}")
 
             async with AsyncSession(engine) as session:
-                result = await session.execute(query)
-                count = result.scalar()
+                result = await unified_session_execute(session, query)
+                # Try scalar() first, otherwise fallback to tuple first element
+                scalar = getattr(result, "scalar", None)
+                if callable(scalar):
+                    count = result.scalar()
+                else:
+                    try:
+                        first_row = getattr(result, "first", lambda: None)()
+                        count = first_row[0] if first_row else 0
+                    except Exception:
+                        count = 0
 
             return count or 0
 

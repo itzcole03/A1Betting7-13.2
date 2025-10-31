@@ -8,7 +8,7 @@ and other components through event-driven architecture.
 import asyncio
 import weakref
 from collections import defaultdict, deque
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional, Union, Deque
 from dataclasses import dataclass, field
 import fnmatch
@@ -138,7 +138,7 @@ class EventBus:
             Number of subscribers that received the event
         """
         self.metrics.events_published += 1
-        self.metrics.last_event_timestamp = datetime.utcnow()
+        self.metrics.last_event_timestamp = datetime.now(timezone.utc)
         
         # Track unique event types
         if event_type not in self._subscribers.keys():

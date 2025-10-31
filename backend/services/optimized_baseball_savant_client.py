@@ -24,7 +24,7 @@ import time
 import traceback
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -213,7 +213,7 @@ class OptimizedBaseballSavantClient:
             if self.enable_prefetching:
                 asyncio.create_task(self._prefetch_worker())
 
-            self.metrics.start_time = datetime.utcnow()
+            self.metrics.start_time = datetime.now(timezone.utc)
             logger.info("Optimized Baseball Savant client initialized successfully")
 
         except Exception as e:
@@ -419,7 +419,7 @@ class OptimizedBaseballSavantClient:
                                 "league": player.get("league", ""),
                                 "position_type": player.get("position_type", ""),
                                 "source": "optimized_baseball_savant",
-                                "processed_at": datetime.utcnow().isoformat(),
+                                "processed_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                             }
                         )
                         props.append(prop)
@@ -483,7 +483,7 @@ class OptimizedBaseballSavantClient:
         self.metrics.average_batch_time = sum(self._batch_times) / len(
             self._batch_times
         )
-        self.metrics.last_update = datetime.utcnow()
+        self.metrics.last_update = datetime.now(timezone.utc)
 
         logger.info(
             f"Processed batch of {len(players)} players in {batch_time:.2f}s "
@@ -592,7 +592,7 @@ class OptimizedBaseballSavantClient:
 
             result_data = {
                 "props": props,
-                "generated_at": datetime.utcnow().isoformat(),
+                "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "count": len(props),
                 "metrics": {
                     "total_batches": self.metrics.total_batches,
@@ -669,7 +669,7 @@ class OptimizedBaseballSavantClient:
                     else None
                 ),
                 "uptime_seconds": (
-                    (datetime.utcnow() - self.metrics.start_time).total_seconds()
+                    (datetime.now(timezone.utc) - self.metrics.start_time).total_seconds()
                     if self.metrics.start_time
                     else 0
                 ),
@@ -709,12 +709,12 @@ async def get_health_status() -> Dict[str, Any]:
             "status": "healthy" if client.state != ProcessingState.ERROR else "error",
             "client_type": "optimized_baseball_savant",
             "metrics": metrics,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }
     except Exception as e:
         return {
             "status": "error",
             "client_type": "optimized_baseball_savant",
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }

@@ -5,7 +5,8 @@ import { FeaturedProp } from '../services/unified/FeaturedPropsService';
 import CondensedPropCard from './CondensedPropCard';
 
 // Helper functions
-const extractTeamFromMatchup = (matchup: string): string => {
+const extractTeamFromMatchup = (matchup: string | undefined): string => {
+  if (!matchup) return '';
   return matchup.split(' vs ')[0] || matchup.split(' @ ')[0] || matchup;
 };
 
@@ -145,15 +146,15 @@ const VirtualizedPropList: React.FC<VirtualizedPropListProps> = ({
                   <CondensedPropCard
                     key={proj.id}
                     player={proj.player}
-                    team={extractTeamFromMatchup(proj.matchup || '')}
+                    team={proj.team || 'Unknown'}
                     stat={proj.stat || 'Unknown'}
                     line={proj.line || 0}
                     confidence={proj.confidence || 0}
                     grade={getGradeFromConfidence(proj.confidence || 0)}
-                    logoUrl={getLogoUrl(proj.matchup || '')}
-                    accentColor={getAccentColor(proj.matchup || '')}
-                    bookmarked={proj.confidence >= 90}
-                    matchup={proj.matchup}
+                    logoUrl={proj.teamLogo || ''}
+                    accentColor={getAccentColor(`${proj.team || ''} vs ${proj.opponent || ''}`)}
+                    bookmarked={proj.isBookmarked || false}
+                    matchup={`${proj.team || 'Unknown'} vs ${proj.opponent || 'Unknown'}`}
                     espnPlayerId={proj.espnPlayerId}
                     onClick={() => {
                       if (!clicksEnabled) return;

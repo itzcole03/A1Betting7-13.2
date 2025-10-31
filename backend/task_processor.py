@@ -15,12 +15,34 @@ from typing import Any, Callable, Dict, List, Optional
 
 import redis.asyncio as redis
 
-from backend.config_manager import config_manager
+try:
+    # Prefer the exported config object when available
+    from backend.config_manager import config as _config
+
+    class _ConfigManagerAdapter:
+        def get_redis_url(self):
+            return getattr(_config.database, "url", None)
+
+        def get(self, key, default=None):
+            return _config.get(key, default)
+
+    config_manager = _ConfigManagerAdapter()
+except Exception:
+    # Fallback stub for import/time-safety in test environments
+    class _DummyConfigManager:
+        def get_redis_url(self):
+            return "redis://localhost:6379/0"
+
+        def get(self, key, default=None):
+            return default
+
+    config_manager = _DummyConfigManager()
 from backend.utils.serialization_utils import (
     register_serializable,
     safe_dumps,
     safe_loads,
 )
+from backend.utils.time_helpers import now_utc
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +123,7 @@ class TaskDefinition:
     gpu_requirement: bool = False
 
     # Metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=now_utc)
     created_by: str = "system"
     tags: List[str] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)

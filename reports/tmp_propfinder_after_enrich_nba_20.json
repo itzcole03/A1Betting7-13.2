@@ -1,0 +1,94 @@
+{
+  "id": "nba_20",
+  "player": "Paolo Banchero",
+  "playerImage": null,
+  "team": "Magic",
+  "teamLogo": null,
+  "opponent": "Hawks",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.POINTS",
+  "line": 21.5,
+  "pick": "Pick.OVER",
+  "odds": -108,
+  "impliedProbability": 71.2,
+  "aiProbability": 78.9,
+  "edge": 7.7,
+  "confidence": 78.85,
+  "projectedValue": 1.925,
+  "volume": 41000,
+  "trend": "Trend.RISING",
+  "trendStrength": 7,
+  "timeToGame": "6h 39m",
+  "venue": "Venue.AWAY",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9,
+    92.1,
+    88.4,
+    76.8
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 22.27,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 21.0,
+    "current": 21.5,
+    "direction": "Direction.DOWN"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": -103,
+      "line": 21.0
+    },
+    {
+      "name": "FanDuel",
+      "odds": -109,
+      "line": 21.0
+    },
+    {
+      "name": "BetMGM",
+      "odds": -115,
+      "line": 22.0
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "High Volume",
+    "Sharp Money"
+  ],
+  "socialSentiment": 72,
+  "sharpMoney": "SharpMoney.HEAVY",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": true,
+  "alertSeverity": "medium",
+  "bestBookmaker": "FanDuel",
+  "lineSpread": 0.5,
+  "oddsSpread": 8,
+  "numBookmakers": 2,
+  "evValue": 0.5186,
+  "evPercent": 51.86,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": false,
+  "arbitrageProfitPct": 0.0,
+  "openingLine": 21.5,
+  "openingOdds": -108,
+  "latestLine": 21.5,
+  "latestOdds": -108,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 0.73,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

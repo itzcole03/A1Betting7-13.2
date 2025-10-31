@@ -6,7 +6,7 @@ Consolidates integration routes into a logical, maintainable structure.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
@@ -417,7 +417,7 @@ async def get_all_sportsbook_odds(
             "sport": sport,
             "market_type": market_type,
             "sportsbook_odds": all_odds,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }
 
     except Exception as e:
@@ -445,7 +445,7 @@ async def get_all_provider_status(
             "provider_status": health.integration_status,
             "avg_response_time_ms": health.avg_response_time_ms,
             "error_rate_percentage": health.error_rate_percentage,
-            "last_updated": datetime.utcnow().isoformat(),
+            "last_updated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         }
 
     except Exception as e:
@@ -479,7 +479,7 @@ async def test_provider_connection(
                 "authenticated": status.authenticated,
                 "last_success": status.last_success,
                 "error_message": status.error_message,
-                "test_time": datetime.utcnow().isoformat(),
+                "test_time": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             }
         else:
             raise HTTPException(status_code=404, detail="Provider not found")

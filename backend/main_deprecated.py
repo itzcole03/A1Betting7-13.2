@@ -237,7 +237,7 @@ def error_response(message="Test error response", status_code=400, details=None)
     return JSONResponse(content=body, status_code=status_code)
 
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 # --- Global Exception Handlers ---
 from fastapi import HTTPException, Request
@@ -251,7 +251,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         content={
             "error_code": f"HTTP_{exc.status_code}",
             "message": exc.detail,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         },
     )
 
@@ -264,7 +264,7 @@ async def general_exception_handler(request: Request, exc: Exception):
         content={
             "error_code": "INTERNAL_ERROR",
             "message": "Internal server error",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         },
     )
 

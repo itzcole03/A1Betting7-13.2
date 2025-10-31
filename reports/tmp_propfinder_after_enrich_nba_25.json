@@ -1,0 +1,94 @@
+{
+  "id": "nba_25",
+  "player": "Domantas Sabonis",
+  "playerImage": null,
+  "team": "Kings",
+  "teamLogo": null,
+  "opponent": "Blazers",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.REBOUNDS",
+  "line": 11.5,
+  "pick": "Pick.OVER",
+  "odds": -105,
+  "impliedProbability": 69.2,
+  "aiProbability": 76.9,
+  "edge": 7.7,
+  "confidence": 78.85,
+  "projectedValue": 1.925,
+  "volume": 48500,
+  "trend": "Trend.RISING",
+  "trendStrength": 7,
+  "timeToGame": "3h 44m",
+  "venue": "Venue.HOME",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9,
+    92.1,
+    88.4,
+    76.8
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 12.27,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 12.0,
+    "current": 11.5,
+    "direction": "Direction.DOWN"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": -102,
+      "line": 12.0
+    },
+    {
+      "name": "FanDuel",
+      "odds": -108,
+      "line": 11.5
+    },
+    {
+      "name": "BetMGM",
+      "odds": -100,
+      "line": 11.0
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "High Volume",
+    "Sharp Money"
+  ],
+  "socialSentiment": 72,
+  "sharpMoney": "SharpMoney.HEAVY",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": true,
+  "alertSeverity": "medium",
+  "bestBookmaker": "BetMGM",
+  "lineSpread": 1.0,
+  "oddsSpread": 8,
+  "numBookmakers": 4,
+  "evValue": 0.5395,
+  "evPercent": 53.95,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": false,
+  "arbitrageProfitPct": 0.0,
+  "openingLine": 11.5,
+  "openingOdds": -105,
+  "latestLine": 11.5,
+  "latestOdds": -105,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 0.0,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

@@ -8,7 +8,7 @@ scalability and performance characteristics.
 import pytest
 import asyncio
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, List
 from unittest.mock import Mock, AsyncMock, patch
 from concurrent.futures import ThreadPoolExecutor
@@ -72,7 +72,7 @@ def mock_fast_services():
         "is_running": True,
         "active_providers": [f"provider_{i}" for i in range(50)],
         "total_events": 50000,
-        "last_cycle_time": datetime.utcnow().isoformat(),
+        "last_cycle_time": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "events_per_second": 1250.7
     }
     mock_streamer.start = AsyncMock()
@@ -254,7 +254,7 @@ class TestResourceUsage:
             """Create provider and perform operations"""
             mock_provider = MockProviderState(f"concurrent_provider_{provider_id}")
             mock_provider.status = ProviderStatus.ACTIVE
-            mock_provider.last_successful_fetch = datetime.utcnow()
+            mock_provider.last_successful_fetch = datetime.now(timezone.utc)
             mock_provider.total_requests = provider_id * 5
             mock_provider.successful_requests = provider_id * 4
             

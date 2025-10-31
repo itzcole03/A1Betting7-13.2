@@ -1,0 +1,91 @@
+{
+  "id": "nba_26",
+  "player": "Anfernee Simons",
+  "playerImage": null,
+  "team": "Blazers",
+  "teamLogo": null,
+  "opponent": "Kings",
+  "opponentLogo": null,
+  "sport": "Sport.NBA",
+  "market": "Market.POINTS",
+  "line": 19.5,
+  "pick": "Pick.OVER",
+  "odds": -110,
+  "impliedProbability": 72.3,
+  "aiProbability": 80.0,
+  "edge": 7.7,
+  "confidence": 78.85,
+  "projectedValue": 1.925,
+  "volume": 50000,
+  "trend": "Trend.RISING",
+  "trendStrength": 7,
+  "timeToGame": "4h 45m",
+  "venue": "Venue.AWAY",
+  "weather": null,
+  "injuries": [],
+  "recentForm": [
+    85.2,
+    78.9
+  ],
+  "matchupHistory": {
+    "games": 12,
+    "average": 20.27,
+    "hitRate": 0.65
+  },
+  "lineMovement": {
+    "open": 19.0,
+    "current": 19.5,
+    "direction": "Direction.DOWN"
+  },
+  "bookmakers": [
+    {
+      "name": "DraftKings",
+      "odds": -109,
+      "line": 19.0
+    },
+    {
+      "name": "FanDuel",
+      "odds": -115,
+      "line": 20.0
+    },
+    {
+      "name": "BetMGM",
+      "odds": -106,
+      "line": 19.5
+    }
+  ],
+  "isBookmarked": false,
+  "tags": [
+    "High Volume",
+    "Sharp Money"
+  ],
+  "socialSentiment": 72,
+  "sharpMoney": "SharpMoney.HEAVY",
+  "lastUpdated": "2025-10-28 17:31:10.109588+00:00",
+  "alertTriggered": true,
+  "alertSeverity": "medium",
+  "bestBookmaker": "PointsBet",
+  "lineSpread": 1.0,
+  "oddsSpread": 7,
+  "numBookmakers": 2,
+  "evValue": 0.5053,
+  "evPercent": 50.53,
+  "evTier": null,
+  "isOutlier": true,
+  "hasArbitrage": false,
+  "arbitrageProfitPct": 0.0,
+  "openingLine": 19.5,
+  "openingOdds": -110,
+  "latestLine": 19.5,
+  "latestOdds": -110,
+  "lineChange": 0.0,
+  "oddsChange": 0,
+  "movementDirection": "flat",
+  "closingLine": null,
+  "closingOdds": null,
+  "clvPercent": null,
+  "clv_metrics": null,
+  "vigPercent": 0.73,
+  "isLowJuice": true,
+  "validationWarnings": null
+}

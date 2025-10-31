@@ -8,7 +8,7 @@ teams, players, games, schedules, and betting odds information.
 import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 import aiohttp
@@ -359,7 +359,18 @@ class NFLServiceClient(SportServiceBase):
                         arbitrage_opportunities=[],
                     )
 
-                    odds_comparisons.append(odds_comparison.dict())
+                    # Prefer Pydantic v2 model_dump() when available, fallback to .dict() then __dict__
+                    try:
+                        if hasattr(odds_comparison, "model_dump") and callable(
+                            getattr(odds_comparison, "model_dump")
+                        ):
+                            odds_comparisons.append(odds_comparison.model_dump())
+                        else:
+                            odds_comparisons.append(odds_comparison.dict())
+                    except Exception:
+                        odds_comparisons.append(
+                            dict(getattr(odds_comparison, "__dict__", {}) or {})
+                        )
 
                 except Exception as e:
                     logger.warning(f"Error fetching odds for game {game.id}: {e}")
@@ -372,7 +383,9 @@ class NFLServiceClient(SportServiceBase):
                 "games_with_odds": len(odds_comparisons),
                 "odds_comparisons": odds_comparisons,
                 "message": "NFL odds comparison data retrieved",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc)
+                .isoformat()
+                .replace("+00:00", "Z"),
             }
 
         except Exception as e:
@@ -402,7 +415,9 @@ class NFLServiceClient(SportServiceBase):
                     "service": "NFL",
                     "api_status": "responsive",
                     "message": "NFL service operational via ESPN API",
-                    "last_updated": datetime.utcnow().isoformat(),
+                    "last_updated": datetime.now(timezone.utc)
+                    .isoformat()
+                    .replace("+00:00", "Z"),
                     "total_teams": total_teams,
                     "endpoints_tested": ["teams", "scoreboard"],
                 }

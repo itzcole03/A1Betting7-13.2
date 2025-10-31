@@ -3,10 +3,13 @@
 Adapts `BaseballSavantClient` to the `ProviderConnector` protocol in
 `backend.services.unified_data_fetcher`.
 """
+import logging
 from typing import List
 import asyncio
 
 from backend.services import unified_data_fetcher as udf
+
+logger = logging.getLogger(__name__)
 
 
 class BaseballSavantConnector:
@@ -26,7 +29,9 @@ class BaseballSavantConnector:
                 from backend.services.baseball_savant_client import BaseballSavantClient
 
                 self._client = BaseballSavantClient()
-            except Exception:
+                logger.info("Baseball Savant client initialized successfully")
+            except Exception as e:
+                logger.error(f"Failed to initialize Baseball Savant client: {e}")
                 self._client = None
 
     async def fetch_events(self) -> List[udf.GameEvent]:
@@ -35,19 +40,25 @@ class BaseballSavantConnector:
         try:
             mlb_connector = udf.get_connector("mlb_stats_api")
             if mlb_connector:
-                return await mlb_connector.fetch_events()
-        except Exception:
-            pass
+                events = await mlb_connector.fetch_events()
+                logger.debug(f"Fetched {len(events)} events from MLB Stats API")
+                return events
+        except Exception as e:
+            logger.warning(f"Failed to fetch events from MLB Stats API: {e}")
         return []
 
     async def fetch_player_props(self, event_id: str) -> List[udf.OddsSnapshot]:
         await self._ensure_client()
         if not self._client:
+            logger.warning("Baseball Savant client not available for fetching player props")
             return []
 
         snapshots: List[udf.OddsSnapshot] = []
         try:
+            logger.info("Fetching all active players from Baseball Savant...")
             players = await self._client.get_all_active_players()
+            logger.info(f"Retrieved {len(players)} active players from Baseball Savant")
+
             for p in players[:200]:  # limit to first 200 for performance
                 snapshots.append(
                     udf.OddsSnapshot(
@@ -60,7 +71,9 @@ class BaseballSavantConnector:
                         raw=p,
                     )
                 )
-        except Exception:
+            logger.info(f"Generated {len(snapshots)} player prop snapshots from Baseball Savant")
+        except Exception as e:
+            logger.error(f"Error fetching player props from Baseball Savant: {e}", exc_info=True)
             return []
         return snapshots
 

@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
@@ -30,9 +30,18 @@ class FeedbackResponse(BaseModel):
 def _save_feedback_local(feedback: FeedbackRequest) -> str:
     feedback_dir = os.path.join("data", "feedback")
     os.makedirs(feedback_dir, exist_ok=True)
-    feedback_id = f"feedback_{datetime.utcnow().strftime('%Y%m%d_%H%M%S%f')}"
-    payload = feedback.dict()
-    payload["received_at"] = datetime.utcnow().isoformat()
+    feedback_id = f"feedback_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S%f')}"
+    # Safe serialize: prefer Pydantic v2 model_dump, fall back to .dict(), then __dict__
+    try:
+        if hasattr(feedback, "model_dump") and callable(
+            getattr(feedback, "model_dump")
+        ):
+            payload = feedback.model_dump()
+        else:
+            payload = feedback.dict()
+    except Exception:
+        payload = dict(getattr(feedback, "__dict__", {}) or {})
+    payload["received_at"] = datetime.now(timezone.utc).isoformat()
     path = os.path.join(feedback_dir, f"{feedback_id}.json")
     try:
         with open(path, "w", encoding="utf-8") as fh:

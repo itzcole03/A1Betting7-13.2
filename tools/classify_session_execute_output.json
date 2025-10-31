@@ -1,0 +1,74 @@
+[
+  {
+    "path": "create_bookmarks_table.py",
+    "classification": "sqlalchemy"
+  },
+  {
+    "path": "migrate_sport_defaults.py",
+    "classification": "unknown"
+  },
+  {
+    "path": "test_bookmark_persistence.py",
+    "classification": "sqlalchemy"
+  },
+  {
+    "path": "backend\\enhanced_database.py",
+    "classification": "sqlalchemy"
+  },
+  {
+    "path": "backend\\system_monitor.py",
+    "classification": "unknown"
+  },
+  {
+    "path": "scripts\\backfill_bestline_names.py",
+    "classification": "sqlalchemy"
+  },
+  {
+    "path": "backend\\health\\health_checks.py",
+    "classification": "sqlalchemy"
+  },
+  {
+    "path": "backend\\services\\bookmark_service.py",
+    "classification": "sqlalchemy"
+  },
+  {
+    "path": "backend\\services\\clv_persistence_service.py",
+    "classification": "mixed"
+  },
+  {
+    "path": "backend\\services\\database_migration_service.py",
+    "classification": "mixed"
+  },
+  {
+    "path": "backend\\services\\odds_store.py",
+    "classification": "sqlalchemy"
+  },
+  {
+    "path": "backend\\services\\optimized_database_service.py",
+    "classification": "sqlalchemy"
+  },
+  {
+    "path": "backend\\services\\query_optimizer.py",
+    "classification": "sqlalchemy"
+  },
+  {
+    "path": "backend\\services\\unified_session_utils.py",
+    "classification": "mixed"
+  },
+  {
+    "path": "backend\\services\\edges\\edge_service.py",
+    "classification": "sqlalchemy"
+  },
+  {
+    "path": "backend\\services\\modeling\\model_registry.py",
+    "classification": "sqlalchemy"
+  },
+  {
+    "path": "backend\\services\\valuation\\valuation_engine.py",
+    "classification": "sqlalchemy"
+  },
+  {
+    "path": "backend\\ingestion\\pipeline\\nba_ingestion_pipeline.py",
+    "classification": "sqlalchemy"
+  }
+]
