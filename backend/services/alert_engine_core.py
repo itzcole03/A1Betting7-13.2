@@ -15,6 +15,7 @@ import asyncio
 import hashlib
 import json
 import logging
+import os
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
@@ -32,6 +33,14 @@ from backend.services.unified_config import unified_config
 from backend.services.unified_odds_aggregation_service import get_unified_odds_service
 
 logger = logging.getLogger(__name__)
+# Module-level env-gate for alert engine debug logging
+_ALERT_ENGINE_CORE_DEBUG = os.getenv("ALERT_ENGINE_CORE_DEBUG", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+if not _ALERT_ENGINE_CORE_DEBUG:
+    logger.debug = lambda *a, **k: None
 
 
 class AlertRuleType(Enum):

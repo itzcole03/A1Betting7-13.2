@@ -7,6 +7,7 @@ Supports multiple alert types including edge thresholds, line movement, valuatio
 
 import asyncio
 import logging
+import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
@@ -18,6 +19,14 @@ from backend.services.risk.risk_constraints import RiskLevel
 from backend.services.unified_config import unified_config
 
 logger = logging.getLogger(__name__)
+# Module-level env-gate: make debug a no-op unless ALERT_RULE_EVALUATOR_DEBUG is set
+_ALERT_RULE_EVALUATOR_DEBUG = os.getenv("ALERT_RULE_EVALUATOR_DEBUG", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+if not _ALERT_RULE_EVALUATOR_DEBUG:
+    logger.debug = lambda *a, **k: None
 
 
 class AlertEventType(Enum):

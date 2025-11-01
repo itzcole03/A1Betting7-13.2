@@ -23,6 +23,14 @@ from backend.models.analytics import ArbitrageHistory, EVOpportunityHistory
 from backend.services.unified_session_utils import unified_session_execute
 
 logger = logging.getLogger(__name__)
+# Env-gated short-circuit: avoid expensive debug formatting when persistence debug is disabled
+_ANALYTICS_PERSISTENCE_DEBUG = os.getenv("ANALYTICS_PERSISTENCE_DEBUG", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+if not _ANALYTICS_PERSISTENCE_DEBUG:
+    logger.debug = lambda *a, **k: None
 
 # Configuration constants
 EV_MIN_THRESHOLD = 3.0  # Minimum EV% to persist

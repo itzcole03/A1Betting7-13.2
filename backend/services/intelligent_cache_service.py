@@ -22,6 +22,52 @@ from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("intelligent_cache")
 
+# Environment-gated debug for high-frequency cache logs to avoid
+# formatting & emit cost in production unless explicitly enabled.
+_INTELLIGENT_CACHE_DEBUG = os.environ.get("INTELLIGENT_CACHE_DEBUG", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+
+
+def _cache_debug(msg: str, *args, **kwargs):
+    """Emit debug logs only when INTELLIGENT_CACHE_DEBUG is enabled."""
+    if _INTELLIGENT_CACHE_DEBUG:
+        # use logger.debug lazy formatting to avoid building strings unnecessarily
+        logger.debug(msg, *args, **kwargs)
+
+
+# Prefer orjson when available for hot serialization paths, fall back to stdlib json
+try:
+    import orjson as _orjson  # type: ignore
+
+    def _dumps(obj: Any) -> str:
+        # orjson.dumps returns bytes
+        return _orjson.dumps(obj, default=str).decode("utf-8")
+
+    def _loads(buf: Union[bytes, str]) -> Any:
+        if isinstance(buf, str):
+            buf = buf.encode("utf-8")
+        return _orjson.loads(buf)
+
+except Exception:
+    _orjson = None
+
+    def _dumps(obj: Any) -> str:
+        return json.dumps(obj, default=str)
+
+    def _loads(buf: Union[bytes, str]) -> Any:
+        if isinstance(buf, (bytes, bytearray)):
+            try:
+                return json.loads(buf.decode("utf-8"))
+            except Exception:
+                return buf.decode("utf-8")
+        try:
+            return json.loads(str(buf))
+        except Exception:
+            return str(buf)
+
 
 @dataclass
 class CacheMetrics:
@@ -102,6 +148,21 @@ class IntelligentCacheService:
         self._pattern_analysis_task: Optional[asyncio.Task] = None
         self._reconnect_task: Optional[asyncio.Task] = None
         self._reconnect_attempts: int = 0
+
+        # Small in-memory cache for recent TTL calculations to avoid repeated
+        # expensive volatility model calls under bursty writes. Entries are
+        # cached for a few seconds.
+        # Cache window (seconds) and max entries are configurable via env vars
+        # to allow tuning per environment without code changes.
+        self._ttl_cache_seconds: int = int(
+            os.environ.get("INTELLIGENT_CACHE_TTL_CACHE_SECONDS", "5")
+        )
+        self._ttl_cache_max_entries: int = int(
+            os.environ.get("INTELLIGENT_CACHE_TTL_CACHE_MAX_ENTRIES", "5000")
+        )
+        # Store as {key: (ttl_value, expires_at_ts)}. We'll evict oldest when
+        # the cache grows beyond _ttl_cache_max_entries to avoid unbounded growth.
+        self._ttl_cache: Dict[str, Tuple[int, float]] = {}
 
     async def initialize(self) -> None:
         """Initialize enhanced caching service with background tasks"""
@@ -283,7 +344,7 @@ class IntelligentCacheService:
 
                 except Exception as exc:
                     self._reconnect_attempts += 1
-                    logger.debug(f"Redis reconnect attempt failed: {exc}")
+                    _cache_debug("Redis reconnect attempt failed: %s", exc)
                     delay_seconds = min(delay_seconds * 2, 60)
 
         finally:
@@ -313,10 +374,10 @@ class IntelligentCacheService:
             # Update metrics
             if value is not None and value != default:
                 self.metrics.hits += 1
-                logger.debug(f"✅ Cache hit for key: {key}")
+                _cache_debug("✅ Cache hit for key: %s", key)
             else:
                 self.metrics.misses += 1
-                logger.debug(f"🔍 Cache miss for key: {key}")
+                _cache_debug("🔍 Cache miss for key: %s", key)
 
             # Update response time
             response_time = time.time() - start_time
@@ -445,7 +506,7 @@ class IntelligentCacheService:
         }
 
         await self.warming_queue.put(warming_request)
-        logger.debug(f"🔥 Cache warming queued for {len(patterns)} patterns")
+        _cache_debug("🔥 Cache warming queued for %s patterns", len(patterns))
 
     async def invalidate_pattern(self, pattern: str) -> int:
         """Intelligently invalidate cache entries matching pattern"""
@@ -521,14 +582,18 @@ class IntelligentCacheService:
                 # Use the dynamic TTL
                 ttl_to_use = dynamic_ttl
 
-                logger.debug(
-                    f"🎯 Sport-aware cache set: {key} with TTL {ttl_to_use}s ({sport}:{data_category})"
+                _cache_debug(
+                    "Sport-aware cache set: %s with TTL %s s (%s:%s)",
+                    key,
+                    ttl_to_use,
+                    sport,
+                    data_category,
                 )
 
             else:
                 # Fallback to base TTL if provided, otherwise default
                 ttl_to_use = base_ttl if base_ttl else 3600
-                logger.debug(f"⚠️ Using fallback TTL {ttl_to_use}s for {key}")
+                _cache_debug("Using fallback TTL %s s for %s", ttl_to_use, key)
 
             # Set with calculated TTL
             return await self.set(
@@ -751,7 +816,7 @@ class IntelligentCacheService:
 
         except Exception as e:
             latency = (time.time() - start) * 1000.0
-            logger.debug(f"⚠️ health_check error: {e}")
+            _cache_debug("health_check error: %s", e)
             return {"status": "unhealthy", "latency_ms": latency, "test_passed": False}
 
     # Backwards-compatible alias used by some callers/tests
@@ -854,7 +919,7 @@ class IntelligentCacheService:
             return default
 
         try:
-            return json.loads(value.decode("utf-8"))
+            return _loads(value)
         except (json.JSONDecodeError, UnicodeDecodeError):
             return value.decode("utf-8")
 
@@ -863,7 +928,7 @@ class IntelligentCacheService:
         redis_client = self.get_redis()
 
         if not isinstance(value, (str, bytes)):
-            value = json.dumps(value, default=str)
+            value = _dumps(value)
         elif isinstance(value, bytes):
             pass
         else:
@@ -872,7 +937,7 @@ class IntelligentCacheService:
         result = await redis_client.set(key, value, ex=ttl_seconds)
         if result:
             self.metrics.sets += 1
-            logger.debug(f"💾 Cache set for key: {key} (TTL: {ttl_seconds}s)")
+            _cache_debug("💾 Cache set for key: %s (TTL: %s s)", key, ttl_seconds)
 
         return bool(result)
 
@@ -898,7 +963,7 @@ class IntelligentCacheService:
         for key, value in zip(keys, values):
             if value is not None:
                 try:
-                    result[key] = json.loads(value.decode("utf-8"))
+                    result[key] = _loads(value)
                 except (json.JSONDecodeError, UnicodeDecodeError):
                     result[key] = value.decode("utf-8")
                 self.metrics.hits += 1
@@ -906,7 +971,7 @@ class IntelligentCacheService:
                 self.metrics.misses += 1
 
         self.metrics.pipeline_operations += 1
-        logger.debug(f"📦 Bulk get completed: {len(result)}/{len(keys)} hits")
+        _cache_debug("📦 Bulk get completed: %s/%s hits", len(result), len(keys))
 
         return result
 
@@ -924,7 +989,7 @@ class IntelligentCacheService:
 
                 # Serialize value
                 if not isinstance(value, (str, bytes)):
-                    value = json.dumps(value, default=str)
+                    value = _dumps(value)
                 elif isinstance(value, bytes):
                     pass
                 else:
@@ -939,7 +1004,9 @@ class IntelligentCacheService:
         self.metrics.sets += success_count
         self.metrics.pipeline_operations += 1
 
-        logger.debug(f"📦 Bulk set completed: {success_count}/{len(items)} successful")
+        _cache_debug(
+            "📦 Bulk set completed: %s/%s successful", success_count, len(items)
+        )
 
         return success_count
 
@@ -1073,7 +1140,7 @@ class IntelligentCacheService:
                     if operation == "SET":
                         value, ttl = data
                         if not isinstance(value, (str, bytes)):
-                            value = json.dumps(value, default=str)
+                            value = _dumps(value)
                         pipe.set(key, value, ex=ttl)
 
                 results = await pipe.execute()
@@ -1083,8 +1150,10 @@ class IntelligentCacheService:
             self.metrics.sets += success_count
             self.metrics.pipeline_operations += 1
 
-            logger.debug(
-                f"📦 Pipeline flushed: {success_count}/{len(self.pipeline_buffer)} successful"
+            _cache_debug(
+                "📦 Pipeline flushed: %s/%s successful",
+                success_count,
+                len(self.pipeline_buffer),
             )
 
         except Exception as e:
@@ -1094,10 +1163,30 @@ class IntelligentCacheService:
 
     async def _add_to_pipeline(self, operation: str, key: str, data: Any):
         """Add operation to pipeline buffer"""
+        # If buffer is already large, flush first to free room
         if len(self.pipeline_buffer) >= self.max_pipeline_size:
             await self._flush_pipeline()
 
-        self.pipeline_buffer.append((operation, key, data))
+        # For SET operations, serialize once here to avoid repeated
+        # serialization during flush. We store the serialized value so
+        # _flush_pipeline can write it directly.
+        if operation == "SET":
+            value, ttl = data
+            if not isinstance(value, (str, bytes)):
+                try:
+                    serialized = _dumps(value)
+                except Exception:
+                    # Fallback to str() if serialization fails
+                    serialized = str(value)
+            elif isinstance(value, bytes):
+                serialized = value
+            else:
+                serialized = str(value)
+
+            self.pipeline_buffer.append((operation, key, (serialized, ttl)))
+        else:
+            # For other ops, store as-is
+            self.pipeline_buffer.append((operation, key, data))
 
     async def _cache_warming_processor(self):
         """Background task to process cache warming requests"""
@@ -1141,7 +1230,7 @@ class IntelligentCacheService:
                         pattern, data, ttl, priority="high", use_pipeline=False
                     )
 
-                    logger.debug(f"🔥 Cache warmed for pattern: {pattern}")
+                    _cache_debug("🔥 Cache warmed for pattern: %s", pattern)
 
             except Exception as e:
                 logger.error(f"❌ Warming failed for pattern {pattern}: {e}")
@@ -1220,6 +1309,13 @@ class IntelligentCacheService:
         self, key: str, base_ttl: int, user_context: Optional[str] = None
     ) -> int:
         """Calculate intelligent TTL based on access patterns and sport volatility models"""
+        # Check short-lived cache to avoid repeated computation under high write load
+        now = time.time()
+        cached = self._ttl_cache.get(key)
+        if cached:
+            ttl_val, expires_at = cached
+            if now < expires_at:
+                return ttl_val
         # Try to use sport-specific volatility models first
         try:
             from backend.services.sport_volatility_models import (
@@ -1257,17 +1353,33 @@ class IntelligentCacheService:
                         user_id, sport_type, data_category
                     )
 
-                logger.debug(
-                    f"🎯 Using sport volatility model TTL: {dynamic_ttl}s for {key}"
+                _cache_debug(
+                    "Using sport volatility model TTL: %s s for %s", dynamic_ttl, key
                 )
                 return dynamic_ttl
 
         except Exception as e:
-            logger.debug(f"⚠️ Sport volatility model fallback for {key}: {e}")
+            _cache_debug("Sport volatility model fallback for %s: %s", key, e)
 
         # Fallback to original logic if sport model not available
         if key not in self.access_patterns:
-            return base_ttl
+            # Cache fallback result briefly
+            ttl_result = base_ttl
+            # Evict oldest entry if we're over the max entries cap
+            if (
+                self._ttl_cache_max_entries is not None
+                and len(self._ttl_cache) >= self._ttl_cache_max_entries
+            ):
+                try:
+                    # pop oldest
+                    oldest_key = next(iter(self._ttl_cache))
+                    self._ttl_cache.pop(oldest_key, None)
+                except Exception:
+                    # Fall back to clearing one arbitrary entry
+                    self._ttl_cache.popitem()
+
+            self._ttl_cache[key] = (ttl_result, now + float(self._ttl_cache_seconds))
+            return ttl_result
 
         pattern = self.access_patterns[key]
 
@@ -1284,7 +1396,21 @@ class IntelligentCacheService:
         )
 
         # Ensure reasonable bounds
-        return max(300, min(smart_ttl, 86400))  # 5 minutes to 24 hours
+        result_ttl = max(300, min(smart_ttl, 86400))  # 5 minutes to 24 hours
+        # Evict oldest entry if we're over the max entries cap
+        if (
+            self._ttl_cache_max_entries is not None
+            and len(self._ttl_cache) >= self._ttl_cache_max_entries
+        ):
+            try:
+                oldest_key = next(iter(self._ttl_cache))
+                self._ttl_cache.pop(oldest_key, None)
+            except Exception:
+                self._ttl_cache.popitem()
+
+        # Cache result for a short period to reduce repeated work on bursty sets
+        self._ttl_cache[key] = (result_ttl, now + float(self._ttl_cache_seconds))
+        return result_ttl
 
     def _parse_cache_key_for_volatility(
         self, key: str, user_context: Optional[str] = None

@@ -1,0 +1,52 @@
+Performance Validation Report — 2025-11-01
+
+Command:
+python -X utf8 -u /c/Users/bcmad/Downloads/A1Betting7-13.2/phase2_performance_benchmark.py
+
+Raw output:
+
+Starting comprehensive performance benchmark...
+Phase 2 Health Status: {'phase2_available': False}
+Initial System Stats: {}
+
+==================================================
+Benchmarking baseline predictions (25 requests)...
+
+Starting Phase 2 optimization services...
+Failed to start Phase 2 services: {"success":false,"data":null,"error":{"code":"E4040_NOT_FOUND","message":"Not Found"},"meta":{"timestamp":"2025-11-01T05:48:43.231145+00:00","severity":"LOW","category":"CLIENT","retryable":false,"request_id":"3f850c9c-fa2e-4b01-bc0e-35d9a96e8271"},"detail":"Not Found"}
+==================================================
+Benchmarking optimized predictions (25 requests)...
+
+======================================================================
+PERFORMANCE BENCHMARK RESULTS
+======================================================================
+
+BASELINE PERFORMANCE:
+  Throughput: 0.00 requests/second
+  Avg Latency: 0.00 ms
+  P95 Latency: 0.00 ms
+  Success Rate: 0.0%
+
+OPTIMIZED PERFORMANCE:
+  Throughput: 0.00 requests/second
+  Avg Latency: 0.00 ms
+  P95 Latency: 0.00 ms
+  Success Rate: 0.0%
+  Cache Hit Rate: 0.0%
+
+PERFORMANCE COMPARISON:
+  ⚠️ Throughput decreased by 0.0% | ❌ Latency increased by 0.0% | 🔍 No cache hits detected
+  Throughput Improvement: 0.00%
+  Latency Improvement: 0.00%
+
+======================================================================
+Results saved to: phase2_benchmark_20251101_004843.json
+
+Summary & blockers:
+- Phase 2 services health check returned phase2_available=False and attempts to start Phase 2 optimization services failed with a 404 Not Found error.
+- As a result, both baseline and optimized benchmark phases recorded zero successful requests and no latency metrics.
+
+Next diagnostic steps (suggested):
+- Verify the FastAPI backend is running via the app factory (backend/core/app.py → create_app()) and that feature routers for phase 2 endpoints are registered.
+- Check environment flags and routes for Phase 2 services; look for registration functions called by register_feature_routers().
+- Inspect the JSON file (phase2_benchmark_20251101_004843.json) for detailed error traces and endpoint URLs used by the benchmark.

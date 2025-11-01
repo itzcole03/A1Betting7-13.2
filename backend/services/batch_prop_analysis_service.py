@@ -5,6 +5,7 @@ High-performance batch processing with intelligent request optimization
 
 import asyncio
 import logging
+import os
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
@@ -15,6 +16,21 @@ from backend.services.enhanced_prop_analysis_service import EnhancedPropAnalysis
 from backend.services.optimized_data_service import optimized_data_service
 
 logger = logging.getLogger(__name__)
+
+# Env-gated debug short-circuit for batch prop analysis module. When
+# disabled, this makes `logger.debug(...)` calls effectively no-ops to
+# avoid expensive formatting on hot paths.
+_BPA_DEBUG = os.environ.get("BATCH_PROP_ANALYSIS_DEBUG", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+
+if not _BPA_DEBUG:
+    try:
+        logger.setLevel(logging.INFO)
+    except Exception:
+        pass
 
 
 @dataclass

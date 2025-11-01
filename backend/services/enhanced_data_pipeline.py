@@ -62,6 +62,19 @@ from backend.utils.enhanced_logging import get_logger
 logger = get_logger("enhanced_data_pipeline")
 unified_logger = get_logger("enhanced_data_pipeline")
 
+# Env-gated debug suppression for enhanced data pipeline. Prefer raising the
+# logger level to INFO when detailed debugging is not requested to avoid
+# expensive debug formatting and IO on hot paths.
+_ENHANCED_DATA_PIPELINE_DEBUG = bool(os.getenv("ENHANCED_DATA_PIPELINE_DEBUG"))
+if not _ENHANCED_DATA_PIPELINE_DEBUG:
+    try:
+        logger.setLevel(max(getattr(logger, "level", logging.INFO), logging.INFO))
+        unified_logger.setLevel(
+            max(getattr(unified_logger, "level", logging.INFO), logging.INFO)
+        )
+    except Exception:
+        pass
+
 
 class DataSourceState(Enum):
     """Data source health states"""
@@ -157,7 +170,9 @@ class CircuitBreaker:
         if self.state == CircuitBreakerState.OPEN:
             if self._should_attempt_reset():
                 self.state = CircuitBreakerState.HALF_OPEN
-                logger.info("CIRCUIT_BREAKER: Circuit breaker transitioning to HALF_OPEN")
+                logger.info(
+                    "CIRCUIT_BREAKER: Circuit breaker transitioning to HALF_OPEN"
+                )
             else:
                 raise Exception("Circuit breaker is OPEN - failing fast")
 
@@ -388,7 +403,9 @@ class EnhancedDataPipeline:
                         f"stale:{cache_key}"
                     )
                     if stale_data is not None:
-                        logger.warning(f"WARNING: Returning stale data for {source_name}")
+                        logger.warning(
+                            f"WARNING: Returning stale data for {source_name}"
+                        )
                         return stale_data
 
                 raise
@@ -427,7 +444,9 @@ class EnhancedDataPipeline:
             if isinstance(result, Exception):
                 results[source_name] = None
                 failure_count += 1
-                logger.error(f"ERROR: Parallel fetch failed for {source_name}: {result}")
+                logger.error(
+                    f"ERROR: Parallel fetch failed for {source_name}: {result}"
+                )
             else:
                 results[source_name] = result
 
@@ -462,7 +481,9 @@ class EnhancedDataPipeline:
             finally:
                 if client_id in self.streaming_connections:
                     del self.streaming_connections[client_id]
-                    logger.info(f"STREAMING: Streaming client disconnected: {client_id}")
+                    logger.info(
+                        f"STREAMING: Streaming client disconnected: {client_id}"
+                    )
 
         start_server = websockets.serve(handle_client, "localhost", port)
         await start_server
@@ -493,7 +514,9 @@ class EnhancedDataPipeline:
                 try:
                     self.streaming_queue.get_nowait()
                     self.streaming_queue.put_nowait(streaming_point)
-                    logger.warning("WARNING: Streaming queue full - dropped oldest message")
+                    logger.warning(
+                        "WARNING: Streaming queue full - dropped oldest message"
+                    )
                 except asyncio.QueueEmpty:
                     pass
 

@@ -120,10 +120,16 @@ class PerformanceBenchmark:
                     latencies.append(response.elapsed.total_seconds() * 1000)
 
                     # Check if response was cached
-                    response_data = response.json()
-                    if response_data.get("optimization_metadata", {}).get(
-                        "cached", False
-                    ):
+                    payload = response.json()
+                    # Unwrap standardized envelope if present
+                    response_data = (
+                        payload.get("data", payload)
+                        if isinstance(payload, dict)
+                        else payload
+                    )
+                    if isinstance(response_data, dict) and response_data.get(
+                        "optimization_metadata", {}
+                    ).get("cached", False):
                         cached_responses += 1
 
             except Exception as e:
@@ -156,7 +162,11 @@ class PerformanceBenchmark:
                 f"{self.base_url}/api/modern-ml/phase2/optimization-stats"
             )
             if response.status_code == 200:
-                return response.json()
+                payload = response.json()
+                # Unwrap standardized envelope if present
+                if isinstance(payload, dict) and payload.get("success") is True:
+                    return payload.get("data", {})
+                return payload
 
         except Exception as e:
             print(f"Error getting system stats: {e}")
@@ -168,7 +178,11 @@ class PerformanceBenchmark:
         try:
             response = requests.get(f"{self.base_url}/api/modern-ml/phase2/health")
             if response.status_code == 200:
-                return response.json()
+                payload = response.json()
+                # Unwrap standardized envelope if present
+                if isinstance(payload, dict) and payload.get("success") is True:
+                    return payload.get("data", {})
+                return payload
 
         except Exception as e:
             print(f"Error getting health status: {e}")

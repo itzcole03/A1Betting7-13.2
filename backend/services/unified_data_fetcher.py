@@ -7,6 +7,7 @@ Purpose:
 This file is intentionally small and non-disruptive. Implementations for real fetching should live
 under `backend/ingestion/` as provider-specific connectors that register themselves here.
 """
+
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Protocol
 
@@ -42,11 +43,9 @@ class ProviderConnector(Protocol):
 
     name: str
 
-    async def fetch_events(self) -> List[GameEvent]:
-        ...
+    async def fetch_events(self) -> List[GameEvent]: ...
 
-    async def fetch_player_props(self, event_id: str) -> List[OddsSnapshot]:
-        ...
+    async def fetch_player_props(self, event_id: str) -> List[OddsSnapshot]: ...
 
 
 # Registry for connectors
@@ -92,6 +91,8 @@ async def fetch_props_for_event(event_id: str) -> List[OddsSnapshot]:
         except Exception:
             continue
     return snapshots
+
+
 """
 Unified Data Fetcher Service
 
@@ -127,17 +128,30 @@ from backend.services.unified_error_handler import unified_error_handler
 # Import capability registration - used for conditional capability system integration
 try:
     from backend.services.service_capability_matrix import (
-        register_service_capability,
+        DegradedPolicy,
         ServiceCategory,
         ServiceStatus,
-        DegradedPolicy,
-        update_service_status_quick
+        register_service_capability,
+        update_service_status_quick,
     )
+
     CAPABILITY_SYSTEM_AVAILABLE = True
 except ImportError:
     CAPABILITY_SYSTEM_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
+
+# Env-gated debug helper to avoid high-frequency per-call debug cost unless enabled.
+_DATAFETCHER_DEBUG = os.environ.get("UNIFIED_DATAFETCHER_DEBUG", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+
+
+def _df_debug(msg: str, *args, **kwargs):
+    if _DATAFETCHER_DEBUG:
+        logger.debug(msg, *args, **kwargs)
 
 
 class DataFetchError(Exception):
@@ -196,12 +210,18 @@ class UnifiedDataFetcher:
             dict: Player info
         """
         correlation_id = (
-            correlation_id or f"playerinfo-{player_id}-{datetime.now(timezone.utc).timestamp()}"
+            correlation_id
+            or f"playerinfo-{player_id}-{datetime.now(timezone.utc).timestamp()}"
         )
         for attempt in range(1, self.config.max_retries + 1):
             try:
-                logger.info(
-                    f"[CID={correlation_id}] Fetching player info for {player_id} (attempt {attempt})"
+                # Per-call instrumentation is noisy; emit at DEBUG level to avoid
+                # runtime overhead when INFO level is enabled.
+                _df_debug(
+                    "[CID=%s] Fetching player info for %s (attempt %d)",
+                    correlation_id,
+                    player_id,
+                    attempt,
                 )
                 # Example: Replace with real data source
                 player_info = {
@@ -233,12 +253,16 @@ class UnifiedDataFetcher:
         Uses unified error handler and structured logging.
         """
         correlation_id = (
-            correlation_id or f"playerstats-{player_id}-{datetime.now(timezone.utc).timestamp()}"
+            correlation_id
+            or f"playerstats-{player_id}-{datetime.now(timezone.utc).timestamp()}"
         )
         for attempt in range(1, self.config.max_retries + 1):
             try:
-                logger.info(
-                    f"[CID={correlation_id}] Fetching season stats for {player_id} (attempt {attempt})"
+                _df_debug(
+                    "[CID=%s] Fetching season stats for %s (attempt %d)",
+                    correlation_id,
+                    player_id,
+                    attempt,
                 )
                 # Example: Replace with real data source
                 stats = {
@@ -281,12 +305,16 @@ class UnifiedDataFetcher:
         Uses unified error handler and structured logging.
         """
         correlation_id = (
-            correlation_id or f"recentgames-{player_id}-{datetime.now(timezone.utc).timestamp()}"
+            correlation_id
+            or f"recentgames-{player_id}-{datetime.now(timezone.utc).timestamp()}"
         )
         for attempt in range(1, self.config.max_retries + 1):
             try:
-                logger.info(
-                    f"[CID={correlation_id}] Fetching recent games for {player_id} (attempt {attempt})"
+                _df_debug(
+                    "[CID=%s] Fetching recent games for %s (attempt %d)",
+                    correlation_id,
+                    player_id,
+                    attempt,
                 )
                 # Example: Replace with real data source
                 games = [
@@ -326,12 +354,16 @@ class UnifiedDataFetcher:
         Uses unified error handler and structured logging.
         """
         correlation_id = (
-            correlation_id or f"prophistory-{player_id}-{datetime.now(timezone.utc).timestamp()}"
+            correlation_id
+            or f"prophistory-{player_id}-{datetime.now(timezone.utc).timestamp()}"
         )
         for attempt in range(1, self.config.max_retries + 1):
             try:
-                logger.info(
-                    f"[CID={correlation_id}] Fetching prop history for {player_id} (attempt {attempt})"
+                _df_debug(
+                    "[CID=%s] Fetching prop history for %s (attempt %d)",
+                    correlation_id,
+                    player_id,
+                    attempt,
                 )
                 # Example: Replace with real data source
                 props = [
@@ -361,12 +393,16 @@ class UnifiedDataFetcher:
         Uses unified error handler and structured logging.
         """
         correlation_id = (
-            correlation_id or f"trends-{player_id}-{datetime.now(timezone.utc).timestamp()}"
+            correlation_id
+            or f"trends-{player_id}-{datetime.now(timezone.utc).timestamp()}"
         )
         for attempt in range(1, self.config.max_retries + 1):
             try:
-                logger.info(
-                    f"[CID={correlation_id}] Fetching performance trends for {player_id} (attempt {attempt})"
+                _df_debug(
+                    "[CID=%s] Fetching performance trends for %s (attempt %d)",
+                    correlation_id,
+                    player_id,
+                    attempt,
                 )
                 # Example: Replace with real data source
                 trends = {
@@ -399,30 +435,30 @@ class UnifiedDataFetcher:
 
         # Initialize ensemble system if available
         self._initialize_ensemble_system()
-        
+
         # Flag for capability registration
         self._capability_registered = False
-    
+
     async def _register_capability(self):
         """Register service capability with the matrix system"""
         if CAPABILITY_SYSTEM_AVAILABLE:
             try:
                 # Import locally to avoid type checker issues
                 from backend.services.service_capability_matrix import (
-                    register_service_capability,
+                    DegradedPolicy,
                     ServiceCategory,
-                    DegradedPolicy
+                    register_service_capability,
                 )
-                
+
                 await register_service_capability(
                     name="unified_data_fetcher",
-                    version="1.0.0", 
+                    version="1.0.0",
                     category=ServiceCategory.DATA,
                     description="Unified data fetching service with ensemble integration",
                     required=True,
                     degraded_policy=DegradedPolicy.FALLBACK,
                     health_check_interval=60,
-                    dependencies=None
+                    dependencies=None,
                 )
                 logger.info("✅ UnifiedDataFetcher registered with capability matrix")
             except Exception as e:
@@ -434,16 +470,18 @@ class UnifiedDataFetcher:
             try:
                 from backend.services.service_capability_matrix import (
                     ServiceStatus,
-                    update_service_status_quick
+                    update_service_status_quick,
                 )
-                
+
                 status = ServiceStatus.UP if is_healthy else ServiceStatus.DEGRADED
-                # Note: update_service_status_quick is async but we're not awaiting 
+                # Note: update_service_status_quick is async but we're not awaiting
                 # to avoid blocking the main operation flow
-                asyncio.create_task(update_service_status_quick("unified_data_fetcher", status))
+                asyncio.create_task(
+                    update_service_status_quick("unified_data_fetcher", status)
+                )
             except Exception as e:
-                # Don't fail the main operation if status update fails
-                logger.debug(f"Status update failed: {e}")
+                # Don't fail the main operation if status update fails. Gate noisy debug.
+                _df_debug("Status update failed: %s", e)
 
     def _health_check(self) -> bool:
         """Health check for the unified data fetcher service"""
@@ -452,9 +490,11 @@ class UnifiedDataFetcher:
             if self._client is None:
                 self._client = httpx.AsyncClient(
                     timeout=httpx.Timeout(self.config.timeout),
-                    limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),
+                    limits=httpx.Limits(
+                        max_keepalive_connections=10, max_connections=20
+                    ),
                 )
-            
+
             # Basic connectivity check - we have a client and config
             return self._client is not None and self.config is not None
         except Exception as e:
@@ -506,7 +546,7 @@ class UnifiedDataFetcher:
                 self._capability_registered = True
             except Exception:
                 pass  # Don't fail if registration fails
-                
+
         cache_key = "current_prizepicks_props"
 
         # Check cache first if enabled
@@ -548,7 +588,7 @@ class UnifiedDataFetcher:
         except Exception as e:
             # Update service status - operation failed
             self._update_service_status("data_fetch", False)
-            
+
             logger.error(f"❌ Error fetching PrizePicks props: {e}")
             self.error_handler.handle_error(e, "fetch_current_prizepicks_props")
             return []

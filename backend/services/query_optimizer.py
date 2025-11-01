@@ -15,6 +15,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.config.settings import get_settings
+from backend.services.unified_session_utils import unified_session_execute
 
 try:
     from backend.services.advanced_caching_system import advanced_caching_system
@@ -240,17 +241,33 @@ class QueryOptimizer:
         try:
             if isinstance(optimized_query, str):
                 if params:
-                    result = await session.execute(text(optimized_query), params)
+                    result = await unified_session_execute(
+                        session, text(optimized_query), params
+                    )
                 else:
-                    result = await session.execute(text(optimized_query))
+                    result = await unified_session_execute(
+                        session, text(optimized_query)
+                    )
             else:
-                result = await session.execute(optimized_query)
+                result = await unified_session_execute(session, optimized_query)
 
             # Fetch results based on query type
             if analysis["query_type"] == QueryType.SELECT:
-                data = result.fetchall()
+                # Prefer scalars().all() when available (SQLAlchemy/SQLModel)
+                try:
+                    scalars_fn = getattr(result, "scalars", None)
+                    if callable(scalars_fn):
+                        data = scalars_fn().all()
+                    else:
+                        data = result.fetchall()
+                except Exception:
+                    data = result.fetchall()
             else:
-                data = result.rowcount
+                # For DML, use rowcount when provided
+                try:
+                    data = result.rowcount
+                except Exception:
+                    data = None
 
             execution_time = time.time() - start_time
 
@@ -299,14 +316,42 @@ class QueryOptimizer:
 
     async def _apply_optimizations(self, query: Any, analysis: Dict[str, Any]) -> Any:
         """Apply query optimizations based on analysis"""
+        # Conservative, opt-in pagination for SELECTs without LIMIT
+        try:
+            if (
+                analysis.get("query_type") == QueryType.SELECT
+                and self.settings.performance.enable_safe_query_pagination
+                and not analysis.get("has_limit")
+            ):
+                default_limit = self.settings.performance.default_select_limit
 
-        # For now, return original query
-        # In a full implementation, this would:
-        # - Add LIMIT clauses for large result sets
-        # - Rewrite subqueries as JOINs where beneficial
-        # - Add appropriate indexes suggestions
-        # - Batch multiple similar queries
+                # If this is a SQLAlchemy selectable, prefer the native limit API
+                try:
+                    import sqlalchemy as sa  # local import to keep top-level light
 
+                    if isinstance(query, sa.sql.Select):
+                        # Only add limit if not already present
+                        limit_present = (
+                            getattr(query, "_limit_clause", None) is not None
+                        )
+                        if not limit_present:
+                            return query.limit(default_limit)
+                except Exception:
+                    # Fallback to string handling below
+                    pass
+
+                # For raw SQL strings, append LIMIT conservatively
+                if isinstance(query, str):
+                    q = query.strip()
+                    # Avoid double semicolons and preserve simple endings
+                    if q.endswith(";"):
+                        q = q[:-1]
+                    return f"{q} LIMIT {int(default_limit)}"
+        except Exception:
+            # Never fail caller on optimizer heuristics; return original query
+            return query
+
+        # No changes by default
         return query
 
     async def _record_query_metrics(

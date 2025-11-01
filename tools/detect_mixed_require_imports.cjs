@@ -115,6 +115,7 @@ function generateSuggestion(filePath, content, imports) {
 function main() {
   const args = process.argv.slice(2);
   const apply = args.includes("--apply");
+  const expandNonRelative = args.includes("--expand-non-relative");
   const files = walk(TARGET, []);
   ensureDir(SUGGEST_DIR);
   const report = [];
@@ -127,11 +128,10 @@ function main() {
       // determine whether any import is relative and overlaps with require targets
       // conservative: if file has any import AND any require, report
       report.push({ file: path.relative(ROOT, f), imports });
-      const suggestion = generateSuggestion(
-        f,
-        content,
-        imports.filter((i) => i.from.startsWith("."))
-      );
+      const considerImports = expandNonRelative
+        ? imports
+        : imports.filter((i) => i.from.startsWith("."));
+      const suggestion = generateSuggestion(f, content, considerImports);
       if (suggestion) {
         const outFile = path.join(
           SUGGEST_DIR,
@@ -143,9 +143,9 @@ function main() {
         if (apply) {
           // apply replacements in-place (conservative single-line replacements)
           let updated = content;
-          for (const imp of imports) {
+          for (const imp of considerImports) {
             const repl = makeReplacement(imp);
-            if (repl && imp.from.startsWith(".")) {
+            if (repl) {
               updated = updated.replace(imp.full, repl);
             }
           }

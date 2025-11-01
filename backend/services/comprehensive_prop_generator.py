@@ -15,6 +15,7 @@ Features:
 import asyncio
 import gc
 import logging
+import os
 import time
 import weakref
 from contextlib import asynccontextmanager
@@ -90,12 +91,12 @@ try:
 
 except ImportError:
     unified_cache_service = None
-    
+
     # Fallback cache service
     class IntelligentCacheService:
         def __init__(self):
             self.service = None
-            
+
         async def get_cached_data(self, key: str, category: Optional[str] = None):
             return None
 
@@ -143,6 +144,29 @@ except ImportError:
 
 
 logger = logging.getLogger("propollama")
+
+# Env-gated debug helper for comprehensive prop generator
+_CPG_DEBUG = os.environ.get("COMPREHENSIVE_PROP_GENERATOR_DEBUG", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+
+
+def _cpg_debug(msg: str, *args, **kwargs):
+    if _CPG_DEBUG:
+        logger.debug(msg, *args, **kwargs)
+
+
+# If not explicitly enabled, reduce logger level to suppress debug emits without
+# rebinding methods (preferred for linters and static analysis).
+if not _CPG_DEBUG:
+    try:
+        logger.setLevel(logging.INFO)
+    except Exception:
+        # Best-effort; if logger doesn't support setLevel here, ignore.
+        pass
+
 
 # Modern data validation integration
 try:
@@ -1747,7 +1771,7 @@ class ComprehensivePropGenerator:
         cache_key = f"game_props:{game_id}"
 
         logger.info(f"🚀 Starting comprehensive prop generation for game {game_id}")
-        logger.debug(f"🔍 Optimize performance: {optimize_performance}")
+        _cpg_debug("Optimize performance: %s", optimize_performance)
 
         # Circuit breaker: fail fast if open (check both state and is_callable)
         if (
@@ -1767,7 +1791,7 @@ class ComprehensivePropGenerator:
         # Try cache first (with timeout)
         try:
             async with asyncio.timeout(5.0):
-                logger.debug(f"🔍 Checking cache for game {game_id}")
+                _cpg_debug("Checking cache for game %s", game_id)
                 cached_props = await self.cache_service.get_cached_data(
                     cache_key, "game_props"
                 )
@@ -1778,8 +1802,9 @@ class ComprehensivePropGenerator:
                     logger.info(
                         f"📊 Retrieved {len(cached_props)} props from cache for game {game_id}"
                     )
-                    logger.debug(
-                        f"🔍 Cached props types: {[type(prop).__name__ for prop in cached_props[:3]]}"
+                    _cpg_debug(
+                        "Cached props types: %s",
+                        [type(prop).__name__ for prop in cached_props[:3]],
                     )
                     try:
                         # Defensive conversion of cached props
@@ -1813,7 +1838,7 @@ class ComprehensivePropGenerator:
                         )
                         # Continue to fresh generation if cache conversion fails
                 else:
-                    logger.debug(f"🔍 Cache miss for game {game_id}")
+                    _cpg_debug("Cache miss for game %s", game_id)
         except asyncio.TimeoutError:
             logger.warning(f"Cache retrieval timeout for game {game_id}")
         except Exception as e:
@@ -1889,7 +1914,7 @@ class ComprehensivePropGenerator:
                     validation_warnings.append(f"Validation error: {e}")
                     self.generation_stats["validation_failures"] += 1
             else:
-                logger.debug(
+                _cpg_debug(
                     "Data validation not available - using standard data collection"
                 )
 
@@ -1915,14 +1940,17 @@ class ComprehensivePropGenerator:
             try:
                 async with asyncio.timeout(10.0):
                     cache_ttl = self._calculate_cache_ttl(game_info)
-                    logger.debug(
-                        f"🔍 Preparing to cache {len(high_confidence_props)} props"
+                    _cpg_debug(
+                        "Preparing to cache %s props", len(high_confidence_props)
                     )
                     cache_props = []
                     for i, prop in enumerate(high_confidence_props):
                         try:
-                            logger.debug(
-                                f"🔍 Converting prop {i}: type={type(prop)}, has_to_dict={hasattr(prop, 'to_dict')}"
+                            _cpg_debug(
+                                "Converting prop %s: type=%s, has_to_dict=%s",
+                                i,
+                                type(prop),
+                                hasattr(prop, "to_dict"),
                             )
                             if hasattr(prop, "to_dict"):
                                 cache_props.append(prop.to_dict())
@@ -2635,8 +2663,8 @@ class ComprehensivePropGenerator:
     def _filter_and_rank_props(self, props: List[GeneratedProp]) -> List[GeneratedProp]:
         """Filter and rank props by quality"""
 
-        logger.debug(f"🔍 Filtering {len(props)} props")
-        logger.debug(
+        _cpg_debug(f"🔍 Filtering {len(props)} props")
+        _cpg_debug(
             f"🔍 Input props types: {[type(prop).__name__ for prop in props[:5]]}"
         )  # Check first 5
 
@@ -2670,7 +2698,7 @@ class ComprehensivePropGenerator:
             prop for prop in valid_props if prop.confidence >= quality_threshold
         ]
 
-        logger.debug(
+        _cpg_debug(
             f"📊 {len(filtered_props)} props passed confidence threshold {quality_threshold}"
         )
 
@@ -2683,7 +2711,7 @@ class ComprehensivePropGenerator:
                 ),
                 reverse=True,
             )
-            logger.debug("✅ Props sorted successfully")
+            _cpg_debug("✅ Props sorted successfully")
         except Exception as sort_error:
             logger.error(f"❌ Error sorting props: {sort_error}")
             logger.debug(f"❌ Sort error details:", exc_info=True)

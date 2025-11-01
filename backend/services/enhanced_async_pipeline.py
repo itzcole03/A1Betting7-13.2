@@ -5,6 +5,7 @@ Advanced async processing with circuit breakers, retry mechanisms, and throughpu
 
 import asyncio
 import logging
+import os
 import time
 from collections import deque
 from contextlib import asynccontextmanager
@@ -18,6 +19,14 @@ from backend.services.optimized_redis_service import OptimizedRedisService
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("enhanced_async_pipeline")
+
+# Module-level env flag to suppress debug-level logging work on hot paths.
+_ENHANCED_ASYNC_PIPELINE_DEBUG = bool(os.getenv("ENHANCED_ASYNC_PIPELINE_DEBUG"))
+if not _ENHANCED_ASYNC_PIPELINE_DEBUG:
+    try:
+        logger.setLevel(max(getattr(logger, "level", logging.INFO), logging.INFO))
+    except Exception:
+        pass
 
 T = TypeVar("T")
 R = TypeVar("R")

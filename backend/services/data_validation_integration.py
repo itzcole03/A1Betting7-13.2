@@ -14,6 +14,7 @@ Features:
 
 import asyncio
 import logging
+import os
 import time
 from dataclasses import dataclass
 from datetime import datetime
@@ -27,7 +28,27 @@ from .data_validation_orchestrator import (
     data_validation_orchestrator,
 )
 
-logger = logging.getLogger("validation_integration")
+logger = logging.getLogger(__name__)
+
+# Suppress debug-level work unless explicitly enabled via env var. Raising
+# the logger level to INFO avoids debug formatting overhead on hot paths.
+_DATA_VALIDATION_INTEGRATION_DEBUG = bool(
+    os.getenv("DATA_VALIDATION_INTEGRATION_DEBUG")
+)
+if not _DATA_VALIDATION_INTEGRATION_DEBUG:
+    try:
+        logger.setLevel(max(getattr(logger, "level", logging.INFO), logging.INFO))
+    except Exception:
+        pass
+
+
+def _dvi_debug(msg: str, *args, **kwargs) -> None:
+    """Cheap, gated debug emitter for hot paths.
+
+    Uses parameterized style to avoid formatting costs when disabled.
+    """
+    if _DATA_VALIDATION_INTEGRATION_DEBUG and logger.isEnabledFor(logging.DEBUG):
+        logger.debug(msg, *args, **kwargs)
 
 
 @dataclass
@@ -66,7 +87,7 @@ class DataValidationIntegrationService:
             "conflicts_resolved": 0,
         }
 
-        logger.info("🔧 DataValidationIntegrationService initialized")
+    logger.info("🔧 DataValidationIntegrationService initialized")
 
     async def validate_and_enhance_player_data(
         self,
@@ -115,7 +136,7 @@ class DataValidationIntegrationService:
             data_sources[DataSource.EXTERNAL_API] = external_data
 
         if not data_sources:
-            logger.warning(f"No data sources provided for player {player_id}")
+            logger.warning("No data sources provided for player %s", player_id)
             return {}, None
 
         try:
@@ -127,7 +148,7 @@ class DataValidationIntegrationService:
             ):
                 self.performance_metrics["cache_hits"] += 1
                 cached_result = self.validation_cache[cache_key]
-                logger.debug(f"Using cached validation for player {player_id}")
+                _dvi_debug("Using cached validation for player %s", player_id)
                 return cached_result["data"], cached_result["report"]
 
             # Perform validation with timeout
@@ -164,25 +185,27 @@ class DataValidationIntegrationService:
 
                 if self.config.alert_on_conflicts:
                     logger.warning(
-                        f"Data conflicts detected for player {player_id}: "
-                        f"{len(validation_report.conflicts)} conflicts resolved"
+                        "Data conflicts detected for player %s: %d conflicts resolved",
+                        player_id,
+                        len(validation_report.conflicts),
                     )
 
             logger.info(
-                f"✅ Player {player_id} validation completed "
-                f"(confidence: {validation_report.confidence_score:.2f})"
+                "✅ Player %s validation completed (confidence: %.2f)",
+                player_id,
+                validation_report.confidence_score,
             )
 
             return enhanced_data, validation_report
 
         except asyncio.TimeoutError:
-            logger.warning(f"Validation timeout for player {player_id}")
+            logger.warning("Validation timeout for player %s", player_id)
             if self.config.enable_fallback_on_failure:
                 return await self._handle_validation_fallback(data_sources, "timeout")
             return {}, None
 
         except Exception as e:
-            logger.error(f"Validation error for player {player_id}: {e}")
+            logger.error("Validation error for player %s: %s", player_id, e)
             if self.config.enable_fallback_on_failure:
                 return await self._handle_validation_fallback(
                     data_sources, f"error: {e}"
@@ -234,20 +257,21 @@ class DataValidationIntegrationService:
             )
 
             logger.info(
-                f"✅ Game {game_id} validation completed "
-                f"(confidence: {validation_report.confidence_score:.2f})"
+                "✅ Game %s validation completed (confidence: %.2f)",
+                game_id,
+                validation_report.confidence_score,
             )
 
             return enhanced_data, validation_report
 
         except asyncio.TimeoutError:
-            logger.warning(f"Validation timeout for game {game_id}")
+            logger.warning("Validation timeout for game %s", game_id)
             if self.config.enable_fallback_on_failure:
                 return await self._handle_validation_fallback(data_sources, "timeout")
             return {}, None
 
         except Exception as e:
-            logger.error(f"Validation error for game {game_id}: {e}")
+            logger.error("Validation error for game %s: %s", game_id, e)
             if self.config.enable_fallback_on_failure:
                 return await self._handle_validation_fallback(
                     data_sources, f"error: {e}"
@@ -342,14 +366,16 @@ class DataValidationIntegrationService:
             }
 
             logger.info(
-                f"✅ Prop generation data validated for game {game_id} "
-                f"({len(validated_players)} players, {len(warnings)} warnings)"
+                "✅ Prop generation data validated for game %s (%d players, %d warnings)",
+                game_id,
+                len(validated_players),
+                len(warnings),
             )
 
             return validated_data, warnings
 
         except Exception as e:
-            logger.error(f"Prop validation error for game {game_id}: {e}")
+            logger.error("Prop validation error for game %s: %s", game_id, e)
             warnings.append(f"Validation error: {e}")
             return collected_data, warnings
 
@@ -386,7 +412,7 @@ class DataValidationIntegrationService:
         """Handle validation failure with fallback mechanism"""
         self.performance_metrics["fallbacks_triggered"] += 1
 
-        logger.warning(f"Validation fallback triggered: {reason}")
+        logger.warning("Validation fallback triggered: %s", reason)
 
         # Priority order for fallback
         priority_sources = [
@@ -404,7 +430,7 @@ class DataValidationIntegrationService:
                     "source": source.value,
                     "timestamp": datetime.now().isoformat(),
                 }
-                logger.info(f"Using fallback data from {source.value}")
+                logger.info("Using fallback data from %s", source.value)
                 return fallback_data, None
 
         # No viable fallback
@@ -442,7 +468,7 @@ class DataValidationIntegrationService:
         """Clear validation cache"""
         cache_size = len(self.validation_cache)
         self.validation_cache.clear()
-        logger.info(f"🧹 Cleared validation cache ({cache_size} entries)")
+        logger.info("🧹 Cleared validation cache (%d entries)", cache_size)
 
     async def health_check(self) -> Dict[str, Any]:
         """Perform health check on validation system"""

@@ -1909,6 +1909,21 @@ def create_app() -> FastAPI:
     except Exception as e:
         logger.error(f"ERROR: Failed to register observability events routes: {e}")
 
+    # Import and mount Query Optimizer observability routes
+    try:
+        from backend.routes.query_optimizer_routes import (
+            router as query_optimizer_router,
+        )
+
+        _app.include_router(query_optimizer_router)
+        logger.info(
+            "SUCCESS: Query Optimizer routes included (/api/observability/query-optimizer/*)"
+        )
+    except ImportError as e:
+        logger.warning(f"WARNING: Could not import query optimizer routes: {e}")
+    except Exception as e:
+        logger.error(f"ERROR: Failed to register query optimizer routes: {e}")
+
     # Import and mount admin control routes (Admin Control PR: Runtime Shadow Mode Control)
     try:
         from backend.routes.admin_control import router as admin_control_router
@@ -2428,6 +2443,44 @@ def create_app() -> FastAPI:
             )
     except Exception as e:
         logger.error(f"ERROR: Failed to register enhanced ML routes: {e}")
+
+    # Modern ML Phase 2 routes (lightweight) - used by the Phase 2 performance benchmark
+    try:
+        from backend.routes.modern_ml_phase2_routes import (
+            router as modern_ml_phase2_router,
+        )
+
+        _app.include_router(modern_ml_phase2_router, tags=["Modern ML Phase 2"])
+        logger.info(
+            "SUCCESS: Modern ML Phase 2 routes included (/api/modern-ml/phase2/* endpoints)"
+        )
+    except ImportError as e:
+        logger.warning(f"WARNING: Could not import Modern ML Phase 2 routes: {e}")
+    except Exception as e:
+        logger.error(f"ERROR: Failed to register Modern ML Phase 2 routes: {e}")
+
+    # Unified API batch predictions compatibility (for baseline benchmark)
+    try:
+        from backend.routes.unified_batch_compat import (
+            router_api as unified_batch_router_api,
+        )
+        from backend.routes.unified_batch_compat import (
+            router_legacy as unified_batch_router_legacy,
+        )
+
+        _app.include_router(unified_batch_router_api)
+        _app.include_router(unified_batch_router_legacy)
+        logger.info(
+            "SUCCESS: Unified batch predictions compat routes included (/api/unified/* and /unified/*)"
+        )
+    except ImportError as e:
+        logger.warning(
+            f"WARNING: Could not import Unified batch predictions compat routes: {e}"
+        )
+    except Exception as e:
+        logger.error(
+            f"ERROR: Failed to register Unified batch predictions compat routes: {e}"
+        )
 
     # --- Ensure /api/enhanced-ml compatibility exists even if enhanced_ml_routes used
     try:

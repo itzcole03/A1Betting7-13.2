@@ -1,0 +1,48 @@
+         9964 function calls (9939 primitive calls) in 0.008 seconds
+
+   Ordered by: cumulative time
+   List reduced from 499 to 40 due to restriction <40>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.008    0.008 C:\Python313\Lib\asyncio\runners.py:160(run)
+        4    0.000    0.000    0.007    0.002 C:\Python313\Lib\asyncio\base_events.py:689(run_until_complete)
+        4    0.000    0.000    0.007    0.002 C:\Python313\Lib\asyncio\base_events.py:678(run_forever)
+        9    0.000    0.000    0.006    0.001 C:\Python313\Lib\asyncio\base_events.py:1962(_run_once)
+        1    0.000    0.000    0.006    0.006 C:\Python313\Lib\asyncio\runners.py:86(run)
+       20    0.000    0.000    0.006    0.000 C:\Python313\Lib\asyncio\events.py:87(_run)
+       20    0.000    0.000    0.006    0.000 {method 'run' of '_contextvars.Context' objects}
+        1    0.000    0.000    0.006    0.006 C:\Users\bcmad\Downloads\A1Betting7-13.2\tools\profile_unified_services.py:21(workload)
+      200    0.000    0.000    0.003    0.000 c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\unified_cache_service.py:132(set)
+      200    0.000    0.000    0.003    0.000 c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\intelligent_cache_service.py:399(set)
+      200    0.000    0.000    0.003    0.000 c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\intelligent_cache_service.py:1308(_calculate_smart_ttl)
+        1    0.000    0.000    0.003    0.003 <frozen importlib._bootstrap>:1349(_find_and_load)
+        1    0.000    0.000    0.003    0.003 <frozen importlib._bootstrap>:1304(_find_and_load_unlocked)
+        1    0.000    0.000    0.002    0.002 <frozen importlib._bootstrap>:911(_load_unlocked)
+        1    0.000    0.000    0.002    0.002 <frozen importlib._bootstrap_external>:1020(exec_module)
+        2    0.000    0.000    0.002    0.001 <frozen importlib._bootstrap>:480(_call_with_frames_removed)
+      2/1    0.000    0.000    0.002    0.002 {built-in method builtins.exec}
+        1    0.000    0.000    0.002    0.002 c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\sport_volatility_models.py:1(<module>)
+        1    0.000    0.000    0.001    0.001 C:\Python313\Lib\asyncio\runners.py:57(__enter__)
+        2    0.000    0.000    0.001    0.000 C:\Python313\Lib\asyncio\runners.py:131(_lazy_init)
+        1    0.000    0.000    0.001    0.001 C:\Python313\Lib\asyncio\events.py:835(new_event_loop)
+        1    0.000    0.000    0.001    0.001 C:\Python313\Lib\asyncio\events.py:728(new_event_loop)
+        1    0.000    0.000    0.001    0.001 C:\Python313\Lib\asyncio\windows_events.py:313(__init__)
+        2    0.000    0.000    0.001    0.000 c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\utils\enhanced_logging.py:348(info)
+        2    0.000    0.000    0.001    0.000 c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\utils\enhanced_logging.py:309(_log_with_context)
+        1    0.000    0.000    0.001    0.001 C:\Python313\Lib\asyncio\proactor_events.py:629(__init__)
+        2    0.000    0.000    0.001    0.000 C:\Python313\Lib\logging\__init__.py:1577(log)
+        2    0.000    0.000    0.001    0.000 C:\Python313\Lib\logging\__init__.py:1643(_log)
+        1    0.000    0.000    0.001    0.001 C:\Python313\Lib\asyncio\proactor_events.py:782(_make_self_pipe)
+        1    0.000    0.000    0.001    0.001 C:\Python313\Lib\socket.py:598(_fallback_socketpair)
+        2    0.000    0.000    0.001    0.000 C:\Python313\Lib\logging\__init__.py:1669(handle)
+        5    0.000    0.000    0.001    0.000 {built-in method builtins.__build_class__}
+        2    0.000    0.000    0.001    0.000 C:\Python313\Lib\logging\__init__.py:1728(callHandlers)
+        6    0.000    0.000    0.001    0.000 C:\Python313\Lib\logging\__init__.py:1011(handle)
+      200    0.000    0.000    0.001    0.000 c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\unified_cache_service.py:111(get)
+      200    0.000    0.000    0.001    0.000 c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\intelligent_cache_service.py:353(get)
+        6    0.000    0.000    0.001    0.000 C:\Python313\Lib\logging\__init__.py:1139(emit)
+        1    0.000    0.000    0.001    0.001 c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\sport_volatility_models.py:116(__init__)
+        1    0.000    0.000    0.001    0.001 c:\Users\bcmad\Downloads\A1Betting7-13.2\backend\services\sport_volatility_models.py:128(_initialize_volatility_profiles)
+        1    0.000    0.000    0.001    0.001 <frozen importlib._bootstrap_external>:1093(get_code)
+
+

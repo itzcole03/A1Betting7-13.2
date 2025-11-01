@@ -7,7 +7,7 @@ from enum import Enum
 from functools import lru_cache
 from typing import List, Optional
 
-from pydantic import Field, field_validator, model_validator, ValidationInfo
+from pydantic import Field, ValidationInfo, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -99,14 +99,14 @@ class RedisSettings(BaseSettings):
 class SecuritySettings(BaseSettings):
     """
     Security configuration with comprehensive protection controls.
-    
+
     Features:
     - Environment-driven security header configuration
     - Content Security Policy with enforce/report-only modes
     - HTTP Strict Transport Security (HSTS) controls
     - Cross-origin isolation policies (COOP/COEP/CORP)
     - Configurable payload validation and limits
-    
+
     Special Behaviors:
     - security_strict_mode: When enabled, overrides individual flags to enforce
       maximum security baseline (e.g., forces CSP_REPORT_ONLY=False for enforcement)
@@ -141,11 +141,13 @@ class SecuritySettings(BaseSettings):
     trusted_hosts: List[str] = Field(default_factory=lambda: ["*"])
 
     # Payload guard settings (Step 5)
-    max_json_payload_bytes: int = Field(default=262144, ge=1024, le=10485760)  # 256KB default, max 10MB
+    max_json_payload_bytes: int = Field(
+        default=262144, ge=1024, le=10485760
+    )  # 256KB default, max 10MB
     enforce_json_content_type: bool = Field(default=True)
     allow_extra_content_types: str = Field(default="")  # Comma-separated list
     payload_guard_enabled: bool = Field(default=True)
-    
+
     # Security headers settings (Step 6)
     security_headers_enabled: bool = Field(default=True)
     enable_hsts: bool = Field(default=True)
@@ -154,17 +156,32 @@ class SecuritySettings(BaseSettings):
     csp_enabled: bool = Field(default=True)
     csp_report_only: bool = Field(default=True)
     csp_report_endpoint_enabled: bool = Field(default=True)
-    csp_extra_connect_src: str = Field(default="")  # Comma-separated additional connect sources
+    csp_extra_connect_src: str = Field(
+        default=""
+    )  # Comma-separated additional connect sources
     csp_enable_upgrade_insecure: bool = Field(default=True)
     # Legacy / alternate field names (kept for backward compatibility with tests)
-    csp_upgrade_insecure_requests: Optional[bool] = Field(default=None, description="Legacy alias for csp_enable_upgrade_insecure")
-    csp_report_uri: Optional[str] = Field(default=None, description="Legacy CSP report URI (alias)")
+    csp_upgrade_insecure_requests: Optional[bool] = Field(
+        default=None, description="Legacy alias for csp_enable_upgrade_insecure"
+    )
+    csp_report_uri: Optional[str] = Field(
+        default=None, description="Legacy CSP report URI (alias)"
+    )
     x_frame_options: str = Field(default="DENY")  # DENY or SAMEORIGIN
-    permissions_policy_append: str = Field(default="")  # Additional permissions to append
-    security_strict_mode: bool = Field(default=False)  # Force strict settings in production
+    permissions_policy_append: str = Field(
+        default=""
+    )  # Additional permissions to append
+    security_strict_mode: bool = Field(
+        default=False
+    )  # Force strict settings in production
     # Legacy / alternate flags
-    enable_corp: Optional[bool] = Field(default=None, description="Legacy alias to enable Cross-Origin-Resource-Policy header")
-    permissions_policy_enabled: Optional[bool] = Field(default=None, description="Legacy flag to enable permissions policy header")
+    enable_corp: Optional[bool] = Field(
+        default=None,
+        description="Legacy alias to enable Cross-Origin-Resource-Policy header",
+    )
+    permissions_policy_enabled: Optional[bool] = Field(
+        default=None, description="Legacy flag to enable permissions policy header"
+    )
 
     model_config = SettingsConfigDict(
         env_prefix="SECURITY_",
@@ -176,9 +193,9 @@ class SecuritySettings(BaseSettings):
     def validate_security_strict_mode_field(cls, v):
         """Convert string values to boolean for security_strict_mode field"""
         if isinstance(v, str):
-            if v.lower() in ('true', '1', 'yes', 'on'):
+            if v.lower() in ("true", "1", "yes", "on"):
                 return True
-            elif v.lower() in ('false', '0', 'no', 'off', ''):
+            elif v.lower() in ("false", "0", "no", "off", ""):
                 return False
             else:
                 raise ValueError(f"Invalid boolean value: {v}")
@@ -230,66 +247,83 @@ class SecuritySettings(BaseSettings):
         if len(v) < 32:
             raise ValueError("Secret key must be at least 32 characters long")
         return v
-    
+
     @field_validator("x_frame_options")
     def validate_x_frame_options(cls, v):
         if v.upper() not in ["DENY", "SAMEORIGIN"]:
             raise ValueError("X-Frame-Options must be either 'DENY' or 'SAMEORIGIN'")
         return v.upper()
-    
-    @model_validator(mode='after')
+
+    @model_validator(mode="after")
     def validate_security_strict_mode(self):
         """Apply security strict mode overrides and validation."""
         import logging
+
         logger = logging.getLogger(__name__)
-        
+
         # If strict mode is enabled, force strict security settings
         if self.security_strict_mode:
-            logger.info("SECURITY_STRICT_MODE enabled: forcing CSP_REPORT_ONLY=False for enforcement")
+            logger.info(
+                "SECURITY_STRICT_MODE enabled: forcing CSP_REPORT_ONLY=False for enforcement"
+            )
             # Create a copy with overridden values
-            object.__setattr__(self, 'csp_report_only', False)  # Force CSP enforcement
-            object.__setattr__(self, 'enable_hsts', True)      # Force HSTS in strict mode
-            object.__setattr__(self, 'enable_coep', True)      # Force COEP
-            object.__setattr__(self, 'enable_coop', True)      # Force COOP
+            object.__setattr__(self, "csp_report_only", False)  # Force CSP enforcement
+            object.__setattr__(self, "enable_hsts", True)  # Force HSTS in strict mode
+            object.__setattr__(self, "enable_coep", True)  # Force COEP
+            object.__setattr__(self, "enable_coop", True)  # Force COOP
             # Note: Don't force csp_enabled=True - respect explicit disabling
-        
+
         # Warn about misconfiguration: report-only mode with disabled endpoint
         if self.csp_report_only and not self.csp_report_endpoint_enabled:
-            logger.warning("Configuration warning: CSP_REPORT_ONLY=True but CSP_REPORT_ENDPOINT_ENABLED=False - reports will be lost")
+            logger.warning(
+                "Configuration warning: CSP_REPORT_ONLY=True but CSP_REPORT_ENDPOINT_ENABLED=False - reports will be lost"
+            )
 
         # Apply legacy alias mappings
         # csp_upgrade_insecure_requests -> csp_enable_upgrade_insecure
         try:
-            if getattr(self, 'csp_upgrade_insecure_requests', None) is not None:
-                object.__setattr__(self, 'csp_enable_upgrade_insecure', bool(self.csp_upgrade_insecure_requests))
+            if getattr(self, "csp_upgrade_insecure_requests", None) is not None:
+                object.__setattr__(
+                    self,
+                    "csp_enable_upgrade_insecure",
+                    bool(self.csp_upgrade_insecure_requests),
+                )
         except Exception:
             pass
 
         # csp_report_uri maps to report endpoint path used when building header
         try:
-            if getattr(self, 'csp_report_uri', None):
+            if getattr(self, "csp_report_uri", None):
                 # Keep the endpoint enabled if custom path provided
-                object.__setattr__(self, 'csp_report_endpoint_enabled', True)
+                object.__setattr__(self, "csp_report_endpoint_enabled", True)
         except Exception:
             pass
 
         # enable_corp -> control Cross-Origin-Resource-Policy header
         try:
-            if getattr(self, 'enable_corp', None) is not None:
-                object.__setattr__(self, 'enable_coop', getattr(self, 'enable_coop', True))
-                object.__setattr__(self, 'enable_coep', getattr(self, 'enable_coep', True))
+            if getattr(self, "enable_corp", None) is not None:
+                object.__setattr__(
+                    self, "enable_coop", getattr(self, "enable_coop", True)
+                )
+                object.__setattr__(
+                    self, "enable_coep", getattr(self, "enable_coep", True)
+                )
                 # store an attribute to allow middleware to read legacy flag
-                object.__setattr__(self, 'enable_corp', bool(self.enable_corp))
+                object.__setattr__(self, "enable_corp", bool(self.enable_corp))
         except Exception:
             pass
 
         # permissions_policy_enabled -> whether to emit Permissions-Policy header
         try:
-            if getattr(self, 'permissions_policy_enabled', None) is not None:
-                object.__setattr__(self, 'permissions_policy_enabled', bool(self.permissions_policy_enabled))
+            if getattr(self, "permissions_policy_enabled", None) is not None:
+                object.__setattr__(
+                    self,
+                    "permissions_policy_enabled",
+                    bool(self.permissions_policy_enabled),
+                )
         except Exception:
             pass
-        
+
         return self
 
     # model_config defined above
@@ -358,6 +392,28 @@ class PerformanceSettings(BaseSettings):
     max_background_tasks: int = Field(default=100, ge=1, le=1000)
     background_task_timeout: int = Field(default=300, ge=1, le=3600)
 
+    # Query optimization (conservative, opt-in)
+    enable_safe_query_pagination: bool = Field(
+        default=False,
+        description="When enabled, adds a LIMIT to SELECT queries that do not specify one (to prevent accidental large scans).",
+    )
+    default_select_limit: int = Field(
+        default=1000,
+        ge=1,
+        le=100000,
+        description="Default LIMIT to apply when safe pagination is enabled and a SELECT has no explicit limit.",
+    )
+    enable_chunked_in_params: bool = Field(
+        default=False,
+        description="When enabled, allows chunking large IN (...) parameter lists (implementation incremental).",
+    )
+    in_params_chunk_size: int = Field(
+        default=500,
+        ge=10,
+        le=10000,
+        description="Chunk size for IN-parameter chunking when enabled.",
+    )
+
     model_config = SettingsConfigDict(env_prefix="PERFORMANCE_", case_sensitive=False)
 
 
@@ -391,11 +447,11 @@ class AppSettings(BaseSettings):
     enable_ml_features: bool = Field(default=True)
     enable_comprehensive_props: bool = Field(default=True)
     enable_debug_routes: bool = Field(default=True)
-    
+
     # Development optimization flags (Stabilization)
     dev_lean_mode: bool = Field(
-        default=False, 
-        description="Disable heavy monitoring and non-essential features for cleaner development"
+        default=False,
+        description="Disable heavy monitoring and non-essential features for cleaner development",
     )
 
     model_config = SettingsConfigDict(env_prefix="APP_", case_sensitive=False)

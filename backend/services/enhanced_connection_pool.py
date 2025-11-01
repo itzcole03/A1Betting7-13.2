@@ -5,6 +5,7 @@ Advanced connection pooling with health monitoring, load balancing, and automati
 
 import asyncio
 import logging
+import os
 import time
 import weakref
 from collections import defaultdict, deque
@@ -23,6 +24,15 @@ from sqlalchemy.orm import sessionmaker
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("enhanced_connection_pool")
+
+# Module-level env-gated debug suppression. When not enabled, raise the
+# logger level to INFO to avoid debug callsite formatting costs.
+_ENHANCED_CONNECTION_POOL_DEBUG = bool(os.getenv("ENHANCED_CONNECTION_POOL_DEBUG"))
+if not _ENHANCED_CONNECTION_POOL_DEBUG:
+    try:
+        logger.setLevel(max(getattr(logger, "level", logging.INFO), logging.INFO))
+    except Exception:
+        pass
 
 
 class ConnectionState(Enum):
