@@ -3,7 +3,19 @@ import json
 import logging
 import os
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    cast,
+)
 
 import httpx
 import redis.asyncio as redis
@@ -22,24 +34,41 @@ from .intelligent_cache_service import intelligent_cache_service
 from .mlb_stats_api_client import MLBStatsAPIClient
 
 # Import PR8 tracing for provider operation observability
+_TCallable = TypeVar("_TCallable", bound=Callable[..., Any])
+
 try:
-    from ..utils.trace_utils import trace_span, add_span_tag, traced
-except ImportError:
-    # Fallback for when tracing is not available
-    def trace_span(span_name, service_name=None, operation_name=None, tags=None):
-        import contextlib
-        @contextlib.contextmanager
-        def dummy_span():
+    from ..utils.trace_utils import add_span_tag, trace_span, traced
+except ImportError:  # pragma: no cover - optional dependency
+    if TYPE_CHECKING:  # pragma: no cover - typing only
+        from ..utils.trace_utils import add_span_tag, trace_span, traced
+    else:
+        from contextlib import contextmanager
+
+        @contextmanager
+        def trace_span(
+            span_name: str,
+            service_name: Optional[str] = None,
+            operation_name: Optional[str] = None,
+            tags: Optional[Dict[str, Any]] = None,
+        ) -> Iterator[str]:
+            _ = (service_name, operation_name, tags)
             yield f"span-{span_name}"
-        return dummy_span()
-    
-    def add_span_tag(span_id, key, value):
-        pass
-        
-    def traced(span_name=None, service_name=None, operation_name=None):
-        def decorator(func):
-            return func
-        return decorator
+
+        def add_span_tag(span_id: str, key: str, value: Any) -> None:
+            _ = (span_id, key, value)
+
+        def traced(
+            span_name: Optional[str] = None,
+            service_name: Optional[str] = None,
+            operation_name: Optional[str] = None,
+        ) -> Callable[[_TCallable], _TCallable]:
+            _ = (span_name, service_name, operation_name)
+
+            def decorator(func: _TCallable) -> _TCallable:
+                return func
+
+            return decorator
+
 
 logger = logging.getLogger(__name__)
 
@@ -47,8 +76,8 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 
 class MLBProviderClient:
-    def __init__(self):
-        # Initialize Redis connection
+    def __init__(self) -> None:
+        # Initialize Redis connection lazily
         self.redis = None
 
         # Initialize enhanced services
@@ -58,6 +87,7 @@ class MLBProviderClient:
         # Initialize MLB Stats API and Baseball Savant clients
         self.mlb_stats_client = MLBStatsAPIClient()
         self.baseball_savant_client = BaseballSavantClient()
+        self.ml_service = enhanced_ml_service
 
         # Initialize ML service flag
         self._ml_service_initialized = False
@@ -76,34 +106,47 @@ class MLBProviderClient:
 
         # Configuration
         self.theodds_api_key = os.getenv("THEODDS_API_KEY", "")
+        self.sportradar_api_key = os.getenv("SPORTRADAR_API_KEY", "")
         self.CACHE_TTL = 300  # 5 minutes
+        self._last_request = {"teams": 0.0, "events": 0.0, "odds": 0.0}
+
+        if not self.sportradar_api_key:
+            logger.info(
+                "[MLBProviderClient] SportRadar API key not configured; disabling SportRadar-dependent fallbacks"
+            )
 
     @staticmethod
     def alert_event(event_name: str, details: dict):
         # Placeholder for real alerting (e.g., Sentry, email, Slack)
-        logger.warning(f"[ALERT] {event_name}: {json.dumps(details)}")
+        logger.warning("[ALERT] %s: %s", event_name, json.dumps(details))
 
     @staticmethod
     def metrics_increment(metric_name: str):
         # Placeholder for real metrics integration (e.g., Prometheus, StatsD)
-        logger.info(f"[METRICS] Incremented metric: {metric_name}")
+        logger.info("[METRICS] Incremented metric: %s", metric_name)
 
     async def fetch_player_props_theodds(self) -> list:
         """
         Fetch and normalize MLB player props from TheOdds API using enhanced data pipeline.
         Returns a list of normalized player prop dicts.
         """
-        with trace_span("fetch_player_props_theodds", service_name="mlb_provider", operation_name="fetch_props") as span_id:
+        with trace_span(
+            "fetch_player_props_theodds",
+            service_name="mlb_provider",
+            operation_name="fetch_props",
+        ) as span_id:
             add_span_tag(span_id, "provider", "theodds")
             add_span_tag(span_id, "sport", "mlb")
-            
+
             season_year = time.strftime("%Y")
             cache_key = f"mlb:player_props:{season_year}"
-            
+
             add_span_tag(span_id, "cache_key", cache_key)
 
             # Try intelligent cache first
-            cached = await self.cache_service.get(cache_key, user_context="mlb_provider")
+            cached = await self.cache_service.get(
+                cache_key, user_context="mlb_provider"
+            )
             if cached:
                 add_span_tag(span_id, "cache_hit", True)
                 logger.info(
@@ -117,22 +160,53 @@ class MLBProviderClient:
 
                     compression_service = DataCompressionService()
                     compressed_data = bytes.fromhex(cached["data"])
-                    return await compression_service.decompress_json(compressed_data)
+                    decompressed = await compression_service.decompress_json(
+                        compressed_data
+                    )
+                    if isinstance(decompressed, dict):
+                        data = decompressed.get("data")
+                        if isinstance(data, list):
+                            return cast(List[Dict[str, Any]], data)
+                    if isinstance(decompressed, list):
+                        return cast(List[Dict[str, Any]], decompressed)
+                    logger.warning(
+                        "[MLBProviderClient] Compressed cache decompressed to unexpected payload type; returning empty list"
+                    )
+                    return []
                 elif isinstance(cached, dict) and "data" in cached:
-                    return cached["data"]
+                    data = cached["data"]
+                    if isinstance(data, list):
+                        return cast(List[Dict[str, Any]], data)
+                    logger.warning(
+                        "[MLBProviderClient] Cache payload missing list data; returning empty list"
+                    )
+                    return []
                 else:
-                    return cached
+                    return cast(List[Dict[str, Any]], cached)
 
             # Cache miss - rebuild data with span tracking
             add_span_tag(span_id, "cache_hit", False)
             add_span_tag(span_id, "cache_rebuild", True)
-            
+
             try:
                 # Fetch events and props in parallel using enhanced pipeline
-                with trace_span("fetch_parallel_data", service_name="mlb_provider", operation_name="parallel_fetch") as parallel_span:
-                    add_span_tag(parallel_span, "parent_operation", "fetch_player_props_theodds")
-                    
-                    sources = [
+                with trace_span(
+                    "fetch_parallel_data",
+                    service_name="mlb_provider",
+                    operation_name="parallel_fetch",
+                ) as parallel_span:
+                    add_span_tag(
+                        parallel_span, "parent_operation", "fetch_player_props_theodds"
+                    )
+
+                    sources: List[
+                        Tuple[
+                            str,
+                            Callable[..., Awaitable[Any]],
+                            Tuple[Any, ...],
+                            Dict[str, Any],
+                        ]
+                    ] = [
                         ("theodds_events", self._fetch_mlb_events, (), {}),
                         ("theodds_markets", self._get_player_prop_markets, (), {}),
                     ]
@@ -142,41 +216,66 @@ class MLBProviderClient:
                     )
                     add_span_tag(parallel_span, "sources_fetched", len(sources))
 
-                events = results.get("theodds_events", [])
+                events = cast(List[Dict[str, Any]], results.get("theodds_events", []))
                 if not events:
                     logger.error("No MLB events fetched")
                     return []
 
                 # Fetch player props for all events in parallel with rate limiting
-                all_props = []
+                all_props: List[Dict[str, Any]] = []
                 semaphore = asyncio.Semaphore(5)  # Limit concurrent requests
 
-                async def fetch_event_props_safe(event):
+                async def fetch_event_props_safe(
+                    event: Dict[str, Any],
+                ) -> Optional[List[Dict[str, Any]]]:
                     async with semaphore:
-                        return await self.data_pipeline.fetch_data_with_resilience(
+                        result = await self.data_pipeline.fetch_data_with_resilience(
                             "theodds_api",
                             self._fetch_event_player_props_raw,
                             event,
                             use_cache=True,
                             cache_ttl=180,  # 3 minutes for individual events
                         )
+                        if result is None:
+                            return None
+                        if isinstance(result, list):
+                            return cast(List[Dict[str, Any]], result)
+                        if isinstance(result, dict) and "data" in result:
+                            data = result["data"]
+                            if isinstance(data, list):
+                                return cast(List[Dict[str, Any]], data)
+                        logger.warning(
+                            "[MLBProviderClient] Event props fetch returned unexpected type"
+                        )
+                        return None
 
                 # Process events in batches
-                with trace_span("process_event_batches", service_name="mlb_provider", operation_name="batch_processing") as batch_span:
+                with trace_span(
+                    "process_event_batches",
+                    service_name="mlb_provider",
+                    operation_name="batch_processing",
+                ) as batch_span:
                     add_span_tag(batch_span, "total_events", len(events))
-                    
+
                     batch_size = 10
                     for i in range(0, len(events), batch_size):
                         batch = events[i : i + batch_size]
                         tasks = [fetch_event_props_safe(event) for event in batch]
-                        batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+                        batch_results = await asyncio.gather(
+                            *tasks, return_exceptions=True
+                        )
 
                         for result in batch_results:
-                            if isinstance(result, Exception):
-                                logger.error(f"Error fetching event props: {result}")
-                            elif result:
+                            if isinstance(result, BaseException):
+                                logger.error(
+                                    "[MLBProviderClient] Error fetching event props: %s",
+                                    result,
+                                )
+                                continue
+
+                            if result:
                                 all_props.extend(result)
-                    
+
                     add_span_tag(batch_span, "total_props_fetched", len(all_props))
 
                 # Cache the complete result with intelligent TTL
@@ -188,7 +287,8 @@ class MLBProviderClient:
                 )
 
                 logger.info(
-                    f"[MLBProviderClient] Enhanced fetch completed: {len(all_props)} props"
+                    "[MLBProviderClient] Enhanced fetch completed: %d props",
+                    len(all_props),
                 )
                 add_span_tag(span_id, "operation_success", True)
                 return all_props
@@ -196,8 +296,10 @@ class MLBProviderClient:
             except Exception as e:
                 add_span_tag(span_id, "operation_success", False)
                 add_span_tag(span_id, "error", str(e))
-                logger.error(f"Enhanced fetch_player_props_theodds failed: {e}")
-                MLBProviderClient.alert_event("mlb_props_fetch_failed", {"error": str(e)})
+                logger.error("Enhanced fetch_player_props_theodds failed: %s", e)
+                MLBProviderClient.alert_event(
+                    "mlb_props_fetch_failed", {"error": str(e)}
+                )
 
                 # Try to return stale cache data as last resort
                 stale_data = await self.cache_service.get(f"stale:{cache_key}")
@@ -209,7 +311,6 @@ class MLBProviderClient:
         This replaces TheOdds API with free, official MLB data sources.
         Returns a list of normalized player prop dicts compatible with existing frontend.
         """
-        import asyncio
         from datetime import datetime, timedelta
 
         import statsapi
@@ -250,13 +351,15 @@ class MLBProviderClient:
                     ]
                     all_games.extend(scheduled_games)
                     logger.info(
-                        f"Found {len(scheduled_games)} scheduled games for {check_date}"
+                        "Found %d scheduled games for %s",
+                        len(scheduled_games),
+                        check_date,
                     )
                 except Exception as e:
-                    logger.warning(f"Error fetching games for {check_date}: {e}")
+                    logger.warning("Error fetching games for %s: %s", check_date, e)
 
             games_today = all_games
-            logger.info(f"Total upcoming scheduled games: {len(games_today)}")
+            logger.info("Total upcoming scheduled games: %d", len(games_today))
 
             if not games_today:
                 logger.warning(
@@ -273,24 +376,22 @@ class MLBProviderClient:
                     logger.warning(
                         "Baseball Savant client not initialized, creating new instance"
                     )
-                    from .baseball_savant_client import BaseballSavantClient
-
                     self.baseball_savant_client = BaseballSavantClient()
 
                 all_players = await self.baseball_savant_client.get_all_active_players()
                 logger.info(
-                    f"Retrieved {len(all_players)} active players from Baseball Savant"
+                    "Retrieved %d active players from Baseball Savant",
+                    len(all_players),
                 )
             except Exception as e:
-                logger.error(f"Failed to get players from Baseball Savant: {e}")
+                logger.error("Failed to get players from Baseball Savant: %s", e)
                 # Fallback to generating props for star players only
                 all_players = self._get_star_players()
                 logger.info(
-                    f"Using fallback star players list: {len(all_players)} players"
+                    "Using fallback star players list: %d players", len(all_players)
                 )
 
             # Step 3: Filter players who are playing in today's games
-            playing_today = set()
             team_games = {}
 
             for game in games_today:
@@ -352,14 +453,15 @@ class MLBProviderClient:
                             confirmed_players.append(player)
                     except Exception as e:
                         logger.warning(
-                            f"Could not verify lineup for {player_name}: {e}"
+                            "Could not verify lineup for %s: %s", player_name, e
                         )
                         # Include player anyway if team is playing
                         player["game_info"] = game_info
                         confirmed_players.append(player)
 
             logger.info(
-                f"Confirmed {len(confirmed_players)} players from teams playing today"
+                "Confirmed %d players from teams playing today",
+                len(confirmed_players),
             )
 
             for player in confirmed_players:
@@ -400,7 +502,9 @@ class MLBProviderClient:
 
             # Step 5: Add some variety if we don't have enough props
             if len(all_props) < 50:
-                logger.info(f"Only generated {len(all_props)} props, adding variety...")
+                logger.info(
+                    "Only generated %d props, adding variety...", len(all_props)
+                )
                 # Add props for star players even if not playing today
                 star_players = self._get_star_players()
                 for star in star_players:
@@ -414,13 +518,14 @@ class MLBProviderClient:
             await redis_conn.set(cache_key, json.dumps(all_props), ex=self.CACHE_TTL)
 
             logger.info(
-                f"[MLBProviderClient] Generated {len(all_props)} props using MLB Stats API + Baseball Savant"
+                "[MLBProviderClient] Generated %d props using MLB Stats API + Baseball Savant",
+                len(all_props),
             )
             MLBProviderClient.metrics_increment("mlb.player_props.mlb_stats.success")
             return all_props
 
         except Exception as e:
-            logger.error(f"fetch_player_props_mlb_stats failed: {e}")
+            logger.error("fetch_player_props_mlb_stats failed: %s", e)
             MLBProviderClient.alert_event(
                 "mlb_props_mlb_stats_failed", {"error": str(e)}
             )
@@ -430,8 +535,6 @@ class MLBProviderClient:
 
     def _generate_team_props(self, games: list, start_id: int) -> list:
         """Generate team-level props for games (team totals, first to score, etc.)."""
-        from datetime import datetime
-
         props = []
         prop_counter = start_id
 
@@ -443,7 +546,7 @@ class MLBProviderClient:
             venue = game.get("venue_name", "")
 
             # Team total runs props
-            for team, team_type in [(home_team, "home"), (away_team, "away")]:
+            for team in (home_team, away_team):
                 team_props = [
                     {
                         "stat_type": "team_total_runs",
@@ -485,7 +588,9 @@ class MLBProviderClient:
                     props.append(prop)
                     prop_counter += 1
 
-        logger.info(f"Generated {len(props)} team-level props for {len(games)} games")
+        logger.info(
+            "Generated %d team-level props for %d games", len(props), len(games)
+        )
         return props
 
     def _generate_batting_props(
@@ -623,26 +728,36 @@ class MLBProviderClient:
         expected_walks = (ip_per_start * bb_per_9) / 9
         expected_hits = (ip_per_start * h_per_9) / 9
         expected_runs = (ip_per_start * era) / 9
+        whip_penalty = int(max(0.0, whip - 1.0) * 10)
+        hr_penalty = int(max(0.0, hr_per_9 - 1.0) * 10)
 
         # Enhanced pitching props matching real sportsbook offerings
         prop_templates = [
             {
                 "stat_type": "strikeouts_pitcher",
                 "line": max(3.5, round(expected_k * 2) / 2),  # Round to nearest 0.5
-                "confidence": 75
-                + max(0, int((10 - era) * 2)),  # Better ERA = higher confidence
+                "confidence": max(
+                    60,
+                    75 + max(0, int((10 - era) * 2)) - whip_penalty,
+                ),
             },
             {
                 "stat_type": "pitcher_outs",
                 "line": max(
                     12.5, round(ip_per_start * 3 * 2) / 2
                 ),  # Outs = innings * 3
-                "confidence": 70 + max(0, int((7.0 - era) * 3)),
+                "confidence": max(
+                    55,
+                    70 + max(0, int((7.0 - era) * 3)) - whip_penalty,
+                ),
             },
             {
                 "stat_type": "earned_runs",
                 "line": max(1.5, round(expected_runs * 2) / 2),
-                "confidence": 68 + max(0, int((5.0 - era) * 4)),
+                "confidence": max(
+                    50,
+                    68 + max(0, int((5.0 - era) * 4)) - hr_penalty,
+                ),
             },
             {
                 "stat_type": "walks_pitcher",
@@ -652,7 +767,10 @@ class MLBProviderClient:
             {
                 "stat_type": "hits_allowed",
                 "line": max(4.5, round(expected_hits * 2) / 2),
-                "confidence": 69 + max(0, int((10.0 - h_per_9) * 2)),
+                "confidence": max(
+                    55,
+                    69 + max(0, int((10.0 - h_per_9) * 2)) - hr_penalty,
+                ),
             },
             {
                 "stat_type": "pitcher_wins",
@@ -777,7 +895,7 @@ class MLBProviderClient:
             if not isinstance(events, list):
                 raise ValueError("Events response is not a list")
 
-            logger.info(f"Fetched {len(events)} MLB events")
+            logger.info("Fetched %d MLB events", len(events))
             return events
 
     async def _get_player_prop_markets(self) -> List[str]:
@@ -864,13 +982,11 @@ class MLBProviderClient:
         market_type: one of 'futures', 'prematch', 'regular', 'playerprops'
         Returns a list of odds dicts.
         """
-        from logging import getLogger
-
-        logger = getLogger("propollama")
         print("[DEBUG] Entered fetch_odds_comparison (MLB Stats API primary)")
         try:
             logger.debug(
-                f"[MLBProviderClient] START fetch_odds_comparison for market_type={market_type} using MLB Stats API"
+                "[MLBProviderClient] START fetch_odds_comparison for market_type=%s using MLB Stats API",
+                market_type,
             )
             redis_conn = await self._get_redis()
             season_year = time.strftime("%Y")
@@ -881,7 +997,8 @@ class MLBProviderClient:
             if cached:
                 print(f"[DEBUG] Returning cached MLB Stats API data for {market_type}")
                 logger.info(
-                    f"[MLBProviderClient] Returning cached MLB Stats API data for {market_type}."
+                    "[MLBProviderClient] Returning cached MLB Stats API data for %s.",
+                    market_type,
                 )
                 MLBProviderClient.metrics_increment(
                     f"mlb.odds_comparison.{market_type}.cache_hit"
@@ -891,7 +1008,8 @@ class MLBProviderClient:
 
             # Try MLB Stats API first (free, reliable)
             logger.info(
-                f"[MLBProviderClient] Fetching {market_type} data from MLB Stats API (primary source)"
+                "[MLBProviderClient] Fetching %s data from MLB Stats API (primary source)",
+                market_type,
             )
 
             if market_type == "playerprops":
@@ -916,7 +1034,9 @@ class MLBProviderClient:
                     cache_key, json.dumps(deduplicated_data), ex=self.CACHE_TTL
                 )
                 logger.info(
-                    f"[MLBProviderClient] Successfully retrieved {len(deduplicated_data)} items from MLB Stats API for {market_type}"
+                    "[MLBProviderClient] Successfully retrieved %d items from MLB Stats API for %s",
+                    len(deduplicated_data),
+                    market_type,
                 )
                 MLBProviderClient.metrics_increment(
                     "mlb.odds_comparison.mlb_stats_api_success"
@@ -928,13 +1048,15 @@ class MLBProviderClient:
                 return deduplicated_data
             else:
                 logger.warning(
-                    f"[MLBProviderClient] MLB Stats API returned no data for {market_type}, attempting external API fallback"
+                    "[MLBProviderClient] MLB Stats API returned no data for %s, attempting external API fallback",
+                    market_type,
                 )
 
             # Only fallback to external APIs if MLB Stats API fails and we have API keys
             if self.sportradar_api_key and self.theodds_api_key:
                 logger.info(
-                    f"[MLBProviderClient] Falling back to external APIs for {market_type}"
+                    "[MLBProviderClient] Falling back to external APIs for %s",
+                    market_type,
                 )
                 return await self._fetch_external_api_fallback(
                     market_type, cache_key, redis_conn
@@ -946,7 +1068,8 @@ class MLBProviderClient:
 
             # If everything fails, return empty list
             logger.error(
-                f"[MLBProviderClient] All data sources failed for market_type {market_type}"
+                "[MLBProviderClient] All data sources failed for market_type %s",
+                market_type,
             )
             MLBProviderClient.metrics_increment("mlb.odds_comparison.total_failure")
             MLBProviderClient.alert_event(
@@ -957,7 +1080,8 @@ class MLBProviderClient:
 
         except Exception as e:
             logger.error(
-                f"[MLBProviderClient] Unhandled exception in fetch_odds_comparison: {e}",
+                "[MLBProviderClient] Unhandled exception in fetch_odds_comparison: %s",
+                e,
                 exc_info=True,
             )
             print(
@@ -995,7 +1119,8 @@ class MLBProviderClient:
                     scheduled_games.append(game)
 
             logger.info(
-                f"[MLBProviderClient] Found {len(scheduled_games)} scheduled games for prop generation"
+                "[MLBProviderClient] Found %d scheduled games for prop generation",
+                len(scheduled_games),
             )
 
             if not scheduled_games:
@@ -1016,7 +1141,8 @@ class MLBProviderClient:
                     await self.baseball_savant_client.get_all_active_players()
                 )
                 logger.info(
-                    f"[MLBProviderClient] Successfully got {len(active_players)} active players from Baseball Savant"
+                    "[MLBProviderClient] Successfully got %d active players from Baseball Savant",
+                    len(active_players),
                 )
 
                 # Debug: Show sample players and their teams
@@ -1024,14 +1150,82 @@ class MLBProviderClient:
                     logger.info("Sample active players:")
                     for player in active_players[:5]:
                         logger.info(
-                            f"  - {player.get('name')}: {player.get('team')} ({player.get('position_type')})"
+                            "  - %s: %s (%s)",
+                            player.get("name"),
+                            player.get("team"),
+                            player.get("position_type"),
                         )
                 else:
                     logger.error("Baseball Savant client returned empty list!")
 
             except Exception as e:
-                logger.error(f"Error calling Baseball Savant client: {e}")
+                logger.error("Error calling Baseball Savant client: %s", e)
                 active_players = []
+
+            team_mapping = {
+                # Full team names to codes
+                "GIANTS": "SF",
+                "SAN FRANCISCO GIANTS": "SF",
+                "PIRATES": "PIT",
+                "PITTSBURGH PIRATES": "PIT",
+                "TWINS": "MIN",
+                "MINNESOTA TWINS": "MIN",
+                "TIGERS": "DET",
+                "DETROIT TIGERS": "DET",
+                "ASTROS": "HOU",
+                "HOUSTON ASTROS": "HOU",
+                "MARLINS": "MIA",
+                "MIAMI MARLINS": "MIA",
+                "ORIOLES": "BAL",
+                "BALTIMORE ORIOLES": "BAL",
+                "PHILLIES": "PHI",
+                "PHILADELPHIA PHILLIES": "PHI",
+                "ROYALS": "KC",
+                "KANSAS CITY ROYALS": "KC",
+                "RED SOX": "BOS",
+                "BOSTON RED SOX": "BOS",
+                "GUARDIANS": "CLE",
+                "CLEVELAND GUARDIANS": "CLE",
+                "METS": "NYM",
+                "NEW YORK METS": "NYM",
+                "BREWERS": "MIL",
+                "MILWAUKEE BREWERS": "MIL",
+                "BRAVES": "ATL",
+                "ATLANTA BRAVES": "ATL",
+                "CUBS": "CHC",
+                "CHICAGO CUBS": "CHC",
+                "REDS": "CIN",
+                "CINCINNATI REDS": "CIN",
+                "YANKEES": "NYY",
+                "NEW YORK YANKEES": "NYY",
+                "RANGERS": "TEX",
+                "TEXAS RANGERS": "TEX",
+                "BLUE JAYS": "TOR",
+                "TORONTO BLUE JAYS": "TOR",
+                "ROCKIES": "COL",
+                "COLORADO ROCKIES": "COL",
+                "RAYS": "TB",
+                "TAMPA BAY RAYS": "TB",
+                "ANGELS": "LAA",
+                "LOS ANGELES ANGELS": "LAA",
+                "PADRES": "SD",
+                "SAN DIEGO PADRES": "SD",
+                "DIAMONDBACKS": "ARI",
+                "ARIZONA DIAMONDBACKS": "ARI",
+                "CARDINALS": "STL",
+                "ST. LOUIS CARDINALS": "STL",
+                "SAINT LOUIS CARDINALS": "STL",
+                "DODGERS": "LAD",
+                "LOS ANGELES DODGERS": "LAD",
+                "ATHLETICS": "OAK",
+                "OAKLAND ATHLETICS": "OAK",
+                "NATIONALS": "WSH",
+                "WASHINGTON NATIONALS": "WSH",
+                "WHITE SOX": "CWS",
+                "CHICAGO WHITE SOX": "CWS",
+                "MARINERS": "SEA",
+                "SEATTLE MARINERS": "SEA",
+            }
 
             # Generate props for each scheduled game
             for game in scheduled_games:
@@ -1049,72 +1243,6 @@ class MLBProviderClient:
                 away_team = game.get("away_name", "AWAY")
 
                 # Filter players by teams playing in this game
-                # Need to map team names to player team codes - expand mapping for full team names
-                team_mapping = {
-                    # Full team names to codes
-                    "GIANTS": "SF",
-                    "SAN FRANCISCO GIANTS": "SF",
-                    "PIRATES": "PIT",
-                    "PITTSBURGH PIRATES": "PIT",
-                    "TWINS": "MIN",
-                    "MINNESOTA TWINS": "MIN",
-                    "TIGERS": "DET",
-                    "DETROIT TIGERS": "DET",
-                    "ASTROS": "HOU",
-                    "HOUSTON ASTROS": "HOU",
-                    "MARLINS": "MIA",
-                    "MIAMI MARLINS": "MIA",
-                    "ORIOLES": "BAL",
-                    "BALTIMORE ORIOLES": "BAL",
-                    "PHILLIES": "PHI",
-                    "PHILADELPHIA PHILLIES": "PHI",
-                    "ROYALS": "KC",
-                    "KANSAS CITY ROYALS": "KC",
-                    "RED SOX": "BOS",
-                    "BOSTON RED SOX": "BOS",
-                    "GUARDIANS": "CLE",
-                    "CLEVELAND GUARDIANS": "CLE",
-                    "METS": "NYM",
-                    "NEW YORK METS": "NYM",
-                    "BREWERS": "MIL",
-                    "MILWAUKEE BREWERS": "MIL",
-                    "BRAVES": "ATL",
-                    "ATLANTA BRAVES": "ATL",
-                    "CUBS": "CHC",
-                    "CHICAGO CUBS": "CHC",
-                    "REDS": "CIN",
-                    "CINCINNATI REDS": "CIN",
-                    "YANKEES": "NYY",
-                    "NEW YORK YANKEES": "NYY",
-                    "RANGERS": "TEX",
-                    "TEXAS RANGERS": "TEX",
-                    "BLUE JAYS": "TOR",
-                    "TORONTO BLUE JAYS": "TOR",
-                    "ROCKIES": "COL",
-                    "COLORADO ROCKIES": "COL",
-                    "RAYS": "TB",
-                    "TAMPA BAY RAYS": "TB",
-                    "ANGELS": "LAA",
-                    "LOS ANGELES ANGELS": "LAA",
-                    "PADRES": "SD",
-                    "SAN DIEGO PADRES": "SD",
-                    "DIAMONDBACKS": "ARI",
-                    "ARIZONA DIAMONDBACKS": "ARI",
-                    "CARDINALS": "STL",
-                    "ST. LOUIS CARDINALS": "STL",
-                    "SAINT LOUIS CARDINALS": "STL",
-                    "DODGERS": "LAD",
-                    "LOS ANGELES DODGERS": "LAD",
-                    "ATHLETICS": "OAK",
-                    "OAKLAND ATHLETICS": "OAK",
-                    "NATIONALS": "WSH",
-                    "WASHINGTON NATIONALS": "WSH",
-                    "WHITE SOX": "CWS",
-                    "CHICAGO WHITE SOX": "CWS",
-                    "MARINERS": "SEA",
-                    "SEATTLE MARINERS": "SEA",
-                }
-
                 # Try to map team names to codes, with fallback logic
                 def map_team_to_code(team_name):
                     if not team_name or team_name in ["HOME", "AWAY"]:
@@ -1134,14 +1262,18 @@ class MLBProviderClient:
                             return code
 
                     # Fallback: return original name
-                    logger.warning(f"Could not map team name '{team_name}' to code")
+                    logger.warning("Could not map team name '%s' to code", team_name)
                     return team_name
 
                 home_code = map_team_to_code(home_team)
                 away_code = map_team_to_code(away_team)
 
                 logger.info(
-                    f"Team filtering: {home_team} → {home_code}, {away_team} → {away_code}"
+                    "Team filtering: %s → %s, %s → %s",
+                    home_team,
+                    home_code,
+                    away_team,
+                    away_code,
                 )
 
                 game_players = [
@@ -1151,15 +1283,22 @@ class MLBProviderClient:
                 ]
 
                 logger.info(
-                    f"Found {len(game_players)} players for teams {home_code}/{away_code}"
+                    "Found %d players for teams %s/%s",
+                    len(game_players),
+                    home_code,
+                    away_code,
                 )
                 if len(game_players) == 0:
                     logger.warning(
-                        f"No players found for {home_code}/{away_code}. Check team mapping."
+                        "No players found for %s/%s. Check team mapping.",
+                        home_code,
+                        away_code,
                     )
 
                 logger.info(
-                    f"[MLBProviderClient] Generating props for {len(game_players)} players in {event_name}"
+                    "[MLBProviderClient] Generating props for %d players in %s",
+                    len(game_players),
+                    event_name,
                 )
 
                 # Generate batting props for position players
@@ -1249,13 +1388,16 @@ class MLBProviderClient:
                     prop_id += 1
 
             logger.info(
-                f"[MLBProviderClient] Generated {len(all_props)} comprehensive props for {len(scheduled_games)} scheduled games"
+                "[MLBProviderClient] Generated %d comprehensive props for %d scheduled games",
+                len(all_props),
+                len(scheduled_games),
             )
             return all_props
 
         except Exception as e:
             logger.error(
-                f"[MLBProviderClient] Error fetching comprehensive player props: {e}"
+                "[MLBProviderClient] Error fetching comprehensive player props: %s",
+                e,
             )
             # Fallback to basic props if the comprehensive generation fails
             return await self._generate_comprehensive_props_all_players()
@@ -1266,8 +1408,6 @@ class MLBProviderClient:
         when no scheduled games are available.
         """
         try:
-            from datetime import datetime
-
             logger.info(
                 "[MLBProviderClient] Fallback: Generating props for all active players"
             )
@@ -1275,8 +1415,9 @@ class MLBProviderClient:
             # Get all active players
             active_players = await self.baseball_savant_client.get_all_active_players()
 
-            all_props = []
-            prop_id = 1
+            all_props: List[Dict[str, Any]] = []
+            prop_id: int = 1
+            games_for_props: List[Dict[str, Any]] = []
 
             # Get real game data for comprehensive prop generation
             try:
@@ -1297,7 +1438,7 @@ class MLBProviderClient:
                         todays_games[:5]
                     )  # Limit to 5 games for performance
                 except Exception as e:
-                    logger.warning(f"Could not fetch today's games: {e}")
+                    logger.warning("Could not fetch today's games: %s", e)
 
                 # Try to get tomorrow's games if today's games are limited
                 if len(real_games) < 3:
@@ -1305,7 +1446,7 @@ class MLBProviderClient:
                         tomorrows_games = statsapi.schedule(date=tomorrow)
                         real_games.extend(tomorrows_games[:3])
                     except Exception as e:
-                        logger.warning(f"Could not fetch tomorrow's games: {e}")
+                        logger.warning("Could not fetch tomorrow's games: %s", e)
 
                 # Format real games for prop generation
                 formatted_games = []
@@ -1343,7 +1484,7 @@ class MLBProviderClient:
                     ]
 
             except Exception as e:
-                logger.warning(f"Failed to fetch real games, using fallback: {e}")
+                logger.warning("Failed to fetch real games, using fallback: %s", e)
                 games_for_props = [
                     {
                         "game_pk": 999001,
@@ -1363,8 +1504,14 @@ class MLBProviderClient:
             ]
             for batter in batters[:100]:  # Limit to first 100 for performance
                 game_info = games_for_props[0]
+                batter_name = batter.get("name", "Player")
+                batter_team = batter.get("team", "MLB")
                 batting_props = self._generate_batting_props(
-                    batter, batter.get("stats", {}), game_info, prop_id
+                    batter_name,
+                    batter_team,
+                    batter.get("stats", {}),
+                    game_info,
+                    prop_id,
                 )
                 for prop in batting_props:
                     prop.update(
@@ -1388,8 +1535,15 @@ class MLBProviderClient:
             ]
             for pitcher in pitchers[:50]:  # Limit to first 50 pitchers
                 game_info = games_for_props[0]
+                pitcher_name = pitcher.get("name", "Player")
+                pitcher_team = pitcher.get("team", "MLB")
+                pitching_stats = pitcher.get("stats", {})
                 pitching_props = self._generate_pitching_props(
-                    pitcher, pitcher.get("stats", {}), game_info, prop_id
+                    pitcher_name,
+                    pitcher_team,
+                    pitching_stats,
+                    game_info,
+                    prop_id,
                 )
                 for prop in pitching_props:
                     prop.update(
@@ -1415,71 +1569,43 @@ class MLBProviderClient:
                 all_props.append(prop)
 
             logger.info(
-                f"[MLBProviderClient] Fallback generated {len(all_props)} props"
+                "[MLBProviderClient] Fallback generated %d props",
+                len(all_props),
             )
             return all_props
 
         except Exception as e:
-            logger.error(f"[MLBProviderClient] Fallback prop generation failed: {e}")
-            return []
+            logger.error("[MLBProviderClient] Fallback prop generation failed: %s", e)
 
-            # Add Baseball Savant props (these already have confidence scores)
-            if baseball_savant_props:
-                for prop in baseball_savant_props:
-                    # Ensure consistent format with existing props
-                    formatted_prop = {
-                        "event_id": f"savant_{prop['player_id']}",
-                        "event_name": f"{prop.get('team', 'MLB')} Player Props",
-                        "start_time": "",
-                        "team_name": prop.get("team", ""),
-                        "player_name": prop.get("player_name", ""),
-                        "stat_type": prop.get("prop_type", ""),
-                        "odds_type": prop.get("prop_type", ""),
-                        "matchup": f"{prop.get('player_name', '')} - {prop.get('description', '')}",
-                        "confidence": prop.get("confidence", 75),
-                        "value": None,  # Baseball Savant doesn't provide odds values
-                        "provider_id": "baseball_savant",
-                        "mapping_fallback": False,
-                        "line": prop.get("line"),
-                        "description": prop.get("description", ""),
-                        "category": prop.get("category", "advanced"),
-                        "source": "baseball_savant",
-                    }
-                    all_props.append(formatted_prop)
-
-            logger.info(
-                f"[MLBProviderClient] Generated {len(all_props)} total player props "
-                f"({len(basic_props_data) if basic_props_data else 0} from MLB Stats API, "
-                f"{len(baseball_savant_props) if baseball_savant_props else 0} from Baseball Savant)"
-            )
-            return all_props
-
-        except Exception as e:
-            logger.error(
-                f"[MLBProviderClient] Error fetching comprehensive player props: {e}"
-            )
-            # Fallback to basic MLB Stats API only if Baseball Savant fails
+            # Final fallback: use basic MLB Stats API props if available
             try:
                 basic_props_data = (
                     await self.mlb_stats_client.generate_player_props_data()
                 )
-                if basic_props_data:
-                    enhanced_props = []
-                    for prop in basic_props_data:
-                        confidence = await self._calculate_ml_confidence(prop)
-                        prop["confidence"] = confidence
-                        prop["source"] = "mlb_stats_api_fallback"
-                        enhanced_props.append(prop)
-                    logger.warning(
-                        f"[MLBProviderClient] Using fallback MLB Stats API only: {len(enhanced_props)} props"
-                    )
-                    return enhanced_props
             except Exception as fallback_error:
                 logger.error(
-                    f"[MLBProviderClient] Fallback also failed: {fallback_error}"
+                    "[MLBProviderClient] Secondary fallback failed: %s",
+                    fallback_error,
+                )
+                return []
+
+            if not basic_props_data:
+                return []
+
+            enhanced_props: List[Dict[str, Any]] = []
+            for prop in basic_props_data:
+                confidence = await self._calculate_ml_confidence(prop)
+                prop["confidence"] = confidence
+                prop["source"] = "mlb_stats_api_fallback"
+                enhanced_props.append(prop)
+
+            if enhanced_props:
+                logger.warning(
+                    "[MLBProviderClient] Using basic MLB Stats API fallback: %d props",
+                    len(enhanced_props),
                 )
 
-            return []
+            return enhanced_props
 
     async def fetch_mlb_stats_team_data(self, market_type: str) -> List[Dict[str, Any]]:
         """
@@ -1488,7 +1614,8 @@ class MLBProviderClient:
         """
         try:
             logger.info(
-                f"[MLBProviderClient] Fetching team data from MLB Stats API for {market_type}"
+                "[MLBProviderClient] Fetching team data from MLB Stats API for %s",
+                market_type,
             )
 
             if market_type in ["regular", "prematch"]:
@@ -1513,7 +1640,8 @@ class MLBProviderClient:
                     )
 
                 logger.info(
-                    f"[MLBProviderClient] Generated {len(team_data)} team records from MLB Stats API"
+                    "[MLBProviderClient] Generated %d team records from MLB Stats API",
+                    len(team_data),
                 )
                 return team_data
 
@@ -1537,7 +1665,8 @@ class MLBProviderClient:
                         )
 
                 logger.info(
-                    f"[MLBProviderClient] Generated {len(futures_data)} futures records from MLB Stats API"
+                    "[MLBProviderClient] Generated %d futures records from MLB Stats API",
+                    len(futures_data),
                 )
                 return futures_data
 
@@ -1555,14 +1684,17 @@ class MLBProviderClient:
                 team_props = self._generate_team_props(games, 1)
 
                 logger.info(
-                    f"[MLBProviderClient] Generated {len(team_props)} team props from MLB Stats API"
+                    "[MLBProviderClient] Generated %d team props from MLB Stats API",
+                    len(team_props),
                 )
                 return team_props
 
             return []
 
         except Exception as e:
-            logger.error(f"[MLBProviderClient] Error fetching MLB Stats team data: {e}")
+            logger.error(
+                "[MLBProviderClient] Error fetching MLB Stats team data: %s", e
+            )
             return []
 
     async def _fetch_external_api_fallback(
@@ -1573,7 +1705,8 @@ class MLBProviderClient:
         This preserves the original functionality for edge cases.
         """
         logger.info(
-            f"[MLBProviderClient] Using external API fallback for {market_type}"
+            "[MLBProviderClient] Using external API fallback for %s",
+            market_type,
         )
 
         # Check fallback cache first
@@ -1581,10 +1714,11 @@ class MLBProviderClient:
         fallback_cached = await redis_conn.get(fallback_odds_key)
         if fallback_cached and market_type != "playerprops":
             logger.info(
-                f"[MLBProviderClient] FALLBACK: Returning cached external API data for {market_type}"
+                "[MLBProviderClient] FALLBACK: Returning cached external API data for %s",
+                market_type,
             )
             MLBProviderClient.metrics_increment(
-                f"mlb.odds_comparison.fallback_cache_hit"
+                "mlb.odds_comparison.fallback_cache_hit"
             )
             result = json.loads(fallback_cached)
             deduplicated_result = await self._deduplicate_props(result)
@@ -1610,13 +1744,15 @@ class MLBProviderClient:
                         cache_key, json.dumps(deduplicated_data), ex=self.CACHE_TTL
                     )
                     logger.info(
-                        f"[MLBProviderClient] FALLBACK: SportRadar success for {market_type}"
+                        "[MLBProviderClient] FALLBACK: SportRadar success for %s",
+                        market_type,
                     )
                     return deduplicated_data
 
         # Try MLB Stats API + Baseball Savant as fallback (prioritizing over TheOdds API)
         logger.info(
-            f"[MLBProviderClient] Using MLB Stats API + Baseball Savant fallback for {market_type}"
+            "[MLBProviderClient] Using MLB Stats API + Baseball Savant fallback for %s",
+            market_type,
         )
 
         if market_type == "playerprops":
@@ -1634,7 +1770,8 @@ class MLBProviderClient:
                     cache_key, json.dumps(deduplicated_odds), ex=self.CACHE_TTL
                 )
                 logger.info(
-                    f"[MLBProviderClient] FALLBACK: MLB Stats API + Baseball Savant success for {market_type}"
+                    "[MLBProviderClient] FALLBACK: MLB Stats API + Baseball Savant success for %s",
+                    market_type,
                 )
                 MLBProviderClient.metrics_increment(
                     "mlb.odds_comparison.mlb_stats_fallback_success"
@@ -1643,7 +1780,8 @@ class MLBProviderClient:
 
         # All fallbacks failed
         logger.error(
-            f"[MLBProviderClient] External API fallback failed for {market_type}"
+            "[MLBProviderClient] External API fallback failed for %s",
+            market_type,
         )
         MLBProviderClient.metrics_increment("mlb.odds_comparison.fallback_failure")
         return []
@@ -1653,6 +1791,12 @@ class MLBProviderClient:
         Fetch and cache the URL for a country flag image by country code.
         Returns the image URL or None if not found.
         """
+
+        if not self.sportradar_api_key:
+            logger.info(
+                "[MLBProviderClient] SportRadar API key not configured; skipping flag lookup"
+            )
+            return None
 
         redis_conn = await self._get_redis()
         cache_key = f"country_flag:{country_code.upper()}"
@@ -1673,6 +1817,12 @@ class MLBProviderClient:
         Returns a list of image asset dicts for the event.
         """
         # import json  # Unused
+
+        if not self.sportradar_api_key:
+            logger.info(
+                "[MLBProviderClient] SportRadar API key not configured; skipping action shots lookup"
+            )
+            return []
 
         redis_conn = await self._get_redis()
         cache_key = f"mlb:action_shots:{event_id}"
@@ -1709,8 +1859,6 @@ class MLBProviderClient:
     ) -> Tuple[Optional[httpx.Response], Optional[Exception]]:
         # Helper for GET requests with exponential backoff on 429/5xx errors.
         # Returns (response, error) tuple. Logs and alerts on persistent failures.
-        import asyncio
-
         for attempt in range(max_retries):
             try:
                 async with httpx.AsyncClient(timeout=timeout) as client:
@@ -1772,13 +1920,6 @@ class MLBProviderClient:
         Fetch and cache the canonical team list from TheOdds `/participants` endpoint.
         Returns a list of team dicts with normalized names and IDs.
         """
-        """
-        Fetch and cache the canonical team list from TheOdds `/participants` endpoint.
-        Returns a list of team dicts with normalized names and IDs.
-        Uses Redis for persistent caching.
-        """
-        import json
-
         redis_conn = await self._get_redis()
         cache_key = "mlb:theodds:participants"
         cached = await redis_conn.get(cache_key)
@@ -1806,12 +1947,11 @@ class MLBProviderClient:
         Fetch and cache SportRadar event mappings for robust cross-provider event ID matching.
         Returns a dict mapping SportRadar event_id to mapping info (including TheOdds IDs if available).
         """
-        """
-        Fetch and cache SportRadar event mappings for robust cross-provider event ID matching.
-        Returns a dict mapping SportRadar event_id to mapping info (including TheOdds IDs if available).
-        Uses fallback logic and logs warnings if endpoint is unavailable or forbidden.
-        """
-        import json
+        if not self.sportradar_api_key:
+            logger.info(
+                "[MLBProviderClient] SportRadar API key not configured; skipping event mappings"
+            )
+            return {}
 
         redis_conn = await self._get_redis()
         cache_key = "mlb:event_mappings"
@@ -1840,7 +1980,8 @@ class MLBProviderClient:
             else:
                 # If 403 Forbidden, log a clear warning only once per run and break loop
                 if (
-                    hasattr(err, "response")
+                    err
+                    and hasattr(err, "response")
                     and getattr(err.response, "status_code", None) == 403
                     and not mapping_403_logged
                 ):
@@ -2101,6 +2242,26 @@ class MLBProviderClient:
             logger.info("[MLBProviderClient] Returning cached teams data from Redis.")
             MLBProviderClient.metrics_increment("mlb.teams.cache_hit")
             return json.loads(cached)
+
+        if not self.sportradar_api_key:
+            logger.info(
+                "[MLBProviderClient] SportRadar disabled; using MLB Stats API teams data"
+            )
+            teams = await self.mlb_stats_client.get_mlb_teams()
+            normalized = [
+                {
+                    "name": team.get("name"),
+                    "provider_id": str(team.get("id")) if team.get("id") else None,
+                    "abbreviation": team.get("abbreviation"),
+                    "league": team.get("league"),
+                    "division": team.get("division"),
+                }
+                for team in teams
+                if team.get("name") and team.get("id")
+            ]
+            await redis_conn.set(cache_key, json.dumps(normalized), ex=self.CACHE_TTL)
+            return normalized
+
         # Dynamic rate limiting based on quota
         quota_key = "mlb:teams:quota"
         quota = await redis_conn.get(quota_key)
@@ -2109,23 +2270,20 @@ class MLBProviderClient:
                 "[MLBProviderClient] Quota low for teams endpoint (%s remaining). Returning cached data.",
                 quota,
             )
-            # ALERTING HOOK: Integrate with monitoring/alerting system for quota exhaustion
-            # Example: alert_quota_exhaustion('teams', quota)
-            # TODO: Implement alert_quota_exhaustion
             return json.loads(cached) if cached else []
+
         if now - self._last_request["teams"] < self.RATE_LIMIT_SECONDS:
             logger.warning(
                 "[MLBProviderClient] Rate limit hit for teams endpoint. Returning last cached data."
             )
             return json.loads(cached) if cached else []
+
         url = f"https://api.sportradar.com/mlb/trial/v8/en/league/teams.json?api_key={self.sportradar_api_key}"
-        # Fetch and cache MLB teams from SportRadar.
-        # Uses Redis for persistent caching and dynamic rate limiting based on quota and time.
-        # Returns a list of team dicts with provider IDs.
         resp, err = await self._httpx_get_with_backoff(url)
         if resp is None:
             logger.error("Error fetching teams from SportRadar: %s", err)
             return json.loads(cached) if cached else []
+
         quota_remaining = resp.headers.get("x-requests-remaining") or resp.headers.get(
             "x-ratelimit-remaining"
         )
@@ -2135,14 +2293,17 @@ class MLBProviderClient:
                 "[MLBProviderClient] SportRadar teams quota remaining: %s",
                 quota_remaining,
             )
+
         data = resp.json()
         teams = [
             {
-                "name": t["name"],
-                "provider_id": t["id"],
+                "name": t.get("name"),
+                "provider_id": t.get("id"),
             }
             for t in data.get("teams", [])
+            if t.get("name") and t.get("id")
         ]
+
         await redis_conn.set(cache_key, json.dumps(teams), ex=self.CACHE_TTL)
         self._last_request["teams"] = now
         return teams
@@ -2152,7 +2313,6 @@ class MLBProviderClient:
 
         now = time.time()
         redis_conn = await self._get_redis()
-        # Use season year for more granular cache key
         season_year = time.strftime("%Y")
         cache_key = f"mlb:events:{season_year}"
         cached = await redis_conn.get(cache_key)
@@ -2160,6 +2320,26 @@ class MLBProviderClient:
             logger.info("[MLBProviderClient] Returning cached events data from Redis.")
             MLBProviderClient.metrics_increment("mlb.events.cache_hit")
             return json.loads(cached)
+
+        if not self.sportradar_api_key:
+            logger.info(
+                "[MLBProviderClient] SportRadar disabled; using MLB Stats API schedule data"
+            )
+            games = await self.mlb_stats_client.get_todays_games()
+            events = [
+                {
+                    "event_id": game.get("game_id"),
+                    "name": game.get("event_name")
+                    or f"{game.get('home_team')} vs {game.get('away_team')}",
+                    "start_time": game.get("start_time"),
+                    "provider_id": game.get("game_id"),
+                }
+                for game in games
+                if game.get("game_id")
+            ]
+            await redis_conn.set(cache_key, json.dumps(events), ex=self.CACHE_TTL)
+            return events
+
         quota_key = "mlb:events:quota"
         quota = await redis_conn.get(quota_key)
         if quota is not None and int(quota) < 5:
@@ -2167,23 +2347,39 @@ class MLBProviderClient:
                 "[MLBProviderClient] Quota low for events endpoint (%s remaining). Returning cached data.",
                 quota,
             )
-            # ALERTING HOOK: Integrate with monitoring/alerting system for quota exhaustion
-            # Example: alert_quota_exhaustion('events', quota)
-            # TODO: Implement alert_quota_exhaustion
             return json.loads(cached) if cached else []
+
         if now - self._last_request["events"] < self.RATE_LIMIT_SECONDS:
             logger.warning(
                 "[MLBProviderClient] Rate limit hit for events endpoint. Returning last cached data."
             )
             return json.loads(cached) if cached else []
+
         url = f"https://api.sportradar.com/mlb/trial/v8/en/games/2025/REG/schedule.json?api_key={self.sportradar_api_key}"
-        # Fetch and cache MLB events (games) from SportRadar.
-        # Uses Redis for persistent caching and dynamic rate limiting based on quota and time.
-        # Returns a list of event dicts with event IDs and metadata.
         resp, err = await self._httpx_get_with_backoff(url)
         if resp is None:
             logger.error("Error fetching events from SportRadar: %s", err)
-            return json.loads(cached) if cached else []
+
+            if cached:
+                return json.loads(cached)
+
+            games = await self.mlb_stats_client.get_todays_games()
+            fallback_events = [
+                {
+                    "event_id": game.get("game_id"),
+                    "name": game.get("event_name")
+                    or f"{game.get('home_team')} vs {game.get('away_team')}",
+                    "start_time": game.get("start_time"),
+                    "provider_id": game.get("game_id"),
+                }
+                for game in games
+                if game.get("game_id")
+            ]
+            await redis_conn.set(
+                cache_key, json.dumps(fallback_events), ex=self.CACHE_TTL
+            )
+            return fallback_events
+
         quota_remaining = resp.headers.get("x-requests-remaining") or resp.headers.get(
             "x-ratelimit-remaining"
         )
@@ -2193,16 +2389,19 @@ class MLBProviderClient:
                 "[MLBProviderClient] SportRadar events quota remaining: %s",
                 quota_remaining,
             )
+
         data = resp.json()
         events = [
             {
-                "event_id": g["id"],
-                "name": f"{g['home']['name']} vs {g['away']['name']}",
-                "start_time": g["scheduled"],
-                "provider_id": g["id"],
+                "event_id": game.get("id"),
+                "name": f"{(game.get('home') or {}).get('name', 'Home')} vs {(game.get('away') or {}).get('name', 'Away')}",
+                "start_time": game.get("scheduled"),
+                "provider_id": game.get("id"),
             }
-            for g in data.get("games", [])
+            for game in data.get("games", [])
+            if game.get("id") and (game.get("home") and game.get("away"))
         ]
+
         await redis_conn.set(cache_key, json.dumps(events), ex=self.CACHE_TTL)
         self._last_request["events"] = now
         return events
@@ -2219,6 +2418,11 @@ class MLBProviderClient:
             logger.info("[MLBProviderClient] Returning cached odds data from Redis.")
             MLBProviderClient.metrics_increment("mlb.odds.cache_hit")
             return json.loads(cached)
+        if not self.theodds_api_key:
+            logger.warning(
+                "[MLBProviderClient] TheOdds API key not configured; returning cached odds or empty list"
+            )
+            return json.loads(cached) if cached else []
         # Fetch from TheOdds API
         url = f"https://api.the-odds-api.com/v4/sports/baseball_mlb/odds/?apiKey={self.theodds_api_key}&regions=us&markets=h2h,spreads,totals"
         resp, err = await self._httpx_get_with_backoff(url)

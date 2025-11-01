@@ -1,51 +1,42 @@
-﻿## A1Betting — Copilot Field Guide (concise)
+﻿## A1Betting — Copilot Playbook
 
-Big picture
+**Architecture truths**
 
-- Backend is FastAPI with a canonical app factory `backend/core/app.py:create_app()`. Always create apps via the factory; it registers middleware, routers, and compat shims deterministically.
-- Responses must use the envelope `{success, data, error}`. Call `ok()` / `fail()` from `backend/core/app.py` in every route.
-- Router pattern: each route module exposes `register()` and is included by `register_feature_routers()` to avoid duplicates on hot-reload/tests.
-- Centralized facades under `backend/services/unified_*` (cache, metrics, session utils). Prefer them over ad‑hoc code.
+- Build every FastAPI app via `backend/core/app.py:create_app()` so middleware (CORS → ID → tracing → logging → metrics → guards) and router registration stay deterministic.
+- HTTP handlers must return the `{success, data, error}` envelope using `ok()` / `fail()` from the app factory; never return bare dicts.
+- Feature routers live in `backend/routes/*`, expose `register(registry)`, and should only orchestrate services such as `backend/services/simple_propfinder_service.py` or `backend/services/unified_*` facades.
+- Query/data utilities centralize under `backend/services/unified_*`; prefer them for cache, metrics, session execution (`unified_session_execute`) instead of ad‑hoc SQL or httpx clients.
 
-Run and test
+**Daily workflows**
 
-- Backend (dev): VS Code task “Start Backend (uvicorn)” or:
-  `python -m uvicorn backend.core.app:create_app --factory --host 127.0.0.1 --port 8000 --reload`
-- Frontend (dev): `cd frontend && npm run dev`
-- Fast tests: `pytest -q` (focused: `python -m pytest path/to/test.py -q --maxfail=1`)
+- Backend dev server: VS Code task “Start Backend (uvicorn)” or `python -m uvicorn backend.core.app:create_app --factory --host 127.0.0.1 --port 8000 --reload` from repo root.
+- Frontend dev server: `cd frontend && npm run dev` (expects API at `http://127.0.0.1:8000`).
+- Fast backend tests: `pytest -q`; focus with `python -m pytest backend/tests/test_query_optimizer.py -q --maxfail=1`. Frontend checks: `npm run test`, `npm run type-check`.
+- When debugging imports, run `python -c "import backend.core.app"` before pytest to surface wiring errors early.
 
-Key patterns (do this here)
+**Patterns to copy**
 
-- DB calls: use `unified_session_execute(session, stmt, params=...)` from `backend/services/unified_session_utils.py`. It prefers SQLModel `.exec()` and falls back to SQLAlchemy `.execute()`.
-- Import hygiene: guard heavy libs (torch, ray, torch_geometric). Test‑only shims live in `tests/_compat`.
-- Query optimizer: available via `backend/services/query_optimizer.py`. Safe, opt‑in pagination can be toggled with env `PERFORMANCE_ENABLE_SAFE_QUERY_PAGINATION=true` and `PERFORMANCE_DEFAULT_SELECT_LIMIT=1000`. Observability endpoints: `/api/observability/query-optimizer/{report|slow-queries|flags}`.
-- PropFinder flow (reference): `backend/routes/propfinder_routes.py` → `backend/services/simple_propfinder_service.py` → `backend/services/unified_*` → frontend hooks/components.
+- DB access flows through `unified_session_execute(session, stmt, params=...)`; it keeps SQLModel/SQLAlchemy compatibility and ties into query optimizer telemetry.
+- Guard heavy or optional dependencies (torch, ray, xgboost) with lazy imports and fallbacks; tests rely on shims in `tests/_compat`.
+- Batch MLB prop generation, query optimizer jobs, and other async fan-out code throttle concurrency with `asyncio.Semaphore` + `asyncio.gather(..., return_exceptions=True)` as shown in `backend/services/mlb_provider_client.py`.
+- Logging follows lazy formatting (`logger.info("... %s", value)`) and error paths fire `MLBProviderClient.alert_event(...)` or similar alert helpers instead of bare prints.
 
-When adding routes
+**Observability & tuning**
 
-- Place under `backend/routes/*`. Keep handlers thin: validate input, call services, return `ok()`.
-- Export `register()` in the module; create_app will include via `register_feature_routers()`.
-- Example:
-  - `router = APIRouter(prefix="/api/example")`
-  - `@router.get("/ping")` → `return ok({"pong": True})`
-  - `def register(reg): reg.include_router(router)`
+- Safe pagination is opt-in: set `PERFORMANCE_ENABLE_SAFE_QUERY_PAGINATION=true` and `PERFORMANCE_DEFAULT_SELECT_LIMIT=1000` (or override) to constrain broad selects.
+- Query optimizer reports live at `/api/observability/query-optimizer/{report,slow-queries,flags}`; tests for these endpoints sit under `backend/tests/test_query_optimizer*.py`.
+- Lean dev mode (`APP_DEV_LEAN_MODE=true`) strips heavy middleware; `SKIP_BROKEN_ROUTES=true` prevents experimental routers from registering during triage.
 
-Files to inspect first
+**Frontend integration**
 
-- `backend/core/app.py` (factory, ok/fail, router registration)
-- `backend/routes/` (route modules and compat shims)
-- `backend/services/unified_*` (cache/metrics/session helpers)
-- Frontend service orchestrators: `frontend/src/services/MasterServiceRegistry.ts`, `frontend/src/services/EnhancedDataManager.ts`
+- The prop dashboards (`frontend/src/components/dashboard/PropFinderDashboard.tsx`) consume data via hooks in `frontend/src/hooks/usePropFinderData.ts`; server endpoints must preserve the existing schema (see `frontend/src/services/MasterServiceRegistry.ts`).
+- Shared telemetry/formatting flows through `frontend/src/utils/enhancedLogger.ts` and `frontend/src/services/EnhancedDataManager.ts`; reuse these instead of re-implementing fetch or caching logic.
 
-Tooling you’ll use
+**Tooling quick hits**
 
-- Codemods/scripts in `tools/` and `scripts/`; dry‑run and keep `.bak` backups.
-- Shim guard: `tools/check_shims.py` (CI `.github/workflows/shims-guard.yml`).
+- Scripts in `tools/` and `scripts/` assume the repo root CWD and create `.bak` files when they rewrite sources—inspect diffs before committing.
+- CI enforces shim hygiene via `tools/check_shims.py`; keep optional integrations behind guards to satisfy the workflow.
 
-Troubleshooting
+**When unsure**
 
-- Duplicate routes in tests: ensure the module exports `register()` and avoid importing sub‑apps directly.
-- Import‑time errors: `python -c "import backend.core.app"` then run a thin test file to surface failures.
-- Envelope mismatches: fix by wrapping route returns with `ok()/fail()`.
-
-Questions or gaps? Suggest a small example (route + test scaffold) and we’ll add it inline to the repo.
+- Ping a maintainer before changing API envelopes, database migrations, or ML model artifacts, and surface any new third-party dependency requirements.
