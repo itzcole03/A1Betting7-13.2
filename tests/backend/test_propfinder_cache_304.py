@@ -12,16 +12,25 @@ class FakeRequest:
 
 @pytest.mark.asyncio
 async def test_get_prop_opportunities_returns_304_when_etag_matches(monkeypatch):
-    # Patch the intelligent cache service getter to return a cached payload with etag
-    async def fake_int_cache_get(key, default=None):
-        return {
-            "etag": "test-etag-123",
-            "payload": {"opportunities": [], "meta": {"etag": "test-etag-123"}},
-        }
+    # Patch the unified cache getter to return a cached payload with etag
+    class _FakeCache:
+        async def get(self, key, default=None, user_context=None):
+            return {
+                "etag": "test-etag-123",
+                "payload": {
+                    "opportunities": [],
+                    "meta": {"etag": "test-etag-123"},
+                },
+            }
+
+    fake_cache = _FakeCache()
+
+    async def fake_get_cache():
+        return fake_cache
 
     monkeypatch.setattr(
-        "backend.services.intelligent_cache_service.intelligent_cache_service.get",
-        fake_int_cache_get,
+        "backend.services.unified_cache_service.get_cache",
+        fake_get_cache,
         raising=False,
     )
 
@@ -58,16 +67,25 @@ async def test_get_prop_opportunities_returns_304_when_etag_matches(monkeypatch)
 
 @pytest.mark.asyncio
 async def test_get_prop_opportunities_returns_200_with_etag_when_no_match(monkeypatch):
-    # Patch the intelligent cache service getter to return a cached payload with etag
-    async def fake_int_cache_get(key, default=None):
-        return {
-            "etag": "test-etag-456",
-            "payload": {"opportunities": [], "meta": {"etag": "test-etag-456"}},
-        }
+    # Patch the unified cache getter to return a cached payload with etag
+    class _FakeCache:
+        async def get(self, key, default=None, user_context=None):
+            return {
+                "etag": "test-etag-456",
+                "payload": {
+                    "opportunities": [],
+                    "meta": {"etag": "test-etag-456"},
+                },
+            }
+
+    fake_cache = _FakeCache()
+
+    async def fake_get_cache():
+        return fake_cache
 
     monkeypatch.setattr(
-        "backend.services.intelligent_cache_service.intelligent_cache_service.get",
-        fake_int_cache_get,
+        "backend.services.unified_cache_service.get_cache",
+        fake_get_cache,
         raising=False,
     )
 

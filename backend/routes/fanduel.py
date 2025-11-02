@@ -1,40 +1,41 @@
-from datetime import datetime, timezone
-from typing import Dict, Any
-from backend.core.exceptions import BusinessLogicException
+"""Deprecated compatibility shim for the retired FanDuel integration API."""
 
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
-# Contract compliance imports
-from ..core.response_models import ResponseBuilder, StandardAPIResponse
-from ..core.exceptions import BusinessLogicException, AuthenticationException
+from backend.core.response_models import ResponseBuilder
 
-router = APIRouter(tags=["FanDuel"])
+router = APIRouter(prefix="/api/fanduel", tags=["Fanduel"])
+
+_DEPRECATION_MESSAGE = (
+    "fanduel routes have been retired; use unified_sports_routes integrations"
+)
 
 
-@router.get("/lockedbets", response_model=StandardAPIResponse[Dict[str, Any]])
-async def get_fanduel_lockedbets():
-    """Return fast mock FanDuel locked bets for development/testing."""
-    now = datetime.now(timezone.utc)
-    bets = [
-        {
-            "id": "mock_fd_nfl_mahomes_1",
-            "event": "Chiefs vs Bills",
-            "market": "Passing Yards",
-            "odds": "+120",
-            "prediction": "OVER",
-            "timestamp": now.isoformat(),
-            "sportsbook": "FanDuel",
-            "label": "FanDuel",
-        },
-        {
-            "id": "mock_fd_nba_curry_2",
-            "event": "Warriors vs Lakers",
-            "market": "Three Pointers Made",
-            "odds": "-110",
-            "prediction": "UNDER",
-            "timestamp": now.isoformat(),
-            "sportsbook": "FanDuel",
-            "label": "FanDuel",
-        },
-    ]
-    return ResponseBuilder.success(bets)
+def _deprecated_response() -> JSONResponse:
+    return ResponseBuilder.error(
+        message=_DEPRECATION_MESSAGE,
+        code="DEPRECATED_ENDPOINT",
+        details={"replacement": "unified_sports_routes"},
+        status_code=410,
+    )
+
+
+@router.get("/health")
+async def health() -> JSONResponse:
+    return _deprecated_response()
+
+
+@router.get("/markets")
+async def get_markets() -> JSONResponse:
+    return _deprecated_response()
+
+
+@router.get("/events")
+async def get_events() -> JSONResponse:
+    return _deprecated_response()
+
+
+@router.get("/odds")
+async def get_odds() -> JSONResponse:
+    return _deprecated_response()

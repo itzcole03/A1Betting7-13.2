@@ -1,47 +1,28 @@
-"""Model registry routes - minimal import-safe stub used during triage.
+"""Deprecated compatibility shim for the retired model registry API."""
 
-This file purposely contains a small, dependency-free FastAPI router so
-the application can be imported while we iteratively repair the full
-implementation. Replace with the real implementation once the repo
-is stabilized.
-"""
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
-from datetime import datetime, timezone
-from typing import Any, Dict
-
-from fastapi import APIRouter, Query
+from backend.core.response_models import ResponseBuilder
 
 router = APIRouter(prefix="/api/models", tags=["Model Registry"])
 
+_DEPRECATION_MESSAGE = (
+    "model_registry_routes has been retired; use consolidated model management APIs"
+)
 
-@router.get("/health")
-async def health() -> Dict[str, Any]:
-    return {
-        "success": True,
-        "data": {"status": "healthy"},
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
+
+def _deprecated_response() -> JSONResponse:
+    return ResponseBuilder.error(
+        message=_DEPRECATION_MESSAGE,
+        code="DEPRECATED_ENDPOINT",
+        details={"replacement": "model_registry"},
+        status_code=410,
+    )
 
 
 @router.get("/")
-async def list_models(
-    page: int = Query(1), page_size: int = Query(20)
-) -> Dict[str, Any]:
-    return {
-        "success": True,
-        "data": {"models": [], "total_count": 0, "page": page, "page_size": page_size},
-    }
+async def deprecated_root() -> JSONResponse:
+    """Return a standardized deprecation envelope for legacy callers."""
 
-
-@router.get("/{model_id}")
-async def get_model(model_id: str) -> Dict[str, Any]:
-    return {"success": True, "data": {"id": model_id, "name": "stub-model"}}
-
-
-@router.post("/", status_code=201)
-async def create_model(payload: Dict[str, Any]) -> Dict[str, Any]:
-    new_id = payload.get("id", "new-model")
-    return {"success": True, "data": {"id": new_id, "status": "created"}}
-
-
-__all__ = ["router"]
+    return _deprecated_response()

@@ -1,47 +1,31 @@
-"""
-Import-safe stub for realtime websocket routes.
-
-The original implementation had widespread syntax errors and import-time
-side-effects. This module provides a minimal APIRouter that preserves the
-public `router` symbol and offers tiny, well-formed handlers so the test
-collector can import backend.routes without failing.
-"""
-
-from typing import Any, Dict
+"""Deprecated compatibility shim for the retired realtime websocket API."""
 
 from fastapi import APIRouter, WebSocket
+from fastapi.responses import JSONResponse
 
-try:
-    # Prefer the project's response helper if available
-    from backend.core.app import ok
-except Exception:
-    # Fallback to a simple pass-through
-    def ok(payload: Dict[str, Any]) -> Dict[str, Any]:
-        return {"success": True, "data": payload, "error": None}
-
+from backend.core.response_models import ResponseBuilder
 
 router = APIRouter(prefix="/ws", tags=["WebSocket"])
+
+_DEPRECATION = "realtime_websocket_routes has been retired; use ws/ws_client_enhanced for notifications"
+
+
+def _deprecated_response() -> JSONResponse:
+    return ResponseBuilder.error(
+        message=_DEPRECATION,
+        code="DEPRECATED_ENDPOINT",
+        details={"replacement": "ws_client_enhanced"},
+        status_code=410,
+    )
 
 
 @router.websocket("/notifications")
 async def websocket_notifications(websocket: WebSocket):
-    """Simple echo-style websocket used as an import-safe placeholder."""
-    await websocket.accept()
-    try:
-        await websocket.send_text('{"type": "welcome", "status": "connected"}')
-        # Echo messages back (lightweight behavior)
-        while True:
-            text = await websocket.receive_text()
-            await websocket.send_text(text)
-    except Exception:
-        # Close quietly on any error
-        try:
-            await websocket.close()
-        except Exception:
-            pass
+    """Reject legacy websocket connections with a close frame explaining the migration."""
+    await websocket.close(code=1000, reason=_DEPRECATION)
 
 
 @router.get("/health")
-def ws_health() -> Dict[str, Any]:
-    """Health endpoint for websocket subsystem (import-safe)."""
-    return ok({"status": "ok"})
+def ws_health() -> JSONResponse:
+    """Return a standard deprecation payload for legacy health checks."""
+    return _deprecated_response()

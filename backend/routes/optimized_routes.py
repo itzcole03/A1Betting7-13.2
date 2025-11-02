@@ -1,47 +1,32 @@
-"""Optimized Routes - minimal import-safe stub for triage."""
-
-from datetime import datetime, timezone
-from typing import Any, Dict
+"""Deprecated compatibility shim for the retired optimized routes API."""
 
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
+
+from backend.core.response_models import ResponseBuilder
 
 router = APIRouter(prefix="/api/optimized", tags=["Optimized"])
 
+_DEPRECATION_MESSAGE = "optimized_routes has been retired; use unified_api endpoints"
+
+
+def _deprecated_response() -> JSONResponse:
+    return ResponseBuilder.error(
+        message=_DEPRECATION_MESSAGE,
+        code="DEPRECATED_ENDPOINT",
+        details={"replacement": "unified_api"},
+        status_code=410,
+    )
+
 
 @router.get("/health")
-async def health() -> Dict[str, Any]:
-    return {
-        "success": True,
-        "data": {"status": "healthy"},
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
+async def health() -> JSONResponse:
+    return _deprecated_response()
 
 
 @router.get("/_ping")
-async def ping() -> Dict[str, Any]:
-    return {
-        "success": True,
-        "data": {"service": "optimized_routes", "status": "healthy"},
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
-
-
-__all__ = ["router"]
-from datetime import datetime
-from typing import Any, Dict
-
-from fastapi import APIRouter
-
-router = APIRouter(prefix="/api/optimized", tags=["Optimized"])
-
-
-@router.get("/health")
-async def health() -> Dict[str, Any]:
-    return {
-        "success": True,
-        "data": {"status": "healthy"},
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
+async def ping() -> JSONResponse:
+    return _deprecated_response()
 
 
 __all__ = ["router"]

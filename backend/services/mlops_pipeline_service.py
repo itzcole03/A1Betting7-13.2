@@ -11,7 +11,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 # Enhanced MLOps dependencies with fallbacks
 try:
@@ -48,9 +48,16 @@ try:
 except ImportError:
     KUBERNETES_AVAILABLE = False
 
-from .intelligent_cache_service import intelligent_cache_service
 from .modern_ml_service import modern_ml_service
 from .performance_optimization import performance_monitor
+
+try:
+    from .unified_cache_service import get_cache
+except ImportError:  # pragma: no cover - cache optional in some environments
+    get_cache = None
+
+if TYPE_CHECKING:  # pragma: no cover - hints only
+    from .unified_cache_service import UnifiedCacheService
 
 
 class PipelineStatus(Enum):
@@ -123,6 +130,8 @@ class MLOpsPipelineService:
         self.model_registry: Dict[str, List[ModelVersion]] = {}
         self.experiments: Dict[str, AutomatedExperiment] = {}
         self.active_runs: Dict[str, Any] = {}
+        self._cache: Optional["UnifiedCacheService"] = None
+        self._cache_lock = asyncio.Lock()
 
         # Initialize MLflow if available
         if MLFLOW_AVAILABLE:
@@ -131,6 +140,22 @@ class MLOpsPipelineService:
         # Initialize Ray if available
         if RAY_AVAILABLE:
             self._setup_ray()
+
+    async def _get_cache(self) -> Optional["UnifiedCacheService"]:
+        """Return the shared unified cache instance."""
+
+        if get_cache is None:
+            return None
+
+        if self._cache is None:
+            async with self._cache_lock:
+                if self._cache is None:
+                    try:
+                        self._cache = await get_cache()
+                    except Exception as exc:  # pragma: no cover - defensive guard
+                        self.logger.debug("MLOps cache unavailable: %s", exc)
+                        return None
+        return self._cache
 
     def _setup_mlflow(self):
         """Setup MLflow tracking"""
@@ -337,10 +362,22 @@ class MLOpsPipelineService:
     async def _load_training_data(self, data_sources: List[str]) -> Dict[str, Any]:
         """Load training data from specified sources"""
         try:
-            # Use intelligent cache service for data loading
-            cached_data = await intelligent_cache_service.get_cached_data(
-                f"training_data_{hash(str(data_sources))}"
-            )
+            # Use unified cache service for data loading
+            cache = await self._get_cache()
+            cache_key = f"training_data_{hash(str(data_sources))}"
+            cached_data = None
+
+            if cache is not None:
+                try:
+                    cached_data = await cache.get_cached_data(cache_key)
+                except Exception as exc:  # pragma: no cover - defensive guard
+                    self.logger.debug(
+                        "MLOps cache fetch failed for %s: %s", cache_key, exc
+                    )
+            else:
+                self.logger.debug(
+                    "No cache backend available; loading training data directly"
+                )
 
             if cached_data:
                 return cached_data
@@ -357,9 +394,13 @@ class MLOpsPipelineService:
             }
 
             # Cache the data
-            await intelligent_cache_service.cache_data(
-                f"training_data_{hash(str(data_sources))}", training_data, ttl=3600
-            )
+            if cache is not None:
+                try:
+                    await cache.cache_data(cache_key, training_data, ttl=3600)
+                except Exception as exc:  # pragma: no cover - defensive guard
+                    self.logger.debug(
+                        "MLOps cache store failed for %s: %s", cache_key, exc
+                    )
 
             return training_data
 
@@ -566,16 +607,33 @@ class MLOpsPipelineService:
                     "model_type": "ensemble",
                     "framework": "pytorch",
                     "sport": "MLB",
-                    "status": "active" if latest_version and latest_version.stage == ModelStage.PRODUCTION else "staging",
+                    "status": (
+                        "active"
+                        if latest_version
+                        and latest_version.stage == ModelStage.PRODUCTION
+                        else "staging"
+                    ),
                     "created_by": "system",
-                    "created_at": latest_version.created_at.isoformat() if latest_version else datetime.now().isoformat(),
-                    "updated_at": (latest_version.promoted_at or latest_version.created_at).isoformat() if latest_version else datetime.now().isoformat(),
+                    "created_at": (
+                        latest_version.created_at.isoformat()
+                        if latest_version
+                        else datetime.now().isoformat()
+                    ),
+                    "updated_at": (
+                        (
+                            latest_version.promoted_at or latest_version.created_at
+                        ).isoformat()
+                        if latest_version
+                        else datetime.now().isoformat()
+                    ),
                     "tags": ["automated", "mlops"],
                     "hyperparameters": {},
                     "training_config": {},
-                    "metrics": latest_version.performance_metrics if latest_version else {},
+                    "metrics": (
+                        latest_version.performance_metrics if latest_version else {}
+                    ),
                     "evaluation_history": [],
-                    "versions_count": len(versions)
+                    "versions_count": len(versions),
                 }
             )
         return models
@@ -587,7 +645,7 @@ class MLOpsPipelineService:
             demo_models = [
                 ("MLB_Transformer", "transformer", 0.847, ModelStage.PRODUCTION),
                 ("Ensemble_Predictor", "ensemble", 0.892, ModelStage.PRODUCTION),
-                ("Bayesian_Risk_Model", "bayesian", 0.823, ModelStage.STAGING)
+                ("Bayesian_Risk_Model", "bayesian", 0.823, ModelStage.STAGING),
             ]
 
             for model_name, model_type, accuracy, stage in demo_models:
@@ -600,10 +658,10 @@ class MLOpsPipelineService:
                         "precision": accuracy * 0.95,
                         "recall": accuracy * 1.02,
                         "f1_score": accuracy * 0.98,
-                        "auc_roc": accuracy * 1.05
+                        "auc_roc": accuracy * 1.05,
                     },
                     created_at=datetime.now(),
-                    metadata={"model_type": model_type}
+                    metadata={"model_type": model_type},
                 )
 
                 self.model_registry[model_name] = [version]
@@ -633,15 +691,22 @@ class MLOpsPipelineService:
                                 "model_type": "ensemble",
                                 "framework": "pytorch",
                                 "sport": "MLB",
-                                "status": "active" if latest_version.stage == ModelStage.PRODUCTION else "staging",
+                                "status": (
+                                    "active"
+                                    if latest_version.stage == ModelStage.PRODUCTION
+                                    else "staging"
+                                ),
                                 "created_by": "system",
                                 "created_at": latest_version.created_at.isoformat(),
-                                "updated_at": (latest_version.promoted_at or latest_version.created_at).isoformat(),
+                                "updated_at": (
+                                    latest_version.promoted_at
+                                    or latest_version.created_at
+                                ).isoformat(),
                                 "tags": ["automated", "mlops"],
                                 "hyperparameters": {},
                                 "training_config": {},
                                 "metrics": latest_version.performance_metrics,
-                                "evaluation_history": []
+                                "evaluation_history": [],
                             }
                 return None
 
@@ -657,7 +722,9 @@ class MLOpsPipelineService:
                         "model_type": "ensemble",
                         "framework": "pytorch",
                         "sport": "MLB",
-                        "status": "active" if v.stage == ModelStage.PRODUCTION else "staging",
+                        "status": (
+                            "active" if v.stage == ModelStage.PRODUCTION else "staging"
+                        ),
                         "created_by": "system",
                         "created_at": v.created_at.isoformat(),
                         "updated_at": (v.promoted_at or v.created_at).isoformat(),
@@ -665,7 +732,7 @@ class MLOpsPipelineService:
                         "hyperparameters": {},
                         "training_config": {},
                         "metrics": v.performance_metrics,
-                        "evaluation_history": []
+                        "evaluation_history": [],
                     }
 
             return None
@@ -674,7 +741,9 @@ class MLOpsPipelineService:
             self.logger.error(f"Failed to get model {model_id}: {e}")
             return None
 
-    async def register_model(self, model_id: str, model_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def register_model(
+        self, model_id: str, model_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Register new model in registry"""
         try:
             model_name = model_data.get("name")
@@ -687,7 +756,7 @@ class MLOpsPipelineService:
                 stage=ModelStage.STAGING,
                 performance_metrics=model_data.get("metrics", {}),
                 created_at=datetime.now(),
-                metadata=model_data
+                metadata=model_data,
             )
 
             # Add to registry
@@ -703,7 +772,9 @@ class MLOpsPipelineService:
             self.logger.error(f"Failed to register model {model_id}: {e}")
             raise
 
-    async def update_model(self, model_id: str, update_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def update_model(
+        self, model_id: str, update_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Update model metadata"""
         try:
             # Get existing model
@@ -740,19 +811,25 @@ class MLOpsPipelineService:
             self.logger.error(f"Failed to delete model {model_id}: {e}")
             return False
 
-    async def save_evaluation(self, model_id: str, evaluation_record: Dict[str, Any]) -> Dict[str, Any]:
+    async def save_evaluation(
+        self, model_id: str, evaluation_record: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Save evaluation results for model"""
         try:
             # This would typically save to database or file storage
             # For now, just log the evaluation
-            self.logger.info(f"💾 Saved evaluation for model {model_id}: {evaluation_record.get('metrics', {})}")
+            self.logger.info(
+                f"💾 Saved evaluation for model {model_id}: {evaluation_record.get('metrics', {})}"
+            )
             return evaluation_record
 
         except Exception as e:
             self.logger.error(f"Failed to save evaluation for model {model_id}: {e}")
             raise
 
-    async def update_model_metrics(self, model_id: str, metrics: Dict[str, float]) -> bool:
+    async def update_model_metrics(
+        self, model_id: str, metrics: Dict[str, float]
+    ) -> bool:
         """Update model metrics"""
         try:
             # Extract model name and find latest version
@@ -771,7 +848,9 @@ class MLOpsPipelineService:
             self.logger.error(f"Failed to update metrics for model {model_id}: {e}")
             return False
 
-    async def get_model_evaluations(self, model_id: str, limit: int = 10) -> List[Dict[str, Any]]:
+    async def get_model_evaluations(
+        self, model_id: str, limit: int = 10
+    ) -> List[Dict[str, Any]]:
         """Get evaluation history for model"""
         try:
             # Mock evaluation history - would come from database in real implementation
@@ -785,10 +864,10 @@ class MLOpsPipelineService:
                         "accuracy": 0.85 + (i * 0.01),
                         "precision": 0.83 + (i * 0.01),
                         "recall": 0.84 + (i * 0.01),
-                        "f1_score": 0.84 + (i * 0.01)
+                        "f1_score": 0.84 + (i * 0.01),
                     },
                     "uploaded_at": (datetime.now() - timedelta(days=i)).isoformat(),
-                    "status": "processed"
+                    "status": "processed",
                 }
                 for i in range(min(limit, 5))
             ]
@@ -802,9 +881,12 @@ class MLOpsPipelineService:
     async def get_registry_stats(self) -> Dict[str, Any]:
         """Get model registry statistics"""
         try:
-            total_models = sum(len(versions) for versions in self.model_registry.values())
+            total_models = sum(
+                len(versions) for versions in self.model_registry.values()
+            )
             active_models = sum(
-                1 for versions in self.model_registry.values()
+                1
+                for versions in self.model_registry.values()
                 for v in versions
                 if v.stage == ModelStage.PRODUCTION
             )
@@ -816,16 +898,24 @@ class MLOpsPipelineService:
                     if "accuracy" in v.performance_metrics:
                         all_accuracies.append(v.performance_metrics["accuracy"])
 
-            avg_accuracy = sum(all_accuracies) / len(all_accuracies) if all_accuracies else 0.0
+            avg_accuracy = (
+                sum(all_accuracies) / len(all_accuracies) if all_accuracies else 0.0
+            )
 
             return {
                 "total_models": total_models,
                 "active_models": active_models,
-                "training_jobs": len([p for p in self.pipelines.values() if p.status == PipelineStatus.RUNNING]),
+                "training_jobs": len(
+                    [
+                        p
+                        for p in self.pipelines.values()
+                        if p.status == PipelineStatus.RUNNING
+                    ]
+                ),
                 "deployed_models": active_models,
                 "model_types": {"ensemble": total_models},
                 "sports_coverage": {"MLB": total_models},
-                "average_accuracy": avg_accuracy
+                "average_accuracy": avg_accuracy,
             }
 
         except Exception as e:
@@ -837,12 +927,13 @@ class MLOpsPipelineService:
                 "deployed_models": 0,
                 "model_types": {},
                 "sports_coverage": {},
-                "average_accuracy": 0.0
+                "average_accuracy": 0.0,
             }
 
 
 # Global service instance
 mlops_pipeline_service = MLOpsPipelineService()
+
 
 def get_mlops_service() -> MLOpsPipelineService:
     """Get MLOps service instance for dependency injection"""

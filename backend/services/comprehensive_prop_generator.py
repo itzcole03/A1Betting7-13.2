@@ -48,68 +48,128 @@ except ImportError:
     BaseballSavantClient = None
 
 try:
-    from backend.services.unified_cache_service import unified_cache_service
+    from backend.services.unified_cache_service import get_cache
+except ImportError:  # pragma: no cover - cache optional in some environments
+    get_cache = None
 
-    # Create a wrapper class for unified_cache_service
-    class IntelligentCacheService:
-        def __init__(self):
-            self.service = unified_cache_service
 
-        async def get_cached_data(self, key: str, category: Optional[str] = None):
-            try:
-                if self.service is None:
-                    return None
-                return await self.service.get(key)
-            except Exception:
-                return None
+class IntelligentCacheService:
+    """Async adapter that proxies calls to the shared unified cache."""
 
-        async def cache_data(
-            self, key: str, data: Any, ttl: int = 3600, category: Optional[str] = None
-        ):
-            try:
-                if self.service is None:
-                    return
-                await self.service.set(key, data, ttl)
-            except Exception:
-                pass
+    def __init__(self) -> None:
+        self._cache: Optional[Any] = None
+        self._lock = asyncio.Lock()
+        self._logger = logging.getLogger("propollama")
 
-        async def get(self, key: str):
-            try:
-                if self.service is None:
-                    return None
-                return await self.service.get(key)
-            except Exception:
-                return None
-
-        async def set(self, key: str, data: Any, ttl: int = 3600):
-            try:
-                if self.service is None:
-                    return
-                await self.service.set(key, data, ttl)
-            except:
-                pass
-
-except ImportError:
-    unified_cache_service = None
-
-    # Fallback cache service
-    class IntelligentCacheService:
-        def __init__(self):
-            self.service = None
-
-        async def get_cached_data(self, key: str, category: Optional[str] = None):
+    async def _ensure_cache(self) -> Optional[Any]:
+        if get_cache is None:
             return None
 
-        async def cache_data(
-            self, key: str, data: Any, ttl: int = 3600, category: Optional[str] = None
-        ):
-            pass
+        if self._cache is None:
+            async with self._lock:
+                if self._cache is None:
+                    try:
+                        self._cache = await get_cache()
+                    except Exception as exc:  # pragma: no cover - defensive guard
+                        self._logger.debug("Intelligent cache unavailable: %s", exc)
+                        return None
+        return self._cache
 
-        async def get(self, key: str):
+    async def acquire_backend(self) -> Optional[Any]:
+        """Return the resolved cache backend when available."""
+
+        return await self._ensure_cache()
+
+    async def get_cached_data(self, key: str, category: Optional[str] = None) -> Any:
+        cache = await self._ensure_cache()
+        if cache is None:
             return None
 
-        async def set(self, key: str, data: Any, ttl: int = 3600):
-            pass
+        try:
+            if hasattr(cache, "get_cached_data"):
+                return await cache.get_cached_data(key, user_context=category)
+            return await cache.get(key, user_context=category)
+        except Exception as exc:  # pragma: no cover - cache backend failure
+            self._logger.debug(
+                "Intelligent cache get_cached_data failed for %s: %s",
+                key,
+                exc,
+            )
+            return None
+
+    async def cache_data(
+        self,
+        key: str,
+        data: Any,
+        category: Optional[str] = None,
+        ttl: int = 3600,
+    ) -> None:
+        cache = await self._ensure_cache()
+        if cache is None:
+            return
+
+        try:
+            if hasattr(cache, "cache_data"):
+                await cache.cache_data(
+                    key,
+                    data,
+                    ttl=ttl,
+                    user_context=category,
+                )
+            else:
+                await cache.set(
+                    key,
+                    data,
+                    ttl=ttl,
+                    user_context=category,
+                )
+        except Exception as exc:  # pragma: no cover - cache backend failure
+            self._logger.debug(
+                "Intelligent cache cache_data failed for %s: %s",
+                key,
+                exc,
+            )
+
+    async def get(self, key: str, *, category: Optional[str] = None) -> Any:
+        cache = await self._ensure_cache()
+        if cache is None:
+            return None
+
+        try:
+            return await cache.get(key, user_context=category)
+        except Exception as exc:  # pragma: no cover - cache backend failure
+            self._logger.debug(
+                "Intelligent cache get failed for %s: %s",
+                key,
+                exc,
+            )
+            return None
+
+    async def set(
+        self,
+        key: str,
+        data: Any,
+        ttl: int = 3600,
+        *,
+        category: Optional[str] = None,
+    ) -> None:
+        cache = await self._ensure_cache()
+        if cache is None:
+            return
+
+        try:
+            await cache.set(
+                key,
+                data,
+                ttl=ttl,
+                user_context=category,
+            )
+        except Exception as exc:  # pragma: no cover - cache backend failure
+            self._logger.debug(
+                "Intelligent cache set failed for %s: %s",
+                key,
+                exc,
+            )
 
 
 try:
@@ -1355,19 +1415,24 @@ class ComprehensivePropGenerator:
                 self.generation_stats["performance_optimizer_enhanced"] = False
 
         # Initialize Intelligent Cache Service enhancements
-        try:
-            from ..services.intelligent_cache_service import intelligent_cache_service
-
-            # Verify cache service is working with Phase 2 features
-            if hasattr(intelligent_cache_service, "enable_predictive_warming"):
-                await intelligent_cache_service.enable_predictive_warming()
-            logger.info("✅ [Phase 2] Intelligent Cache Service enhanced")
-            self.generation_stats["intelligent_cache_enhanced"] = True
-        except Exception as e:
-            logger.warning(
-                f"⚠️ [Phase 2] Intelligent Cache Service enhancement failed: {e}"
+        cache = await self.cache_service.acquire_backend()
+        if cache is None:
+            logger.debug(
+                "[Phase 2] Intelligent Cache backend not configured; skipping enhancements"
             )
             self.generation_stats["intelligent_cache_enhanced"] = False
+        else:
+            try:
+                # Verify cache service is working with Phase 2 features
+                if hasattr(cache, "enable_predictive_warming"):
+                    await cache.enable_predictive_warming()
+                logger.info("✅ [Phase 2] Intelligent Cache Service enhanced")
+                self.generation_stats["intelligent_cache_enhanced"] = True
+            except Exception as e:
+                logger.warning(
+                    f"⚠️ [Phase 2] Intelligent Cache Service enhancement failed: {e}"
+                )
+                self.generation_stats["intelligent_cache_enhanced"] = False
 
         # Update generation stats with Phase 2 status
         phase2_services = [

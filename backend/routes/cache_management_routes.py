@@ -12,23 +12,18 @@ from typing import Any, Dict
 
 from fastapi import APIRouter
 
+from backend.core.response_models import ResponseBuilder
+
 logger = logging.getLogger("propollama")
-
-try:
-    from backend.core.response_models import ResponseBuilder
-except Exception:
-
-    class _FallbackResponseBuilder:
-        @staticmethod
-        def success(data: Any = None) -> Dict[str, Any]:
-            return {"success": True, "data": data, "error": None}
-
-    ResponseBuilder = _FallbackResponseBuilder
 
 
 router = APIRouter(prefix="/api/cache", tags=["Cache Management"])
 
 
+def _success(payload: Any, message: str | None = None) -> Dict[str, Any]:
+    return ResponseBuilder.success(payload, message=message)
+
+
 @router.get("/health")
 async def health() -> Dict[str, Any]:
-    return ResponseBuilder.success({"status": "ok"})
+    return _success({"status": "ok"}, message="Cache management shim is healthy")

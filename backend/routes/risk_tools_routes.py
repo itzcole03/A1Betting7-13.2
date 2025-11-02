@@ -1,28 +1,28 @@
-"""Import-safe stub for risk_tools_routes used during triage.
-
-This module intentionally contains only a tiny APIRouter exposing /health
-and /_ping so the test import sweep and application factory can load the
-backend.routes package without encountering parse-time errors. Restore
-the full implementation from source control once tests are passing.
-"""
+"""Deprecated compatibility shim for the retired risk tools API."""
 
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
+
+from backend.core.response_models import ResponseBuilder
 
 router = APIRouter(prefix="/api/risk_tools", tags=["risk_tools"])
 
-
-@router.get("/health")
-def health():
-    return {
-        "success": True,
-        "data": {"service": "risk_tools", "status": "ok"},
-        "error": None,
-    }
+_DEPRECATION_MESSAGE = (
+    "risk_tools_routes has been retired; use consolidated bankroll tooling"
+)
 
 
-@router.get("/_ping")
-def ping():
-    return {"ok": True}
+def _deprecated_response() -> JSONResponse:
+    return ResponseBuilder.error(
+        message=_DEPRECATION_MESSAGE,
+        code="DEPRECATED_ENDPOINT",
+        details={"replacement": "bankroll_routes"},
+        status_code=410,
+    )
 
 
-__all__ = ["router"]
+@router.get("/")
+async def deprecated_root() -> JSONResponse:
+    """Return a standardized deprecation envelope for legacy callers."""
+
+    return _deprecated_response()

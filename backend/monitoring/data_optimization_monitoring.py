@@ -12,6 +12,8 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from backend.services.unified_cache_service import UnifiedCacheService, get_cache
+
 logger = logging.getLogger("propollama")
 
 # Monitoring router
@@ -49,15 +51,23 @@ class MonitoringService:
         self.start_time = time.time()
         self.metrics_history: List[Dict[str, Any]] = []
         self.alerts: List[Dict[str, Any]] = []
+        self._cache: Optional[UnifiedCacheService] = None
+        self._cache_lock = asyncio.Lock()
+
+    async def _get_cache(self) -> UnifiedCacheService:
+        """Return the shared unified cache instance."""
+
+        if self._cache is None:
+            async with self._cache_lock:
+                if self._cache is None:
+                    self._cache = await get_cache()
+        return self._cache
 
     async def get_intelligent_cache_metrics(self) -> ServiceMetrics:
         """Get metrics from intelligent cache service"""
         try:
-            from backend.services.intelligent_cache_service import (
-                intelligent_cache_service,
-            )
-
-            stats = await intelligent_cache_service.get_stats()
+            cache = await self._get_cache()
+            stats = await cache.get_stats()
 
             return ServiceMetrics(
                 service_name="Intelligent Cache",

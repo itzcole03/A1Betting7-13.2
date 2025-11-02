@@ -15,6 +15,8 @@ def create_production_app() -> FastAPI:
         return {"status": "healthy"}
 
     return app
+
+
 """
 Production Integration Module for A1Betting Backend
 
@@ -22,9 +24,10 @@ Integrates all production-ready components including security, rate limiting,
 logging, monitoring, and database management.
 """
 
+import asyncio
 import logging
 from contextlib import asynccontextmanager
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,7 +50,11 @@ from backend.services.sports_initialization import (
     initialize_sports_services,
     shutdown_sports_services,
 )
-from backend.services.unified_cache_service import cache_service
+from backend.services.unified_cache_service import (
+    UnifiedCacheService,
+    cache_service,
+    get_cache,
+)
 from backend.utils.enhanced_logging import (
     RequestLoggingMiddleware,
     enhanced_logger,
@@ -62,6 +69,17 @@ class ProductionApp:
         self.config = config
         self.logger = get_logger("production_app")
         self.app: FastAPI = None
+        self._cache: Optional[UnifiedCacheService] = None
+        self._cache_lock = asyncio.Lock()
+
+    async def _get_cache(self) -> UnifiedCacheService:
+        """Return the shared unified cache instance."""
+
+        if self._cache is None:
+            async with self._cache_lock:
+                if self._cache is None:
+                    self._cache = await get_cache()
+        return self._cache
 
     @asynccontextmanager
     async def lifespan(self, app: FastAPI):
@@ -86,11 +104,8 @@ class ProductionApp:
 
             # Initialize intelligent cache service
             try:
-                from backend.services.intelligent_cache_service import (
-                    intelligent_cache_service,
-                )
-
-                await intelligent_cache_service.initialize()
+                cache = await self._get_cache()
+                await cache.initialize()
                 self.logger.info(
                     "✅ Intelligent cache service initialized successfully"
                 )
@@ -175,11 +190,8 @@ class ProductionApp:
 
                 # Shutdown intelligent cache service
                 try:
-                    from backend.services.intelligent_cache_service import (
-                        intelligent_cache_service,
-                    )
-
-                    await intelligent_cache_service.shutdown()
+                    cache = await self._get_cache()
+                    await cache.shutdown()
                     self.logger.info("✅ Intelligent cache service shutdown completed")
                 except Exception as e:
                     self.logger.warning(
@@ -454,29 +466,9 @@ class ProductionApp:
         except Exception as e:
             self.logger.error(f"Error including Player Dashboard routes: {e}")
 
-        # Include Data Validation routes for cross-source data quality assurance
-        try:
-            from backend.routes import data_validation_routes
-
-            self.app.include_router(data_validation_routes.router)
-            self.logger.info("✅ Data validation routes included successfully")
-        except ImportError:
-            self.logger.warning("⚠️ Could not import data_validation_routes router")
-        except Exception as e:
-            self.logger.error(f"Error including data validation routes: {e}")
-
-        # Include Enhanced Data Validation routes for optimized validation pipelines
-        try:
-            from backend.routes import enhanced_data_validation_routes
-
-            self.app.include_router(enhanced_data_validation_routes.router)
-            self.logger.info("✅ Enhanced data validation routes included successfully")
-        except ImportError:
-            self.logger.warning(
-                "⚠️ Could not import enhanced_data_validation_routes router - using basic validation only"
-            )
-        except Exception as e:
-            self.logger.error(f"Error including enhanced data validation routes: {e}")
+        # Legacy data validation routers have been retired in favor of
+        # `validation_routes`. Keep the legacy modules out of production wiring
+        # so only the consolidated endpoints remain visible.
 
         # Include Statcast projection API routes for advanced ML projections (non-blocking)
         try:
@@ -544,8 +536,11 @@ class ProductionApp:
         # Include PropFinder routes via centralized registrar for idempotency
         try:
             from backend.core.app import register_feature_routers
+
             register_feature_routers(self.app)
-            self.logger.info("✅ PropFinder routes registered via register_feature_routers()")
+            self.logger.info(
+                "✅ PropFinder routes registered via register_feature_routers()"
+            )
         except ImportError as e:
             self.logger.warning(f"⚠️ Could not import register_feature_routers: {e}")
         except Exception as e:
@@ -968,7 +963,10 @@ class ProductionApp:
             """Cache service health check"""
             # Prefer the lightweight enhanced caching service when tests patch it
             try:
-                from backend.services.enhanced_caching_service import cache_service as enhanced_cache
+                from backend.services.enhanced_caching_service import (
+                    cache_service as enhanced_cache,
+                )
+
                 return await enhanced_cache.health_check()
             except Exception:
                 try:
@@ -981,13 +979,20 @@ class ProductionApp:
         async def cache_stats():
             """Cache service statistics"""
             try:
-                from backend.services.enhanced_caching_service import cache_service as enhanced_cache
+                from backend.services.enhanced_caching_service import (
+                    cache_service as enhanced_cache,
+                )
+
                 return await enhanced_cache.get_stats()
             except Exception:
                 try:
                     return await cache_service.get_stats()
                 except Exception:
-                    return {"hit_rate_percent": 0.0, "total_requests": 0, "memory_usage_mb": 0}
+                    return {
+                        "hit_rate_percent": 0.0,
+                        "total_requests": 0,
+                        "memory_usage_mb": 0,
+                    }
 
         # Cache management endpoints (development only)
         if self.config.environment == Environment.DEVELOPMENT:
@@ -1010,13 +1015,20 @@ class ProductionApp:
             """Metrics endpoint for Prometheus monitoring"""
             db_stats = db_manager.get_stats()
             try:
-                from backend.services.enhanced_caching_service import cache_service as enhanced_cache
+                from backend.services.enhanced_caching_service import (
+                    cache_service as enhanced_cache,
+                )
+
                 cache_stats = await enhanced_cache.get_stats()
             except Exception:
                 try:
                     cache_stats = await cache_service.get_stats()
                 except Exception:
-                    cache_stats = {"hit_rate_percent": 0.0, "total_requests": 0, "memory_usage_mb": 0}
+                    cache_stats = {
+                        "hit_rate_percent": 0.0,
+                        "total_requests": 0,
+                        "memory_usage_mb": 0,
+                    }
 
             metrics_data = [
                 f"# HELP a1betting_database_connections_total Total database connections",

@@ -19,6 +19,7 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from backend.core.exceptions import BusinessLogicException
+from backend.core.response_models import ResponseBuilder
 
 from ..services.provider_confidence_integration import (
     ConfidenceLevel,
@@ -30,6 +31,10 @@ from ..services.provider_confidence_integration import (
 logger = logging.getLogger("provider_confidence_routes")
 
 router = APIRouter(prefix="/api/odds/provider-confidence", tags=["Provider Confidence"])
+
+
+def _success(payload: Any, message: Optional[str] = None) -> Dict[str, Any]:
+    return ResponseBuilder.success(payload, message=message)
 
 
 class ProviderConfidenceResponse(BaseModel):
@@ -129,19 +134,21 @@ async def get_confidence_health():
         integration = get_provider_confidence_integration()
         status = integration.get_integration_status()
 
-        return {
+        payload = {
             "service": "Provider Confidence Integration",
             "status": "healthy",
             "integration_active": True,
             "details": status,
         }
 
+        return _success(payload, message="Provider confidence integration is healthy")
+
     except Exception as e:
         logger.error(f"Health check error: {e}")
         raise BusinessLogicException(str(e), status_code=500)
 
 
-@router.get("/score/{provider_id}", response_model=ProviderConfidenceResponse)
+@router.get("/score/{provider_id}")
 async def get_provider_confidence_score(provider_id: str):
     """
     Get comprehensive confidence score for a specific provider.
@@ -152,15 +159,16 @@ async def get_provider_confidence_score(provider_id: str):
     try:
         integration = get_provider_confidence_integration()
         score = await integration.get_provider_confidence_score(provider_id)
+        response = _convert_confidence_score_to_response(score)
 
-        return _convert_confidence_score_to_response(score)
+        return _success(response.model_dump())
 
     except Exception as e:
         logger.error(f"Error getting confidence score for {provider_id}: {e}")
         raise BusinessLogicException(str(e), status_code=500)
 
 
-@router.get("/rankings", response_model=List[ProviderRankingResponse])
+@router.get("/rankings")
 async def get_provider_rankings():
     """
     Get all providers ranked by confidence score.
@@ -183,15 +191,16 @@ async def get_provider_rankings():
                     rank=rank,
                 )
             )
+        payload = [ranking.model_dump() for ranking in response]
 
-        return response
+        return _success(payload)
 
     except Exception as e:
         logger.error(f"Error getting provider rankings: {e}")
         raise BusinessLogicException(str(e), status_code=500)
 
 
-@router.post("/select", response_model=ProviderSelectionResponse)
+@router.post("/select")
 async def select_optimal_provider(
     available_providers: List[str],
     confidence_threshold: Optional[float] = Query(
@@ -209,7 +218,7 @@ async def select_optimal_provider(
             available_providers, confidence_threshold
         )
 
-        return ProviderSelectionResponse(
+        selection = ProviderSelectionResponse(
             primary_provider=(
                 _convert_confidence_score_to_response(result.primary_provider)
                 if result.primary_provider
@@ -223,6 +232,8 @@ async def select_optimal_provider(
             total_providers_evaluated=result.total_providers_evaluated,
             confidence_threshold_used=result.confidence_threshold_used,
         )
+
+        return _success(selection.model_dump())
 
     except Exception as e:
         logger.error(f"Error selecting provider: {e}")
@@ -247,7 +258,7 @@ async def check_circuit_breaker_recommendation(
 
         confidence_score = await integration.get_provider_confidence_score(provider_id)
 
-        return {
+        payload = {
             "provider_id": provider_id,
             "should_trigger_circuit_breaker": should_trigger,
             "current_confidence": confidence_score.adjusted_confidence,
@@ -260,6 +271,8 @@ async def check_circuit_breaker_recommendation(
             ),
             "error_type": error_type,
         }
+
+        return _success(payload)
 
     except Exception as e:
         logger.error(f"Error checking circuit breaker for {provider_id}: {e}")
@@ -299,7 +312,7 @@ async def update_provider_confidence_on_request(request: ProviderRequestUpdate):
             request.provider_id
         )
 
-        return {
+        payload = {
             "provider_id": request.provider_id,
             "request_recorded": True,
             "success": request.success,
@@ -308,6 +321,8 @@ async def update_provider_confidence_on_request(request: ProviderRequestUpdate):
             "confidence_level": updated_score.confidence_level.value,
             "requires_fallback": updated_score.requires_fallback,
         }
+
+        return _success(payload)
 
     except Exception as e:
         logger.error(f"Error updating confidence for {request.provider_id}: {e}")
@@ -322,7 +337,7 @@ async def get_confidence_thresholds():
     try:
         integration = get_provider_confidence_integration()
 
-        return {
+        payload = {
             "confidence_thresholds": integration.confidence_thresholds,
             "circuit_penalties": {
                 state.value: penalty
@@ -337,12 +352,14 @@ async def get_confidence_thresholds():
             },
         }
 
+        return _success(payload)
+
     except Exception as e:
         logger.error(f"Error getting confidence thresholds: {e}")
         raise BusinessLogicException(str(e), status_code=500)
 
 
-@router.get("/integration-status", response_model=IntegrationStatusResponse)
+@router.get("/integration-status")
 async def get_integration_status():
     """
     Get comprehensive status of the confidence integration system.
@@ -353,7 +370,7 @@ async def get_integration_status():
         integration = get_provider_confidence_integration()
         status = integration.get_integration_status()
 
-        return IntegrationStatusResponse(
+        status_response = IntegrationStatusResponse(
             system=status["system"],
             status=status["status"],
             cached_providers=status["cached_providers"],
@@ -362,6 +379,8 @@ async def get_integration_status():
             circuit_penalties=status["circuit_penalties"],
             last_selection=status["last_selection"],
         )
+
+        return _success(status_response.model_dump())
 
     except Exception as e:
         logger.error(f"Error getting integration status: {e}")

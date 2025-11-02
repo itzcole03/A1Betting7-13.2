@@ -28,10 +28,15 @@ from .enhanced_data_pipeline import enhanced_data_pipeline
 
 # Import enhanced ML service for real confidence calculations
 from .enhanced_ml_service import enhanced_ml_service
-from .intelligent_cache_service import intelligent_cache_service
 
 # Import our new MLB Stats API client for free, official MLB data
 from .mlb_stats_api_client import MLBStatsAPIClient
+
+try:
+    from .unified_cache_service import UnifiedCacheService, get_cache
+except ImportError:  # pragma: no cover - cache optional in some environments
+    get_cache = None
+    UnifiedCacheService = Any  # type: ignore
 
 # Import PR8 tracing for provider operation observability
 _TCallable = TypeVar("_TCallable", bound=Callable[..., Any])
@@ -82,7 +87,8 @@ class MLBProviderClient:
 
         # Initialize enhanced services
         self.data_pipeline = enhanced_data_pipeline
-        self.cache_service = intelligent_cache_service
+        self._cache_service: Optional[Any] = None
+        self._cache_lock = asyncio.Lock()
 
         # Initialize MLB Stats API and Baseball Savant clients
         self.mlb_stats_client = MLBStatsAPIClient()
@@ -125,6 +131,22 @@ class MLBProviderClient:
         # Placeholder for real metrics integration (e.g., Prometheus, StatsD)
         logger.info("[METRICS] Incremented metric: %s", metric_name)
 
+    async def _get_cache_service(self) -> Optional[Any]:
+        """Return the shared cache service when available."""
+
+        if get_cache is None:
+            return None
+
+        if self._cache_service is None:
+            async with self._cache_lock:
+                if self._cache_service is None:
+                    try:
+                        self._cache_service = await get_cache()
+                    except Exception as exc:  # pragma: no cover - defensive guard
+                        logger.debug("MLB provider cache unavailable: %s", exc)
+                        return None
+        return self._cache_service
+
     async def fetch_player_props_theodds(self) -> list:
         """
         Fetch and normalize MLB player props from TheOdds API using enhanced data pipeline.
@@ -144,9 +166,22 @@ class MLBProviderClient:
             add_span_tag(span_id, "cache_key", cache_key)
 
             # Try intelligent cache first
-            cached = await self.cache_service.get(
-                cache_key, user_context="mlb_provider"
-            )
+            cache = await self._get_cache_service()
+            cached = None
+            if cache is not None:
+                try:
+                    cached = await cache.get(cache_key, user_context="mlb_provider")
+                except Exception as exc:  # pragma: no cover - defensive guard
+                    logger.debug(
+                        "[MLBProviderClient] Cache fetch failed for %s: %s",
+                        cache_key,
+                        exc,
+                    )
+            else:
+                logger.debug(
+                    "[MLBProviderClient] Cache backend not configured; skipping prefetch"
+                )
+
             if cached:
                 add_span_tag(span_id, "cache_hit", True)
                 logger.info(
@@ -279,12 +314,20 @@ class MLBProviderClient:
                     add_span_tag(batch_span, "total_props_fetched", len(all_props))
 
                 # Cache the complete result with intelligent TTL
-                await self.cache_service.set(
-                    cache_key,
-                    all_props,
-                    ttl_seconds=self.CACHE_TTL,
-                    user_context="mlb_provider",
-                )
+                if cache is not None:
+                    try:
+                        await cache.set(
+                            cache_key,
+                            all_props,
+                            ttl=self.CACHE_TTL,
+                            user_context="mlb_provider",
+                        )
+                    except Exception as exc:  # pragma: no cover - defensive guard
+                        logger.debug(
+                            "[MLBProviderClient] Cache store failed for %s: %s",
+                            cache_key,
+                            exc,
+                        )
 
                 logger.info(
                     "[MLBProviderClient] Enhanced fetch completed: %d props",
@@ -302,7 +345,16 @@ class MLBProviderClient:
                 )
 
                 # Try to return stale cache data as last resort
-                stale_data = await self.cache_service.get(f"stale:{cache_key}")
+                stale_data = None
+                if cache is not None:
+                    try:
+                        stale_data = await cache.get(f"stale:{cache_key}")
+                    except Exception as exc:  # pragma: no cover - defensive guard
+                        logger.debug(
+                            "[MLBProviderClient] Cache fetch for stale %s failed: %s",
+                            cache_key,
+                            exc,
+                        )
                 return stale_data if stale_data else []
 
     async def fetch_player_props_mlb_stats(self) -> list:

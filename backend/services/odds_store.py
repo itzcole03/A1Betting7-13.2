@@ -16,6 +16,8 @@ Key Features:
 - Consensus probability calculation
 """
 
+from __future__ import annotations
+
 import asyncio
 import json
 import logging
@@ -39,19 +41,40 @@ try:
         OddsSnapshot,
     )
     from backend.services.odds_normalizer import OddsNormalizer
-    from backend.services.unified_cache_service import unified_cache_service
+    from backend.services.unified_cache_service import UnifiedCacheService, get_cache
 
     SQLALCHEMY_AVAILABLE = True
 except ImportError as e:
     logging.warning(f"Could not import database dependencies: {e}")
-    AsyncSession = None
-    Bookmaker = None
-    OddsSnapshot = None
-    OddsNormalizer = None
-    unified_cache_service = None
+    AsyncSession = Any  # type: ignore[assignment]
+    Bookmaker = Any  # type: ignore[assignment]
+    OddsSnapshot = Any  # type: ignore[assignment]
+    OddsNormalizer = Any  # type: ignore[assignment]
+    UnifiedCacheService = None  # type: ignore[assignment]
+    get_cache = None
     SQLALCHEMY_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
+
+_cache_instance: Optional[Any] = None
+_cache_lock = asyncio.Lock()
+
+
+async def _get_cache() -> Optional[Any]:
+    global _cache_instance
+
+    if get_cache is None:
+        return None
+
+    if _cache_instance is None:
+        async with _cache_lock:
+            if _cache_instance is None:
+                try:
+                    _cache_instance = await get_cache()
+                except Exception as exc:  # pragma: no cover - defensive guard
+                    logger.debug("Odds cache unavailable: %s", exc)
+                    return None
+    return _cache_instance
 
 
 @dataclass
@@ -91,7 +114,6 @@ class OddsStoreService:
 
     def __init__(self):
         self.odds_normalizer = None
-        self.cache_service = None
         try:
             from backend.services.unified_logging import get_logger
 
@@ -104,14 +126,14 @@ class OddsStoreService:
                 self.odds_normalizer = OddsNormalizer(precision=4)
                 self.logger.info("OddsNormalizer initialized for odds storage")
         except Exception as e:
-            self.logger.warning(f"Could not initialize OddsNormalizer: {e}")
+            self.logger.warning("Could not initialize OddsNormalizer: %s", e)
 
-        try:
-            if unified_cache_service is not None:
-                self.cache_service = unified_cache_service
-                self.logger.info("Cache service initialized for odds storage")
-        except Exception as e:
-            self.logger.warning(f"Could not initialize cache service: {e}")
+        if get_cache is not None:
+            self.logger.info("Unified cache available for odds storage")
+        else:
+            self.logger.info(
+                "Unified cache not configured; falling back to in-memory flows"
+            )
 
     async def initialize_bookmakers(self, session: AsyncSession) -> List[Bookmaker]:
         """Initialize bookmaker registry with default sportsbooks"""
@@ -280,28 +302,22 @@ class OddsStoreService:
             BestLineResult with best odds or None if no data found
         """
         try:
-            # Check cache first
             cache_key = f"best_line:{prop_id}:{max_age_minutes}"
-            if self.cache_service:
+            cache = await _get_cache()
+            if cache is not None:
                 try:
-                    # cache service may be async (awaitable) or sync
-                    maybe_coroutine = self.cache_service.get(cache_key)
-                    if asyncio.iscoroutine(maybe_coroutine):
-                        cached_result = await maybe_coroutine
-                    else:
-                        cached_result = maybe_coroutine
-
+                    cached_result = await cache.get(cache_key)
                     if cached_result:
-                        # If cached_result is a dict-like mapping
                         if isinstance(cached_result, dict):
                             return BestLineResult(**cached_result)
-                        # If cache stored pickled BestLineResult.__dict__
                         try:
                             return BestLineResult(**cached_result.__dict__)
                         except Exception:
                             pass
-                except Exception as e:
-                    self.logger.warning(f"Cache lookup failed for {cache_key}: {e}")
+                except Exception as exc:
+                    self.logger.warning(
+                        "Cache lookup failed for %s: %s", cache_key, exc
+                    )
 
             # Get recent snapshots for the prop
             cutoff_time = datetime.now(timezone.utc) - timedelta(
@@ -374,16 +390,14 @@ class OddsStoreService:
                 last_updated=datetime.now(timezone.utc),
             )
 
-            # Cache result for 5 minutes (handle async or sync cache)
-            if self.cache_service:
+            cache = await _get_cache()
+            if cache is not None:
                 try:
-                    maybe_set = self.cache_service.set(
-                        cache_key, result.__dict__, ttl_seconds=300
+                    await cache.set(cache_key, result.__dict__, ttl=300)
+                except Exception as exc:
+                    self.logger.warning(
+                        "Failed to set cache for %s: %s", cache_key, exc
                     )
-                    if asyncio.iscoroutine(maybe_set):
-                        await maybe_set
-                except Exception as e:
-                    self.logger.warning(f"Failed to set cache for {cache_key}: {e}")
 
             return result
 
@@ -668,26 +682,30 @@ class OddsStoreService:
 
                     await session.commit()
 
-                    # Cache result for fast reads
-                    if self.cache_service:
+                    cache = await _get_cache()
+                    if cache is not None:
                         cache_key = f"best_line_aggregate:{prop_id}"
-                        self.cache_service.set(
-                            cache_key,
-                            {
-                                "best_over_odds": best.best_over_odds,
-                                "best_over_bookmaker": best.best_over_bookmaker,
-                                "best_under_odds": best.best_under_odds,
-                                "best_under_bookmaker": best.best_under_bookmaker,
-                                "consensus_line": best.consensus_line,
-                                "consensus_over_prob": best.consensus_over_prob,
-                                "consensus_under_prob": best.consensus_under_prob,
-                                "num_bookmakers": best.num_bookmakers,
-                                "arbitrage_opportunity": best.arbitrage_opportunity,
-                                "arbitrage_profit_pct": best.arbitrage_profit_pct,
-                                "last_updated": best.last_updated.isoformat(),
-                            },
-                            ttl_seconds=600,
-                        )
+                        payload = {
+                            "best_over_odds": best.best_over_odds,
+                            "best_over_bookmaker": best.best_over_bookmaker,
+                            "best_under_odds": best.best_under_odds,
+                            "best_under_bookmaker": best.best_under_bookmaker,
+                            "consensus_line": best.consensus_line,
+                            "consensus_over_prob": best.consensus_over_prob,
+                            "consensus_under_prob": best.consensus_under_prob,
+                            "num_bookmakers": best.num_bookmakers,
+                            "arbitrage_opportunity": best.arbitrage_opportunity,
+                            "arbitrage_profit_pct": best.arbitrage_profit_pct,
+                            "last_updated": best.last_updated.isoformat(),
+                        }
+                        try:
+                            await cache.set(cache_key, payload, ttl=600)
+                        except Exception as exc:
+                            self.logger.debug(
+                                "Failed to cache best line aggregate %s: %s",
+                                cache_key,
+                                exc,
+                            )
 
                     self.logger.info(f"Upserted BestLineAggregate for {prop_id}")
 
@@ -698,9 +716,7 @@ class OddsStoreService:
         except Exception as e:
             self.logger.error(f"Error updating best line aggregate for {prop_id}: {e}")
 
-    def get_bookmaker_by_name(
-        self, bookmakers: List[Bookmaker], name: str
-    ) -> Optional[Bookmaker]:
+    def get_bookmaker_by_name(self, bookmakers: List[Any], name: str) -> Optional[Any]:
         """Helper method to find bookmaker by name"""
         for bookmaker in bookmakers:
             if (

@@ -3,7 +3,7 @@ PropFinder Real Data Service
 
 Integrates PropFinderKillerDashboard with real betting data sources:
 - Alert Engine integration for live opportunities
-- Prop data from multiple sportsbooks 
+- Prop data from multiple sportsbooks
 - Line movement tracking
 - ML analysis and confidence scoring
 - Real-time odds comparison
@@ -14,25 +14,29 @@ import asyncio
 import logging
 import os
 from collections.abc import Iterable
-from typing import List, Dict, Optional, Any, Set
-from datetime import datetime, timezone, timedelta
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta, timezone
 from enum import Enum
+from typing import Any, Dict, List, Optional, Set
 
 # Import real data services
 try:
-    from backend.services.alert_engine_core import get_alert_engine_core, AlertTrigger
+    from backend.services.alert_engine_core import AlertTrigger, get_alert_engine_core
+    from backend.services.odds_normalizer import (
+        OddsNormalizer,
+        create_propfinder_odds_response,
+    )
+    from backend.services.unified_cache_service import UnifiedCacheService, get_cache
     from backend.services.unified_data_fetcher import unified_data_fetcher
-    from backend.services.unified_cache_service import unified_cache_service
     from backend.services.unified_logging import unified_logging
-    from backend.services.odds_normalizer import OddsNormalizer, create_propfinder_odds_response
 except ImportError as e:
     logging.warning(f"Could not import unified services: {e}")
     # Graceful fallback for development
     get_alert_engine_core = None
     AlertTrigger = None
     unified_data_fetcher = None
-    unified_cache_service = None
+    UnifiedCacheService = None
+    get_cache = None
     unified_logging = None
     OddsNormalizer = None
     create_propfinder_odds_response = None
@@ -58,11 +62,12 @@ logger = logging.getLogger(__name__)
 class Sport(Enum):
     NBA = "NBA"
     NFL = "NFL"
-    MLB = "MLB" 
+    MLB = "MLB"
     NHL = "NHL"
 
 
 MOCK_ALLOWED_SPORTS: Set[Sport] = {Sport.NFL, Sport.MLB, Sport.NBA}
+
 
 class MarketType(Enum):
     POINTS = "Points"
@@ -75,18 +80,22 @@ class MarketType(Enum):
     SAVES = "Saves"
     GOALS = "Goals"
 
+
 class Pick(Enum):
     OVER = "over"
     UNDER = "under"
+
 
 class Trend(Enum):
     UP = "up"
     DOWN = "down"
     STABLE = "stable"
 
+
 class Venue(Enum):
     HOME = "home"
     AWAY = "away"
+
 
 class SharpMoney(Enum):
     HEAVY = "heavy"
@@ -94,11 +103,13 @@ class SharpMoney(Enum):
     LIGHT = "light"
     PUBLIC = "public"
 
+
 @dataclass
 class LineMovement:
     open: float
     current: float
     direction: Trend
+
 
 @dataclass
 class Bookmaker:
@@ -106,11 +117,13 @@ class Bookmaker:
     odds: int
     line: float
 
+
 @dataclass
 class MatchupHistory:
     games: int
     average: float
     hitRate: int
+
 
 @dataclass
 class PropOpportunity:
@@ -181,14 +194,17 @@ class PropOpportunity:
     closingOdds: Optional[int] = None
     clv_metrics: Optional[Dict[str, Any]] = None
 
+
 class PropFinderDataService:
     """Service for fetching real prop betting data for PropFinder dashboard"""
-    
+
     def __init__(self):
         self.cache_ttl = 30  # 30 seconds cache for real-time data
         self.alert_engine = None
         self.logger = logger
-        
+        self._cache: Optional[Any] = None
+        self._cache_lock = asyncio.Lock()
+
         # Initialize odds normalizer for edge calculations
         try:
             if OddsNormalizer is not None:
@@ -196,7 +212,9 @@ class PropFinderDataService:
                 self.logger.info("OddsNormalizer initialized successfully")
             else:
                 self.odds_normalizer = None
-                self.logger.warning("OddsNormalizer not available - using fallback calculations")
+                self.logger.warning(
+                    "OddsNormalizer not available - using fallback calculations"
+                )
         except Exception as e:
             self.logger.warning(f"Failed to initialize OddsNormalizer: {e}")
             self.odds_normalizer = None
@@ -222,7 +240,23 @@ class PropFinderDataService:
                     e,
                 )
                 self.baseball_savant_client = None
-        
+
+    async def _get_cache(self) -> Optional[Any]:
+        """Return the shared cache instance if available."""
+
+        if get_cache is None or UnifiedCacheService is None:
+            return None
+
+        if self._cache is None:
+            async with self._cache_lock:
+                if self._cache is None:
+                    try:
+                        self._cache = await get_cache()
+                    except Exception as exc:
+                        self.logger.debug("Cache initialization failed: %s", exc)
+                        return None
+        return self._cache
+
     async def _initialize_services(self):
         """Initialize backend services with error handling"""
         try:
@@ -244,7 +278,7 @@ class PropFinderDataService:
     ) -> List[PropOpportunity]:
         """
         Get real prop betting opportunities with alerts integration
-        
+
         Args:
             sport_filter: Filter by sports (NBA, NFL, etc.)
             confidence_range: Confidence percentage range (min, max)
@@ -252,7 +286,7 @@ class PropFinderDataService:
             limit: Maximum number of opportunities to return
             force_flat_baseline: When true, suppress historical movement adjustments
             include_diagnostics: Include diagnostic metadata in cache key for parity
-            
+
         Returns:
             List of PropOpportunity objects with real data
         """
@@ -262,11 +296,13 @@ class PropFinderDataService:
                 f"{sport_filter}:{confidence_range}:{edge_range}:{limit}"
                 f":flat={force_flat_baseline}:diag={include_diagnostics}"
             )
-            
+
             # Check cache first
-            if unified_cache_service:
+            cached_data = None
+            cache = await self._get_cache()
+            if cache is not None:
                 try:
-                    cached_data = await unified_cache_service.get(cache_key)
+                    cached_data = await cache.get(cache_key)
                 except Exception as cache_error:
                     cached_data = None
                     self.logger.debug(
@@ -279,30 +315,48 @@ class PropFinderDataService:
                         for opp_dict in cached_data:
                             if isinstance(opp_dict, dict):
                                 # Convert datetime strings back to datetime objects
-                                if 'lastUpdated' in opp_dict:
+                                if "lastUpdated" in opp_dict:
                                     # cached payloads may contain lastUpdated as a str, datetime, or numeric timestamp
                                     try:
-                                        lu = opp_dict['lastUpdated']
+                                        lu = opp_dict["lastUpdated"]
                                         if isinstance(lu, datetime):
                                             # already deserialized
                                             pass
                                         elif isinstance(lu, (int, float)):
                                             # epoch seconds
-                                            opp_dict['lastUpdated'] = datetime.fromtimestamp(float(lu), tz=timezone.utc)
+                                            opp_dict["lastUpdated"] = (
+                                                datetime.fromtimestamp(
+                                                    float(lu), tz=timezone.utc
+                                                )
+                                            )
                                         elif isinstance(lu, str):
                                             # normalize Z suffix and parse
-                                            opp_dict['lastUpdated'] = datetime.fromisoformat(lu.replace('Z', '+00:00'))
+                                            opp_dict["lastUpdated"] = (
+                                                datetime.fromisoformat(
+                                                    lu.replace("Z", "+00:00")
+                                                )
+                                            )
                                         else:
                                             # unknown format - fall back to now
-                                            opp_dict['lastUpdated'] = datetime.now(timezone.utc)
+                                            opp_dict["lastUpdated"] = datetime.now(
+                                                timezone.utc
+                                            )
                                     except Exception as ex:
                                         # don't fail deserialization for a single field
-                                        self.logger.debug("Failed to parse cached lastUpdated value (%r): %s", opp_dict.get('lastUpdated'), ex)
-                                        opp_dict['lastUpdated'] = datetime.now(timezone.utc)
+                                        self.logger.debug(
+                                            "Failed to parse cached lastUpdated value (%r): %s",
+                                            opp_dict.get("lastUpdated"),
+                                            ex,
+                                        )
+                                        opp_dict["lastUpdated"] = datetime.now(
+                                            timezone.utc
+                                        )
                                 # Rehydrate nested dataclasses when possible
-                                if isinstance(opp_dict.get('lineMovement'), dict):
-                                    movement = opp_dict['lineMovement']
-                                    direction_value = movement.get('direction', 'stable')
+                                if isinstance(opp_dict.get("lineMovement"), dict):
+                                    movement = opp_dict["lineMovement"]
+                                    direction_value = movement.get(
+                                        "direction", "stable"
+                                    )
                                     try:
                                         direction_enum = (
                                             direction_value
@@ -311,55 +365,57 @@ class PropFinderDataService:
                                         )
                                     except (ValueError, TypeError):
                                         direction_enum = Trend.STABLE
-                                    opp_dict['lineMovement'] = LineMovement(
-                                        open=movement.get('open', 0.0),
-                                        current=movement.get('current', 0.0),
+                                    opp_dict["lineMovement"] = LineMovement(
+                                        open=movement.get("open", 0.0),
+                                        current=movement.get("current", 0.0),
                                         direction=direction_enum,
                                     )
-                                if isinstance(opp_dict.get('matchupHistory'), dict):
-                                    history = opp_dict['matchupHistory']
-                                    opp_dict['matchupHistory'] = MatchupHistory(
-                                        games=history.get('games', 0),
-                                        average=history.get('average', 0.0),
-                                        hitRate=history.get('hitRate', 0),
+                                if isinstance(opp_dict.get("matchupHistory"), dict):
+                                    history = opp_dict["matchupHistory"]
+                                    opp_dict["matchupHistory"] = MatchupHistory(
+                                        games=history.get("games", 0),
+                                        average=history.get("average", 0.0),
+                                        hitRate=history.get("hitRate", 0),
                                     )
-                                if isinstance(opp_dict.get('bookmakers'), list):
-                                    opp_dict['bookmakers'] = [
+                                if isinstance(opp_dict.get("bookmakers"), list):
+                                    opp_dict["bookmakers"] = [
                                         Bookmaker(
-                                            name=str(book.get('name', '')),
-                                            odds=int(book.get('odds', 0)),
-                                            line=float(book.get('line', 0.0)),
+                                            name=str(book.get("name", "")),
+                                            odds=int(book.get("odds", 0)),
+                                            line=float(book.get("line", 0.0)),
                                         )
-                                        for book in opp_dict['bookmakers']
+                                        for book in opp_dict["bookmakers"]
                                         if isinstance(book, dict)
                                     ]
-                                if isinstance(opp_dict.get('sport'), str):
-                                    opp_dict['sport'] = Sport(opp_dict['sport'])
-                                if isinstance(opp_dict.get('market'), str):
-                                    opp_dict['market'] = MarketType(opp_dict['market'])
-                                if isinstance(opp_dict.get('pick'), str):
-                                    opp_dict['pick'] = Pick(opp_dict['pick'])
-                                if isinstance(opp_dict.get('trend'), str):
-                                    opp_dict['trend'] = Trend(opp_dict['trend'])
-                                if isinstance(opp_dict.get('venue'), str):
-                                    opp_dict['venue'] = Venue(opp_dict['venue'])
-                                if isinstance(opp_dict.get('sharpMoney'), str):
-                                    opp_dict['sharpMoney'] = SharpMoney(opp_dict['sharpMoney'])
+                                if isinstance(opp_dict.get("sport"), str):
+                                    opp_dict["sport"] = Sport(opp_dict["sport"])
+                                if isinstance(opp_dict.get("market"), str):
+                                    opp_dict["market"] = MarketType(opp_dict["market"])
+                                if isinstance(opp_dict.get("pick"), str):
+                                    opp_dict["pick"] = Pick(opp_dict["pick"])
+                                if isinstance(opp_dict.get("trend"), str):
+                                    opp_dict["trend"] = Trend(opp_dict["trend"])
+                                if isinstance(opp_dict.get("venue"), str):
+                                    opp_dict["venue"] = Venue(opp_dict["venue"])
+                                if isinstance(opp_dict.get("sharpMoney"), str):
+                                    opp_dict["sharpMoney"] = SharpMoney(
+                                        opp_dict["sharpMoney"]
+                                    )
                                 opportunities_list.append(PropOpportunity(**opp_dict))
                         return opportunities_list
                     except Exception as e:
                         self.logger.warning(f"Error deserializing cached data: {e}")
-            
+
             # Fetch real opportunities
             opportunities = []
-            
+
             # Get data from multiple sources
             mlb_props = await self._get_mlb_opportunities()
             nba_props = await self._get_nba_opportunities()
-            
+
             opportunities.extend(mlb_props)
             opportunities.extend(nba_props)
-            
+
             if len(opportunities) < 3:
                 fallback_opportunities = await self._get_fallback_opportunities(
                     allowed_sports=MOCK_ALLOWED_SPORTS,
@@ -384,28 +440,29 @@ class PropFinderDataService:
             opportunities = self._apply_filters(
                 opportunities, sport_filter, confidence_range, edge_range
             )
-            
+
             # Sort by confidence (highest first) and limit
             opportunities.sort(key=lambda x: x.confidence, reverse=True)
             opportunities = opportunities[:limit]
-            
+
             # Cache results
-            if unified_cache_service:
+            cache = await self._get_cache()
+            if cache is not None:
                 cache_data = []
                 for opp in opportunities:
                     serialized = asdict(opp)
-                    last_updated = serialized.get('lastUpdated')
+                    last_updated = serialized.get("lastUpdated")
                     if isinstance(last_updated, datetime):
-                        serialized['lastUpdated'] = last_updated.isoformat()
+                        serialized["lastUpdated"] = last_updated.isoformat()
                     cache_data.append(serialized)
                 try:
-                    await unified_cache_service.set(cache_key, cache_data, ttl=self.cache_ttl)
+                    await cache.set(cache_key, cache_data, ttl=self.cache_ttl)
                 except Exception as e:
                     self.logger.warning(f"Error caching data: {e}")
-            
+
             self.logger.info(f"Retrieved {len(opportunities)} prop opportunities")
             return opportunities
-            
+
         except Exception as e:
             self.logger.error(f"Error fetching prop opportunities: {e}")
             return await self._get_fallback_opportunities(
@@ -443,7 +500,7 @@ class PropFinderDataService:
                             opportunities.append(opp)
 
             return opportunities
-            
+
         except Exception as e:
             self.logger.warning(f"Error fetching MLB opportunities: {e}")
             return []
@@ -550,7 +607,9 @@ class PropFinderDataService:
             if callable(fetch_mlb_games):
                 maybe_games = fetch_mlb_games(sport="MLB")
                 mlb_games = (
-                    await maybe_games if asyncio.iscoroutine(maybe_games) else maybe_games
+                    await maybe_games
+                    if asyncio.iscoroutine(maybe_games)
+                    else maybe_games
                 )
             else:
                 mlb_games = self._get_fallback_mlb_games()
@@ -598,8 +657,10 @@ class PropFinderDataService:
                             props_data = await prop_generator.generate_game_props(
                                 game_id, optimize_performance=True
                             )
-                            game_opportunities = self._convert_mlb_props_to_opportunities(
-                                props_data, game
+                            game_opportunities = (
+                                self._convert_mlb_props_to_opportunities(
+                                    props_data, game
+                                )
                             )
                             opportunities.extend(game_opportunities)
                         except Exception as gen_error:
@@ -616,7 +677,9 @@ class PropFinderDataService:
 
         return opportunities
 
-    def _build_mlb_opportunity_from_stats(self, prop: Dict[str, Any]) -> PropOpportunity:
+    def _build_mlb_opportunity_from_stats(
+        self, prop: Dict[str, Any]
+    ) -> PropOpportunity:
         """Convert MLB Stats API prop payload into a PropOpportunity."""
 
         player_name = prop.get("player_name") or prop.get("player")
@@ -688,7 +751,11 @@ class PropFinderDataService:
 
         ai_prob_override = prop.get("ai_probability") or prop.get("confidence")
         try:
-            ai_probability = float(ai_prob_override) if ai_prob_override is not None else confidence_pct
+            ai_probability = (
+                float(ai_prob_override)
+                if ai_prob_override is not None
+                else confidence_pct
+            )
         except (TypeError, ValueError):
             ai_probability = confidence_pct
 
@@ -697,7 +764,11 @@ class PropFinderDataService:
 
         edge_override = prop.get("edge") or prop.get("edge_pct")
         try:
-            edge_pct = float(edge_override) if edge_override is not None else ai_probability - implied_prob
+            edge_pct = (
+                float(edge_override)
+                if edge_override is not None
+                else ai_probability - implied_prob
+            )
         except (TypeError, ValueError):
             edge_pct = ai_probability - implied_prob
 
@@ -706,27 +777,41 @@ class PropFinderDataService:
             try:
                 trend = Trend(trend_value)
             except ValueError:
-                trend = Trend.UP if edge_pct >= 5 else (Trend.DOWN if edge_pct < 0 else Trend.STABLE)
+                trend = (
+                    Trend.UP
+                    if edge_pct >= 5
+                    else (Trend.DOWN if edge_pct < 0 else Trend.STABLE)
+                )
         else:
-            trend = Trend.UP if edge_pct >= 5 else (Trend.DOWN if edge_pct < 0 else Trend.STABLE)
+            trend = (
+                Trend.UP
+                if edge_pct >= 5
+                else (Trend.DOWN if edge_pct < 0 else Trend.STABLE)
+            )
 
         trend_strength = int(
-            prop.get("trend_strength")
-            or min(95, max(55, ai_probability))
+            prop.get("trend_strength") or min(95, max(55, ai_probability))
         )
 
         bookmaker_rows = prop.get("bookmakers")
         if isinstance(bookmaker_rows, list) and bookmaker_rows:
-            bookmakers = self._coerce_bookmakers(bookmaker_rows, default_line=line_value)
+            bookmakers = self._coerce_bookmakers(
+                bookmaker_rows, default_line=line_value
+            )
         else:
             fallback_name = prop.get("provider_id") or "MLB Stats API"
             bookmakers = [
                 Bookmaker(name=str(fallback_name), odds=odds_int, line=line_value)
             ]
 
-        tags = prop.get("tags") or [stat_type.replace("_", " ").title(), "MLB Stats API"]
+        tags = prop.get("tags") or [
+            stat_type.replace("_", " ").title(),
+            "MLB Stats API",
+        ]
 
-        opportunity_id = prop.get("id") or prop.get("event_id") or f"mlb_{player_name}_{stat_type}"
+        opportunity_id = (
+            prop.get("id") or prop.get("event_id") or f"mlb_{player_name}_{stat_type}"
+        )
         normalized_id = (
             str(opportunity_id)
             .replace(" ", "_")
@@ -772,7 +857,9 @@ class PropFinderDataService:
 
         opening_odds = prop.get("opening_odds")
         try:
-            opening_odds_int = int(opening_odds) if opening_odds is not None else odds_int
+            opening_odds_int = (
+                int(opening_odds) if opening_odds is not None else odds_int
+            )
         except (TypeError, ValueError):
             opening_odds_int = odds_int
 
@@ -798,12 +885,20 @@ class PropFinderDataService:
         matchup_history = MatchupHistory(
             games=int(matchup_history_data.get("games", 10)),
             average=float(matchup_history_data.get("average", line_value)),
-            hitRate=int(matchup_history_data.get("hitRate", max(0, min(100, int(round(ai_probability)))))),
+            hitRate=int(
+                matchup_history_data.get(
+                    "hitRate", max(0, min(100, int(round(ai_probability))))
+                )
+            ),
         )
 
         sharp_money_value = prop.get("sharp_money") or prop.get("sharpMoney")
         try:
-            sharp_money = SharpMoney(sharp_money_value) if sharp_money_value else SharpMoney.MODERATE
+            sharp_money = (
+                SharpMoney(sharp_money_value)
+                if sharp_money_value
+                else SharpMoney.MODERATE
+            )
         except ValueError:
             sharp_money = SharpMoney.MODERATE
 
@@ -825,7 +920,9 @@ class PropFinderDataService:
 
         arbitrage_profit = prop.get("arbitrage_profit_pct")
         try:
-            arbitrage_profit = float(arbitrage_profit) if arbitrage_profit is not None else 0.0
+            arbitrage_profit = (
+                float(arbitrage_profit) if arbitrage_profit is not None else 0.0
+            )
         except (TypeError, ValueError):
             arbitrage_profit = 0.0
 
@@ -897,8 +994,9 @@ class PropFinderDataService:
             alertTriggered=bool(prop.get("alert")),
             alertSeverity=prop.get("alert_severity"),
             bestBookmaker=summary["bestBookmaker"],
-            best_over_bookmaker_name=
-            (prop.get("best_over_bookmaker_name") or summary["bestBookmaker"]),
+            best_over_bookmaker_name=(
+                prop.get("best_over_bookmaker_name") or summary["bestBookmaker"]
+            ),
             best_under_bookmaker_name=prop.get("best_under_bookmaker_name"),
             lineSpread=summary["lineSpread"],
             oddsSpread=summary["oddsSpread"],
@@ -937,7 +1035,9 @@ class PropFinderDataService:
 
         line = 1.5 if avg >= 0.285 else 0.5
         ai_probability = self._clamp(55.0 + (avg - 0.24) * 260.0, 50.0, 93.0)
-        implied_probability = self._clamp(ai_probability - 5.5, 45.0, ai_probability - 1.0)
+        implied_probability = self._clamp(
+            ai_probability - 5.5, 45.0, ai_probability - 1.0
+        )
         implied_decimal = implied_probability / 100.0
         odds = self._probability_to_american_odds(implied_decimal)
         edge_pct = round(ai_probability - implied_probability, 2)
@@ -1004,8 +1104,12 @@ class PropFinderDataService:
             return None
 
         line = 5.5 if strikeouts_per_nine >= 9 else 4.5
-        ai_probability = self._clamp(53.0 + (strikeouts_per_nine - 7.5) * 6.5, 48.0, 92.0)
-        implied_probability = self._clamp(ai_probability - 4.0, 44.0, ai_probability - 1.0)
+        ai_probability = self._clamp(
+            53.0 + (strikeouts_per_nine - 7.5) * 6.5, 48.0, 92.0
+        )
+        implied_probability = self._clamp(
+            ai_probability - 4.0, 44.0, ai_probability - 1.0
+        )
         implied_decimal = implied_probability / 100.0
         odds = self._probability_to_american_odds(implied_decimal)
         edge_pct = round(ai_probability - implied_probability, 2)
@@ -1072,7 +1176,7 @@ class PropFinderDataService:
             return "Live/Recent"
         except Exception:
             return "TBD"
-    
+
     def _calculate_normalized_odds(
         self,
         bookmaker_odds: Dict[str, Dict[str, Any]],
@@ -1082,7 +1186,11 @@ class PropFinderDataService:
         """Normalize raw bookmaker odds into enriched odds metadata."""
 
         # Ensure probabilities are expressed as percentages for downstream consumers
-        ai_prob_pct = ai_probability * 100 if ai_probability is not None and ai_probability <= 1 else ai_probability
+        ai_prob_pct = (
+            ai_probability * 100
+            if ai_probability is not None and ai_probability <= 1
+            else ai_probability
+        )
         if ai_prob_pct is None:
             ai_prob_pct = 50.0
 
@@ -1158,7 +1266,9 @@ class PropFinderDataService:
         edge_pct = ai_prob_pct - implied_prob
 
         odds_spread = max(odds_values) - min(odds_values) if len(odds_values) > 1 else 0
-        line_spread = max(line_values) - min(line_values) if len(line_values) > 1 else 0.0
+        line_spread = (
+            max(line_values) - min(line_values) if len(line_values) > 1 else 0.0
+        )
 
         return {
             "odds": best_odds,
@@ -1193,10 +1303,16 @@ class PropFinderDataService:
             }
 
             ai_prediction = 0.732  # 73.2% model confidence on the over
-            normalized = self._calculate_normalized_odds(lebron_odds, ai_prediction, "over")
+            normalized = self._calculate_normalized_odds(
+                lebron_odds, ai_prediction, "over"
+            )
 
             bookmaker_rows = [
-                {"name": name.title(), "odds": payload.get("over"), "line": payload.get("line", 25.5)}
+                {
+                    "name": name.title(),
+                    "odds": payload.get("over"),
+                    "line": payload.get("line", 25.5),
+                }
                 for name, payload in lebron_odds.items()
             ]
             bookmakers = self._coerce_bookmakers(bookmaker_rows, default_line=25.5)
@@ -1236,23 +1352,45 @@ class PropFinderDataService:
                 socialSentiment=78,
                 sharpMoney=SharpMoney.HEAVY,
                 lastUpdated=datetime.now(timezone.utc),
-                bestBookmaker=normalized.get("bestBook") or summary.get("bestBookmaker"),
-                best_over_bookmaker_name=normalized.get("bestOverBook") or summary.get("bestBookmaker"),
+                bestBookmaker=normalized.get("bestBook")
+                or summary.get("bestBookmaker"),
+                best_over_bookmaker_name=normalized.get("bestOverBook")
+                or summary.get("bestBookmaker"),
                 best_under_bookmaker_name=normalized.get("bestUnderBook"),
-                lineSpread=float(normalized.get("lineSpread", summary.get("lineSpread", 0.0))),
-                oddsSpread=int(normalized.get("oddsSpread", summary.get("oddsSpread", 0))),
-                numBookmakers=int(normalized.get("numBookmakers", summary.get("numBookmakers", 0))),
+                lineSpread=float(
+                    normalized.get("lineSpread", summary.get("lineSpread", 0.0))
+                ),
+                oddsSpread=int(
+                    normalized.get("oddsSpread", summary.get("oddsSpread", 0))
+                ),
+                numBookmakers=int(
+                    normalized.get("numBookmakers", summary.get("numBookmakers", 0))
+                ),
                 hasArbitrage=bool(normalized.get("arbitrage")),
                 arbitrageProfitPct=float(normalized.get("arbitrageProfitPct", 0.0)),
                 vigPercent=normalized.get("vigPercent"),
-                isLowJuice=bool(normalized.get("isLowJuice", abs(normalized.get("odds", -110)) <= 110)),
+                isLowJuice=bool(
+                    normalized.get(
+                        "isLowJuice", abs(normalized.get("odds", -110)) <= 110
+                    )
+                ),
                 evValue=float(normalized.get("edge", 0.0)),
                 evPercent=float(normalized.get("edge", 0.0)),
-                evTier="Tier 1" if float(normalized.get("edge", 0.0)) >= 5 else "Tier 2",
+                evTier=(
+                    "Tier 1" if float(normalized.get("edge", 0.0)) >= 5 else "Tier 2"
+                ),
                 isOutlier=abs(float(normalized.get("edge", 0.0))) >= 10,
                 edge_pct=float(normalized.get("edge_pct", normalized.get("edge", 0.0))),
-                implied_prob_market=float(normalized.get("implied_prob_market", normalized.get("impliedProbability", 0.0))),
-                expected_value_per_100=float(normalized.get("expected_value_per_100", normalized.get("edge", 0.0))),
+                implied_prob_market=float(
+                    normalized.get(
+                        "implied_prob_market", normalized.get("impliedProbability", 0.0)
+                    )
+                ),
+                expected_value_per_100=float(
+                    normalized.get(
+                        "expected_value_per_100", normalized.get("edge", 0.0)
+                    )
+                ),
             )
 
             return [opportunity]
@@ -1275,15 +1413,15 @@ class PropFinderDataService:
             if not isinstance(book, dict):
                 continue
 
-            name = str(book.get('name') or book.get('display_name') or '')
+            name = str(book.get("name") or book.get("display_name") or "")
 
-            raw_odds = book.get('odds', -110)
+            raw_odds = book.get("odds", -110)
             try:
                 odds_val = int(raw_odds)
             except (TypeError, ValueError):
                 odds_val = -110
 
-            raw_line = book.get('line', default_line)
+            raw_line = book.get("line", default_line)
             try:
                 line_val = float(raw_line)
             except (TypeError, ValueError):
@@ -1325,9 +1463,7 @@ class PropFinderDataService:
         line_spread = (
             max(line_values) - min(line_values) if len(line_values) > 1 else 0.0
         )
-        odds_spread = (
-            max(odds_values) - min(odds_values) if len(odds_values) > 1 else 0
-        )
+        odds_spread = max(odds_values) - min(odds_values) if len(odds_values) > 1 else 0
 
         return {
             "bestBookmaker": best.name,
@@ -1345,8 +1481,12 @@ class PropFinderDataService:
         try:
             game_id = game.get("game_pk")
             teams = game.get("teams", {})
-            away_team = teams.get("away", {}).get("team", {}).get("abbreviation", "AWAY")
-            home_team = teams.get("home", {}).get("team", {}).get("abbreviation", "HOME")
+            away_team = (
+                teams.get("away", {}).get("team", {}).get("abbreviation", "AWAY")
+            )
+            home_team = (
+                teams.get("home", {}).get("team", {}).get("abbreviation", "HOME")
+            )
 
             props = props_data.get("props", [])
             for prop in props[:10]:  # Limit to manageable volume for dashboard
@@ -1364,7 +1504,9 @@ class PropFinderDataService:
                     edge = ai_probability - implied_prob
 
                     bookmaker_rows = prop.get("bookmakers") or prop.get("books") or []
-                    bookmakers = self._coerce_bookmakers(bookmaker_rows, default_line=line)
+                    bookmakers = self._coerce_bookmakers(
+                        bookmaker_rows, default_line=line
+                    )
                     if not bookmakers:
                         bookmakers = [
                             Bookmaker(name="DraftKings", odds=-110, line=line),
@@ -1399,8 +1541,12 @@ class PropFinderDataService:
                         weather=game.get("weather", {}).get("condition"),
                         injuries=prop.get("injuries", []),
                         recentForm=self._generate_recent_form(line),
-                        matchupHistory=MatchupHistory(games=10, average=line, hitRate=70),
-                        lineMovement=LineMovement(open=line, current=line, direction=Trend.STABLE),
+                        matchupHistory=MatchupHistory(
+                            games=10, average=line, hitRate=70
+                        ),
+                        lineMovement=LineMovement(
+                            open=line, current=line, direction=Trend.STABLE
+                        ),
                         bookmakers=bookmakers,
                         isBookmarked=False,
                         tags=self._generate_tags(prop),
@@ -1435,35 +1581,40 @@ class PropFinderDataService:
         """Integrate alert engine data with opportunities"""
         if not self.alert_engine:
             return opportunities
-        
+
         try:
             # Get recent alert triggers
-            if not self.alert_engine or not hasattr(self.alert_engine, 'triggered_alerts'):
+            if not self.alert_engine or not hasattr(
+                self.alert_engine, "triggered_alerts"
+            ):
                 return opportunities
-                
+
             triggered_alerts = list(self.alert_engine.triggered_alerts.values())
-            
+
             # Map alerts to opportunities
             for opp in opportunities:
                 for alert in triggered_alerts:
                     # Match alert to opportunity (simple player name matching)
-                    if (alert.data.get('player_name', '').lower() in opp.player.lower() or
-                        opp.player.lower() in alert.data.get('player_name', '').lower()):
-                        
+                    if (
+                        alert.data.get("player_name", "").lower() in opp.player.lower()
+                        or opp.player.lower()
+                        in alert.data.get("player_name", "").lower()
+                    ):
+
                         opp.alertTriggered = True
                         opp.alertSeverity = alert.severity
                         opp.tags.append("Alert Triggered")
-                        
+
                         # Update confidence based on alert
                         if alert.trigger_type.value == "ev_threshold":
                             opp.confidence = max(opp.confidence, 90.0)
-                            opp.edge = max(opp.edge, alert.data.get('ev_percentage', 0))
-                        
+                            opp.edge = max(opp.edge, alert.data.get("ev_percentage", 0))
+
                         break
-            
+
         except Exception as e:
             self.logger.error(f"Error integrating alerts: {e}")
-        
+
         return opportunities
 
     def _apply_filters(
@@ -1471,25 +1622,27 @@ class PropFinderDataService:
         opportunities: List[PropOpportunity],
         sport_filter: Optional[List[str]],
         confidence_range: Optional[tuple],
-        edge_range: Optional[tuple]
+        edge_range: Optional[tuple],
     ) -> List[PropOpportunity]:
         """Apply filters to opportunities list"""
         filtered = opportunities
-        
+
         # Sport filter
         if sport_filter:
             filtered = [opp for opp in filtered if opp.sport.value in sport_filter]
-        
+
         # Confidence range filter
         if confidence_range:
             min_conf, max_conf = confidence_range
-            filtered = [opp for opp in filtered if min_conf <= opp.confidence <= max_conf]
-        
-        # Edge range filter  
+            filtered = [
+                opp for opp in filtered if min_conf <= opp.confidence <= max_conf
+            ]
+
+        # Edge range filter
         if edge_range:
             min_edge, max_edge = edge_range
             filtered = [opp for opp in filtered if min_edge <= opp.edge <= max_edge]
-        
+
         return filtered
 
     async def _get_fallback_opportunities(
@@ -1705,11 +1858,11 @@ class PropFinderDataService:
     def _convert_mlb_market(self, market: str) -> MarketType:
         """Convert MLB market string to MarketType enum"""
         market_map = {
-            'hits': MarketType.HITS,
-            'home_runs': MarketType.HOME_RUNS,
-            'rbi': MarketType.RBI,
-            'saves': MarketType.SAVES,
-            'strikeouts': MarketType.SAVES,  # Use saves as placeholder
+            "hits": MarketType.HITS,
+            "home_runs": MarketType.HOME_RUNS,
+            "rbi": MarketType.RBI,
+            "saves": MarketType.SAVES,
+            "strikeouts": MarketType.SAVES,  # Use saves as placeholder
         }
         return market_map.get(market.lower(), MarketType.HITS)
 
@@ -1733,22 +1886,22 @@ class PropFinderDataService:
     def _calculate_time_to_game(self, game: Dict[str, Any]) -> str:
         """Calculate time to game from game data"""
         try:
-            game_date = game.get('gameDate')
+            game_date = game.get("gameDate")
             if game_date:
-                game_time = datetime.fromisoformat(game_date.replace('Z', '+00:00'))
+                game_time = datetime.fromisoformat(game_date.replace("Z", "+00:00"))
                 now = datetime.now(timezone.utc)
                 delta = game_time - now
-                
+
                 if delta.total_seconds() > 0:
                     hours = int(delta.total_seconds() // 3600)
                     minutes = int((delta.total_seconds() % 3600) // 60)
                     return f"{hours}h {minutes}m"
                 else:
                     return "Live/Recent"
-            
+
         except Exception as e:
             self.logger.warning(f"Error calculating time to game: {e}")
-        
+
         return "TBD"
 
     def _generate_recent_form(self, line: float) -> List[float]:
@@ -1770,7 +1923,11 @@ class PropFinderDataService:
         try:
             import os
 
-            if os.getenv("MLB_CONFIDENCE_NORMALIZATION", "false").lower() not in {"1", "true", "yes"}:
+            if os.getenv("MLB_CONFIDENCE_NORMALIZATION", "false").lower() not in {
+                "1",
+                "true",
+                "yes",
+            }:
                 return float(confidence)
         except Exception:
             return float(confidence)
@@ -1795,7 +1952,9 @@ class PropFinderDataService:
 
         return round(self._clamp(c, 0.0, 100.0), 2)
 
-    def _normalize_opportunities_list(self, opportunities: List[PropOpportunity]) -> None:
+    def _normalize_opportunities_list(
+        self, opportunities: List[PropOpportunity]
+    ) -> None:
         """Normalize confidence/aiProbability fields in-place for a list of opportunities."""
         if not opportunities:
             return
@@ -1852,54 +2011,64 @@ class PropFinderDataService:
 
         # Emit a single debug line summarizing normalization action if enabled
         try:
-            debug_enabled = os.getenv("PROP_NORMALIZATION_DEBUG", "false").lower() in {"1", "true", "yes"}
+            debug_enabled = os.getenv("PROP_NORMALIZATION_DEBUG", "false").lower() in {
+                "1",
+                "true",
+                "yes",
+            }
             if debug_enabled:
                 if prepost_samples:
-                    self.logger.info(f"Normalization samples (player,pre,post): {prepost_samples}")
+                    self.logger.info(
+                        f"Normalization samples (player,pre,post): {prepost_samples}"
+                    )
                 else:
-                    self.logger.debug("Normalization completed; no Real MLB Data samples captured")
+                    self.logger.debug(
+                        "Normalization completed; no Real MLB Data samples captured"
+                    )
         except Exception:
             pass
 
     def _generate_tags(self, prop: Dict[str, Any]) -> List[str]:
         """Generate tags based on prop data"""
         tags = []
-        
-        confidence = prop.get('confidence', 0)
+
+        confidence = prop.get("confidence", 0)
         if confidence > 90:
             tags.append("High Confidence")
         elif confidence > 80:
             tags.append("Solid Play")
-        
-        if prop.get('reasoning'):
-            if 'matchup' in prop.get('reasoning', '').lower():
+
+        if prop.get("reasoning"):
+            if "matchup" in prop.get("reasoning", "").lower():
                 tags.append("Matchup Advantage")
-            if 'trend' in prop.get('reasoning', '').lower():
+            if "trend" in prop.get("reasoning", "").lower():
                 tags.append("Trending")
-        
+
         return tags
 
     def _get_fallback_mlb_games(self) -> List[Dict[str, Any]]:
         """Get fallback MLB games data when real API is unavailable"""
         return [
             {
-                'game_pk': 12345,
-                'gameDate': datetime.now(timezone.utc).isoformat(),
-                'teams': {
-                    'away': {'team': {'abbreviation': 'NYY'}},
-                    'home': {'team': {'abbreviation': 'BOS'}}
+                "game_pk": 12345,
+                "gameDate": datetime.now(timezone.utc).isoformat(),
+                "teams": {
+                    "away": {"team": {"abbreviation": "NYY"}},
+                    "home": {"team": {"abbreviation": "BOS"}},
                 },
-                'weather': {'condition': 'Clear'}
+                "weather": {"condition": "Clear"},
             },
             {
-                'game_pk': 12346,
-                'gameDate': (datetime.now(timezone.utc) + timedelta(hours=3)).isoformat(),
-                'teams': {
-                    'away': {'team': {'abbreviation': 'LAD'}},
-                    'home': {'team': {'abbreviation': 'SF'}}
+                "game_pk": 12346,
+                "gameDate": (
+                    datetime.now(timezone.utc) + timedelta(hours=3)
+                ).isoformat(),
+                "teams": {
+                    "away": {"team": {"abbreviation": "LAD"}},
+                    "home": {"team": {"abbreviation": "SF"}},
                 },
-                'weather': {'condition': 'Partly Cloudy'}
-            }
+                "weather": {"condition": "Partly Cloudy"},
+            },
         ]
 
     def _create_basic_mlb_props(self, game: Dict[str, Any]) -> List[PropOpportunity]:
@@ -1911,8 +2080,10 @@ class PropFinderDataService:
         )
         return []
 
+
 # Singleton instance
 _propfinder_data_service: Optional[PropFinderDataService] = None
+
 
 def get_propfinder_data_service() -> PropFinderDataService:
     """Get singleton PropFinderDataService instance"""

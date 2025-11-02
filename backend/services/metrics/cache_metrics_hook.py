@@ -321,7 +321,7 @@ def auto_hook_intelligent_cache_service() -> bool:
         # Allow tests to patch `intelligent_cache_service` on this module via patch(...)
         svc = globals().get("intelligent_cache_service", None)
         if svc is None:
-            from backend.services.intelligent_cache_service import (
+            from backend.services.unified_cache_service import (
                 intelligent_cache_service as svc,
             )
 

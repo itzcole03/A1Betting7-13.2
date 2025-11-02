@@ -27,8 +27,8 @@ from backend.services.alerting.rule_evaluator import (
     AlertEventType,
     AlertRuleEvaluator,
 )
-from backend.services.core.unified_cache_service import UnifiedCacheService
 from backend.services.line_movement_service import get_line_movement_service
+from backend.services.unified_cache_service import UnifiedCacheService
 from backend.services.unified_config import unified_config
 from backend.services.unified_odds_aggregation_service import get_unified_odds_service
 

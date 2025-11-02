@@ -8,7 +8,8 @@ import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, status
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -50,9 +51,30 @@ def canonical_success(
     return resp
 
 
+def canonical_error(
+    error_code: str,
+    message: str,
+    *,
+    status_code: int = status.HTTP_400_BAD_REQUEST,
+    data: Optional[Any] = None,
+) -> JSONResponse:
+    payload: Dict[str, Any] = {
+        "success": False,
+        "data": data,
+        "error": {"code": error_code, "message": message, "details": None},
+        "status": "error",
+        "message": message,
+        "meta": {"shim": "minimal"},
+    }
+    return JSONResponse(payload, status_code=status_code)
+
+
 @router.get("/api/propfinder/opportunities")
 async def shim_propfinder_opportunities(
     limit: Optional[int] = None,
+    sports: Optional[str] = None,
+    sport: Optional[str] = None,
+    search: Optional[str] = None,
     force_flat_baseline: Optional[bool] = False,
     diagnostics: Optional[bool] = False,
     include_clv: Optional[bool] = False,
@@ -69,15 +91,92 @@ async def shim_propfinder_opportunities(
         base_items: List[Dict[str, Any]] = list(fixture.get("opportunities"))
     else:
         base_items: List[Dict[str, Any]] = [
-            {"id": "s1", "player": "P1", "confidence": 72.0},
-            {"id": "s2", "player": "P2", "confidence": 75.0},
-            {"id": "s3", "player": "P3", "confidence": 68.0},
-            {"id": "s4", "player": "P4", "confidence": 80.0},
-            {"id": "s5", "player": "P5", "confidence": 60.0},
+            {
+                "id": "s1",
+                "player": "P1",
+                "confidence": 72.0,
+                "sport": "NBA",
+                "market": "POINTS",
+            },
+            {
+                "id": "s2",
+                "player": "P2",
+                "confidence": 75.0,
+                "sport": "NBA",
+                "market": "POINTS",
+            },
+            {
+                "id": "s3",
+                "player": "P3",
+                "confidence": 68.0,
+                "sport": "NBA",
+                "market": "POINTS",
+            },
+            {
+                "id": "s4",
+                "player": "P4",
+                "confidence": 80.0,
+                "sport": "NBA",
+                "market": "ASSISTS",
+            },
+            {
+                "id": "s5",
+                "player": "P5",
+                "confidence": 60.0,
+                "sport": "MLB",
+                "market": "HITS",
+            },
         ]
 
-    # Apply limit
     items = list(base_items)
+
+    def _normalize_sport_tokens(value: Optional[Any]) -> Optional[List[str]]:
+        if not value:
+            return None
+        if isinstance(value, (list, tuple, set)):
+            raw_tokens = [str(v).strip() for v in value if str(v).strip()]
+        else:
+            raw_tokens = [
+                segment.strip() for segment in str(value).split(",") if segment.strip()
+            ]
+        normalized = [token.upper() for token in raw_tokens if token]
+        return normalized or None
+
+    sport_filters = _normalize_sport_tokens(sports or sport)
+    search_term = (search or "").strip().lower()
+
+    filtered_candidates: List[Dict[str, Any]] = []
+    for item in items:
+        candidate = dict(item)
+        candidate.setdefault("sport", candidate.get("sport") or "NBA")
+        candidate.setdefault("market", candidate.get("market") or "POINTS")
+        candidate.setdefault(
+            "player", candidate.get("player") or candidate.get("name") or ""
+        )
+        candidate.setdefault("team", candidate.get("team") or "")
+
+        if (
+            sport_filters
+            and str(candidate.get("sport") or "").upper() not in sport_filters
+        ):
+            continue
+
+        if search_term:
+            haystacks = [
+                str(candidate.get("id") or ""),
+                str(candidate.get("player") or ""),
+                str(candidate.get("sport") or ""),
+                str(candidate.get("market") or ""),
+                str(candidate.get("team") or ""),
+            ]
+            if not any(search_term in h.lower() for h in haystacks if h):
+                continue
+
+        filtered_candidates.append(candidate)
+
+    total_available = len(filtered_candidates)
+
+    items = filtered_candidates
     if limit is not None and isinstance(limit, int):
         items = items[:limit]
 
@@ -183,13 +282,13 @@ async def shim_propfinder_opportunities(
 
         resp: Dict[str, Any] = {
             "opportunities": compact_list,
-            "total": len(base_items),
+            "total": total_available,
             "filtered": len(compact_list),
         }
     else:
         resp: Dict[str, Any] = {
             "opportunities": shaped,
-            "total": len(base_items),
+            "total": total_available,
             "filtered": len(shaped),
         }
 
@@ -679,12 +778,19 @@ async def shim_propfinder_opportunity_detail(
 
     for it in items:
         if str(it.get("id")) == str(opportunity_id):
-            # Return fuller detail when requested; tests can assert presence
-            # of CLV-related keys when they are present in the fixture.
-            return canonical_success({"opportunity": it})
+            # Ensure detail payload mirrors canonical handler expectations
+            enriched = dict(it)
+            enriched.setdefault(
+                "validationWarnings", enriched.get("validation_warnings", []) or []
+            )
+            return canonical_success(enriched)
 
     # Not found
-    return canonical_success({"opportunity": None, "found": False})
+    return canonical_error(
+        "NOT_FOUND",
+        f"Opportunity {opportunity_id} not found",
+        status_code=status.HTTP_404_NOT_FOUND,
+    )
 
 
 @router.get("/api/propfinder/clv-status")

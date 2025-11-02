@@ -4,6 +4,8 @@ Betting Routes
 This module contains all betting-related endpoints including opportunities and arbitrage.
 """
 
+import hashlib
+import json
 import logging
 import re
 from collections import defaultdict
@@ -24,7 +26,7 @@ from ..core.exceptions import AuthenticationException, BusinessLogicException
 
 # Contract compliance imports
 from ..core.response_models import ResponseBuilder, StandardAPIResponse
-from ..services.redis_cache_service import get_redis_cache
+from ..services.cache import redis_cache
 
 # Temporarily commenting out corrupted data_fetchers
 # from services.data_fetchers import fetch_betting_opportunities_internal
@@ -46,6 +48,17 @@ try:  # pragma: no cover - optional ingestion refresh helper
     )
 except Exception:  # pragma: no cover - odds ingestion not wired
     refresh_odds_market = None  # type: ignore
+
+BETTING_CACHE_PREFIX = "a1betting:betting_opps"
+BETTING_CACHE_TTL = 300  # seconds
+
+
+def _build_betting_cache_key(filters: Dict[str, Any]) -> str:
+    """Generate a deterministic cache key for betting opportunity filters."""
+
+    serialized = json.dumps(filters, sort_keys=True)
+    digest = hashlib.md5(serialized.encode("utf-8")).hexdigest()
+    return f"{BETTING_CACHE_PREFIX}:{digest}"
 
 
 def _american_to_decimal(american: int) -> float:
@@ -229,16 +242,14 @@ async def get_betting_opportunities(
 ) -> Dict[str, Any]:
     """Get betting opportunities with optional sport filtering"""
     try:
-        # Check Redis cache first
-        cache_service = await get_redis_cache()
-
         # Create cache filters
         filters = {"sport": sport, "limit": limit}
+        cache_key = _build_betting_cache_key(filters)
 
-        # Try to get from cache
-        cached_opportunities = await cache_service.get_betting_opportunities(filters)
-        if cached_opportunities:
-            return ResponseBuilder.success(cached_opportunities)
+        cached_payload = await redis_cache.get(cache_key)
+        if isinstance(cached_payload, dict) and cached_payload.get("opportunities"):
+            logger.debug("Betting opportunities cache hit for filters=%s", filters)
+            return ResponseBuilder.success(cached_payload["opportunities"])
 
         # Cache miss - fetch opportunities
         opportunities = await fetch_betting_opportunities_internal()
@@ -254,8 +265,17 @@ async def get_betting_opportunities(
         # Apply limit
         opportunities = opportunities[:limit]
 
-        # Cache the results
-        await cache_service.cache_betting_opportunities(opportunities, filters)
+        # Cache the results (best-effort)
+        cache_payload = {
+            "filters": filters,
+            "opportunities": opportunities,
+            "count": len(opportunities),
+            "cached_at": datetime.utcnow().isoformat(),
+        }
+        try:
+            await redis_cache.set(cache_key, cache_payload, ttl=BETTING_CACHE_TTL)
+        except Exception as cache_error:  # pragma: no cover - defensive
+            logger.debug("Betting opportunities cache set failed: %s", cache_error)
 
         return ResponseBuilder.success(opportunities)
 

@@ -1,35 +1,26 @@
-"""Import-safe shim for advanced_kelly_routes_secured.
-
-This file is a minimal, import-safe replacement used to unblock pytest
-test collection. The original implementation is preserved in
-`advanced_kelly_routes_secured.py.orig`.
-"""
-
-from __future__ import annotations
-
-import logging
-from typing import Any, Dict
+"""Deprecated compatibility shim for the retired secured Kelly API."""
 
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
-logger = logging.getLogger("propollama")
-
-try:
-    from backend.core.response_models import ResponseBuilder
-except Exception:
-
-    class _FallbackResponseBuilder:
-        @staticmethod
-        def success(data: Any = None) -> Dict[str, Any]:
-            return {"success": True, "data": data, "error": None}
-
-    ResponseBuilder = _FallbackResponseBuilder
-
+from backend.core.response_models import ResponseBuilder
 
 router = APIRouter(prefix="/advanced-kelly-secured", tags=["advanced-kelly-secured"])
 
+_DEPRECATION_MESSAGE = "advanced_kelly_routes_secured has been retired; migrate to consolidated bankroll APIs"
 
-@router.get("/health")
-async def health() -> Dict[str, Any]:
-    """Health endpoint used by tests and readiness probes."""
-    return ResponseBuilder.success({"status": "ok"})
+
+def _deprecated_response() -> JSONResponse:
+    return ResponseBuilder.error(
+        message=_DEPRECATION_MESSAGE,
+        code="DEPRECATED_ENDPOINT",
+        details={"replacement": "bankroll_routes"},
+        status_code=410,
+    )
+
+
+@router.get("/")
+async def deprecated_root() -> JSONResponse:
+    """Return a standardized deprecation envelope for secured callers."""
+
+    return _deprecated_response()

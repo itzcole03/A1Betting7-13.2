@@ -1,51 +1,39 @@
-"""
-Minimal import-safe shim for data validation routes.
-
-This module provides small, well-formed endpoints used during triage
-so pytest can collect. Full implementation will be restored later.
-"""
-
-from datetime import datetime, timezone
-from typing import Any, Dict
+"""Deprecated compatibility shim for the retired data validation API."""
 
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
-try:
-    from backend.core.response_models import ResponseBuilder
-except Exception:
-
-    class ResponseBuilder:
-        @staticmethod
-        def success(data=None):
-            return {"success": True, "data": data, "error": None}
-
+from backend.core.response_models import ResponseBuilder
 
 router = APIRouter(prefix="/api/validation", tags=["data-validation"])
 
+_DEPRECATION_MESSAGE = "data_validation_routes has been retired; use validation_routes"
+
+
+def _deprecated_response() -> JSONResponse:
+    return ResponseBuilder.error(
+        message=_DEPRECATION_MESSAGE,
+        code="DEPRECATED_ENDPOINT",
+        details={"replacement": "validation_routes"},
+        status_code=410,
+    )
+
 
 @router.get("/health")
-async def validation_health() -> Dict[str, Any]:
-    return ResponseBuilder.success(
-        {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")}
-    )
+async def validation_health() -> JSONResponse:
+    return _deprecated_response()
 
 
 @router.get("/metrics")
-async def get_validation_metrics() -> Dict[str, Any]:
-    return ResponseBuilder.success(
-        {
-            "integration_metrics": {},
-            "quality_metrics": {},
-            "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        }
-    )
+async def get_validation_metrics() -> JSONResponse:
+    return _deprecated_response()
 
 
 @router.post("/validate/player")
-async def validate_player_data() -> Dict[str, Any]:
-    return ResponseBuilder.success({"status": "stubbed"})
+async def validate_player_data() -> JSONResponse:
+    return _deprecated_response()
 
 
 @router.post("/validate/game")
-async def validate_game_data() -> Dict[str, Any]:
-    return ResponseBuilder.success({"status": "stubbed"})
+async def validate_game_data() -> JSONResponse:
+    return _deprecated_response()

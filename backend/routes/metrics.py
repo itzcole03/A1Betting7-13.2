@@ -1,68 +1,39 @@
-"""Performance metrics endpoints."""
-
-from typing import Dict, Any
-from backend.core.exceptions import BusinessLogicException
+"""Deprecated compatibility shim for the retired metrics API."""
 
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
-# Contract compliance imports
-from ..core.response_models import ResponseBuilder, StandardAPIResponse
-from ..core.exceptions import BusinessLogicException, AuthenticationException
-from pydantic import BaseModel
+from backend.core.response_models import ResponseBuilder
 
-from backend.utils.metrics_collector import metrics_collector
+router = APIRouter(prefix="/api/metrics", tags=["Metrics"])
 
-router = APIRouter()
+_DEPRECATION_MESSAGE = "metrics routes have been retired; use observability routes"
 
 
-class EndpointStats(BaseModel):
-    """Endpoint statistics model"""
-
-    total_requests: int
-    avg_duration: float
-    p95_duration: float
-    error_rate: float
-    cache_hit_rate: float
-
-
-class ModelStats(BaseModel):
-    """Model usage statistics model"""
-
-    uses: int
-    usage_rate: float
+def _deprecated_response() -> JSONResponse:
+    return ResponseBuilder.error(
+        message=_DEPRECATION_MESSAGE,
+        code="DEPRECATED_ENDPOINT",
+        details={"replacement": "observability_routes"},
+        status_code=410,
+    )
 
 
-class SystemStats(BaseModel):
-    """Overall system statistics model"""
-
-    total_requests: int
-    error_rate: float
-    cache_hit_rate: float
-    avg_response_time: float
+@router.get("/stats/system")
+async def get_system_stats() -> JSONResponse:
+    return _deprecated_response()
 
 
-@router.get("/stats/system", response_model=SystemStats)
-async def get_system_stats() -> Dict[str, float]:
-    """Get overall system statistics"""
-    return ResponseBuilder.success(metrics_collector.get_overall_stats())
+@router.get("/stats/endpoint/{endpoint}")
+async def get_endpoint_stats(_endpoint: str) -> JSONResponse:
+    return _deprecated_response()
 
 
-@router.get("/stats/endpoint/{endpoint}\", response_model=EndpointStats")
-async def get_endpoint_stats(endpoint: str) -> Dict[str, float]:
-    """Get statistics for a specific endpoint"""
-    return ResponseBuilder.success(metrics_collector.get_endpoint_stats(endpoint))
+@router.get("/stats/models")
+async def get_model_stats() -> JSONResponse:
+    return _deprecated_response()
 
 
-@router.get("/stats/models", response_model=StandardAPIResponse[Dict[str, Any]])
-async def get_model_stats() -> Dict[str, Dict[str, float]]:
-    """Get model usage statistics"""
-    return ResponseBuilder.success(metrics_collector.get_model_stats())
-
-
-@router.get("/stats/endpoints", response_model=StandardAPIResponse[Dict[str, Any]])
-async def get_all_endpoint_stats() -> Dict[str, Dict[str, float]]:
-    """Get statistics for all endpoints"""
-    stats = {}
-    for endpoint in metrics_collector.total_requests.keys():
-        stats[endpoint] = metrics_collector.get_endpoint_stats(endpoint)
-    return ResponseBuilder.success(stats)
+@router.get("/stats/endpoints")
+async def get_all_endpoint_stats() -> JSONResponse:
+    return _deprecated_response()

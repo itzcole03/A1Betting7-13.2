@@ -18,7 +18,12 @@ from pydantic import BaseModel
 
 from backend.config_manager import A1BettingConfig
 from backend.services.enhanced_data_pipeline import enhanced_data_pipeline
-from backend.services.intelligent_cache_service import intelligent_cache_service
+
+try:
+    from backend.services.unified_cache_service import UnifiedCacheService, get_cache
+except ImportError:  # pragma: no cover - cache optional in some environments
+    get_cache = None
+    UnifiedCacheService = Any  # type: ignore
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("sportradar_service")
@@ -94,6 +99,24 @@ class SportradarService:
         # Subscriptions
         self.active_subscriptions: Set[str] = set()
         self.subscription_callbacks: Dict[str, List[callable]] = {}
+        self._cache: Optional[Any] = None
+        self._cache_lock = asyncio.Lock()
+
+    async def _get_cache(self) -> Optional[Any]:
+        """Return the shared unified cache instance."""
+
+        if get_cache is None:
+            return None
+
+        if self._cache is None:
+            async with self._cache_lock:
+                if self._cache is None:
+                    try:
+                        self._cache = await get_cache()
+                    except Exception as exc:  # pragma: no cover - defensive guard
+                        logger.debug("Sportradar cache unavailable: %s", exc)
+                        return None
+        return self._cache
 
     def _initialize_endpoints(
         self,
@@ -515,16 +538,29 @@ class SportradarService:
             # Update cache with real-time data
             if message_type == "live_score_update" and sport:
                 cache_key = f"sportradar_live_{sport}"
-                await intelligent_cache_service.set(
-                    cache_key,
-                    payload,
-                    ttl_seconds=30,
-                    priority="high",
-                    use_pipeline=False,  # Immediate update for live data
-                )
+                cache = await self._get_cache()
+                if cache is not None:
+                    try:
+                        await cache.set(
+                            cache_key,
+                            payload,
+                            ttl=30,
+                            priority="high",
+                            use_pipeline=False,
+                        )
 
-                # Trigger cache invalidation for related data
-                await intelligent_cache_service.invalidate_pattern(f"*{sport}*live*")
+                        # Trigger cache invalidation for related data
+                        await cache.invalidate_pattern(f"*{sport}*live*")
+                    except Exception as exc:  # pragma: no cover - defensive guard
+                        logger.debug(
+                            "Sportradar cache update failed for %s: %s",
+                            cache_key,
+                            exc,
+                        )
+                else:
+                    logger.debug(
+                        "Sportradar cache backend not configured; skipping live update cache set"
+                    )
 
             # Execute callbacks if any
             subscription_key = f"{sport}_live"

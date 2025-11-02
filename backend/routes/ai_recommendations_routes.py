@@ -1,45 +1,28 @@
-"""AI Recommendations - import-safe shim.
+"""Deprecated compatibility shim for the retired AI recommendations API."""
 
-The original file contains heavy dependencies and complex runtime
-logic that cause parse/import issues during test collection. This
-lightweight shim exports a router and a couple of minimal endpoints
-so pytest can import the module.
-"""
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
-from __future__ import annotations
-
-import logging
-from typing import Any, Dict, List, Optional
-
-from fastapi import APIRouter, Query
-
-logger = logging.getLogger(__name__)
-
-try:
-    from backend.core.response_models import ResponseBuilder
-except Exception:
-
-    class _FallbackResponseBuilder:
-        @staticmethod
-        def success(data: Any = None) -> Dict[str, Any]:
-            return {"success": True, "data": data, "error": None}
-
-    ResponseBuilder = _FallbackResponseBuilder
-
+from backend.core.response_models import ResponseBuilder
 
 router = APIRouter(prefix="/v1/ai-recommendations", tags=["AI Recommendations"])
 
+_DEPRECATION_MESSAGE = (
+    "ai_recommendations_routes has been retired; use consolidated insights APIs"
+)
 
-@router.get("/health")
-async def health() -> Dict[str, Any]:
-    return ResponseBuilder.success({"status": "ok"})
 
-
-@router.get("/quick")
-async def quick_recommendations(
-    user_id: str = Query(...), count: int = Query(5)
-) -> Dict[str, Any]:
-    """Return an empty list placeholder for quick recommendations."""
-    return ResponseBuilder.success(
-        {"recommendations": [], "total_count": 0, "requested_count": count}
+def _deprecated_response() -> JSONResponse:
+    return ResponseBuilder.error(
+        message=_DEPRECATION_MESSAGE,
+        code="DEPRECATED_ENDPOINT",
+        details={"replacement": "consolidated_ai"},
+        status_code=410,
     )
+
+
+@router.get("/")
+async def deprecated_root() -> JSONResponse:
+    """Return a standardized deprecation envelope for legacy callers."""
+
+    return _deprecated_response()

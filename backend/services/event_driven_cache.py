@@ -12,16 +12,21 @@ from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Union
 from uuid import uuid4
 
-from backend.services.intelligent_cache_service import intelligent_cache_service
+try:
+    from backend.services.unified_cache_service import get_cache
+except ImportError:  # pragma: no cover - cache optional in some environments
+    get_cache = None
 from backend.utils.enhanced_logging import get_logger
+
+if TYPE_CHECKING:  # pragma: no cover - hints only
+    from backend.services.unified_cache_service import UnifiedCacheService
 
 logger = get_logger("event_driven_cache")
 _EDC_DEBUG = bool(os.getenv("EVENT_DRIVEN_CACHE_DEBUG"))
-
-# When detailed debugging isn't enabled, raise the logger level to suppress
+# When detailed debugging isn't enabled, raise the logger level to suppress logs.
 # debug emits without rebinding methods; use _edc_debug for gated debug.
 if not _EDC_DEBUG:
     try:
@@ -141,6 +146,24 @@ class EventDrivenCacheManager:
         self._event_processor_task: Optional[asyncio.Task] = None
         self._batch_processor_task: Optional[asyncio.Task] = None
         self._cleanup_task: Optional[asyncio.Task] = None
+
+        # Cache wiring
+        self._cache: Optional["UnifiedCacheService"] = None
+        self._cache_lock = asyncio.Lock()
+
+    async def _get_cache(self) -> Optional["UnifiedCacheService"]:
+        if get_cache is None:
+            return None
+
+        if self._cache is None:
+            async with self._cache_lock:
+                if self._cache is None:
+                    try:
+                        self._cache = await get_cache()
+                    except Exception as exc:  # pragma: no cover - defensive guard
+                        logger.debug("Event-driven cache unavailable: %s", exc)
+                        return None
+        return self._cache
 
     async def initialize(self):
         """Initialize event-driven cache manager"""
@@ -349,15 +372,18 @@ class EventDrivenCacheManager:
         total_invalidated = 0
 
         try:
+            cache = await self._get_cache()
+            if cache is None:
+                logger.debug("No cache backend available; skipping invalidation")
+                return 0
+
             for pattern in patterns:
                 # Substitute event variables in pattern
                 if event:
                     pattern = self._substitute_event_variables(pattern, event)
 
                 # Invalidate pattern
-                invalidated_count = await intelligent_cache_service.invalidate_pattern(
-                    pattern
-                )
+                invalidated_count = await cache.invalidate_pattern(pattern)
                 total_invalidated += invalidated_count
 
                 _edc_debug(

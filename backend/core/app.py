@@ -19,6 +19,8 @@ from fastapi import APIRouter, FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 
+from backend.core.domain_bootstrap import setup_domain_architecture
+
 # Small module-level runtime CLV status snapshot used by compat handlers and
 # the lightweight clv-status endpoints. Keeping it module-level makes it
 # easy for compat handlers to update without requiring the heavier
@@ -213,6 +215,12 @@ def create_app() -> FastAPI:
     # append to our lists instead of registering directly. We'll execute
     # the captured functions inside a lifespan context created later.
     _app.on_event = lambda et: _capture_on_event(et)
+
+    # Register consolidated domain routers and lifecycle hooks when enabled.
+    try:
+        setup_domain_architecture(_app, settings, startup_funcs, shutdown_funcs)
+    except Exception as exc:
+        logger.warning("Domain architecture bootstrap skipped: %s", exc)
     # Lightweight dev flag to disable heavy startup hooks that can hang locally
     try:
         _disable_startup_hooks = str(

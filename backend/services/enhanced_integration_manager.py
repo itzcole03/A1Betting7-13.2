@@ -5,15 +5,27 @@ Orchestrates the enhanced data architecture components following the comprehensi
 
 import asyncio
 import logging
-from typing import Dict, List, Any, Optional
 from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
 
+from backend.services.data_quality_monitor import (
+    DataSourceType,
+    QualityViolation,
+    data_quality_monitor,
+)
 from backend.services.enhanced_data_pipeline import enhanced_data_pipeline
-from backend.services.intelligent_cache_service import intelligent_cache_service
-from backend.services.sportradar_service import sportradar_service, SportType, DataType
-from backend.services.data_quality_monitor import data_quality_monitor, DataSourceType, QualityViolation
-from backend.services.event_driven_cache import event_driven_cache, EventType, InvalidationScope
-from backend.services.sport_volatility_models import sport_volatility_models, GameState
+from backend.services.event_driven_cache import (
+    EventType,
+    InvalidationScope,
+    event_driven_cache,
+)
+from backend.services.sport_volatility_models import GameState, sport_volatility_models
+from backend.services.sportradar_service import DataType, SportType, sportradar_service
+
+try:
+    from backend.services.unified_cache_service import get_cache
+except ImportError:  # pragma: no cover - cache optional in some environments
+    get_cache = None
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("enhanced_integration_manager")
@@ -31,40 +43,68 @@ class EnhancedIntegrationManager:
 
     def __init__(self):
         self.initialized = False
-        self.active_sports = [SportType.MLB, SportType.NBA, SportType.NFL, SportType.NHL]
+        self.active_sports = [
+            SportType.MLB,
+            SportType.NBA,
+            SportType.NFL,
+            SportType.NHL,
+        ]
         self.quality_alert_handlers = []
-        
+
         # Performance tracking
         self.integration_metrics = {
             "total_requests": 0,
             "cache_hits": 0,
             "data_quality_violations": 0,
             "cross_source_discrepancies": 0,
-            "avg_response_time": 0.0
+            "avg_response_time": 0.0,
         }
+
+        # Cache wiring
+        self._cache: Optional[Any] = None
+        self._cache_lock = asyncio.Lock()
+
+    async def _get_cache(self) -> Optional[Any]:
+        """Return the shared unified cache instance."""
+
+        if get_cache is None:
+            return None
+
+        if self._cache is None:
+            async with self._cache_lock:
+                if self._cache is None:
+                    try:
+                        self._cache = await get_cache()
+                    except Exception as exc:  # pragma: no cover - defensive guard
+                        logger.debug(
+                            "Enhanced integration manager cache unavailable: %s",
+                            exc,
+                        )
+                        return None
+        return self._cache
 
     async def initialize(self):
         """Initialize all enhanced data architecture components"""
         logger.info("🚀 Initializing Enhanced Data Architecture...")
-        
+
         try:
             # Initialize core components in order
             await self._initialize_core_components()
-            
+
             # Set up data quality monitoring
             await self._setup_data_quality_monitoring()
-            
+
             # Configure cross-source reconciliation
             await self._setup_cross_source_reconciliation()
-            
+
             # Start background services
             await self._start_background_services()
-            
+
             self.initialized = True
             logger.info("✅ Enhanced Data Architecture initialized successfully")
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to initialize Enhanced Data Architecture: {e}")
             return False
@@ -77,8 +117,15 @@ class EnhancedIntegrationManager:
         logger.info("✅ Enhanced data pipeline initialized")
 
         # 2. Initialize intelligent cache service
-        await intelligent_cache_service.initialize()
-        logger.info("✅ Intelligent cache service initialized")
+        cache = await self._get_cache()
+        if cache is not None and hasattr(cache, "initialize"):
+            try:
+                await cache.initialize()
+                logger.info("✅ Intelligent cache service initialized")
+            except Exception as exc:  # pragma: no cover - defensive guard
+                logger.warning("⚠️ Intelligent cache initialization skipped: %s", exc)
+        else:
+            logger.debug("Intelligent cache unavailable; skipping initialization")
 
         # 3. Initialize event-driven cache system
         await event_driven_cache.initialize()
@@ -101,51 +148,63 @@ class EnhancedIntegrationManager:
 
     async def _setup_data_quality_monitoring(self):
         """Set up comprehensive data quality monitoring"""
-        
+
         # Register quality alert handler
         async def quality_alert_handler(violation: QualityViolation):
             await self._handle_quality_violation(violation)
-        
+
         from backend.services.data_quality_monitor import AlertSeverity
-        data_quality_monitor.register_alert_callback(AlertSeverity.ERROR, quality_alert_handler)
-        data_quality_monitor.register_alert_callback(AlertSeverity.CRITICAL, quality_alert_handler)
-        
+
+        data_quality_monitor.register_alert_callback(
+            AlertSeverity.ERROR, quality_alert_handler
+        )
+        data_quality_monitor.register_alert_callback(
+            AlertSeverity.CRITICAL, quality_alert_handler
+        )
+
         logger.info("✅ Data quality monitoring configured")
 
     async def _setup_cross_source_reconciliation(self):
         """Set up cross-source data reconciliation"""
-        
+
         # Register reconciliation rules
-        async def odds_reconciliation_rule(primary_source, secondary_source, primary_data, secondary_data):
+        async def odds_reconciliation_rule(
+            primary_source, secondary_source, primary_data, secondary_data
+        ):
             """Reconcile odds data between different sources"""
             discrepancies = []
-            
+
             try:
-                if primary_source == DataSourceType.SPORTRADAR and secondary_source == DataSourceType.ODDS_API:
+                if (
+                    primary_source == DataSourceType.SPORTRADAR
+                    and secondary_source == DataSourceType.ODDS_API
+                ):
                     # Compare odds data if available
                     # This is a placeholder - implement actual reconciliation logic
-                    logger.debug("🔄 Performing odds reconciliation between Sportradar and Odds API")
-                    
+                    logger.debug(
+                        "🔄 Performing odds reconciliation between Sportradar and Odds API"
+                    )
+
             except Exception as e:
                 logger.error(f"❌ Odds reconciliation error: {e}")
-            
+
             return discrepancies
-        
+
         data_quality_monitor.register_reconciliation_rule(odds_reconciliation_rule)
-        
+
         logger.info("✅ Cross-source reconciliation configured")
 
     async def _start_background_services(self):
         """Start background services for enhanced functionality"""
-        
+
         # Start Sportradar push feeds if available
         if sportradar_service.api_key:
             await sportradar_service.start_push_feeds(self.active_sports)
             logger.info("✅ Sportradar push feeds started")
-        
+
         # Set up real-time data quality monitoring
         self._setup_realtime_quality_monitoring()
-        
+
         logger.info("✅ Background services started")
 
     def _setup_realtime_quality_monitoring(self):
@@ -164,26 +223,34 @@ class EnhancedIntegrationManager:
         # Set up event-driven cache listeners
         self._setup_cache_event_listeners()
 
-    async def _monitor_incoming_data(self, data_source: DataSourceType, data: Dict[str, Any]):
+    async def _monitor_incoming_data(
+        self, data_source: DataSourceType, data: Dict[str, Any]
+    ):
         """Monitor incoming data for quality issues"""
         try:
             # Validate data quality
             violations = await data_quality_monitor.validate_data(data_source, data)
-            
+
             if violations:
                 self.integration_metrics["data_quality_violations"] += len(violations)
-                logger.warning(f"⚠️ {len(violations)} quality violations detected for {data_source.value}")
-            
+                logger.warning(
+                    f"⚠️ {len(violations)} quality violations detected for {data_source.value}"
+                )
+
             # Update timeliness metrics
             await data_quality_monitor.update_timeliness_metric(data_source)
-            
+
             # Detect anomalies
             anomalies = await data_quality_monitor.detect_anomalies(data_source, data)
             if anomalies:
-                logger.warning(f"🔍 {len(anomalies)} anomalies detected in {data_source.value} data")
-            
+                logger.warning(
+                    f"🔍 {len(anomalies)} anomalies detected in {data_source.value} data"
+                )
+
         except Exception as e:
-            logger.error(f"❌ Error monitoring incoming data from {data_source.value}: {e}")
+            logger.error(
+                f"❌ Error monitoring incoming data from {data_source.value}: {e}"
+            )
 
     async def _handle_quality_violation(self, violation: QualityViolation):
         """Handle data quality violations"""
@@ -203,8 +270,11 @@ class EnhancedIntegrationManager:
                 source=violation.data_source.value,
                 sport=None,  # Will be extracted from violation if available
                 data_category=violation.field_path,
-                payload={"violation": violation.rule_name, "severity": violation.severity.value},
-                invalidation_scope=InvalidationScope.PATTERN
+                payload={
+                    "violation": violation.rule_name,
+                    "severity": violation.severity.value,
+                },
+                invalidation_scope=InvalidationScope.PATTERN,
             )
             logger.info(f"📡 Emitted cache invalidation event for quality violation")
 
@@ -224,8 +294,12 @@ class EnhancedIntegrationManager:
                 # Update sport volatility models with new game state
                 if event.game_id and event.payload.get("new_state"):
                     game_state = GameState(event.payload["new_state"])
-                    await sport_volatility_models.update_game_state(event.game_id, game_state)
-                    logger.info(f"🎮 Updated game state for {event.game_id}: {game_state.value}")
+                    await sport_volatility_models.update_game_state(
+                        event.game_id, game_state
+                    )
+                    logger.info(
+                        f"🎮 Updated game state for {event.game_id}: {game_state.value}"
+                    )
 
             except Exception as e:
                 logger.error(f"❌ Error handling game state event: {e}")
@@ -241,10 +315,16 @@ class EnhancedIntegrationManager:
                 logger.error(f"❌ Error handling score update event: {e}")
 
         # Register event listeners
-        event_driven_cache.register_event_listener(EventType.GAME_STATE_CHANGE, game_state_listener)
-        event_driven_cache.register_event_listener(EventType.SCORE_UPDATE, score_update_listener)
+        event_driven_cache.register_event_listener(
+            EventType.GAME_STATE_CHANGE, game_state_listener
+        )
+        event_driven_cache.register_event_listener(
+            EventType.SCORE_UPDATE, score_update_listener
+        )
 
-    async def _emit_cache_events_from_data(self, data_source: DataSourceType, data: Dict[str, Any]):
+    async def _emit_cache_events_from_data(
+        self, data_source: DataSourceType, data: Dict[str, Any]
+    ):
         """Emit cache invalidation events based on incoming data"""
         try:
             # Detect what type of data this is and emit appropriate events
@@ -268,8 +348,11 @@ class EnhancedIntegrationManager:
                             source=data_source.value,
                             sport=self._extract_sport_from_data(data),
                             game_id=game_id,
-                            payload={"home_score": home_score, "away_score": away_score},
-                            invalidation_scope=InvalidationScope.RELATED
+                            payload={
+                                "home_score": home_score,
+                                "away_score": away_score,
+                            },
+                            invalidation_scope=InvalidationScope.RELATED,
                         )
 
                     # Check for game state changes
@@ -281,7 +364,7 @@ class EnhancedIntegrationManager:
                             sport=self._extract_sport_from_data(data),
                             game_id=game_id,
                             payload={"new_state": game_status},
-                            invalidation_scope=InvalidationScope.PATTERN
+                            invalidation_scope=InvalidationScope.PATTERN,
                         )
 
             # Check for odds data
@@ -292,7 +375,7 @@ class EnhancedIntegrationManager:
                     sport=self._extract_sport_from_data(data),
                     data_category="odds",
                     payload={"timestamp": datetime.now(timezone.utc).isoformat()},
-                    invalidation_scope=InvalidationScope.PATTERN
+                    invalidation_scope=InvalidationScope.PATTERN,
                 )
 
             # Check for injury reports
@@ -302,7 +385,7 @@ class EnhancedIntegrationManager:
                     source=data_source.value,
                     sport=self._extract_sport_from_data(data),
                     data_category="injuries",
-                    invalidation_scope=InvalidationScope.RELATED
+                    invalidation_scope=InvalidationScope.RELATED,
                 )
 
         except Exception as e:
@@ -316,7 +399,7 @@ class EnhancedIntegrationManager:
                 "mlb": ["baseball", "mlb"],
                 "nba": ["basketball", "nba"],
                 "nfl": ["football", "nfl", "american_football"],
-                "nhl": ["hockey", "nhl", "ice_hockey"]
+                "nhl": ["hockey", "nhl", "ice_hockey"],
             }
 
             data_str = str(data).lower()
@@ -332,67 +415,84 @@ class EnhancedIntegrationManager:
 
     # Public API methods following the analysis recommendations
 
-    async def get_comprehensive_sports_data(self, sport: SportType = None) -> Dict[str, Any]:
+    async def get_comprehensive_sports_data(
+        self, sport: SportType = None
+    ) -> Dict[str, Any]:
         """
         Get comprehensive sports data with enhanced caching and quality monitoring
         Implements Phase 1 recommendation: Complete Sportradar integration
         """
         import time
+
         start_time = time.time()
-        
+
         try:
             self.integration_metrics["total_requests"] += 1
-            
+
             if sport:
                 sports_to_fetch = [sport]
             else:
                 sports_to_fetch = self.active_sports
-            
+
             # Get data from Sportradar with enhanced pipeline
             sports_data = await sportradar_service.get_all_sports_data(sports_to_fetch)
-            
+
             # Monitor data quality for each sport
             for sport_name, data in sports_data.items():
                 if data and any(data.values()):  # Check if we have actual data
                     await self._monitor_incoming_data(DataSourceType.SPORTRADAR, data)
-            
+
             # Update performance metrics
             response_time = time.time() - start_time
             self._update_response_time_metric(response_time)
-            
+
             return {
                 "data": sports_data,
                 "metadata": {
                     "source": "sportradar",
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                     "response_time_ms": response_time * 1000,
-                    "cache_status": "api"  # Enhanced pipeline handles caching internally
-                }
+                    "cache_status": "api",  # Enhanced pipeline handles caching internally
+                },
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Error fetching comprehensive sports data: {e}")
             # Return cached data as fallback
             return await self._get_fallback_data(sports_to_fetch)
 
-    async def get_enhanced_player_data(self, sport: SportType, player_id: str, user_id: str = None) -> Dict[str, Any]:
+    async def get_enhanced_player_data(
+        self, sport: SportType, player_id: str, user_id: str = None
+    ) -> Dict[str, Any]:
         """
         Get enhanced player data with quality validation and event-driven caching
         Implements intelligent caching with sport-specific volatility and user tracking
         """
         import time
+
         start_time = time.time()
 
         try:
             self.integration_metrics["total_requests"] += 1
 
+            cache = await self._get_cache()
+
             # Use sport-aware cache with user tracking
-            cached_data = await intelligent_cache_service.get_sport_data(
-                sport=sport.value,
-                data_category="player_stats",
-                key=f"enhanced_player_{sport.value}_{player_id}",
-                user_id=user_id
-            )
+            cached_data = None
+            if cache is not None and hasattr(cache, "get_sport_data"):
+                try:
+                    cached_data = await cache.get_sport_data(
+                        sport=sport.value,
+                        data_category="player_stats",
+                        key=f"enhanced_player_{sport.value}_{player_id}",
+                        user_id=user_id,
+                    )
+                except Exception as exc:  # pragma: no cover - cache backend failure
+                    logger.debug(
+                        "Enhanced integration manager cache read failed for %s: %s",
+                        player_id,
+                        exc,
+                    )
 
             if cached_data:
                 self.integration_metrics["cache_hits"] += 1
@@ -403,8 +503,8 @@ class EnhancedIntegrationManager:
                         "source": "cache",
                         "timestamp": datetime.now(timezone.utc).isoformat(),
                         "cache_status": "hit",
-                        "cache_type": "sport_aware"
-                    }
+                        "cache_type": "sport_aware",
+                    },
                 }
 
             # Fetch from Sportradar
@@ -413,18 +513,25 @@ class EnhancedIntegrationManager:
             if player_data:
                 # Validate data quality
                 violations = await data_quality_monitor.validate_data(
-                    DataSourceType.SPORTRADAR,
-                    {"player": player_data}
+                    DataSourceType.SPORTRADAR, {"player": player_data}
                 )
 
                 # Cache with sport-specific volatility model
-                await intelligent_cache_service.set_sport_data(
-                    sport=sport.value,
-                    data_category="player_stats",
-                    key=f"enhanced_player_{sport.value}_{player_id}",
-                    value=player_data,
-                    user_id=user_id
-                )
+                if cache is not None and hasattr(cache, "set_sport_data"):
+                    try:
+                        await cache.set_sport_data(
+                            sport=sport.value,
+                            data_category="player_stats",
+                            key=f"enhanced_player_{sport.value}_{player_id}",
+                            value=player_data,
+                            user_id=user_id,
+                        )
+                    except Exception as exc:  # pragma: no cover - cache backend failure
+                        logger.debug(
+                            "Enhanced integration manager cache write failed for %s: %s",
+                            player_id,
+                            exc,
+                        )
 
                 response_time = time.time() - start_time
                 self._update_response_time_metric(response_time)
@@ -437,8 +544,8 @@ class EnhancedIntegrationManager:
                         "response_time_ms": response_time * 1000,
                         "cache_status": "miss",
                         "quality_violations": len(violations) if violations else 0,
-                        "cache_type": "sport_aware"
-                    }
+                        "cache_type": "sport_aware",
+                    },
                 }
 
             return {"error": "Player data not available"}
@@ -447,7 +554,9 @@ class EnhancedIntegrationManager:
             logger.error(f"❌ Error fetching enhanced player data: {e}")
             return {"error": str(e)}
 
-    async def get_live_scores_with_quality_monitoring(self, sport: SportType) -> Dict[str, Any]:
+    async def get_live_scores_with_quality_monitoring(
+        self, sport: SportType
+    ) -> Dict[str, Any]:
         """
         Get live scores with real-time quality monitoring
         Implements event-driven cache invalidation
@@ -455,25 +564,25 @@ class EnhancedIntegrationManager:
         try:
             # Get live scores from Sportradar
             live_data = await sportradar_service.get_live_scores(sport)
-            
+
             if live_data:
                 # Monitor data quality in real-time
                 await self._monitor_incoming_data(DataSourceType.SPORTRADAR, live_data)
-                
+
                 # Trigger cache warming for related data
                 await self._warm_related_caches(sport, live_data)
-                
+
                 return {
                     "data": live_data,
                     "metadata": {
                         "source": "sportradar_live",
                         "timestamp": datetime.now(timezone.utc).isoformat(),
-                        "quality_checked": True
-                    }
+                        "quality_checked": True,
+                    },
                 }
-            
+
             return {"error": "Live scores not available"}
-            
+
         except Exception as e:
             logger.error(f"❌ Error fetching live scores with quality monitoring: {e}")
             return {"error": str(e)}
@@ -487,6 +596,27 @@ class EnhancedIntegrationManager:
             # Get quality dashboard from monitor
             dashboard = await data_quality_monitor.get_quality_dashboard()
 
+            cache = await self._get_cache()
+            cache_metrics: Dict[str, Any] = {"status": "unavailable"}
+            enhanced_cache_metrics: Dict[str, Any] = {}
+            if cache is not None:
+                if hasattr(cache, "get_metrics"):
+                    try:
+                        cache_metrics = await cache.get_metrics()
+                    except Exception as exc:  # pragma: no cover - cache backend failure
+                        logger.debug(
+                            "Enhanced integration manager cache metrics failed: %s",
+                            exc,
+                        )
+                if hasattr(cache, "get_sport_cache_metrics"):
+                    try:
+                        enhanced_cache_metrics = await cache.get_sport_cache_metrics()
+                    except Exception as exc:  # pragma: no cover - cache backend failure
+                        logger.debug(
+                            "Enhanced integration manager sport cache metrics failed: %s",
+                            exc,
+                        )
+
             # Add integration-specific metrics
             dashboard["integration_metrics"] = self.integration_metrics.copy()
 
@@ -494,13 +624,13 @@ class EnhancedIntegrationManager:
             dashboard["service_health"] = {
                 "sportradar": await sportradar_service.get_health_status(),
                 "data_pipeline": await enhanced_data_pipeline.get_health_status(),
-                "cache_service": await intelligent_cache_service.get_metrics(),
+                "cache_service": cache_metrics,
                 "event_driven_cache": await event_driven_cache.get_invalidation_stats(),
-                "sport_volatility": sport_volatility_models.get_volatility_summary()
+                "sport_volatility": sport_volatility_models.get_volatility_summary(),
             }
 
             # Add enhanced cache metrics
-            dashboard["enhanced_cache_metrics"] = await intelligent_cache_service.get_sport_cache_metrics()
+            dashboard["enhanced_cache_metrics"] = enhanced_cache_metrics
 
             return dashboard
 
@@ -518,19 +648,19 @@ class EnhancedIntegrationManager:
             "player_stats": 1800,
             "team_stats": 3600,
             "schedules": 7200,
-            "injury_reports": 600
+            "injury_reports": 600,
         }
-        
+
         sport_multipliers = {
             SportType.MLB: 1.2,  # Less volatile
             SportType.NBA: 0.8,  # More volatile
             SportType.NFL: 1.5,  # Weekly games, less frequent updates
-            SportType.NHL: 1.0   # Standard volatility
+            SportType.NHL: 1.0,  # Standard volatility
         }
-        
+
         base_ttl = base_ttls.get(data_type, 3600)
         sport_multiplier = sport_multipliers.get(sport, 1.0)
-        
+
         return int(base_ttl * sport_multiplier)
 
     async def _warm_related_caches(self, sport: SportType, live_data: Dict[str, Any]):
@@ -538,7 +668,11 @@ class EnhancedIntegrationManager:
         try:
             # Extract game IDs from live data for cache warming
             games = live_data.get("games", [])
-            
+
+            cache = await self._get_cache()
+            if cache is None or not hasattr(cache, "warm_cache"):
+                return
+
             for game in games:
                 game_id = game.get("id")
                 if game_id:
@@ -547,32 +681,47 @@ class EnhancedIntegrationManager:
                         f"game_details_{sport.value}_{game_id}",
                         f"player_props_{sport.value}_{game_id}",
                         f"team_stats_{sport.value}_{game.get('home_team', {}).get('id')}",
-                        f"team_stats_{sport.value}_{game.get('away_team', {}).get('id')}"
+                        f"team_stats_{sport.value}_{game.get('away_team', {}).get('id')}",
                     ]
-                    
+
                     # Use intelligent cache warming
                     async def game_data_fetcher(pattern):
                         # This would fetch related data - placeholder for now
                         return None
-                    
-                    await intelligent_cache_service.warm_cache(
-                        patterns, 
-                        game_data_fetcher, 
-                        priority="high"
-                    )
-            
+
+                    try:
+                        await cache.warm_cache(
+                            patterns, game_data_fetcher, priority="high"
+                        )
+                    except Exception as exc:  # pragma: no cover - cache backend failure
+                        logger.debug(
+                            "Enhanced integration manager cache warm failed for %s: %s",
+                            game_id,
+                            exc,
+                        )
+
         except Exception as e:
             logger.error(f"❌ Error warming related caches: {e}")
 
     async def _get_fallback_data(self, sports: List[SportType]) -> Dict[str, Any]:
         """Get fallback data when primary sources fail"""
         fallback_data = {}
-        
+
         for sport in sports:
             # Try to get cached data
             cache_key = f"fallback_sports_data_{sport.value}"
-            cached = await intelligent_cache_service.get(cache_key)
-            
+            cache = await self._get_cache()
+            cached = None
+            if cache is not None and hasattr(cache, "get"):
+                try:
+                    cached = await cache.get(cache_key)
+                except Exception as exc:  # pragma: no cover - cache backend failure
+                    logger.debug(
+                        "Enhanced integration manager fallback cache read failed for %s: %s",
+                        sport.value,
+                        exc,
+                    )
+
             if cached:
                 fallback_data[sport.value] = cached
             else:
@@ -581,27 +730,27 @@ class EnhancedIntegrationManager:
                     "live_scores": None,
                     "schedules": None,
                     "injuries": None,
-                    "error": "Data source unavailable, using fallback"
+                    "error": "Data source unavailable, using fallback",
                 }
-        
+
         return {
             "data": fallback_data,
             "metadata": {
                 "source": "fallback",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
-                "cache_status": "fallback"
-            }
+                "cache_status": "fallback",
+            },
         }
 
     def _update_response_time_metric(self, response_time: float):
         """Update average response time metric"""
         current_avg = self.integration_metrics["avg_response_time"]
         total_requests = self.integration_metrics["total_requests"]
-        
+
         if total_requests > 1:
             self.integration_metrics["avg_response_time"] = (
-                (current_avg * (total_requests - 1) + response_time) / total_requests
-            )
+                current_avg * (total_requests - 1) + response_time
+            ) / total_requests
         else:
             self.integration_metrics["avg_response_time"] = response_time
 
@@ -611,18 +760,29 @@ class EnhancedIntegrationManager:
 
     async def get_health_status(self) -> Dict[str, Any]:
         """Get overall integration health status"""
+        cache = await self._get_cache()
+        cache_metrics: Dict[str, Any] = {"status": "unavailable"}
+        if cache is not None and hasattr(cache, "get_metrics"):
+            try:
+                cache_metrics = await cache.get_metrics()
+            except Exception as exc:  # pragma: no cover - cache backend failure
+                logger.debug(
+                    "Enhanced integration manager cache metrics failed: %s", exc
+                )
         return {
             "integration_manager": {
                 "initialized": self.initialized,
                 "active_sports": [sport.value for sport in self.active_sports],
-                "metrics": self.integration_metrics
+                "metrics": self.integration_metrics,
             },
             "components": {
                 "sportradar": await sportradar_service.get_health_status(),
                 "data_pipeline": await enhanced_data_pipeline.get_health_status(),
-                "cache_service": await intelligent_cache_service.get_metrics(),
-                "quality_monitor": (await data_quality_monitor.get_quality_dashboard())["overview"]
-            }
+                "cache_service": cache_metrics,
+                "quality_monitor": (await data_quality_monitor.get_quality_dashboard())[
+                    "overview"
+                ],
+            },
         }
 
     async def close(self):
@@ -634,7 +794,11 @@ class EnhancedIntegrationManager:
         await data_quality_monitor.close()
         await sportradar_service.close()
         await enhanced_data_pipeline.close()
-        await intelligent_cache_service.close()
+        if self._cache is not None and hasattr(self._cache, "close"):
+            try:
+                await self._cache.close()
+            except Exception as exc:  # pragma: no cover - cache backend failure
+                logger.debug("Enhanced integration manager cache close failed: %s", exc)
 
         self.initialized = False
         logger.info("✅ Enhanced Integration Manager shutdown completed")

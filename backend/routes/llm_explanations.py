@@ -1,8 +1,13 @@
+"""Maintenance shim for legacy LLM explanation routes."""
+
 from fastapi import APIRouter
 
-router = APIRouter()
+from backend.core.response_models import ResponseBuilder
+
+router = APIRouter(prefix="/api/llm-explanations", tags=["LLM Explanations"])
 
 
-@router.get('/_ping')
+@router.get("/_ping")
 async def ping():
-    return {'success': True, 'data': {'service': 'llm_explanations', 'status': 'healthy'}, 'error': None}
+    payload = {"service": "llm_explanations", "status": "healthy"}
+    return ResponseBuilder.success(payload, message="LLM explanations service ready")

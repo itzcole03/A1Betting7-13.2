@@ -8,22 +8,23 @@ system, including provider priorities, fallback analytics, and configuration.
 import logging
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 
 from backend.core.exceptions import BusinessLogicException
+from backend.core.response_models import ResponseBuilder
 
 from ..services.smart_fallback_priority_service import (
-    FallbackConfiguration,
-    FallbackReason,
-    FallbackStrategy,
-    ProviderPriority,
     SmartFallbackPriorityService,
     get_smart_fallback_service,
 )
 
 router = APIRouter(prefix="/api/fallback", tags=["Smart Fallback Priority"])
 logger = logging.getLogger(__name__)
+
+
+def _success(payload: Any, message: Optional[str] = None) -> Dict[str, Any]:
+    return ResponseBuilder.success(payload, message=message)
 
 
 # Pydantic models for API responses
@@ -104,17 +105,19 @@ async def health_check():
     """Health check endpoint for smart fallback service"""
     try:
         service = get_fallback_service()
-        return {
+        payload = {
             "status": "healthy",
             "service": "Smart Fallback Priority Service",
             "version": "1.0.0",
             "active_contexts": len(service.primary_providers),
             "cached_priorities": len(service.priority_cache),
         }
+
+        return _success(payload, message="Smart fallback priority service is healthy")
     except Exception as e:
-        logger.error(f"Health check failed: {e}")
+        logger.error("Health check failed: %s", e)
         # Normalize error message for tests that assert on canonical text
-        raise BusinessLogicException("Service unhealthy", status_code=503)
+        raise BusinessLogicException("Service unhealthy", status_code=503) from e
 
 
 @router.get("/priorities/{context}")
@@ -127,7 +130,7 @@ async def get_provider_priorities(
         False, description="Force refresh of cached priorities"
     ),
     service: SmartFallbackPriorityService = Depends(get_fallback_service),
-) -> List[ProviderPriorityResponse]:
+) -> Dict[str, Any]:
     """
     Get provider priorities for a given context.
 
@@ -143,7 +146,7 @@ async def get_provider_priorities(
             context, provider_list, force_refresh
         )
 
-        return [
+        response = [
             ProviderPriorityResponse(
                 provider_id=p.provider_id,
                 priority_score=p.priority_score,
@@ -157,11 +160,13 @@ async def get_provider_priorities(
             for p in priorities
         ]
 
+        return _success([priority.model_dump() for priority in response])
+
     except Exception as e:
-        logger.error(f"Error getting provider priorities for {context}: {e}")
+        logger.error("Error getting provider priorities for %s: %s", context, e)
         # Map underlying errors to a test-expected canonical message while
         # preserving the original error in logs.
-        raise BusinessLogicException("Failed to get priorities", status_code=500)
+        raise BusinessLogicException("Failed to get priorities", status_code=500) from e
 
 
 @router.post("/primary-provider")
@@ -172,25 +177,31 @@ async def set_primary_provider(
     """Set the primary provider for a given context"""
     try:
         await service.set_primary_provider(request.context, request.provider_id)
-
-        return {
-            "success": True,
+        payload = {
             "context": request.context,
             "primary_provider": request.provider_id,
-            "message": f"Primary provider set to {request.provider_id} for context {request.context},",
         }
 
+        return _success(
+            payload,
+            message=(
+                f"Primary provider set to {request.provider_id} for context {request.context}"
+            ),
+        )
+
     except Exception as e:
-        logger.error(f"Error setting primary provider: {e}")
+        logger.error("Error setting primary provider: %s", e)
         # Tests expect a canonical error message for this flow.
-        raise BusinessLogicException("Failed to set primary provider", status_code=500)
+        raise BusinessLogicException(
+            "Failed to set primary provider", status_code=500
+        ) from e
 
 
 @router.post("/select-provider")
 async def select_optimal_provider(
     request: SelectProviderRequest,
     service: SmartFallbackPriorityService = Depends(get_fallback_service),
-) -> ProviderSelectionResponse:
+) -> Dict[str, Any]:
     """
     Select the optimal provider based on current conditions.
 
@@ -212,7 +223,7 @@ async def select_optimal_provider(
 
         selection_time_ms = (time.time() - start_time) * 1000
 
-        return ProviderSelectionResponse(
+        response = ProviderSelectionResponse(
             selected_provider=selected_provider,
             fallback_reason=fallback_reason.value.lower() if fallback_reason else None,
             priorities=[
@@ -231,20 +242,22 @@ async def select_optimal_provider(
             selection_time_ms=selection_time_ms,
         )
 
+        return _success(response.model_dump())
+
     except Exception as e:
-        logger.error(f"Error selecting optimal provider: {e}")
-        raise BusinessLogicException(str(e), status_code=500)
+        logger.error("Error selecting optimal provider: %s", e)
+        raise BusinessLogicException(str(e), status_code=500) from e
 
 
 @router.get("/analytics")
 async def get_fallback_analytics(
     service: SmartFallbackPriorityService = Depends(get_fallback_service),
-) -> FallbackAnalyticsResponse:
+) -> Dict[str, Any]:
     """Get comprehensive fallback analytics and performance metrics"""
     try:
         analytics = service.get_fallback_analytics()
 
-        return FallbackAnalyticsResponse(
+        response = FallbackAnalyticsResponse(
             performance=analytics["performance"],
             recent_hour=analytics["recent_hour"],
             provider_reliability=analytics["provider_reliability"],
@@ -252,20 +265,22 @@ async def get_fallback_analytics(
             cache_hit_rate=analytics["cache_hit_rate"],
         )
 
+        return _success(response.model_dump())
+
     except Exception as e:
-        logger.error(f"Error getting fallback analytics: {e}")
-        raise BusinessLogicException(str(e), status_code=500)
+        logger.error("Error getting fallback analytics: %s", e)
+        raise BusinessLogicException(str(e), status_code=500) from e
 
 
 @router.get("/configuration")
 async def get_fallback_configuration(
     service: SmartFallbackPriorityService = Depends(get_fallback_service),
-) -> FallbackConfigurationResponse:
+) -> Dict[str, Any]:
     """Get current fallback configuration"""
     try:
         config = service.config
 
-        return FallbackConfigurationResponse(
+        response = FallbackConfigurationResponse(
             max_staleness_seconds=config.max_staleness_seconds,
             min_confidence_threshold=config.min_confidence_threshold,
             max_fallback_attempts=config.max_fallback_attempts,
@@ -277,22 +292,24 @@ async def get_fallback_configuration(
             manual_provider_order=config.manual_provider_order,
         )
 
+        return _success(response.model_dump())
+
     except Exception as e:
-        logger.error(f"Error getting fallback configuration: {e}")
-        raise BusinessLogicException(str(e), status_code=500)
+        logger.error("Error getting fallback configuration: %s", e)
+        raise BusinessLogicException(str(e), status_code=500) from e
 
 
 @router.get("/contexts")
 async def get_active_contexts(
     service: SmartFallbackPriorityService = Depends(get_fallback_service),
-) -> Dict[str, str]:
+) -> Dict[str, Any]:
     """Get all active contexts and their primary providers"""
     try:
-        return service.primary_providers.copy()
+        return _success(service.primary_providers.copy())
 
     except Exception as e:
-        logger.error(f"Error getting active contexts: {e}")
-        raise BusinessLogicException(str(e), status_code=500)
+        logger.error("Error getting active contexts: %s", e)
+        raise BusinessLogicException(str(e), status_code=500) from e
 
 
 @router.delete("/cache")
@@ -314,26 +331,29 @@ async def clear_priority_cache(
             for key in keys_to_remove:
                 del service.priority_cache[key]
 
-            return {
-                "success": True,
+            payload = {
                 "context": context,
                 "cleared_entries": len(keys_to_remove),
-                "message": f"Cache cleared for context: {context},",
             }
+
+            return _success(
+                payload,
+                message=f"Cache cleared for context: {context}",
+            )
         else:
             # Clear all cache
             cache_size = len(service.priority_cache)
             service.priority_cache.clear()
 
-            return {
-                "success": True,
+            payload = {
                 "cleared_entries": cache_size,
-                "message": "All priority cache cleared",
             }
 
+            return _success(payload, message="All priority cache cleared")
+
     except Exception as e:
-        logger.error(f"Error clearing cache: {e}")
-        raise BusinessLogicException(str(e), status_code=500)
+        logger.error("Error clearing cache: %s", e)
+        raise BusinessLogicException(str(e), status_code=500) from e
 
 
 @router.post("/cleanup")
@@ -354,8 +374,7 @@ async def cleanup_old_data(
         history_count_after = len(service.fallback_history)
         cache_count_after = len(service.priority_cache)
 
-        return {
-            "success": True,
+        payload = {
             "max_age_hours": max_age_hours,
             "fallback_events": {
                 "before": history_count_before,
@@ -369,9 +388,11 @@ async def cleanup_old_data(
             },
         }
 
+        return _success(payload, message="Cleanup completed successfully")
+
     except Exception as e:
-        logger.error(f"Error during cleanup: {e}")
-        raise BusinessLogicException(str(e), status_code=500)
+        logger.error("Error during cleanup: %s", e)
+        raise BusinessLogicException(str(e), status_code=500) from e
 
 
 @router.get("/status")
@@ -414,11 +435,11 @@ async def get_system_status(
             "performance": service.fallback_performance,
         }
 
-        return status
+        return _success(status)
 
     except Exception as e:
-        logger.error(f"Error getting system status: {e}")
-        raise BusinessLogicException(str(e), status_code=500)
+        logger.error("Error getting system status: %s", e)
+        raise BusinessLogicException(str(e), status_code=500) from e
 
 
 # Add router to the main application

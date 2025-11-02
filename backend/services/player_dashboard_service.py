@@ -12,17 +12,28 @@ import asyncio
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from .baseball_savant_client import BaseballSavantClient
 from .database_service import DatabaseService
 from .enhanced_prop_analysis_service import EnhancedPropAnalysisService
 from .mlb_stats_api_client import MLBStatsAPIClient
-from .unified_cache_service import unified_cache_service
+
+try:
+    from .unified_cache_service import UnifiedCacheService, get_cache
+
+    _CACHE_AVAILABLE = True
+except ImportError:  # pragma: no cover - cache backend optional
+    UnifiedCacheService = Any  # type: ignore
+    get_cache = None  # type: ignore[assignment]
+    _CACHE_AVAILABLE = False
 from .unified_error_handler import unified_error_handler
 from .unified_logging import get_logger
 
 logger = get_logger("player_dashboard_service")
+
+if TYPE_CHECKING:
+    from backend.models.player_models import PlayerDashboardResponse
 
 
 @dataclass
@@ -121,7 +132,7 @@ class PlayerDashboardService:
         )
         try:
             # Check cache (30 min TTL)
-            cached = self.cache_service.get(cache_key)
+            cached = await self._cache_get(cache_key)
             if cached:
                 logger.info(f"[CID={correlation_id}] Cache hit for {cache_key}")
                 return PlayerDashboardResponse.parse_obj(cached)
@@ -159,7 +170,7 @@ class PlayerDashboardService:
                 performance_trends=PlayerPerformanceTrends(**performance_trends),
             )
             # Cache for 30 min
-            self.cache_service.set(cache_key, response.dict(), ttl=1800)
+            await self._cache_set(cache_key, response.dict(), ttl=1800)
             logger.info(f"[CID={correlation_id}] Dashboard cached for {cache_key}")
             return response
         except Exception as e:
@@ -174,8 +185,9 @@ class PlayerDashboardService:
 
     def __init__(self):
         self.db_service = DatabaseService()
-        self.cache_service = unified_cache_service
         self.error_handler = unified_error_handler
+        self._cache: Optional[Any] = None
+        self._cache_lock = asyncio.Lock()
 
         # Initialize data clients
         self.mlb_stats_client = None
@@ -187,6 +199,42 @@ class PlayerDashboardService:
         self.SEARCH_CACHE_TTL = 120  # 2 minutes
 
         logger.info("PlayerDashboardService initialized")
+
+    async def _get_cache(self) -> Optional[Any]:
+        """Return the shared unified cache instance if available."""
+
+        if not _CACHE_AVAILABLE or get_cache is None:
+            logger.debug("Unified cache backend not available; skipping cache lookup")
+            return None
+
+        if self._cache is None:
+            async with self._cache_lock:
+                if self._cache is None:
+                    try:
+                        self._cache = await get_cache()
+                    except Exception as exc:
+                        logger.debug("Cache initialization failed: %s", exc)
+                        return None
+        return self._cache
+
+    async def _cache_get(self, key: str) -> Any:
+        cache = await self._get_cache()
+        if cache is None:
+            return None
+        try:
+            return await cache.get(key)
+        except Exception as exc:
+            logger.debug("Cache get failed for %s: %s", key, exc)
+            return None
+
+    async def _cache_set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+        cache = await self._get_cache()
+        if cache is None:
+            return
+        try:
+            await cache.set(key, value, ttl=ttl)
+        except Exception as exc:
+            logger.debug("Cache set failed for %s: %s", key, exc)
 
     async def _initialize_clients(self):
         """Lazy initialization of data clients"""
@@ -217,7 +265,7 @@ class PlayerDashboardService:
 
         try:
             # Check cache first
-            cached_data = self.cache_service.get(cache_key)
+            cached_data = await self._cache_get(cache_key)
             if cached_data:
                 logger.info(f"Cache hit for player {player_id}")
                 return PlayerData(**cached_data)
@@ -279,7 +327,7 @@ class PlayerDashboardService:
             )
 
             # Cache the result
-            self.cache_service.set(cache_key, player_data.__dict__, self.CACHE_TTL)
+            await self._cache_set(cache_key, player_data.__dict__, ttl=self.CACHE_TTL)
 
             logger.info(f"Player data compiled successfully for {player_info['name']}")
             return player_data
@@ -303,7 +351,7 @@ class PlayerDashboardService:
 
         try:
             # Check cache first
-            cached_results = self.cache_service.get(cache_key)
+            cached_results = await self._cache_get(cache_key)
             if cached_results:
                 logger.info(f"Cache hit for search: {query}")
                 return cached_results
@@ -335,7 +383,7 @@ class PlayerDashboardService:
                     logger.warning(f"Database search failed: {e}")
 
             # Cache the results
-            self.cache_service.set(cache_key, players, self.SEARCH_CACHE_TTL)
+            await self._cache_set(cache_key, players, ttl=self.SEARCH_CACHE_TTL)
 
             logger.info(f"Found {len(players)} players for query: {query}")
             return players
@@ -360,7 +408,7 @@ class PlayerDashboardService:
 
         try:
             # Check cache first
-            cached_trends = self.cache_service.get(cache_key)
+            cached_trends = await self._cache_get(cache_key)
             if cached_trends:
                 logger.info(f"Cache hit for trends: {player_id}:{period}")
                 return cached_trends
@@ -380,7 +428,7 @@ class PlayerDashboardService:
             trends = self._calculate_trends(game_logs)
 
             # Cache the results
-            self.cache_service.set(cache_key, trends, self.CACHE_TTL)
+            await self._cache_set(cache_key, trends, ttl=self.CACHE_TTL)
 
             logger.info(f"Trends calculated for {player_id}: {len(trends)} data points")
             return trends
@@ -405,7 +453,7 @@ class PlayerDashboardService:
 
         try:
             # Check cache first
-            cached_analysis = self.cache_service.get(cache_key)
+            cached_analysis = await self._cache_get(cache_key)
             if cached_analysis:
                 logger.info(f"Cache hit for matchup: {player_id} vs {opponent_team}")
                 return cached_analysis
@@ -438,7 +486,7 @@ class PlayerDashboardService:
             }
 
             # Cache the results
-            self.cache_service.set(cache_key, analysis, self.CACHE_TTL)
+            await self._cache_set(cache_key, analysis, ttl=self.CACHE_TTL)
 
             logger.info(
                 f"Matchup analysis completed for {player_id} vs {opponent_team}"
@@ -465,7 +513,7 @@ class PlayerDashboardService:
 
         try:
             # Check cache first
-            cached_props = self.cache_service.get(cache_key)
+            cached_props = await self._cache_get(cache_key)
             if cached_props:
                 logger.info(f"Cache hit for props: {player_id}:{game_id}")
                 return cached_props
@@ -490,7 +538,7 @@ class PlayerDashboardService:
                 props = await self._generate_basic_props(player_id, sport)
 
             # Cache the results
-            self.cache_service.set(cache_key, props, self.CACHE_TTL)
+            await self._cache_set(cache_key, props, ttl=self.CACHE_TTL)
 
             logger.info(f"Generated {len(props)} props for {player_id}")
             return props

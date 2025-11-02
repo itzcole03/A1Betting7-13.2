@@ -16,10 +16,11 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from backend.core.exceptions import BusinessLogicException
+from backend.core.response_models import ResponseBuilder
 
 from ..services.enhanced_schema_validation import (
     ValidationCategory,
@@ -32,6 +33,10 @@ from ..services.enhanced_schema_validation import (
 logger = logging.getLogger("schema_validation_routes")
 
 router = APIRouter(prefix="/api/odds/validation", tags=["Schema Validation"])
+
+
+def _success(payload: Any, message: Optional[str] = None) -> Dict[str, Any]:
+    return ResponseBuilder.success(payload, message=message)
 
 
 # Pydantic response models
@@ -88,7 +93,7 @@ class ValidationTestRequest(BaseModel):
     context: Optional[Dict[str, Any]] = None
 
 
-@router.post("/test", response_model=ValidationResultResponse)
+@router.post("/test")
 async def test_validation(request: ValidationTestRequest):
     """
     Test validation on provided raw odds data.
@@ -121,7 +126,7 @@ async def test_validation(request: ValidationTestRequest):
             for w in result.warnings
         ]
 
-        return ValidationResultResponse(
+        response = ValidationResultResponse(
             is_valid=result.is_valid,
             has_critical_errors=result.has_critical_errors,
             has_warnings=result.has_warnings,
@@ -133,12 +138,14 @@ async def test_validation(request: ValidationTestRequest):
             processed_data_available=result.processed_data is not None,
         )
 
+        return _success(response.model_dump())
+
     except Exception as e:
         logger.error(f"Validation test error: {e}")
         raise BusinessLogicException(str(e), status_code=500)
 
 
-@router.get("/statistics", response_model=Dict[str, Any])
+@router.get("/statistics")
 async def get_validation_statistics(
     provider: Optional[str] = Query(
         None, description="Specific provider to get statistics for"
@@ -157,7 +164,7 @@ async def get_validation_statistics(
         if "error" in stats:
             raise BusinessLogicException(stats["error"], status_code=404)
 
-        return stats
+        return _success(stats)
 
     except HTTPException:
         raise
@@ -166,7 +173,7 @@ async def get_validation_statistics(
         raise BusinessLogicException(str(e), status_code=500)
 
 
-@router.get("/statistics/{provider}", response_model=ProviderStatisticsResponse)
+@router.get("/statistics/{provider}")
 async def get_provider_statistics(provider: str):
     """Get detailed validation statistics for a specific provider."""
     try:
@@ -176,7 +183,9 @@ async def get_provider_statistics(provider: str):
         if "error" in stats:
             raise BusinessLogicException(stats["error"], status_code=404)
 
-        return ProviderStatisticsResponse(**stats)
+        response = ProviderStatisticsResponse(**stats)
+
+        return _success(response.model_dump())
 
     except HTTPException:
         raise
@@ -185,7 +194,7 @@ async def get_provider_statistics(provider: str):
         raise BusinessLogicException(str(e), status_code=500)
 
 
-@router.get("/trends", response_model=ValidationTrendsResponse)
+@router.get("/trends")
 async def get_validation_trends(
     hours_back: int = Query(24, ge=1, le=168, description="Hours to look back (1-168)")
 ):
@@ -201,7 +210,7 @@ async def get_validation_trends(
 
         if "message" in trends:
             # No data available
-            return ValidationTrendsResponse(
+            response = ValidationTrendsResponse(
                 time_period_hours=hours_back,
                 total_validations=0,
                 success_rate=0.0,
@@ -211,15 +220,18 @@ async def get_validation_trends(
                 provider_breakdown={},
                 trend_status="no_data",
             )
+            return _success(response.model_dump())
 
-        return ValidationTrendsResponse(**trends)
+        response = ValidationTrendsResponse(**trends)
+
+        return _success(response.model_dump())
 
     except Exception as e:
         logger.error(f"Error getting validation trends: {e}")
         raise BusinessLogicException(str(e), status_code=500)
 
 
-@router.get("/health", response_model=Dict[str, Any])
+@router.get("/health")
 async def get_validation_health():
     """
     Get overall health status of the validation system.
@@ -252,7 +264,7 @@ async def get_validation_health():
                 health_status = "critical"
                 health_score = 0.3
 
-        return {
+        payload = {
             "service": "Enhanced Schema Validation",
             "status": health_status,
             "health_score": health_score,
@@ -269,29 +281,30 @@ async def get_validation_health():
             },
         }
 
+        return _success(payload)
+
     except Exception as e:
         logger.error(f"Error getting validation health: {e}")
         raise BusinessLogicException(str(e), status_code=500)
 
 
-@router.get("/providers", response_model=List[str])
+@router.get("/providers")
 async def get_monitored_providers():
     """Get list of providers currently being monitored by validation system."""
     try:
         validator = get_enhanced_schema_validator()
         stats = validator.get_provider_statistics()
 
-        if "all_providers" in stats:
-            return list(stats["all_providers"].keys())
-        else:
-            return []
+        providers = list(stats.get("all_providers", {}).keys())
+
+        return _success(providers)
 
     except Exception as e:
         logger.error(f"Error getting monitored providers: {e}")
         raise BusinessLogicException(str(e), status_code=500)
 
 
-@router.get("/validation-rules", response_model=Dict[str, Any])
+@router.get("/validation-rules")
 async def get_validation_rules():
     """
     Get the current validation rules and configuration.
@@ -302,7 +315,7 @@ async def get_validation_rules():
     try:
         validator = get_enhanced_schema_validator()
 
-        return {
+        payload = {
             "validation_levels": [level.value for level in ValidationLevel],
             "validation_categories": [cat.value for cat in ValidationCategory],
             "validation_config": validator.validation_config,
@@ -316,12 +329,14 @@ async def get_validation_rules():
             },
         }
 
+        return _success(payload)
+
     except Exception as e:
         logger.error(f"Error getting validation rules: {e}")
         raise BusinessLogicException(str(e), status_code=500)
 
 
-@router.post("/validate-raw", response_model=ValidationResultResponse)
+@router.post("/validate-raw")
 async def validate_raw_data(request: ValidationTestRequest):
     """
     Validate raw odds data and return detailed results.
@@ -353,7 +368,7 @@ async def validate_raw_data(request: ValidationTestRequest):
             for w in result.warnings
         ]
 
-        return ValidationResultResponse(
+        response = ValidationResultResponse(
             is_valid=result.is_valid,
             has_critical_errors=result.has_critical_errors,
             has_warnings=result.has_warnings,
@@ -365,13 +380,15 @@ async def validate_raw_data(request: ValidationTestRequest):
             processed_data_available=result.processed_data is not None,
         )
 
+        return _success(response.model_dump())
+
     except Exception as e:
         logger.error(f"Raw data validation error: {e}")
         raise BusinessLogicException(str(e), status_code=500)
 
 
 # Integration endpoint for the existing odds aggregation service
-@router.get("/integration-status", response_model=Dict[str, Any])
+@router.get("/integration-status")
 async def get_integration_status():
     """
     Get status of schema validation integration with odds aggregation system.
@@ -386,7 +403,7 @@ async def get_integration_status():
         has_provider_stats = len(validator.provider_stats) > 0
         has_recent_validations = len(validator.recent_validations) > 0
 
-        return {
+        payload = {
             "integration_status": "active" if has_provider_stats else "inactive",
             "provider_monitoring": {
                 "active": has_provider_stats,
@@ -407,6 +424,8 @@ async def get_integration_status():
             },
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
+
+        return _success(payload)
 
     except Exception as e:
         logger.error(f"Error getting integration status: {e}")

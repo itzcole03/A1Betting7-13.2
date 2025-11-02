@@ -1,58 +1,42 @@
-"""Advanced Search and Filtering routes (import-safe shim).
-
-This module contains a small, import-safe router with a health
-endpoint and minimal stubs used to keep pytest collection working.
-The real implementation can be restored when it's safe.
-"""
-
-from __future__ import annotations
-
-import logging
-from typing import Any, Dict, List, Optional
+"""Deprecated compatibility shim for the retired advanced search API."""
 
 from fastapi import APIRouter, Query
+from fastapi.responses import JSONResponse
 
-logger = logging.getLogger(__name__)
-
-try:
-    from backend.core.response_models import ResponseBuilder
-except Exception:
-
-    class _FallbackResponseBuilder:
-        @staticmethod
-        def success(data: Any = None) -> Dict[str, Any]:
-            return {"success": True, "data": data, "error": None}
-
-    ResponseBuilder = _FallbackResponseBuilder
-
+from backend.core.response_models import ResponseBuilder
 
 router = APIRouter(prefix="/api/v1/search", tags=["Advanced Search"])
 
+_DEPRECATION_MESSAGE = (
+    "advanced_search_routes has been retired; use unified_api filtering endpoints"
+)
+
+
+def _deprecated_response(message: str = _DEPRECATION_MESSAGE) -> JSONResponse:
+    return ResponseBuilder.error(
+        message=message,
+        code="DEPRECATED_ENDPOINT",
+        details={"replacement": "unified_api"},
+        status_code=410,
+    )
+
 
 @router.get("/health")
-async def health() -> Dict[str, Any]:
-    return ResponseBuilder.success({"status": "ok"})
+async def health() -> JSONResponse:
+    return _deprecated_response()
 
 
 @router.get("/players")
 async def list_players(
-    player_name: Optional[str] = Query(None),
+    player_name: str | None = Query(None),
     limit: int = Query(50),
     offset: int = Query(0),
-) -> Dict[str, Any]:
-    """Minimal players endpoint used by tests; returns empty list when services are unavailable."""
-    items: List[Dict[str, Any]] = []
-    return ResponseBuilder.success(
-        {"items": items, "total_count": 0, "limit": limit, "offset": offset}
-    )
+) -> JSONResponse:
+    return _deprecated_response()
 
 
 @router.get("/odds")
 async def list_odds(
-    sport: Optional[str] = Query(None), limit: int = Query(50), offset: int = Query(0)
-) -> Dict[str, Any]:
-    """Minimal odds endpoint used by tests; returns empty list placeholder."""
-    items: List[Dict[str, Any]] = []
-    return ResponseBuilder.success(
-        {"items": items, "total_count": 0, "limit": limit, "offset": offset}
-    )
+    sport: str | None = Query(None), limit: int = Query(50), offset: int = Query(0)
+) -> JSONResponse:
+    return _deprecated_response()

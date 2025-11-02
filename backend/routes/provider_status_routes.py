@@ -2,29 +2,45 @@
 
 Expose a simple router and a helper to include it in the app. The full
 implementation contained extensive models and async logic which had
-syntax issues; this stub gives tests a stable import surface.
+syntax issues; this stub gives tests a stable import surface while
+returning canonical ResponseBuilder envelopes.
 """
 
 from typing import Any, Dict
 
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
+
+from backend.core.response_models import ResponseBuilder
 
 router = APIRouter(prefix="/api/odds/providers", tags=["Provider Status"])
+
+
+def _success(payload: Any, message: str | None = None) -> Dict[str, Any]:
+    """Return a standardized success payload."""
+    return ResponseBuilder.success(payload, message=message)
+
+
+def _not_found(provider_id: str) -> JSONResponse:
+    """Return a standardized not-found error envelope."""
+    return ResponseBuilder.error(
+        message=f"Provider {provider_id} not found",
+        code="E4040_NOT_FOUND",
+        status_code=404,
+        details={"provider_id": provider_id},
+    )
 
 
 @router.get("/status")
 async def get_all_provider_status(limit: int = 10) -> Dict[str, Any]:
     """Return an empty list envelope to keep imports stable."""
-    return {"success": True, "data": [], "error": None}
+    payload = {"providers": [], "limit": int(limit)}
+    return _success(payload, message="Provider status shim is active")
 
 
 @router.get("/status/{provider_id}")
-async def get_provider_status(provider_id: str):
-    return {
-        "success": False,
-        "data": None,
-        "error": {"code": "E4040_NOT_FOUND", "message": "Provider not found"},
-    }
+async def get_provider_status(provider_id: str) -> JSONResponse:
+    return _not_found(provider_id)
 
 
 def include_provider_status_routes(app_router):

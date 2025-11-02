@@ -93,12 +93,68 @@ except ImportError:
 
 # Existing services integration
 
-from backend.services.unified_cache_service import unified_cache_service
+try:
+    from backend.services.unified_cache_service import UnifiedCacheService, get_cache
+except ImportError:  # pragma: no cover - cache optional in some environments
+    UnifiedCacheService = None  # type: ignore[assignment]
+    get_cache = None
 from backend.services.unified_data_fetcher import unified_data_fetcher
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("enhanced_ml_pipeline")
+
+
+class _LazyCacheAdapter:
+    """Async helper that lazily resolves the shared cache service."""
+
+    def __init__(self) -> None:
+        self._cache: Optional[Any] = None
+        self._lock = asyncio.Lock()
+        self._logger = logging.getLogger("enhanced_ml_pipeline")
+
+    async def _ensure_cache(self) -> Optional[Any]:
+        if get_cache is None:
+            return None
+
+        if self._cache is None:
+            async with self._lock:
+                if self._cache is None:
+                    try:
+                        self._cache = await get_cache()
+                    except Exception as exc:  # pragma: no cover - defensive guard
+                        self._logger.debug(
+                            "Enhanced ML pipeline cache unavailable: %s", exc
+                        )
+                        return None
+        return self._cache
+
+    async def get(self, key: str) -> Any:
+        cache = await self._ensure_cache()
+        if cache is None:
+            return None
+
+        try:
+            return await cache.get(key)
+        except Exception as exc:  # pragma: no cover - cache backend failure
+            self._logger.debug(
+                "Enhanced ML pipeline cache read failed for %s: %s", key, exc
+            )
+            return None
+
+    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+        cache = await self._ensure_cache()
+        if cache is None:
+            return False
+
+        try:
+            await cache.set(key, value, ttl=ttl)
+            return True
+        except Exception as exc:  # pragma: no cover - cache backend failure
+            self._logger.debug(
+                "Enhanced ML pipeline cache write failed for %s: %s", key, exc
+            )
+            return False
 
 
 class ModelFramework(Enum):
@@ -192,7 +248,7 @@ class EnhancedMLModelPipeline:
         max_workers: int = 4,
     ):
         self.data_manager = unified_data_fetcher
-        self.cache_manager = unified_cache_service
+        self.cache_manager = _LazyCacheAdapter()
         self.model_storage_path = Path(model_storage_path)
         self.model_storage_path.mkdir(exist_ok=True)
         self.enable_gpu = enable_gpu

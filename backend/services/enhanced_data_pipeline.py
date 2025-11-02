@@ -54,7 +54,10 @@ import numpy as np
 import pandas as pd
 import websockets
 
-from backend.services.intelligent_cache_service import intelligent_cache_service
+try:
+    from backend.services.unified_cache_service import get_cache
+except ImportError:  # pragma: no cover - cache optional in some environments
+    get_cache = None
 from backend.services.unified_error_handler import unified_error_handler
 from backend.services.unified_logging import get_logger, unified_logging
 from backend.utils.enhanced_logging import get_logger
@@ -279,6 +282,10 @@ class EnhancedDataPipeline:
         )
         self.sequence_counter = 0
 
+        # Cache wiring
+        self._cache: Optional[Any] = None
+        self._cache_lock = asyncio.Lock()
+
         # Background tasks
         self._streaming_task: Optional[asyncio.Task] = None
         self._metrics_task: Optional[asyncio.Task] = None
@@ -297,6 +304,24 @@ class EnhancedDataPipeline:
         self.source_metrics[source_name] = DataSourceMetrics()
 
         logger.info(f"DATASOURCE: Registered data source: {source_name}")
+
+    async def _get_cache(self) -> Optional[Any]:
+        """Return the shared unified cache instance, initializing lazily."""
+
+        if get_cache is None:
+            return None
+
+        if self._cache is None:
+            async with self._cache_lock:
+                if self._cache is None:
+                    try:
+                        self._cache = await get_cache()
+                    except Exception as exc:  # pragma: no cover - defensive guard
+                        logger.debug(
+                            "Enhanced data pipeline cache unavailable: %s", exc
+                        )
+                        return None
+        return self._cache
 
     async def fetch_data_with_resilience(
         self,
@@ -318,12 +343,22 @@ class EnhancedDataPipeline:
         # Generate cache key
         cache_key = f"data:{source_name}:{hashlib.md5(str(args + tuple(kwargs.items())).encode()).hexdigest()}"
 
+        cache = await self._get_cache()
+
         # Try cache first
-        if use_cache:
-            cached_data = await intelligent_cache_service.get(cache_key)
-            if cached_data is not None:
-                logger.debug(f"CACHE: Cache hit for {source_name}")
-                return cached_data
+        if use_cache and cache is not None:
+            try:
+                cached_data = await cache.get(cache_key)
+            except Exception as exc:  # pragma: no cover - cache backend failure
+                logger.debug(
+                    "Enhanced data pipeline cache read failed for %s: %s",
+                    cache_key,
+                    exc,
+                )
+            else:
+                if cached_data is not None:
+                    logger.debug(f"CACHE: Cache hit for {source_name}")
+                    return cached_data
 
         # Acquire semaphore for rate limiting
         async with self.semaphore:
@@ -348,7 +383,7 @@ class EnhancedDataPipeline:
                 metrics.circuit_breaker_state = circuit_breaker.state
 
                 # Cache successful response
-                if use_cache and data is not None:
+                if use_cache and data is not None and cache is not None:
                     # Compress if payload is large
                     if (
                         compression
@@ -375,12 +410,19 @@ class EnhancedDataPipeline:
                     else:
                         cache_data = {"compressed": False, "data": data}
 
-                    await intelligent_cache_service.set(
-                        cache_key,
-                        cache_data,
-                        ttl_seconds=cache_ttl,
-                        user_context=source_name,
-                    )
+                    try:
+                        await cache.set(
+                            cache_key,
+                            cache_data,
+                            ttl=cache_ttl,
+                            user_context=source_name,
+                        )
+                    except Exception as exc:  # pragma: no cover - cache backend failure
+                        logger.debug(
+                            "Enhanced data pipeline cache write failed for %s: %s",
+                            cache_key,
+                            exc,
+                        )
 
                 # Stream data if there are active connections
                 if self.streaming_connections:
@@ -398,15 +440,21 @@ class EnhancedDataPipeline:
                 logger.error(f"ERROR: Data fetch failed for {source_name}: {e}")
 
                 # Try to return stale cached data as fallback
-                if use_cache:
-                    stale_data = await intelligent_cache_service.get(
-                        f"stale:{cache_key}"
-                    )
-                    if stale_data is not None:
-                        logger.warning(
-                            f"WARNING: Returning stale data for {source_name}"
+                if use_cache and cache is not None:
+                    try:
+                        stale_data = await cache.get(f"stale:{cache_key}")
+                    except Exception as exc:  # pragma: no cover - cache backend failure
+                        logger.debug(
+                            "Enhanced data pipeline stale cache read failed for %s: %s",
+                            cache_key,
+                            exc,
                         )
-                        return stale_data
+                    else:
+                        if stale_data is not None:
+                            logger.warning(
+                                f"WARNING: Returning stale data for {source_name}"
+                            )
+                            return stale_data
 
                 raise
 

@@ -19,7 +19,6 @@ import numpy as np
 from pydantic import BaseModel
 
 from backend.services.enhanced_data_pipeline import enhanced_data_pipeline
-from backend.services.intelligent_cache_service import intelligent_cache_service
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("data_quality_monitor")

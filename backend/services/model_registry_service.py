@@ -15,7 +15,6 @@ from uuid import uuid4
 
 import redis
 
-from backend.services.unified_cache_service import unified_cache_service
 from backend.services.unified_error_handler import unified_error_handler
 from backend.services.unified_logging import unified_logging
 from backend.utils.time_helpers import now_utc

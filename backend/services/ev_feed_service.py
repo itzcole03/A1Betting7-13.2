@@ -47,7 +47,12 @@ from backend.models.ev_models import (
     SportType,
     calculate_expected_value,
 )
-from backend.services.unified_cache_service import unified_cache_service
+
+try:
+    from backend.services.unified_cache_service import UnifiedCacheService, get_cache
+except ImportError:  # pragma: no cover - cache optional in some environments
+    UnifiedCacheService = None  # type: ignore[assignment]
+    get_cache = None
 from backend.services.unified_data_fetcher import unified_data_fetcher
 
 try:
@@ -56,6 +61,51 @@ except Exception:  # pragma: no cover - optional dependency
     MLBStatsAPIClient = None  # type: ignore[assignment]
 
 logger = logging.getLogger("ev_feed_service")
+
+_cache_instance: Optional[Any] = None
+_cache_lock = asyncio.Lock()
+
+
+async def _get_cache() -> Optional[Any]:
+    global _cache_instance
+
+    if get_cache is None:
+        return None
+
+    if _cache_instance is None:
+        async with _cache_lock:
+            if _cache_instance is None:
+                try:
+                    _cache_instance = await get_cache()
+                except Exception as exc:  # pragma: no cover - defensive guard
+                    logger.debug("EV feed cache unavailable: %s", exc)
+                    return None
+    return _cache_instance
+
+
+async def _cache_set(key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    cache = await _get_cache()
+    if cache is None:
+        return False
+
+    try:
+        await cache.set(key, value, ttl=ttl)
+        return True
+    except Exception as exc:  # pragma: no cover - cache backend failure
+        logger.debug("EV feed cache write failed for %s: %s", key, exc)
+        return False
+
+
+async def _cache_get(key: str, default: Any = None) -> Any:
+    cache = await _get_cache()
+    if cache is None:
+        return default
+
+    try:
+        return await cache.get(key, default)
+    except Exception as exc:  # pragma: no cover - cache backend failure
+        logger.debug("EV feed cache read failed for %s: %s", key, exc)
+        return default
 
 
 class EVFeedService:
@@ -711,9 +761,7 @@ class EVFeedService:
                 )
             else:
                 # Fallback to unified cache service
-                await unified_cache_service.set(
-                    self.REDIS_KEY, opportunities_data, ttl=300
-                )
+                await _cache_set(self.REDIS_KEY, opportunities_data, ttl=300)
 
             try:
                 logger.debug(
@@ -793,7 +841,7 @@ class EVFeedService:
                     self.STATS_KEY, json.dumps(stats_data), ex=300
                 )
             else:
-                await unified_cache_service.set(self.STATS_KEY, stats_data, ttl=300)
+                await _cache_set(self.STATS_KEY, stats_data, ttl=300)
 
         except Exception as e:
             logger.error(f"Error updating stats: {e}")
@@ -817,7 +865,7 @@ class EVFeedService:
                 else:
                     opportunities_data = []
             else:
-                opportunities_data = await unified_cache_service.get(self.REDIS_KEY, [])
+                opportunities_data = await _cache_get(self.REDIS_KEY, [])
 
             opportunities: List[EVOpportunity] = []
             used_ring_fallback = False
@@ -961,7 +1009,7 @@ class EVFeedService:
                         )
                     return EVFeedStats(**stats_dict)
             else:
-                stats_data = await unified_cache_service.get(self.STATS_KEY)
+                stats_data = await _cache_get(self.STATS_KEY)
                 if stats_data:
                     stats_dict = dict(stats_data)
                     last_generated = stats_dict.get("last_generation_time")
@@ -1030,13 +1078,13 @@ class EVFeedService:
                 await self.redis_client.set(key, json.dumps(arr), ex=60 * 60)
             else:
                 # Fallback: use unified cache as list emulation
-                data = await unified_cache_service.get(key, [])
+                data = await _cache_get(key, [])
                 if not isinstance(data, list):
                     data = []
                 data.append(entry)
                 if len(data) > self.SNAPSHOT_MAX_PER_OPP:
                     data = data[-self.SNAPSHOT_MAX_PER_OPP :]
-                await unified_cache_service.set(key, data, ttl=3600)
+                await _cache_set(key, data, ttl=3600)
         except Exception as e:
             logger.debug(f"Failed to record EV snapshot: {e}")
 
@@ -1057,7 +1105,7 @@ class EVFeedService:
                     except Exception:
                         points = []
             else:
-                data = await unified_cache_service.get(key, [])
+                data = await _cache_get(key, [])
                 points = (
                     data[-(last_n or self.SLOPE_WINDOW) :]
                     if isinstance(data, list)
