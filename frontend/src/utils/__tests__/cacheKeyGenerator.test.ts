@@ -1,13 +1,12 @@
+import {
+  extractParamsFromUrl,
+  generateCacheKey,
+  generateETagCacheKey,
+  normalizeUrl,
+} from '../cacheKeyGenerator';
+
 describe('cacheKeyGenerator', () => {
   test('generateCacheKey produces stable keys regardless of param order', () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const {
-      generateCacheKey,
-      generateETagCacheKey,
-      extractParamsFromUrl,
-      normalizeUrl,
-    } = require('../cacheKeyGenerator');
-
     const a = { b: 2, a: 1 };
     const k1 = generateCacheKey('/api/foo', a);
     const k2 = generateCacheKey('/api/foo', { a: 1, b: 2 });

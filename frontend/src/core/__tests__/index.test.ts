@@ -9,8 +9,11 @@ jest.mock('../core', () => ({
   useMasterIntegration: () => ({}),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const coreEntry = require('../index');
+let coreEntry: typeof import('../index');
+
+beforeAll(async () => {
+  coreEntry = await import('../index');
+});
 
 const FORBIDDEN_EXPORTS = [
   'UnifiedBettingSystem',

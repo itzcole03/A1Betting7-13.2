@@ -12,7 +12,9 @@ export function getEnvVar(key: string, fallback?: string): string | undefined {
     );
     value = getViteEnv(key, fallback);
     if (value !== undefined) return value;
-  } catch (e) {}
+  } catch (error) {
+    void error;
+  }
 
   // Jest: globalThis.import.meta.env (mocked in jest.env.mock.js)
   if (

@@ -1,6 +1,8 @@
 // HttpClient.ts - Enhanced fetch abstraction with request ID, logging, timing, and telemetry
 import { API_BASE_URL } from '../config/apiConfig';
+import { normalizeUrl } from '../utils/cacheKeyGenerator';
 import { getRequestContext } from './RequestContextService';
+import { UnifiedCache } from './unified/UnifiedCache';
 
 const AUTH_TOKEN_KEYS = ['token', 'auth_token', 'access_token'];
 
@@ -39,6 +41,12 @@ export interface HttpRequestOptions extends RequestInit {
   logLabel?: string;
   span_name?: string; // For span tracking
   tags?: Record<string, string | number | boolean>; // For request tagging
+  cacheKey?: string;
+  cacheTTL?: number;
+  cacheStrategy?: 'cache-first' | 'network-first' | 'stale-while-revalidate';
+  useCache?: boolean;
+  skipCache?: boolean;
+  fallbackToCache?: boolean;
 }
 
 export interface RequestTelemetry {
@@ -202,8 +210,28 @@ class HttpTelemetry {
 // Global telemetry instance
 const httpTelemetry = new HttpTelemetry();
 
+interface HttpCacheEntry {
+  body: string;
+  status: number;
+  statusText: string;
+  headers: Array<[string, string]>;
+  url: string;
+}
+
 export async function httpFetch(url: string, options: HttpRequestOptions = {}): Promise<Response> {
-  const { version, logLabel, span_name, tags, ...fetchOptions } = options;
+  const {
+    version,
+    logLabel,
+    span_name,
+    tags,
+    cacheKey,
+    cacheTTL,
+    cacheStrategy = 'cache-first',
+    useCache,
+    skipCache,
+    fallbackToCache = true,
+    ...fetchOptions
+  } = options;
   // Explicitly type headers as Record<string, string> for safe indexing
   const headers: Record<string, string> = {
     ...((fetchOptions.headers as Record<string, string>) || {}),
@@ -218,10 +246,13 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
   }
   const label = logLabel || 'HttpClient';
   const requestId = headers['X-Request-ID'];
-  const method = fetchOptions.method || 'GET';
+  const method = (fetchOptions.method || 'GET').toUpperCase();
 
   // Detect test environment more robustly (Jest sets NODE_ENV='test' and provides JEST_WORKER_ID)
-  const isTest = typeof process !== 'undefined' && process.env && (process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined');
+  const isTest =
+    typeof process !== 'undefined' &&
+    process.env &&
+    (process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined');
 
   // Always prepend base URL to relative paths (starting with '/') that are not already absolute
   // During tests we prefer to keep paths as-is to allow unit tests to assert raw endpoints
@@ -245,6 +276,12 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
 
   // Start telemetry tracking
   const telemetry = httpTelemetry.startRequest(requestId, finalUrl, method, span_name, tags);
+  const unifiedCache = UnifiedCache.getInstance();
+  const shouldUseCache =
+    !skipCache && (typeof useCache === 'boolean' ? useCache : method === 'GET');
+  const normalizedUrlForKey = normalizeUrl(finalUrl);
+  const resolvedCacheKey = shouldUseCache ? cacheKey || `${method}:${normalizedUrlForKey}` : null;
+  const cacheTtlToUse = cacheTTL ?? unifiedCache.getDefaultTTL();
 
   // Enhanced logging with span context
   const logPrefix = `[${label}] [${requestId}]`;
@@ -263,6 +300,66 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
     requestInit.credentials = 'include';
   }
 
+  const respondWithCache = (entry: HttpCacheEntry, cacheHitType: 'hit' | 'fallback'): Response => {
+    const responseHeaders = new Headers(entry.headers);
+    responseHeaders.set('x-unified-cache', cacheHitType);
+    return new Response(entry.body, {
+      status: entry.status,
+      statusText: entry.statusText,
+      headers: responseHeaders,
+    });
+  };
+
+  if (shouldUseCache && resolvedCacheKey && cacheStrategy !== 'network-first') {
+    const cachedEntry = unifiedCache.get<HttpCacheEntry>(resolvedCacheKey);
+    if (cachedEntry) {
+      const cachedBodySize = cachedEntry.body.length;
+      httpTelemetry.finishRequest(
+        requestId,
+        cachedEntry.status,
+        undefined,
+        cachedBodySize,
+        requestSize
+      );
+
+      if (!isTest) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `${logPrefix}${spanInfo} Cache hit:`,
+          finalUrl,
+          `Status: ${cachedEntry.status}`,
+          cachedBodySize ? `Size: ${cachedBodySize}b` : ''
+        );
+      }
+
+      if (cacheStrategy === 'stale-while-revalidate') {
+        void (async () => {
+          try {
+            const response = await fetch(finalUrl, requestInit);
+            if (!response.ok) {
+              return;
+            }
+            const cloned = response.clone();
+            const body = await cloned.text();
+            const headersForCache = Array.from(cloned.headers.entries());
+            const entry: HttpCacheEntry = {
+              body,
+              status: cloned.status,
+              statusText: cloned.statusText,
+              headers: headersForCache,
+              url: finalUrl,
+            };
+            unifiedCache.set(resolvedCacheKey, entry, cacheTtlToUse);
+          } catch {
+            // Ignore background refresh errors
+          }
+        })();
+      }
+
+      return respondWithCache(cachedEntry, 'hit');
+    }
+  }
+
   try {
     const response = await fetch(finalUrl, requestInit);
 
@@ -270,6 +367,24 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
     const responseSize = response.headers.get('content-length')
       ? parseInt(response.headers.get('content-length')!, 10)
       : undefined;
+
+    const cloned = response.clone();
+    if (shouldUseCache && resolvedCacheKey && response.ok) {
+      try {
+        const body = await cloned.text();
+        const headersForCache = Array.from(cloned.headers.entries());
+        const entry: HttpCacheEntry = {
+          body,
+          status: response.status,
+          statusText: response.statusText,
+          headers: headersForCache,
+          url: finalUrl,
+        };
+        unifiedCache.set(resolvedCacheKey, entry, cacheTtlToUse);
+      } catch {
+        // Ignore cache serialization errors silently
+      }
+    }
 
     // Finish telemetry tracking
     httpTelemetry.finishRequest(requestId, response.status, undefined, responseSize, requestSize);
@@ -288,6 +403,29 @@ export async function httpFetch(url: string, options: HttpRequestOptions = {}): 
     return response;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+
+    if (shouldUseCache && resolvedCacheKey && fallbackToCache) {
+      const cachedEntry = unifiedCache.get<HttpCacheEntry>(resolvedCacheKey);
+      if (cachedEntry) {
+        const cachedBodySize = cachedEntry.body.length;
+        httpTelemetry.finishRequest(
+          requestId,
+          cachedEntry.status,
+          undefined,
+          cachedBodySize,
+          requestSize
+        );
+        if (!isTest) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `${logPrefix}${spanInfo} Network error, serving cached response:`,
+            finalUrl,
+            errorMessage
+          );
+        }
+        return respondWithCache(cachedEntry, 'fallback');
+      }
+    }
 
     // Finish telemetry tracking with error
     httpTelemetry.finishRequest(requestId, undefined, errorMessage, undefined, requestSize);

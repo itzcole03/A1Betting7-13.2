@@ -14,8 +14,8 @@
     // Check if the feature is enabled in config
     // Import UnifiedConfig dynamically to avoid circular deps if needed
     // (Assume import is available in the test context)
-     
-    const { UnifiedConfig } = require('../core/UnifiedConfig');
+
+    const { UnifiedConfig } = await import('../core/UnifiedConfig');
     const enabled = UnifiedConfig.getInstance().get('enableSocialSentiment') as boolean;
     if (!enabled) {
       throw new Error('Social Sentiment feature is disabled by config.');

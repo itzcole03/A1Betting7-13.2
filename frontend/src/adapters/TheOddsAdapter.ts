@@ -1,6 +1,6 @@
-import { UnifiedMonitor } from '@/core/UnifiedMonitor';
-import { DataSource } from '@/unified/DataSource';
-import { EventBus } from '@/unified/EventBus';
+import { UnifiedMonitor } from '../core/UnifiedMonitor';
+import { DataSource } from '../unified/DataSource';
+import { EventBus } from '../unified/EventBus';
 
 interface TheOddsConfig {
   apiKey: string;
@@ -81,10 +81,10 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
       for (const event of data.events) {
         await this.eventBus.publish('game:status', {
           game: {
-            id: (event as any).id,
-            homeTeam: (event as any).home_team,
-            awayTeam: (event as any).away_team,
-            startTime: (event as any).commence_time,
+            id: event.id,
+            homeTeam: event.home_team,
+            awayTeam: event.away_team,
+            startTime: event.commence_time,
             status: 'scheduled',
           },
           timestamp: Date.now(),
@@ -108,7 +108,8 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
       throw new Error(`TheOdds API error: ${response.statusText}`);
     }
 
-    return await response.json();
+    const parsed = (await response.json()) as TheOddsData;
+    return parsed;
   }
 
   private isCacheValid(): boolean {
@@ -131,7 +132,10 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
   }
 
   public async getData(): Promise<TheOddsData> {
-    return this.cache.data as TheOddsData;
+    if (!this.cache.data) {
+      return this.fetchData();
+    }
+    return this.cache.data;
   }
 
   public isConnected(): boolean {

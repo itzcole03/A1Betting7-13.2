@@ -16,7 +16,7 @@ jest.mock('@/unified/EventBus', () => ({
   },
 }));
 
-const { TheOddsAdapter } = require('../../adapters/TheOddsAdapter');
+import { TheOddsAdapter } from '../TheOddsAdapter';
 
 describe('TheOddsAdapter (smoke)', () => {
   test('constructs and exposes metadata and cache methods', () => {

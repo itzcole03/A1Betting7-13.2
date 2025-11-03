@@ -1,15 +1,14 @@
+import {
+  ensureObject,
+  safeDestructure,
+  safeObjectAssign,
+  safeObjectEntries,
+  safeObjectKeys,
+  safeObjectValues,
+} from '../objectGuards';
+
 describe('objectGuards utilities', () => {
   test('ensureObject and safe wrappers handle null/undefined', () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const {
-      ensureObject,
-      safeObjectKeys,
-      safeObjectEntries,
-      safeObjectValues,
-      safeObjectAssign,
-      safeDestructure,
-    } = require('../objectGuards');
-
     expect(ensureObject(null)).toEqual({});
     expect(safeObjectKeys(null)).toEqual([]);
     expect(safeObjectEntries(null)).toEqual([]);

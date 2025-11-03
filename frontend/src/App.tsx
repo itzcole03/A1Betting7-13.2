@@ -28,6 +28,21 @@ import { usePerformanceTracking } from './utils/performance';
 // Ensure LazyUserFriendlyApp is imported for test env override
 // LazyUserFriendlyApp already declared above, remove duplicate
 
+type PropFinderDebugStatus = {
+  ok: boolean;
+  status?: number;
+  error?: string;
+  serverTotal?: number;
+  server_total?: number;
+};
+
+type PropFinderDevWindow = Window & {
+  __propfinder_last_fetch_status?: PropFinderDebugStatus | null;
+  __propfinder_last_stats?: Record<string, unknown> | null;
+  __propfinder_last_request_url?: string;
+  __propfinder_last_response?: unknown;
+};
+
 const LazyUserFriendlyApp = createLazyComponent(
   () =>
     import('./components/user-friendly/UserFriendlyApp').then(module => ({
@@ -121,7 +136,11 @@ function App() {
         if (!disposed) {
           enhancedLogger.info('App', 'api', `API version compatibility check: ${version}`);
           if (version === 'demo') {
-            enhancedLogger.info('App', 'mode', 'Running in demo mode due to backend unavailability');
+            enhancedLogger.info(
+              'App',
+              'mode',
+              'Running in demo mode due to backend unavailability'
+            );
           }
         }
       } catch (err) {
@@ -278,26 +297,42 @@ function App() {
       <QueryClientProvider client={queryClient}>
         {/* DEV global controls (always rendered in DEV so devs can enable dashboard even when gated) */}
         {import.meta.env.DEV && (
-          <div data-testid="dev-global-controls">
+          <div data-testid='dev-global-controls'>
             <div style={{ position: 'fixed', bottom: 80, right: 12, zIndex: 9999 }}>
-                  <button
-                data-testid="dev-view-dashboard-global"
+              <button
+                data-testid='dev-view-dashboard-global'
                 onClick={() => {
                   try {
                     // Set a few common token keys to cover various local dev expectations
                     localStorage.setItem('token', 'dev-demo-token');
                     localStorage.setItem('access_token', 'dev-demo-token');
                     localStorage.setItem('accessToken', 'dev-demo-token');
-                    localStorage.setItem('user', JSON.stringify({ id: 'dev', email: 'dev@local', role: 'admin' }));
+                    localStorage.setItem(
+                      'user',
+                      JSON.stringify({ id: 'dev', email: 'dev@local', role: 'admin' })
+                    );
                     // Some code paths expect onboardingComplete to be truthy string '1'
                     localStorage.setItem('onboardingComplete', '1');
                     window.location.reload();
-                  } catch (e) {
-                    // ignore
+                  } catch (error) {
+                    enhancedLogger.debug(
+                      'App',
+                      'DevGlobalControl',
+                      'Failed to enable dev dashboard via global controls',
+                      { error }
+                    );
                   }
                 }}
-                style={{ background: '#06b6d4', color: '#06202a', padding: '6px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 700 }}
-                title="Enable demo dashboard (global)"
+                style={{
+                  background: '#06b6d4',
+                  color: '#06202a',
+                  padding: '6px 10px',
+                  borderRadius: 6,
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                }}
+                title='Enable demo dashboard (global)'
               >
                 Dev: View Dashboard
               </button>
@@ -431,28 +466,39 @@ const AppContent: React.FC = () => {
 
   // Show user-friendly UI for all authenticated users
   enhancedLogger.info('App', 'render', 'Rendering UserFriendlyApp (clean UI)');
-  const enableReliabilityMonitoring = !import.meta.env.DEV;
+  const isDevMode = Boolean(import.meta.env.DEV);
+  const enableReliabilityMonitoring = !isDevMode;
 
   // DEV-CONVENIENCE: If running in development and the user is blocked by onboarding/auth gating,
   // show a small non-production banner that allows developers to quickly enable demo dashboard view
   const DevDashboardButton: React.FC = () => {
-    if (!import.meta.env.DEV) return null;
+    if (!isDevMode) {
+      return null;
+    }
     return (
       <div style={{ position: 'fixed', bottom: 12, right: 12, zIndex: 9999 }}>
-            <button
+        <button
           onClick={() => {
             try {
               // Set a few common token keys to cover various local dev expectations
               localStorage.setItem('token', 'dev-demo-token');
               localStorage.setItem('access_token', 'dev-demo-token');
               localStorage.setItem('accessToken', 'dev-demo-token');
-              localStorage.setItem('user', JSON.stringify({ id: 'dev', email: 'dev@local', role: 'admin' }));
+              localStorage.setItem(
+                'user',
+                JSON.stringify({ id: 'dev', email: 'dev@local', role: 'admin' })
+              );
               // Some code paths expect onboardingComplete to be truthy string '1'
               localStorage.setItem('onboardingComplete', '1');
               // reload so App restores auth state
               window.location.reload();
-            } catch (e) {
-              // ignore
+            } catch (error) {
+              enhancedLogger.debug(
+                'App',
+                'DevDashboardButton',
+                'Failed to enable demo dashboard token flow',
+                { error }
+              );
             }
           }}
           data-testid='dev-view-dashboard'
@@ -476,36 +522,91 @@ const AppContent: React.FC = () => {
 
   // DEV: PropFinder quick debug panel — visible only in development
   const DevPropFinderDebugPanel: React.FC = () => {
-    if (!import.meta.env.DEV) return null;
+    const resolveDevWindow = (): PropFinderDevWindow | null => {
+      if (typeof window === 'undefined') {
+        return null;
+      }
+      return window as PropFinderDevWindow;
+    };
 
-    const [lastStatus, setLastStatus] = useState<any>(() => {
+    const [lastStatus, setLastStatus] = useState<PropFinderDebugStatus | null>(() => {
+      if (!isDevMode) {
+        return null;
+      }
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (window as any).__propfinder_last_fetch_status ?? null;
-      } catch (e) {
+        return resolveDevWindow()?.__propfinder_last_fetch_status ?? null;
+      } catch (error) {
+        enhancedLogger.debug(
+          'App',
+          'DevPropFinderDebugPanel',
+          'Failed to read last fetch status from window',
+          { error }
+        );
         return null;
       }
     });
 
-    const [lastStats, setLastStats] = useState<any>(() => {
+    const [lastStats, setLastStats] = useState<Record<string, unknown> | null>(() => {
+      if (!isDevMode) {
+        return null;
+      }
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (window as any).__propfinder_last_stats ?? null;
-      } catch (e) {
+        return resolveDevWindow()?.__propfinder_last_stats ?? null;
+      } catch (error) {
+        enhancedLogger.debug(
+          'App',
+          'DevPropFinderDebugPanel',
+          'Failed to read last stats from window',
+          { error }
+        );
         return null;
       }
     });
 
     const [busy, setBusy] = useState(false);
+
+    if (!isDevMode) {
+      return null;
+    }
+
+    const coerceRecord = (value: unknown): Record<string, unknown> | null => {
+      if (typeof value === 'object' && value !== null) {
+        return value as Record<string, unknown>;
+      }
+      return null;
+    };
+
+    const deriveServerTotal = (summary: Record<string, unknown> | null): number | undefined => {
+      if (!summary) {
+        return undefined;
+      }
+      const candidates = [
+        summary['total_opportunities'],
+        summary['total'],
+        summary['totalOpportunities'],
+      ];
+      for (const candidate of candidates) {
+        if (typeof candidate === 'number' && Number.isFinite(candidate)) {
+          return candidate;
+        }
+      }
+      return undefined;
+    };
+
     const doFetch = async () => {
+      const devWindow = resolveDevWindow();
+      const url = devWindow?.__propfinder_last_request_url;
+      if (!url) {
+        enhancedLogger.debug(
+          'App',
+          'DevPropFinderDebugPanel',
+          'No last request URL available for debug re-fetch'
+        );
+        return;
+      }
+
       try {
         setBusy(true);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const url: string | undefined = (window as any).__propfinder_last_request_url;
-        if (!url) {
-          // nothing to fetch
-          return;
-        }
 
         // Use relative fetch so HttpClient will be used if available in runtime context
         const resp = await fetch(url, { credentials: 'include' });
@@ -513,35 +614,105 @@ const AppContent: React.FC = () => {
           setLastStatus({ ok: false, status: resp.status });
           return;
         }
-        const payload = await resp.json();
-        const data = payload?.data ?? payload;
-        setLastStats(data.summary ?? null);
-        // mirror to window for compatibility with hook dev helpers
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window as any).__propfinder_last_response = payload;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window as any).__propfinder_last_stats = data.summary ?? null;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window as any).__propfinder_last_fetch_status = { ok: true, status: resp.status, server_total: (data.summary && (data.summary.total_opportunities || data.summary.total || data.summary.totalOpportunities)) ?? undefined };
-        } catch (e) {
-          // ignore
+
+        const payload = (await resp.json()) as Record<string, unknown>;
+        const payloadData = (payload.data as Record<string, unknown> | undefined) ?? payload;
+        const summaryCandidate =
+          (payloadData?.summary as Record<string, unknown> | null | undefined) ??
+          (payload.summary as Record<string, unknown> | null | undefined) ??
+          null;
+        const summaryRecord = coerceRecord(summaryCandidate);
+
+        setLastStats(summaryRecord);
+
+        const serverTotal = deriveServerTotal(summaryRecord);
+        const successStatus: PropFinderDebugStatus = {
+          ok: true,
+          status: resp.status,
+          serverTotal,
+        };
+        if (typeof serverTotal === 'number') {
+          successStatus.server_total = serverTotal;
         }
-      } catch (err) {
-        setLastStatus({ ok: false, error: (err instanceof Error ? err.message : String(err)) });
+        setLastStatus(successStatus);
+
+        if (devWindow) {
+          devWindow.__propfinder_last_response = payload;
+          devWindow.__propfinder_last_stats = summaryRecord;
+          devWindow.__propfinder_last_fetch_status = successStatus;
+        }
+      } catch (error) {
+        setLastStatus({
+          ok: false,
+          error: error instanceof Error ? error.message : String(error),
+        });
       } finally {
         setBusy(false);
       }
     };
 
     return (
-      <div data-testid='dev-propfinder-debug' style={{ position: 'fixed', bottom: 12, left: 12, zIndex: 9999, background: 'rgba(2,6,23,0.8)', color: '#fff', padding: 10, borderRadius: 8, fontSize: 12, minWidth: 260 }}>
+      <div
+        data-testid='dev-propfinder-debug'
+        style={{
+          position: 'fixed',
+          bottom: 12,
+          left: 12,
+          zIndex: 9999,
+          background: 'rgba(2,6,23,0.8)',
+          color: '#fff',
+          padding: 10,
+          borderRadius: 8,
+          fontSize: 12,
+          minWidth: 260,
+        }}
+      >
         <div style={{ fontWeight: 700, marginBottom: 6 }}>PropFinder Debug</div>
-        <div style={{ marginBottom: 6 }}><strong>Last fetch:</strong> {lastStatus ? JSON.stringify(lastStatus) : 'none'}</div>
-        <div style={{ marginBottom: 6 }}><strong>Last stats:</strong> {lastStats ? JSON.stringify(lastStats) : 'none'}</div>
+        <div style={{ marginBottom: 6 }}>
+          <strong>Last fetch:</strong> {lastStatus ? JSON.stringify(lastStatus) : 'none'}
+        </div>
+        <div style={{ marginBottom: 6 }}>
+          <strong>Last stats:</strong> {lastStats ? JSON.stringify(lastStats) : 'none'}
+        </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={doFetch} disabled={busy} style={{ background: '#06b6d4', color: '#06202a', border: 'none', padding: '6px 8px', borderRadius: 4, cursor: 'pointer' }}>{busy ? 'Fetching…' : 'Re-fetch'}</button>
-          <button onClick={() => { try { window.location.reload(); } catch (e) {} }} style={{ background: '#374151', color: '#fff', border: 'none', padding: '6px 8px', borderRadius: 4, cursor: 'pointer' }}>Reload</button>
+          <button
+            onClick={doFetch}
+            disabled={busy}
+            style={{
+              background: '#06b6d4',
+              color: '#06202a',
+              border: 'none',
+              padding: '6px 8px',
+              borderRadius: 4,
+              cursor: 'pointer',
+            }}
+          >
+            {busy ? 'Fetching…' : 'Re-fetch'}
+          </button>
+          <button
+            onClick={() => {
+              try {
+                window.location.reload();
+              } catch (error) {
+                enhancedLogger.debug(
+                  'App',
+                  'DevPropFinderDebugPanel',
+                  'Failed to reload window from debug panel',
+                  { error }
+                );
+              }
+            }}
+            style={{
+              background: '#374151',
+              color: '#fff',
+              border: 'none',
+              padding: '6px 8px',
+              borderRadius: 4,
+              cursor: 'pointer',
+            }}
+          >
+            Reload
+          </button>
         </div>
       </div>
     );
@@ -570,6 +741,8 @@ const AppContent: React.FC = () => {
       >
         <ServiceWorkerUpdateNotification />
         <UpdateModal />
+        {isDevMode && <DevDashboardButton />}
+        {isDevMode && <DevPropFinderDebugPanel />}
         <React.Suspense fallback={null}>
           <LazyUserFriendlyApp />
         </React.Suspense>

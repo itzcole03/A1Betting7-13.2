@@ -17,6 +17,7 @@ import { WS_URL } from '../config/apiConfig';
 import { Player } from '../components/player/PlayerDashboardContainer';
 import { createTimeoutSignal } from '../utils/createTimeoutSignal';
 import { enhancedLogger } from '../utils/enhancedLogger';
+import { UnifiedCache } from './unified/UnifiedCache';
 
 interface CacheEntry<T> {
   data: T;
@@ -42,7 +43,7 @@ interface RealTimeUpdate {
 
 export class RealTimePlayerDataService {
   private static instance: RealTimePlayerDataService;
-  private cache = new Map<string, CacheEntry<unknown>>();
+  private readonly cache = UnifiedCache.getInstance();
   private websocket: WebSocket | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
@@ -74,6 +75,7 @@ export class RealTimePlayerDataService {
   private requestQueue: Array<() => Promise<unknown>> = [];
   private activeRequests = 0;
   private rateLimitWindow = new Map<string, { count: number; resetTime: number }>();
+  private readonly cacheNamespace = 'realtime-player';
 
   public static getInstance(): RealTimePlayerDataService {
     if (!RealTimePlayerDataService.instance) {
@@ -184,10 +186,6 @@ export class RealTimePlayerDataService {
     if (update.type === 'player_stats') {
       this.updatePlayerStatsCache(update.playerId, update.data as Record<string, unknown>);
     }
-  }
-
-  private getCacheKeysForPlayer(playerId: string): string[] {
-    return Array.from(this.cache.keys()).filter(key => key.includes(playerId));
   }
 
   /**
@@ -598,7 +596,8 @@ export class RealTimePlayerDataService {
 
   // Cache management methods
   private getCachedData<T>(key: string): CacheEntry<T> | null {
-    const entry = this.cache.get(key) as CacheEntry<T> | undefined;
+    const namespacedKey = this.buildCacheKey(key);
+    const entry = this.cache.get<CacheEntry<T>>(namespacedKey);
     return entry || null;
   }
 
@@ -608,12 +607,15 @@ export class RealTimePlayerDataService {
     ttl: number,
     quality: 'high' | 'medium' | 'low'
   ): void {
-    this.cache.set(key, {
+    const namespacedKey = this.buildCacheKey(key);
+    const entry: CacheEntry<T> = {
       data,
       timestamp: Date.now(),
       ttl,
       quality,
-    });
+    };
+    const tags = [this.cacheNamespace, `${this.cacheNamespace}:${key.split(':')[0] ?? 'misc'}`];
+    this.cache.set(namespacedKey, entry, { ttl, tags });
   }
 
   private isCacheValid(entry: CacheEntry<unknown>, maxAge: number): boolean {
@@ -622,20 +624,32 @@ export class RealTimePlayerDataService {
 
   private updatePlayerStatsCache(playerId: string, newStats: Record<string, unknown>): void {
     // Find and update relevant cache entries
-    for (const [key, entry] of this.cache.entries()) {
-      if (key.includes(playerId) && key.startsWith('player:')) {
-        const player = entry.data as Player;
-        if (player && newStats) {
-          // Ensure season_stats exists and both operands are objects for Object.assign
-          if (!player.season_stats) player.season_stats = {} as Record<string, unknown>;
-          Object.assign(
-            player.season_stats as Record<string, unknown>,
-            newStats as Record<string, unknown>
-          );
-          entry.timestamp = Date.now();
-        }
+    const keys = this.getCacheKeysForPlayer(playerId);
+    keys.forEach(key => {
+      const entry = this.cache.get<CacheEntry<Player>>(key);
+      if (!entry) {
+        return;
       }
-    }
+
+      const player = entry.data;
+      if (!player || !newStats) {
+        return;
+      }
+
+      if (!player.season_stats) {
+        player.season_stats = {} as Record<string, unknown>;
+      }
+
+      Object.assign(player.season_stats as Record<string, unknown>, newStats);
+
+      const updatedEntry: CacheEntry<Player> = {
+        ...entry,
+        data: player,
+        timestamp: Date.now(),
+      };
+
+      this.cache.set(key, updatedEntry, { ttl: entry.ttl });
+    });
   }
 
   // Utility methods
@@ -678,11 +692,18 @@ export class RealTimePlayerDataService {
   private startCacheCleanup(): void {
     setInterval(() => {
       const now = Date.now();
-      for (const [key, entry] of this.cache.entries()) {
-        if (now - entry.timestamp > entry.ttl) {
-          this.cache.delete(key);
-        }
-      }
+      this.cache
+        .getKeys()
+        .filter(key => key.startsWith(`${this.cacheNamespace}:`))
+        .forEach(key => {
+          const entry = this.cache.get<CacheEntry<unknown>>(key);
+          if (!entry) {
+            return;
+          }
+          if (now - entry.timestamp > entry.ttl) {
+            this.cache.delete(key);
+          }
+        });
     }, 60000); // Cleanup every minute
   }
 
@@ -713,7 +734,7 @@ export class RealTimePlayerDataService {
    */
   public async refreshPlayerData(playerId: string, sport: string = 'MLB'): Promise<Player | null> {
     const cacheKey = `player:${playerId}:${sport}`;
-    this.cache.delete(cacheKey);
+    this.cache.delete(this.buildCacheKey(cacheKey));
     return this.getPlayerData(playerId, sport);
   }
 
@@ -721,7 +742,7 @@ export class RealTimePlayerDataService {
    * Clear all cached data
    */
   public clearCache(): void {
-    this.cache.clear();
+    this.cache.deleteByPrefix(`${this.cacheNamespace}:`);
     // eslint-disable-next-line no-console
     enhancedLogger.info('RealTimePlayerData', 'Cache', 'Cache cleared');
   }
@@ -734,9 +755,21 @@ export class RealTimePlayerDataService {
       this.websocket.close();
       this.websocket = null;
     }
-    this.cache.clear();
+    this.cache.deleteByPrefix(`${this.cacheNamespace}:`);
     this.subscribers.clear();
     this.pendingRequests.clear();
+  }
+
+  private buildCacheKey(key: string): string {
+    return `${this.cacheNamespace}:${key}`;
+  }
+
+  private getCacheKeysForPlayer(playerId: string): string[] {
+    return this.cache
+      .getKeys()
+      .filter(
+        key => key.startsWith(`${this.cacheNamespace}:player:`) && key.includes(`:${playerId}:`)
+      );
   }
 }
 

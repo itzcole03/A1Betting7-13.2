@@ -1,15 +1,14 @@
+import {
+  safeCompactNumber,
+  safeCurrency,
+  safeDivision,
+  safeNumber,
+  safePercentage,
+  safePercentageChange,
+} from '../safeNumber';
+
 describe('safeNumber utilities', () => {
   test('safeNumber and related formatters', () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const {
-      safeNumber,
-      safePercentage,
-      safeCurrency,
-      safeCompactNumber,
-      safeDivision,
-      safePercentageChange,
-    } = require('../safeNumber');
-
     expect(safeNumber(12.3456, 2)).toBe('12.35');
     expect(safeNumber('bad', 2)).toBe('0.00');
     expect(safePercentage(0.85)).toBe('85.0%');
@@ -22,16 +21,6 @@ describe('safeNumber utilities', () => {
 });
 
 describe('safeNumber utils', () => {
-  // Require module to avoid duplicate import/require in same file
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const {
-    safeCompactNumber,
-    safeCurrency,
-    safeDivision,
-    safeNumber,
-    safePercentage,
-    safePercentageChange,
-  } = require('../safeNumber');
   // Test safeNumber
   it('safeNumber should format a number correctly', () => {
     expect(safeNumber(123.456, 2)).toBe('123.46');

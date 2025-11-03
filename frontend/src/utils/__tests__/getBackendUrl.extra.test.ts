@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { getBackendUrl } from '../getBackendUrl';
 
 describe('getBackendUrl (env variants)', () => {

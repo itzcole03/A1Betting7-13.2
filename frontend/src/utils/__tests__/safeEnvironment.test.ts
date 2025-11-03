@@ -1,13 +1,12 @@
 describe('safeEnvironment', () => {
-  test('getWebSocketUrl and isTestEnvironment behave with mocked env', () => {
+  test('getWebSocketUrl and isTestEnvironment behave with mocked env', async () => {
     // Set NODE_ENV to test and JEST_WORKER_ID to simulate test env before require
     const oldNode = process.env.NODE_ENV;
     const oldJest = process.env.JEST_WORKER_ID;
     process.env.NODE_ENV = 'test';
     process.env.JEST_WORKER_ID = '1';
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { safeEnvironment, SafeEnvironment } = require('../safeEnvironment');
+    const { safeEnvironment } = await import('../safeEnvironment');
 
     expect(typeof safeEnvironment.getWebSocketUrl()).toBe('string');
     expect(safeEnvironment.isTestEnvironment()).toBe(true);

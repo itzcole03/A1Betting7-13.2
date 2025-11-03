@@ -14,7 +14,9 @@ function safeImportMetaEnv(key: string): string | undefined {
     if (typeof window !== 'undefined' && (window as any).__VITE_ENV__) {
       return (window as any).__VITE_ENV__[key];
     }
-  } catch (e) {}
+  } catch (error) {
+    void error;
+  }
   return undefined;
 }
 

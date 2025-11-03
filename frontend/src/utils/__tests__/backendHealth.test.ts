@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 // Tests for backendHealthChecker: healthy flow and failure/caching
 import { backendHealthChecker } from '../backendHealth';
 

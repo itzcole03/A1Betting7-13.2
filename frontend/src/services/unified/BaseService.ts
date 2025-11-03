@@ -33,21 +33,43 @@ export interface ServiceError {
   details?: unknown;
 }
 
+interface ServiceEnvelope<T = unknown> {
+  success?: boolean;
+  data?: T;
+  error?: unknown;
+  message?: string;
+}
+
+type RegistryLike = UnifiedServiceRegistry | undefined;
+
 export abstract class BaseService extends EventEmitter {
   protected config: UnifiedConfig;
   protected logger: UnifiedLogger;
   protected api: AxiosInstance;
   protected cache: UnifiedCache;
+  protected readonly serviceRegistry?: RegistryLike;
 
   constructor(
     protected readonly name: string,
     // Keep the registry loosely typed to avoid tight coupling during incremental fixes
-    protected readonly serviceRegistry: any
+    serviceRegistry?: RegistryLike
   ) {
     super();
+    this.serviceRegistry = serviceRegistry ?? UnifiedServiceRegistry.getInstance();
     this.config = UnifiedConfig.getInstance();
     this.logger = new UnifiedLogger(this.name);
     this.cache = UnifiedCache.getInstance();
+
+    if (this.serviceRegistry && typeof this.serviceRegistry.register === 'function') {
+      const alreadyRegistered =
+        typeof this.serviceRegistry.has === 'function'
+          ? this.serviceRegistry.has(this.name)
+          : false;
+
+      if (!alreadyRegistered) {
+        this.serviceRegistry.register(this.name, this);
+      }
+    }
 
     // Initialize API client;
     this.api = axios.create({
@@ -94,12 +116,14 @@ export abstract class BaseService extends EventEmitter {
     }
     this.logger.error(`Error in ${serviceError.source}: ${errorMsg}`);
 
-    // Emit error event;
-    this.serviceRegistry.emit('error', {
-      ...serviceError,
-      error: errorMsg,
-      timestamp: Date.now(),
-    });
+    // Emit error event if the registry supports it; guard to avoid dual-architecture breakage
+    if (this.serviceRegistry && typeof this.serviceRegistry.emit === 'function') {
+      this.serviceRegistry.emit('error', {
+        ...serviceError,
+        error: errorMsg,
+        timestamp: Date.now(),
+      });
+    }
   }
 
   protected async retry<T>(
@@ -107,7 +131,6 @@ export abstract class BaseService extends EventEmitter {
     maxRetries: number = 3,
     delay: number = 1000
   ): Promise<T> {
-    let _lastError: unknown;
     let lastError: unknown;
     for (let i = 0; i < maxRetries; i++) {
       try {
@@ -153,5 +176,51 @@ export abstract class BaseService extends EventEmitter {
       this.logger.error('Request failed:', error);
       throw error;
     }
+  }
+
+  protected unwrapResponse<T>(payload: unknown, context: Record<string, unknown> = {}): T {
+    if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+      const envelope = payload as ServiceEnvelope<T>;
+      if (typeof envelope.success === 'boolean') {
+        if (envelope.success) {
+          return envelope.data as T;
+        }
+
+        const errorMessage = this.resolveEnvelopeError(envelope);
+        this.logger.error('Service envelope reported failure', {
+          service: this.name,
+          error: errorMessage,
+          context,
+        });
+
+        const failure = new Error(errorMessage || 'Service responded with failure');
+        (failure as any).context = { ...context, envelope };
+
+        throw failure;
+      }
+    }
+
+    return payload as T;
+  }
+
+  private resolveEnvelopeError(envelope: ServiceEnvelope): string {
+    if (typeof envelope.message === 'string' && envelope.message.trim()) {
+      return envelope.message.trim();
+    }
+
+    const { error } = envelope;
+    if (typeof error === 'string' && error.trim()) {
+      return error.trim();
+    }
+
+    if (error && typeof error === 'object') {
+      try {
+        return JSON.stringify(error);
+      } catch {
+        return 'Service reported an unknown error';
+      }
+    }
+
+    return 'Service reported an unknown error';
   }
 }

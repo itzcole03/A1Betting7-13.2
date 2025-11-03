@@ -5,8 +5,10 @@
  */
 
 import { backendHealthChecker } from '../utils/backendHealth';
+import { generateCacheKey } from '../utils/cacheKeyGenerator';
 import { createTimeoutSignal } from '../utils/createTimeoutSignal';
 import { logger } from '../utils/logger';
+import { UnifiedCache } from './unified/UnifiedCache';
 
 export interface PropOpportunity {
   id: string;
@@ -55,11 +57,12 @@ export interface OpportunitiesResponse {
 }
 
 class CheatsheetsService {
-  private cache = new Map<string, { data: OpportunitiesResponse; timestamp: number }>();
+  private readonly cache = UnifiedCache.getInstance();
   private readonly CACHE_TTL = 30000; // 30 seconds cache for real-time data
   private readonly REQUEST_TIMEOUT = 8000; // 8 second timeout
   private readonly MAX_RETRIES = 2;
   private readonly isCloudEnvironment: boolean;
+  private readonly cacheNamespace = 'cheatsheets:opportunities';
 
   constructor() {
     // Detect cloud environment to avoid unnecessary API calls
@@ -334,7 +337,7 @@ class CheatsheetsService {
    * Clear service cache
    */
   clearCache(): void {
-    this.cache.clear();
+    this.cache.deleteByPrefix(`${this.cacheNamespace}:`);
     logger.info('Cache cleared', undefined, 'CheatsheetsService');
   }
 
@@ -396,33 +399,19 @@ class CheatsheetsService {
   }
 
   private generateCacheKey(filters: Partial<CheatsheetFilters>): string {
-    return JSON.stringify(filters);
+    return generateCacheKey(this.cacheNamespace, filters as Record<string, unknown>);
   }
 
   private getCachedData(key: string): { data: OpportunitiesResponse; timestamp: number } | null {
-    const cached = this.cache.get(key);
-    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
-      return cached;
-    }
-
-    // Clean up expired cache
-    if (cached) {
-      this.cache.delete(key);
-    }
-
-    return null;
+    return this.cache.get<{ data: OpportunitiesResponse; timestamp: number }>(key) ?? null;
   }
 
   private setCachedData(key: string, data: OpportunitiesResponse): void {
-    this.cache.set(key, { data, timestamp: Date.now() });
-
-    // Limit cache size
-    if (this.cache.size > 20) {
-      const oldestKey = this.cache.keys().next().value;
-      if (typeof oldestKey === 'string') {
-        this.cache.delete(oldestKey);
-      }
-    }
+    const entry = { data, timestamp: Date.now() };
+    this.cache.set(key, entry, {
+      ttl: this.CACHE_TTL,
+      tags: [this.cacheNamespace],
+    });
   }
 
   private generateFallbackData(filters: Partial<CheatsheetFilters>): OpportunitiesResponse {

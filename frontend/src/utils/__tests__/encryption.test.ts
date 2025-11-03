@@ -16,7 +16,7 @@ describe('encryption utils', () => {
   });
 
   it('should throw on invalid encryption input', () => {
-    // @ts-expect-error
+    // @ts-expect-error intentional invalid input for coverage
     expect(() => encryptData(undefined)).toThrow('Failed to encrypt data');
   });
 });

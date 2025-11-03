@@ -4,5 +4,4 @@ declare module '../services/unified/UnifiedServiceRegistry' {
     // allow additional public members for adapter compatibility
     [key: string]: any;
   }
-  export { UnifiedServiceRegistry };
 }

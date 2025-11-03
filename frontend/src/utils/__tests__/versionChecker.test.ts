@@ -1,8 +1,7 @@
 describe('versionChecker (smoke)', () => {
   test('checkCompatibility returns a CompatibilityResult when backend responds', async () => {
-    // Mock fetch before requiring module so auto-init doesn't hit network unexpectedly
-    // @ts-ignore
-    global.fetch = jest.fn().mockResolvedValueOnce({
+    const originalFetch = globalThis.fetch;
+    const mockFetch = jest.fn().mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         status: 'success',
@@ -15,24 +14,38 @@ describe('versionChecker (smoke)', () => {
       }),
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { versionChecker } = require('../versionChecker');
+    const globalWithFetch = globalThis as typeof globalThis & { fetch?: typeof fetch };
+    Object.defineProperty(globalWithFetch, 'fetch', {
+      configurable: true,
+      writable: true,
+      value: mockFetch as unknown as typeof fetch,
+    });
+
+    const { versionChecker } = await import('../versionChecker');
 
     const res = await versionChecker.checkCompatibility({ requireExactMatch: false });
 
     expect(res).toBeDefined();
     expect(typeof res.compatible).toBe('boolean');
 
-    // cleanup mock
-    // @ts-ignore
-    global.fetch = undefined;
+    if (originalFetch === undefined) {
+      Reflect.deleteProperty(globalWithFetch, 'fetch');
+    } else {
+      Object.defineProperty(globalWithFetch, 'fetch', {
+        configurable: true,
+        writable: true,
+        value: originalFetch,
+      });
+    }
   });
 });
 
 describe('versionChecker', () => {
-  // Require the module to avoid duplicate import/require declarations
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { APP_VERSION } = require('../versionChecker');
+  let APP_VERSION: string;
+
+  beforeAll(async () => {
+    ({ APP_VERSION } = await import('../versionChecker'));
+  });
 
   test('APP_VERSION is a non-empty string', () => {
     expect(typeof APP_VERSION).toBe('string');

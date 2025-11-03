@@ -7,6 +7,7 @@ import {
 import {
   PrizePicksAPI,
   PrizePicksAPIResponse,
+  PrizePicksIncludedResource,
   RawPrizePicksIncludedLeague,
   RawPrizePicksIncludedPlayer,
   RawPrizePicksProjection,
@@ -86,7 +87,7 @@ export class PrizePicksAdapter {
     const includedLeaguesMap = new Map<string, PrizePicksLeague>();
 
     if (apiResponse.included) {
-      apiResponse.included.forEach((item: any) => {
+      apiResponse.included.forEach((item: PrizePicksIncludedResource) => {
         if (item.type === 'new_player') {
           const rawPlayer = item as RawPrizePicksIncludedPlayer;
           includedPlayersMap.set(rawPlayer.id, {
@@ -109,48 +110,51 @@ export class PrizePicksAdapter {
       });
     }
 
-    const projections: PrizePicksProjection[] = apiResponse.data.map((rawProj: any) => {
-      const playerId: string = rawProj.relationships?.new_player?.data?.id || '';
-      let playerDetail: PrizePicksPlayer;
-      const fallbackPlayer: PrizePicksPlayer = {
-        id: playerId,
-        name: 'Unknown Player',
-        team: 'Unknown Team',
-        position: 'Unknown',
-        image_url: '',
-        league: '',
-        sport: '',
-      };
-      playerDetail = includedPlayersMap.get(playerId) || fallbackPlayer;
+    const projections: PrizePicksProjection[] = apiResponse.data.map(
+      (rawProj: RawPrizePicksProjection) => {
+        const playerId: string = rawProj.relationships?.new_player?.data?.id || '';
+        const fallbackPlayer: PrizePicksPlayer = {
+          id: playerId,
+          name: 'Unknown Player',
+          team: 'Unknown Team',
+          position: 'Unknown',
+          image_url: '',
+          league: '',
+          sport: '',
+        };
+        const playerDetail = includedPlayersMap.get(playerId) || fallbackPlayer;
 
-      return {
-        id: String(rawProj.id),
-        player_id: playerId,
-        player: playerDetail,
-        player_name: playerDetail.name,
-        team: playerDetail.team,
-        position: playerDetail.position,
-        league: playerDetail.league || 'Unknown League',
-        sport: playerDetail.sport || 'Unknown Sport',
-        stat_type: String(rawProj.attributes.stat_type),
-        line_score: Number(rawProj.attributes.line_score),
-        over_odds:
-          typeof rawProj.attributes.over_odds === 'number' ? rawProj.attributes.over_odds : 1.0,
-        under_odds:
-          typeof rawProj.attributes.under_odds === 'number' ? rawProj.attributes.under_odds : 1.0,
-        description: String(rawProj.attributes.description || ''),
-        start_time: String(rawProj.attributes.start_time),
-        status: String(rawProj.attributes.status || 'active'),
-        rank: Number(rawProj.attributes.rank || 0),
-        is_promo: Boolean(rawProj.attributes.is_promo),
-        confidence:
-          typeof rawProj.attributes.confidence === 'number' ? rawProj.attributes.confidence : 0.5,
-        market_efficiency:
-          typeof rawProj.attributes.market_efficiency === 'number'
-            ? rawProj.attributes.market_efficiency
-            : 0.5,
-      };
-    });
+        const attributes = rawProj.attributes as RawPrizePicksProjection['attributes'] & {
+          over_odds?: number;
+          under_odds?: number;
+          confidence?: number;
+          market_efficiency?: number;
+        };
+
+        return {
+          id: String(rawProj.id),
+          player_id: playerId,
+          player: playerDetail,
+          player_name: playerDetail.name,
+          team: playerDetail.team,
+          position: playerDetail.position,
+          league: playerDetail.league || 'Unknown League',
+          sport: playerDetail.sport || 'Unknown Sport',
+          stat_type: String(attributes.stat_type),
+          line_score: Number(attributes.line_score),
+          over_odds: typeof attributes.over_odds === 'number' ? attributes.over_odds : 1.0,
+          under_odds: typeof attributes.under_odds === 'number' ? attributes.under_odds : 1.0,
+          description: String(attributes.description || ''),
+          start_time: String(attributes.start_time),
+          status: String(attributes.status || 'active'),
+          rank: Number(attributes.rank || 0),
+          is_promo: Boolean(attributes.is_promo),
+          confidence: typeof attributes.confidence === 'number' ? attributes.confidence : 0.5,
+          market_efficiency:
+            typeof attributes.market_efficiency === 'number' ? attributes.market_efficiency : 0.5,
+        };
+      }
+    );
 
     return {
       projections: projections,

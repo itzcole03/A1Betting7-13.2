@@ -330,6 +330,7 @@ MIT — see `LICENSE` for details. Commercial usage, forks, and derivative produ
 Need a deeper dive? Open an issue or check the docs listed above — the maintainers keep them current with every release.
 
 #### 🌐 **New API Endpoints**
+
 - `GET /api/odds/providers/status` — shim returns the canonical ResponseBuilder envelope with `limit` echo and helpful guidance while the provider integration migrates.
 - `GET /api/odds/providers/status/{provider_id}` — standardized 404 envelope with machine-readable error code (`E4040_NOT_FOUND`) and provider metadata.
 - `GET /api/versioned/health` — lightweight health probe for legacy clients now emitting the shared success payload.

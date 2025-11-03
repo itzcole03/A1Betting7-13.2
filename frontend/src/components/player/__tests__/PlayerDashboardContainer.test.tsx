@@ -1,6 +1,24 @@
 import '@testing-library/jest-dom';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { setupServer } from 'msw/node';const { PlayerDashboardContainer } = require('../PlayerDashboardContainer');
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { setupServer } from 'msw/node';
+import * as playerDashboardStateModule from '../../../hooks/usePlayerDashboardState';
+import masterServiceRegistry from '../../../services/MasterServiceRegistry';
+import UnifiedErrorService from '../../../services/unified/UnifiedErrorService';
+import UnifiedStateService from '../../../services/unified/UnifiedStateService';
+import type { Player } from '../PlayerDashboardContainer';
+import { PlayerDashboardContainer } from '../PlayerDashboardContainer';
+
+type PlayerDashboardState = ReturnType<typeof playerDashboardStateModule.usePlayerDashboardState>;
+
+const createStateMock = (overrides: Partial<PlayerDashboardState>): PlayerDashboardState => ({
+  player: null,
+  loading: false,
+  error: null,
+  errorId: null,
+  correlationId: null,
+  reload: jest.fn().mockResolvedValue(undefined),
+  ...overrides,
+});
 
 // Mock getEnvVar to prevent ReferenceError in OllamaService
 jest.mock('../../../utils/getEnvVar', () => ({
@@ -14,7 +32,6 @@ const mockPlayer = {
   position: 'RF',
   sport: 'MLB',
   active: true,
-  injury_status: null,
   season_stats: {
     hits: 120,
     home_runs: 35,
@@ -69,7 +86,7 @@ const mockPlayer = {
     vs_lefties: { avg: 0.34 },
     vs_righties: { avg: 0.27 },
   },
-};
+} as unknown as Player;
 
 // Utility to safely get a header value from req.headers (robust to undefined, plain object, or Map)
 function safeGetHeader(req: any, header: string) {
@@ -88,15 +105,18 @@ function safeGetHeader(req: any, header: string) {
   }
 }
 
-const server = setupServer();const _masterServiceRegistry = (function(){ const m = require('../../../services/MasterServiceRegistry'); return (m && m.__esModule && m.default) ? m.default : m; })();const UnifiedErrorService = (function(){ const m = require('../../../services/unified/UnifiedErrorService'); return (m && m.__esModule && m.default) ? m.default : m; })();const UnifiedStateService = (function(){ const m = require('../../../services/unified/UnifiedStateService'); return (m && m.__esModule && m.default) ? m.default : m; })();
+const server = setupServer();
 
 beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
+afterEach(() => {
+  server.resetHandlers();
+  jest.restoreAllMocks();
+});
 afterAll(() => server.close());
 
 beforeEach(() => {
   // Mock getService to return singleton instances for required services
-  jest.spyOn(_masterServiceRegistry, 'getService').mockImplementation((name: string) => {
+  jest.spyOn(masterServiceRegistry, 'getService').mockImplementation((name: string) => {
     if (name === 'state') return UnifiedStateService.getInstance();
     if (name === 'errors') return UnifiedErrorService.getInstance();
     if (name === 'playerData') {
@@ -116,36 +136,31 @@ beforeEach(() => {
 describe('PlayerDashboardContainer', () => {
   it('shows PlayerOverview skeleton loader and accessibility attributes when loading', async () => {
     // Simulate slow API response by mocking usePlayerDashboardState to stay loading for 500ms
-    jest
-      .spyOn(require('../../../hooks/usePlayerDashboardState'), 'usePlayerDashboardState')
-      .mockImplementation(() => ({
-        player: undefined,
+    jest.spyOn(playerDashboardStateModule, 'usePlayerDashboardState').mockImplementation(() =>
+      createStateMock({
         loading: true,
-        error: null,
-        reload: jest.fn(),
-      }));
+      })
+    );
     render(<PlayerDashboardContainer playerId='aaron-judge' />);
     // The main content region should have aria-busy
     const regions = screen.getAllByRole('region', { hidden: true });
     expect(regions[0]).toHaveAttribute('aria-busy', 'true');
     // PlayerOverview skeleton
     expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
-  // Activate 'trends' tab and await any async updates
-  const trendsTab = screen.getByText(/Trends & Analysis/i);
-  fireEvent.click(trendsTab);
-  await waitFor(() => {
-    const perfNodes = screen.queryAllByLabelText('Performance Trends');
-    if (perfNodes.length > 0) expect(perfNodes[0]).toHaveAttribute('aria-busy', 'true');
-  });
-  // Activate 'history' tab and await any async updates
-  const historyTab = screen.getByText(/Prop History/i);
-  fireEvent.click(historyTab);
-  await waitFor(() => {
-    const historyNodes = screen.queryAllByLabelText('Prop History');
-    if (historyNodes.length > 0) expect(historyNodes[0]).toHaveAttribute('aria-busy', 'true');
-  });
-    // Restore mock after test
-    jest.restoreAllMocks();
+    // Activate 'trends' tab and await any async updates
+    const trendsTab = screen.getByText(/Trends & Analysis/i);
+    fireEvent.click(trendsTab);
+    await waitFor(() => {
+      const perfNodes = screen.queryAllByLabelText('Performance Trends');
+      if (perfNodes.length > 0) expect(perfNodes[0]).toHaveAttribute('aria-busy', 'true');
+    });
+    // Activate 'history' tab and await any async updates
+    const historyTab = screen.getByText(/Prop History/i);
+    fireEvent.click(historyTab);
+    await waitFor(() => {
+      const historyNodes = screen.queryAllByLabelText('Prop History');
+      if (historyNodes.length > 0) expect(historyNodes[0]).toHaveAttribute('aria-busy', 'true');
+    });
   });
 
   it('renders player data and dashboard sections after loading', async () => {
@@ -158,15 +173,12 @@ describe('PlayerDashboardContainer', () => {
         vs_lefties: { avg: 0.34 },
         vs_righties: { avg: 0.27 },
       },
-    };
-    jest
-      .spyOn(require('../../../hooks/usePlayerDashboardState'), 'usePlayerDashboardState')
-      .mockImplementation(() => ({
+    } as unknown as Player;
+    jest.spyOn(playerDashboardStateModule, 'usePlayerDashboardState').mockImplementation(() =>
+      createStateMock({
         player: mockPlayerWithTrends,
-        loading: false,
-        error: null,
-        reload: jest.fn(),
-      }));
+      })
+    );
     render(<PlayerDashboardContainer playerId='aaron-judge' />);
     const playerNameNodes = await screen.findAllByText(/Aaron Judge/i);
     expect(playerNameNodes.length).toBeGreaterThan(0);
@@ -180,34 +192,30 @@ describe('PlayerDashboardContainer', () => {
     expect(hitsNodes.length).toBeGreaterThan(0);
     const hitsCountNodes = screen.getAllByText(/120/i);
     expect(hitsCountNodes.length).toBeGreaterThan(0);
-  // Activate 'trends' tab and check for Performance Trends via aria-label
-  const trendsTab = screen.getByText(/Trends & Analysis/i);
-  fireEvent.click(trendsTab);
-  const perfTrendNodes = await screen.findAllByLabelText('Performance Trends');
-  expect(perfTrendNodes.length).toBeGreaterThan(0);
-  // Activate 'history' tab and check for Prop History via aria-label
-  const historyTab = screen.getByText(/Prop History/i);
-  fireEvent.click(historyTab);
-  const propHistoryNodes = await screen.findAllByLabelText('Prop History');
-  expect(propHistoryNodes.length).toBeGreaterThan(0);
-    jest.restoreAllMocks();
+    // Activate 'trends' tab and check for Performance Trends via aria-label
+    const trendsTab = screen.getByText(/Trends & Analysis/i);
+    fireEvent.click(trendsTab);
+    const perfTrendNodes = await screen.findAllByLabelText('Performance Trends');
+    expect(perfTrendNodes.length).toBeGreaterThan(0);
+    // Activate 'history' tab and check for Prop History via aria-label
+    const historyTab = screen.getByText(/Prop History/i);
+    fireEvent.click(historyTab);
+    const propHistoryNodes = await screen.findAllByLabelText('Prop History');
+    expect(propHistoryNodes.length).toBeGreaterThan(0);
   });
 
   it('handles error state', async () => {
-    jest
-      .spyOn(require('../../../hooks/usePlayerDashboardState'), 'usePlayerDashboardState')
-      .mockImplementation(() => ({
+    jest.spyOn(playerDashboardStateModule, 'usePlayerDashboardState').mockImplementation(() =>
+      createStateMock({
         player: null,
-        loading: false,
         error: 'Dashboard Error',
-        reload: jest.fn(),
-      }));
+      })
+    );
     render(<PlayerDashboardContainer playerId='error-player' />);
     // Wait for error heading to appear
     const errorHeadings = await screen.findAllByText(/Dashboard Error/i);
     expect(errorHeadings.length).toBeGreaterThan(0);
     expect(screen.getByText(/retry/i)).toBeInTheDocument();
-    jest.restoreAllMocks();
   });
 
   it('handles empty state', async () => {
@@ -215,17 +223,23 @@ describe('PlayerDashboardContainer', () => {
     // Activate 'trends' tab and check for Performance Trends
     const trendsTab = screen.getByText(/Trends & Analysis/i);
     fireEvent.click(trendsTab);
-    await waitFor(() => {
-      const perfTrendNodes = screen.queryAllByLabelText('Performance Trends');
-      expect(perfTrendNodes.length).toBeGreaterThan(0);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        const perfTrendNodes = screen.queryAllByLabelText('Performance Trends');
+        expect(perfTrendNodes.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 }
+    );
     // Activate 'history' tab and check for Prop History
     const historyTab = screen.getByText(/Prop History/i);
     fireEvent.click(historyTab);
-    await waitFor(() => {
-      const propHistoryNodes = screen.queryAllByLabelText('Prop History');
-      expect(propHistoryNodes.length).toBeGreaterThan(0);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        const propHistoryNodes = screen.queryAllByLabelText('Prop History');
+        expect(propHistoryNodes.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 }
+    );
   });
 
   it('propagates correlation ID header', async () => {
@@ -239,22 +253,18 @@ describe('PlayerDashboardContainer', () => {
   });
 
   it('validates API response schema at boundary', async () => {
-    jest
-      .spyOn(require('../../../hooks/usePlayerDashboardState'), 'usePlayerDashboardState')
-      .mockImplementation(() => ({
+    jest.spyOn(playerDashboardStateModule, 'usePlayerDashboardState').mockImplementation(() =>
+      createStateMock({
         player: mockPlayer,
-        loading: false,
-        error: null,
-        reload: jest.fn(),
-      }));
+      })
+    );
     render(<PlayerDashboardContainer playerId='aaron-judge' />);
-  // Activate overview tab before searching for player name
-  const overviewTab = screen.getByText(/Stats & Performance/i);
-  fireEvent.click(overviewTab);
+    // Activate overview tab before searching for player name
+    const overviewTab = screen.getByText(/Stats & Performance/i);
+    fireEvent.click(overviewTab);
     const playerNameNodes = await screen.findAllByText(/Aaron Judge/i);
     expect(playerNameNodes.length).toBeGreaterThan(0);
     // Add more schema assertions as needed
-    jest.restoreAllMocks();
   });
 });
 

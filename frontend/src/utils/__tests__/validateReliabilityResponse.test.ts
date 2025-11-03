@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 jest.mock('../oneTimeLog', () => ({ oneTimeLog: jest.fn() }));
 
 import { oneTimeLog } from '../oneTimeLog';

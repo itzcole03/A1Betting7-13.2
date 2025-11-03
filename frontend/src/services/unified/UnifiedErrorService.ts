@@ -1,4 +1,5 @@
 import { BaseService } from './BaseService';
+import { UnifiedServiceRegistry } from './UnifiedServiceRegistry';
 
 export enum ErrorSeverity {
   LOW = 'low',
@@ -38,8 +39,7 @@ export class UnifiedErrorService extends BaseService {
   private retryDelays = [1000, 2000, 5000]; // milliseconds
 
   protected constructor() {
-    // @ts-expect-error TS(2554): Expected 2 arguments, but got 1. BaseService expects two arguments, but only one is provided here for singleton pattern compatibility.
-    super('UnifiedErrorService');
+    super('UnifiedErrorService', UnifiedServiceRegistry.getInstance());
   }
 
   static getInstance(): UnifiedErrorService {

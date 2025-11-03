@@ -1,4 +1,5 @@
-const { SocialSentimentAdapter } = require('../../adapters/SocialSentimentAdapter');
+import { beforeEach, describe, expect, it } from '@jest/globals';
+import { SocialSentimentAdapter } from '../SocialSentimentAdapter';
 
 describe('SocialSentimentAdapter (smoke)', () => {
   test('fetch returns an array and caches it', async () => {
@@ -12,7 +13,6 @@ describe('SocialSentimentAdapter (smoke)', () => {
     expect(afterClear).toBeNull();
   });
 });
-import { beforeEach, describe, expect, it } from '@jest/globals';
 describe('SocialSentimentAdapter', () => {
   let _adapter: SocialSentimentAdapter;
 
@@ -28,10 +28,11 @@ describe('SocialSentimentAdapter', () => {
   it('should fetch sentiment data and cache it', async () => {
     const _data = await _adapter.fetch();
     const _cached = await _adapter.getData();
-    expect(Array.isArray(_data as unknown[])).toBe(true);
-    expect((_data as unknown[]).length).toBeGreaterThan(0);
-    expect((_data as Array<Record<string, unknown>>)[0]).toHaveProperty('player');
-    expect((_data as Array<Record<string, unknown>>)[0]).toHaveProperty('sentiment');
+    expect(Array.isArray(_data)).toBe(true);
+    expect(_data.length).toBeGreaterThan(0);
+    const firstEntry = _data[0];
+    expect(firstEntry).toHaveProperty('player');
+    expect(firstEntry).toHaveProperty('sentiment');
     // Should be cached;
     expect(_cached).toBe(_data);
   });

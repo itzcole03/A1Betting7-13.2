@@ -14,16 +14,15 @@ const mockEventBus = {
   off: jest.fn(),
 };
 
-// Ensure the real module is loaded and then override the exported _eventBus
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const eb = require('../../core/EventBus');
-  if (eb && typeof eb === 'object') {
-    eb._eventBus = mockEventBus;
-  }
-} catch (e) {
-  // If require fails, continue — tests will report module-not-found
-}
+// Ensure all imports resolve to the mocked event bus instance
+jest.mock('../core/EventBus', () => {
+  const actual = jest.requireActual<typeof import('../core/EventBus')>('../core/EventBus');
+  return {
+    ...actual,
+    _eventBus: mockEventBus,
+    default: mockEventBus,
+  };
+});
 
 // Mock fetch for network requests
 global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;

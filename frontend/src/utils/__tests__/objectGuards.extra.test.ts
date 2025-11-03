@@ -1,10 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const {
-  safeSpread,
-  safeObjectAssign,
-  safeDestructure,
-  safeObjectEntries,
-} = require('../objectGuards');
+import { safeDestructure, safeObjectAssign, safeObjectEntries, safeSpread } from '../objectGuards';
 
 describe('objectGuards additional behaviors', () => {
   test('safeSpread returns a safe object when passed null/objects', () => {
@@ -23,7 +17,10 @@ describe('objectGuards additional behaviors', () => {
   });
 
   test('safeDestructure falls back to defaults', () => {
-    const out = safeDestructure(null, { foo: 'bar', nested: { n: 1 } });
+    const out = safeDestructure<{ foo: string; nested: { n: number } }>(null, {
+      foo: 'bar',
+      nested: { n: 1 },
+    });
     expect(out.foo).toBe('bar');
     expect(out.nested.n).toBe(1);
   });

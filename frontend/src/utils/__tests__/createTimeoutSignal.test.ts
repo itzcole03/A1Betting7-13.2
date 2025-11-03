@@ -1,8 +1,11 @@
 // Consolidated tests for createTimeoutSignal
-// Use require in tests to allow mocked globals to be set before module load
-// and to avoid duplicate-declaration issues when mixing import/require.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { createTimeoutSignal } = require('../createTimeoutSignal');
+import type { createTimeoutSignal as createTimeoutSignalType } from '../createTimeoutSignal';
+
+let createTimeoutSignal: typeof createTimeoutSignalType;
+
+beforeAll(async () => {
+  ({ createTimeoutSignal } = await import('../createTimeoutSignal'));
+});
 
 describe('createTimeoutSignal', () => {
   const originalTimeout = (AbortSignal as any).timeout;

@@ -108,12 +108,12 @@ afterEach(() => {
 });
 
 test('displays health check status', async () => {
-  const PropOllama = require('../../components/user-friendly/PropOllama').default;
-  const { QueryClient, QueryClientProvider } = require('@tanstack/react-query');
-  const { MemoryRouter } = require('react-router-dom');
-  const { _AppProvider } = require('../../contexts/AppContext');
-  const { _AuthProvider } = require('../../contexts/AuthContext');
-  const { _ThemeProvider } = require('../../contexts/ThemeContext');
+  const { default: PropOllama } = await import('../../components/user-friendly/PropOllama');
+  const { QueryClient, QueryClientProvider } = await import('@tanstack/react-query');
+  const { MemoryRouter } = await import('react-router-dom');
+  const { _AppProvider } = await import('../../contexts/AppContext');
+  const { _AuthProvider } = await import('../../contexts/AuthContext');
+  const { _ThemeProvider } = await import('../../contexts/ThemeContext');
   const CompositeProvider = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={new QueryClient()}>
       <_AuthProvider>
@@ -138,11 +138,12 @@ test('displays health check status', async () => {
 });
 
 test('displays AI response for valid message', async () => {
-  const { propOllamaService } = require('../propOllamaService');
-  propOllamaService.getAvailableModels.mockImplementation(() => {
+  const { propOllamaService } = await import('../propOllamaService');
+  const service = jest.mocked(propOllamaService);
+  service.getAvailableModels.mockImplementation(() => {
     return Promise.resolve(['test-model']);
   });
-  propOllamaService.sendChatMessage.mockImplementation(() => {
+  service.sendChatMessage.mockImplementation(() => {
     return Promise.resolve({
       content: 'AI response',
       confidence: 0.99,
@@ -157,14 +158,15 @@ test('displays AI response for valid message', async () => {
 
 // Add a new test that doesn't rely on rendering components
 test('propOllamaService functions work correctly', async () => {
-  const { propOllamaService } = require('../propOllamaService');
+  const { propOllamaService } = await import('../propOllamaService');
+  const service = jest.mocked(propOllamaService);
 
   // Setup mocks
-  propOllamaService.getAvailableModels.mockImplementation(() => {
+  service.getAvailableModels.mockImplementation(() => {
     return Promise.resolve(['test-model']);
   });
 
-  propOllamaService.sendChatMessage.mockImplementation(() => {
+  service.sendChatMessage.mockImplementation(() => {
     return Promise.resolve({
       content: 'AI response',
       confidence: 0.99,
@@ -176,12 +178,12 @@ test('propOllamaService functions work correctly', async () => {
   });
 
   // Test getAvailableModels
-  const models = await propOllamaService.getAvailableModels();
-  expect(propOllamaService.getAvailableModels).toHaveBeenCalled();
+  const models = await service.getAvailableModels();
+  expect(service.getAvailableModels).toHaveBeenCalled();
   expect(models).toEqual(['test-model']);
 
   // Test sendChatMessage
-  const response = await propOllamaService.sendChatMessage({
+  const response = await service.sendChatMessage({
     message: 'hello',
     model: 'test-model',
     analysisType: 'general',
@@ -189,7 +191,7 @@ test('propOllamaService functions work correctly', async () => {
     requestBestBets: false,
   });
 
-  expect(propOllamaService.sendChatMessage).toHaveBeenCalledWith({
+  expect(service.sendChatMessage).toHaveBeenCalledWith({
     message: 'hello',
     model: 'test-model',
     analysisType: 'general',

@@ -3,8 +3,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { API_BASE_URL } from '../config/apiConfig';
 import { bookmarkService } from '../services/BookmarkService';
 import { httpFetch } from '../services/HttpClient';
+import { UnifiedCache } from '../services/unified/UnifiedCache';
+import { generateCacheKey } from '../utils/cacheKeyGenerator';
 
 const DEFAULT_REFRESH_INTERVAL_MS = 30_000;
+
+const PROP_FINDER_CACHE_NAMESPACE = 'propfinder:data';
+const DEFAULT_PROP_FINDER_CACHE_TTL_MS = 60_000;
+
+interface PropfinderCacheEntry {
+  opportunities: PropOpportunity[];
+  stats: PropFinderStats | null;
+  lastUpdated: string | null;
+  hasMore: boolean;
+  offset: number;
+}
 
 const ARRAY_FILTER_KEYS = new Set(['sports', 'markets', 'venues', 'sharp_money']);
 const BOOLEAN_FILTER_KEYS = new Set([
@@ -577,8 +590,61 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
     opportunitiesRef.current = opportunities;
   }, [opportunities]);
 
+  const unifiedCache = useMemo(() => UnifiedCache.getInstance(), []);
+  const cacheTtlMs = useMemo(() => {
+    if (options?.cacheTTLms && options.cacheTTLms > 0) {
+      return options.cacheTTLms;
+    }
+    return DEFAULT_PROP_FINDER_CACHE_TTL_MS;
+  }, [options?.cacheTTLms]);
+
+  const buildCacheKey = useCallback(
+    (offsetValue: number): string =>
+      generateCacheKey(PROP_FINDER_CACHE_NAMESPACE, {
+        filters: filtersRef.current,
+        search: searchRef.current,
+        limit: effectiveLimit,
+        includeCLV,
+        userId,
+        offset: offsetValue,
+      }),
+    [effectiveLimit, includeCLV, userId]
+  );
+
+  const applyCachedPayload = useCallback(
+    (payload: PropfinderCacheEntry, silent?: boolean) => {
+      setStats(payload.stats);
+      setLastUpdated(payload.lastUpdated);
+      setHasMore(payload.hasMore);
+      setError(null);
+
+      if (payload.offset === 0) {
+        opportunitiesRef.current = payload.opportunities;
+        setOpportunities(payload.opportunities);
+      } else {
+        const current = opportunitiesRef.current;
+        const existingIds = new Set(current.map(opportunity => opportunity.id));
+        const appended = payload.opportunities.filter(
+          opportunity => !existingIds.has(opportunity.id)
+        );
+        if (appended.length > 0) {
+          const next = [...current, ...appended];
+          opportunitiesRef.current = next;
+          setOpportunities(next);
+        }
+      }
+
+      if (!silent) {
+        setLoading(false);
+      }
+
+      isFetchingRef.current = false;
+    },
+    [setStats, setLastUpdated, setHasMore, setError, setOpportunities, setLoading]
+  );
+
   const fetchOpportunities = useCallback(
-    async (opts?: { silent?: boolean }) => {
+    async (opts?: { silent?: boolean; forceRefresh?: boolean }) => {
       isFetchingRef.current = true;
       // Dev-only debug snapshot: if a dev snapshot is present in localStorage,
       // use it to populate opportunities/stats and skip the network fetch. This
@@ -648,6 +714,16 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
         }
       } catch {
         // ignore debug-snapshot errors and proceed to network fetch
+      }
+      const targetOffset = offsetRef.current ?? 0;
+      const cacheKey = buildCacheKey(targetOffset);
+
+      if (!opts?.forceRefresh) {
+        const cachedPayload = unifiedCache.get<PropfinderCacheEntry>(cacheKey);
+        if (cachedPayload) {
+          applyCachedPayload(cachedPayload, opts?.silent);
+          return;
+        }
       }
       const controller = new AbortController();
       if (activeRequestRef.current) {
@@ -779,11 +855,35 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
                     return mappedOpportunity;
                   });
 
-                  setOpportunities(mapped);
+                  if (targetOffset === 0) {
+                    opportunitiesRef.current = mapped;
+                    setOpportunities(mapped);
+                  } else {
+                    const current = opportunitiesRef.current;
+                    const existingIds = new Set(current.map(opportunity => opportunity.id));
+                    const appended = mapped.filter(opportunity => !existingIds.has(opportunity.id));
+                    if (appended.length > 0) {
+                      const next = [...current, ...appended];
+                      opportunitiesRef.current = next;
+                      setOpportunities(next);
+                    }
+                  }
+
+                  const fallbackSummary = {
+                    ...asRecord(data),
+                    ...asRecord(data.summary),
+                  } as Record<string, unknown>;
+
                   const fallbackStats = mapSummaryToStats(
                     asRecord(data.summary ?? { total_opportunities: mapped.length })
                   );
                   setStats(fallbackStats);
+                  const serverTotalFallback =
+                    toNumberValue(fallbackSummary.total_opportunities) ??
+                    toNumberValue(fallbackSummary.total) ??
+                    toNumberValue(fallbackSummary.totalOpportunities) ??
+                    toNumberValue(fallbackSummary.count) ??
+                    undefined;
                   try {
                     if (typeof window !== 'undefined') {
                       const devWin = window as unknown as DevWindow;
@@ -791,9 +891,7 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
                       devWin.__propfinder_last_fetch_status = {
                         ok: true,
                         status: fallbackResp.status,
-                        server_total: toNumberValue(
-                          fallbackStats?.total_opportunities ?? undefined
-                        ),
+                        server_total: serverTotalFallback,
                       };
                       // expose payload
                       devWin.__propfinder_last_response = payload;
@@ -803,8 +901,23 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
                     // ignore
                   }
 
-                  setLastUpdated(new Date().toISOString());
+                  const resolvedHasMoreFallback =
+                    serverTotalFallback !== undefined
+                      ? (opportunitiesRef.current.length ?? 0) < Number(serverTotalFallback)
+                      : mapped.length === effectiveLimit;
+                  setHasMore(resolvedHasMoreFallback);
+
+                  const fallbackLastUpdated = new Date().toISOString();
+                  setLastUpdated(fallbackLastUpdated);
                   setError(null);
+                  const fallbackCachePayload: PropfinderCacheEntry = {
+                    opportunities: mapped,
+                    stats: fallbackStats,
+                    lastUpdated: fallbackLastUpdated,
+                    hasMore: resolvedHasMoreFallback,
+                    offset: targetOffset,
+                  };
+                  unifiedCache.set(cacheKey, fallbackCachePayload, cacheTtlMs);
                   if (!opts?.silent) setLoading(false);
                   if (activeRequestRef.current === controller) activeRequestRef.current = null;
                   isFetchingRef.current = false;
@@ -866,11 +979,18 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
           return mappedOpportunity;
         });
 
-        // If offset is zero, replace; otherwise append
-        if (!offset) {
+        if (targetOffset === 0) {
+          opportunitiesRef.current = mapped;
           setOpportunities(mapped);
         } else {
-          setOpportunities(prev => [...prev, ...mapped]);
+          const current = opportunitiesRef.current;
+          const existingIds = new Set(current.map(opportunity => opportunity.id));
+          const appended = mapped.filter(opportunity => !existingIds.has(opportunity.id));
+          if (appended.length > 0) {
+            const next = [...current, ...appended];
+            opportunitiesRef.current = next;
+            setOpportunities(next);
+          }
         }
 
         if (process.env.NODE_ENV === 'development') {
@@ -881,24 +1001,23 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
             summary,
           });
         }
-        // Update hasMore based on server summary or returned count
         const serverTotal =
           toNumberValue(summary.total_opportunities) ??
           toNumberValue(summary.total) ??
           toNumberValue(summary.totalOpportunities) ??
           toNumberValue(summary.count) ??
           undefined;
-        if (serverTotal !== undefined) {
-          const currentCount =
-            (Number(offsetRef.current) || 0) +
-            (mapped?.length ?? 0) +
-            (opportunitiesRef.current?.length ?? 0);
-          setHasMore(currentCount < Number(serverTotal));
-        } else {
-          // fall back to length check
-          setHasMore(mapped.length === effectiveLimit);
-        }
-        setStats(mapSummaryToStats(summary));
+
+        const totalCountAfterUpdate =
+          targetOffset === 0 ? mapped.length : opportunitiesRef.current.length;
+        const resolvedHasMore =
+          serverTotal !== undefined
+            ? totalCountAfterUpdate < Number(serverTotal)
+            : mapped.length === effectiveLimit;
+        setHasMore(resolvedHasMore);
+
+        const statsFromSummary = mapSummaryToStats(summary);
+        setStats(statsFromSummary);
         try {
           if (typeof window !== 'undefined') {
             const devWin = window as unknown as DevWindow;
@@ -913,7 +1032,17 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
         } catch {
           // ignore
         }
-        setLastUpdated(new Date().toISOString());
+        const lastUpdatedValue = new Date().toISOString();
+        setLastUpdated(lastUpdatedValue);
+
+        const cachePayload: PropfinderCacheEntry = {
+          opportunities: mapped,
+          stats: statsFromSummary,
+          lastUpdated: lastUpdatedValue,
+          hasMore: resolvedHasMore,
+          offset: targetOffset,
+        };
+        unifiedCache.set(cacheKey, cachePayload, cacheTtlMs);
 
         // Diagnostic: expose last fetched payload on window for dev/debug tooling
         try {
@@ -950,12 +1079,21 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
         if (!opts?.silent) {
           setLoading(false);
         }
+        isFetchingRef.current = false;
         if (activeRequestRef.current === controller) {
           activeRequestRef.current = null;
         }
       }
     },
-    [effectiveLimit, includeCLV, userId]
+    [
+      applyCachedPayload,
+      buildCacheKey,
+      cacheTtlMs,
+      effectiveLimit,
+      includeCLV,
+      unifiedCache,
+      userId,
+    ]
   );
 
   // loadMore increments offset and fetches next page
@@ -1007,7 +1145,7 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
     if (!isAutoRefreshEnabled) return undefined;
 
     const timer = setInterval(() => {
-      fetchOpportunities({ silent: true }).catch(() => {
+      fetchOpportunities({ silent: true, forceRefresh: true }).catch(() => {
         // Swallow refresh errors; dedicated error state handles fatal failures.
       });
     }, refreshIntervalMs);
@@ -1033,7 +1171,7 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
     setIsAutoRefreshEnabled(prev => {
       const next = !prev;
       if (next) {
-        fetchOpportunities({ silent: true }).catch(() => {
+        fetchOpportunities({ silent: true, forceRefresh: true }).catch(() => {
           // Silently ignore refresh failure when toggling on.
         });
       }
@@ -1042,7 +1180,7 @@ function usePropFinderDataInternal(options?: UsePropfinderOptions): PropfinderRe
   }, [fetchOpportunities]);
 
   const refreshData = useCallback(async () => {
-    await fetchOpportunities();
+    await fetchOpportunities({ forceRefresh: true });
   }, [fetchOpportunities]);
 
   const bookmarkOpportunity = useCallback(

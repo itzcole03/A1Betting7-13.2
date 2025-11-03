@@ -5,11 +5,7 @@ import ApiHealthIndicator from '../ApiHealthIndicator';
 import EnhancedNavigation from '../navigation/EnhancedNavigation';
 import WebSocketStatusIndicator from '../WebSocketStatusIndicator';
 
-const PropFinderDashboard =
-  process.env.NODE_ENV === 'test'
-    ? // eslint-disable-next-line @typescript-eslint/no-var-requires
-      require('../dashboard/PropFinderDashboard').default
-    : React.lazy(() => import('../dashboard/PropFinderDashboard'));
+const PropFinderDashboard = React.lazy(() => import('../dashboard/PropFinderDashboard'));
 const PositiveEVFeed = React.lazy(() => import('../PositiveEVFeed'));
 const ArbitrageOpportunities = React.lazy(
   () => import('../features/betting/ArbitrageOpportunities')

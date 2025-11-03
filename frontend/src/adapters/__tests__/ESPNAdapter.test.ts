@@ -1,4 +1,4 @@
-const { ESPNAdapter } = require('../../adapters/ESPNAdapter');
+import { ESPNAdapter } from '../ESPNAdapter';
 
 describe('ESPNAdapter (smoke)', () => {
   test('metadata and simple methods', async () => {

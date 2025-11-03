@@ -1,9 +1,11 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { setupServer } from 'msw/node';
-const {
-  PlayerDashboardContainer,
-} = require('../../components/player/__tests__/../PlayerDashboardContainer');
+import PlayerDashboardContainer from '../../components/player/PlayerDashboardContainer';
+import * as playerDashboardStateModule from '../../hooks/usePlayerDashboardState';
+import masterServiceRegistry from '../../services/MasterServiceRegistry';
+import UnifiedErrorService from '../../services/unified/UnifiedErrorService';
+import UnifiedStateService from '../../services/unified/UnifiedStateService';
 
 // Mock getEnvVar to prevent ReferenceError in OllamaService
 jest.mock('../../utils/getEnvVar', () => ({
@@ -17,7 +19,7 @@ const mockPlayer = {
   position: 'RF',
   sport: 'MLB',
   active: true,
-  injury_status: null,
+  injury_status: undefined,
   season_stats: {
     hits: 120,
     home_runs: 35,
@@ -90,25 +92,14 @@ function safeGetHeader(req: any, header: string) {
 }
 
 const server = setupServer();
-const _masterServiceRegistry = (function () {
-  const m = require('../../services/MasterServiceRegistry');
-  return m && m.__esModule && m.default ? m.default : m;
-})();
-const UnifiedErrorService = (function () {
-  const m = require('../../services/unified/UnifiedErrorService');
-  return m && m.__esModule && m.default ? m.default : m;
-})();
-const UnifiedStateService = (function () {
-  const m = require('../../services/unified/UnifiedStateService');
-  return m && m.__esModule && m.default ? m.default : m;
-})();
+const masterRegistry = masterServiceRegistry;
 
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 beforeEach(() => {
-  jest.spyOn(_masterServiceRegistry, 'getService').mockImplementation((name: string) => {
+  jest.spyOn(masterRegistry, 'getService').mockImplementation((name: string) => {
     if (name === 'state') return UnifiedStateService.getInstance();
     if (name === 'errors') return UnifiedErrorService.getInstance();
     if (name === 'playerData') {
@@ -127,14 +118,14 @@ beforeEach(() => {
 
 describe('PlayerDashboardContainer', () => {
   it('shows PlayerOverview skeleton loader and accessibility attributes when loading', async () => {
-    jest
-      .spyOn(require('../../hooks/usePlayerDashboardState'), 'usePlayerDashboardState')
-      .mockImplementation(() => ({
-        player: undefined,
-        loading: true,
-        error: null,
-        reload: jest.fn(),
-      }));
+    jest.spyOn(playerDashboardStateModule, 'usePlayerDashboardState').mockReturnValue({
+      player: null,
+      loading: true,
+      error: null,
+      errorId: null,
+      correlationId: null,
+      reload: jest.fn().mockResolvedValue(undefined),
+    });
     render(<PlayerDashboardContainer playerId='aaron-judge' />);
     const regions = screen.getAllByRole('region', { hidden: true });
     expect(regions[0]).toHaveAttribute('aria-busy', 'true');
@@ -165,14 +156,14 @@ describe('PlayerDashboardContainer', () => {
         vs_righties: { avg: 0.27 },
       },
     };
-    jest
-      .spyOn(require('../../hooks/usePlayerDashboardState'), 'usePlayerDashboardState')
-      .mockImplementation(() => ({
-        player: mockPlayerWithTrends,
-        loading: false,
-        error: null,
-        reload: jest.fn(),
-      }));
+    jest.spyOn(playerDashboardStateModule, 'usePlayerDashboardState').mockReturnValue({
+      player: mockPlayerWithTrends,
+      loading: false,
+      error: null,
+      errorId: null,
+      correlationId: null,
+      reload: jest.fn().mockResolvedValue(undefined),
+    });
     render(<PlayerDashboardContainer playerId='aaron-judge' />);
     const playerNameNodes = await screen.findAllByText(/Aaron Judge/i);
     expect(playerNameNodes.length).toBeGreaterThan(0);
@@ -198,14 +189,14 @@ describe('PlayerDashboardContainer', () => {
   });
 
   it('handles error state', async () => {
-    jest
-      .spyOn(require('../../hooks/usePlayerDashboardState'), 'usePlayerDashboardState')
-      .mockImplementation(() => ({
-        player: null,
-        loading: false,
-        error: 'Dashboard Error',
-        reload: jest.fn(),
-      }));
+    jest.spyOn(playerDashboardStateModule, 'usePlayerDashboardState').mockReturnValue({
+      player: null,
+      loading: false,
+      error: 'Dashboard Error',
+      errorId: 'error-id',
+      correlationId: 'corr-id',
+      reload: jest.fn().mockResolvedValue(undefined),
+    });
     render(<PlayerDashboardContainer playerId='error-player' />);
     const errorHeadings = await screen.findAllByText(/Dashboard Error/i);
     expect(errorHeadings.length).toBeGreaterThan(0);
@@ -246,14 +237,14 @@ describe('PlayerDashboardContainer', () => {
   });
 
   it('validates API response schema at boundary', async () => {
-    jest
-      .spyOn(require('../../hooks/usePlayerDashboardState'), 'usePlayerDashboardState')
-      .mockImplementation(() => ({
-        player: mockPlayer,
-        loading: false,
-        error: null,
-        reload: jest.fn(),
-      }));
+    jest.spyOn(playerDashboardStateModule, 'usePlayerDashboardState').mockReturnValue({
+      player: mockPlayer,
+      loading: false,
+      error: null,
+      errorId: null,
+      correlationId: null,
+      reload: jest.fn().mockResolvedValue(undefined),
+    });
     render(<PlayerDashboardContainer playerId='aaron-judge' />);
     const overviewTab = screen.getByText(/Stats & Performance/i);
     fireEvent.click(overviewTab);

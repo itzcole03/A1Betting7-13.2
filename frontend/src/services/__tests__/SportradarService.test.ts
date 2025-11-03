@@ -5,7 +5,8 @@ jest.mock('../../utils/robustApi', () => ({
 }));
 
 const robustApi = jest.requireMock('../../utils/robustApi').default;
-const { createSportRadarService } = require('../sportRadarService');
+
+const { createSportRadarService } = jest.requireActual('../sportRadarService');
 
 describe('SportRadarService (mock mode)', () => {
   it('returns mock health status and does not call robustApiClient.get when in cloud demo mode', async () => {
@@ -15,6 +16,6 @@ describe('SportRadarService (mock mode)', () => {
 
     expect(health).toBeDefined();
     expect(health.service).toBe('comprehensive_sportradar');
-    expect((robustApi as any).get).not.toHaveBeenCalled();
+    expect(robustApi.get).not.toHaveBeenCalled();
   });
 });

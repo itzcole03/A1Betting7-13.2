@@ -1,8 +1,7 @@
+import { formatDateTime, formatRelativeTime } from '../timeUtils';
+
 describe('timeUtils formatting', () => {
   test('formatRelativeTime for just now and minutes ago', () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { formatRelativeTime, formatDateTime } = require('../timeUtils');
-
     const justNow = Date.now();
     expect(formatRelativeTime(justNow)).toMatch(/(just now|seconds ago|minutes ago)/);
 

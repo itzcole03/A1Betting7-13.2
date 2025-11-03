@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 // Focused tests for ensureHealthShape (validated path + fallback)
 jest.mock('../validateHealthResponse', () => ({ validateHealthResponse: jest.fn() }));
 jest.mock('../oneTimeLog', () => ({ oneTimeLog: jest.fn() }));

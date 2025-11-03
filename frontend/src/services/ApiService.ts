@@ -5,6 +5,8 @@
 
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import EventEmitter from 'eventemitter3';
+import { generateCacheKey } from '../utils/cacheKeyGenerator';
+import { UnifiedCache } from './unified/UnifiedCache';
 import { withRequestCorrelation } from './withRequestCorrelation';
 
 /**
@@ -127,8 +129,10 @@ export abstract class BaseApiService<T = any> extends EventEmitter<ApiServiceEve
 }
 
 // Concrete implementation
+const API_SERVICE_CACHE_PREFIX = 'api-service';
+
 export class ApiService<T = any> extends BaseApiService<T> {
-  private cache = new Map<string, { data: T; timestamp: number }>();
+  private readonly unifiedCache = UnifiedCache.getInstance();
 
   get = withRequestCorrelation(
     async <U = T>(
@@ -180,28 +184,29 @@ export class ApiService<T = any> extends BaseApiService<T> {
    * Cached GET method with runtime type guard
    * @template U - Type of response data
    */
-  async getCached(
+  async getCached<U = T>(
     endpoint: string,
     params?: Record<string, string | number | boolean | null>,
     cacheTime = 5 * 60 * 1000
-  ): Promise<T> {
-    const cacheKey = `${endpoint}_${JSON.stringify(params || {})}`;
-    const cached = this.cache.get(cacheKey);
-
-    if (cached && Date.now() - cached.timestamp < cacheTime) {
-      if (cached.data !== null && typeof cached.data !== 'undefined') {
-        return cached.data;
-      }
+  ): Promise<U> {
+    if (!Number.isFinite(cacheTime) || cacheTime <= 0) {
+      return this.get<U>(endpoint, params);
     }
 
-    const data = await this.get(endpoint, params);
-    this.cache.set(cacheKey, { data, timestamp: Date.now() });
-    return data;
+    const cacheKey = generateCacheKey(`${API_SERVICE_CACHE_PREFIX}:get`, {
+      endpoint,
+      params: params ?? {},
+    });
+
+    return this.unifiedCache.getOrSet<U>(cacheKey, () => this.get<U>(endpoint, params), {
+      ttl: cacheTime,
+      tags: [API_SERVICE_CACHE_PREFIX],
+    });
   }
 
   // Clear cache
   clearCache(): void {
-    this.cache.clear();
+    this.unifiedCache.deleteByPrefix(`${API_SERVICE_CACHE_PREFIX}:`);
   }
 }
 

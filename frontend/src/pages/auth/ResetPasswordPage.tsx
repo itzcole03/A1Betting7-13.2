@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { getEnvVar } from '../../utils/getEnvVar';
 
 const ResetPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -30,8 +31,7 @@ const ResetPasswordPage: React.FC = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        require('@/utils/getEnvVar').getEnvVar('VITE_API_URL', 'http://localhost:8000') +
-          '/api/auth/reset-password',
+        `${getEnvVar('VITE_API_URL', 'http://localhost:8000')}/api/auth/reset-password`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

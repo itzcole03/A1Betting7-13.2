@@ -426,7 +426,7 @@ export const useAnalytics = () =>
 
 // Enable Redux DevTools for development
 if (process.env.NODE_ENV === 'development') {
-  // @ts-ignore
+  // @ts-expect-error Expose Zustand stores for manual devtools inspection in development only
   window.__ZUSTAND_STORES__ = {
     betting: useBettingStore,
     ui: useUIStore,

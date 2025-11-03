@@ -1,15 +1,14 @@
+import {
+  hasArrayItems,
+  safeArrayFirst,
+  safeArrayGet,
+  safeArrayLast,
+  safeArrayLength,
+  wrapSafeArray,
+} from '../safeArrayAccess';
+
 describe('safeArrayAccess utilities', () => {
   test('safeArrayGet/first/last/length behave correctly', () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const {
-      safeArrayGet,
-      safeArrayFirst,
-      safeArrayLast,
-      safeArrayLength,
-      hasArrayItems,
-      wrapSafeArray,
-    } = require('../safeArrayAccess');
-
     const arr = [1, 2, 3];
     expect(safeArrayGet(arr, 1)).toBe(2);
     expect(safeArrayGet(arr, 10)).toBeUndefined();

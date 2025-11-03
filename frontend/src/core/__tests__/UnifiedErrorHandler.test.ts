@@ -43,15 +43,21 @@ jest.mock('../UnifiedLogger', () => {
   };
 });
 
-const unifiedErrorHandlerModule = require('../UnifiedErrorHandler') as {
-  UnifiedErrorHandler: typeof import('../UnifiedErrorHandler').UnifiedErrorHandler;
-  default: import('../UnifiedErrorHandler').UnifiedErrorHandler;
-};
+let UnifiedErrorHandler: typeof import('../UnifiedErrorHandler').UnifiedErrorHandler;
+let unifiedErrorHandler: import('../UnifiedErrorHandler').UnifiedErrorHandler;
 
-const { UnifiedErrorHandler, default: unifiedErrorHandler } = unifiedErrorHandlerModule;
+beforeAll(async () => {
+  const module = await import('../UnifiedErrorHandler');
+  UnifiedErrorHandler = module.UnifiedErrorHandler;
+  unifiedErrorHandler = module.default;
+});
 
 describe('UnifiedErrorHandler', () => {
-  const handler = UnifiedErrorHandler.getInstance();
+  let handler: ReturnType<typeof UnifiedErrorHandler.getInstance>;
+
+  beforeAll(() => {
+    handler = UnifiedErrorHandler.getInstance();
+  });
 
   beforeEach(() => {
     mockReportError.mockReset();

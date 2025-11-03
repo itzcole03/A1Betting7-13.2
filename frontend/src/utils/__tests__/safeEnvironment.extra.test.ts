@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const { safeEnvironment } = require('../safeEnvironment');
+import { safeEnvironment } from '../safeEnvironment';
 
 describe('safeEnvironment extra behaviors', () => {
   const oldEnv = { ...process.env };

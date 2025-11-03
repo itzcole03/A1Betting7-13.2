@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const {
+import {
+  extractParamsFromUrl,
   generateCacheKey,
   generateETagCacheKey,
-  extractParamsFromUrl,
   normalizeUrl,
-} = require('../cacheKeyGenerator');
+} from '../cacheKeyGenerator';
 
 describe('cacheKeyGenerator extra behaviors', () => {
   test('generateCacheKey is stable across param order', () => {

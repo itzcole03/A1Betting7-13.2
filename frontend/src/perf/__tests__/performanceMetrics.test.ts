@@ -1,15 +1,14 @@
-import { 
-  getNavigationTiming, 
-  initWebVitals, 
+import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
+import {
   __resetPerformanceGuardsForTests,
-  NavigationTimingMetrics,
-  WebVitalMetricRecord 
+  getNavigationTiming,
+  initWebVitals,
 } from '../performanceMetrics';
 
 // Mock web-vitals module
 jest.mock('web-vitals', () => ({
   onCLS: jest.fn(),
-  onINP: jest.fn(), 
+  onINP: jest.fn(),
   onLCP: jest.fn(),
   onFCP: jest.fn(),
   onTTFB: jest.fn(),
@@ -47,7 +46,7 @@ describe('Performance Metrics', () => {
         startTime: 0,
         duration: 1234.5,
         domContentLoadedEventEnd: 800,
-        type: 'navigate'
+        type: 'navigate',
       } as PerformanceNavigationTiming;
 
       mockPerformance.getEntriesByType.mockReturnValue([mockNavEntry]);
@@ -62,7 +61,7 @@ describe('Performance Metrics', () => {
         totalLoadTime: 1234.5,
         type: 'navigate',
         timestamp: expect.any(Number),
-        source: 'navigation-timing'
+        source: 'navigation-timing',
       });
       expect(result!.totalLoadTime).toBeGreaterThan(0);
     });
@@ -72,7 +71,7 @@ describe('Performance Metrics', () => {
         startTime: 0,
         duration: -1000, // This should never happen, but let's test robustness
         domContentLoadedEventEnd: 500,
-        type: 'navigate'
+        type: 'navigate',
       } as PerformanceNavigationTiming;
 
       mockPerformance.getEntriesByType.mockReturnValue([mockNavEntry]);
@@ -109,13 +108,13 @@ describe('Performance Metrics', () => {
         totalLoadTime: 1500,
         type: 'navigate',
         timestamp: expect.any(Number),
-        source: 'legacy-timing'
+        source: 'legacy-timing',
       });
     });
 
     it('should return null when no timing APIs available', () => {
       mockPerformance.getEntriesByType.mockReturnValue([]);
-      
+
       const result = getNavigationTiming();
 
       expect(result).toBeNull();
@@ -133,28 +132,27 @@ describe('Performance Metrics', () => {
   });
 
   describe('initWebVitals', () => {
-    const { onCLS, onINP, onLCP, onFCP, onTTFB } = require('web-vitals');
     let mockOnMetric: jest.Mock;
 
     beforeEach(() => {
       mockOnMetric = jest.fn();
-      onCLS.mockClear();
-      onINP.mockClear();
-      onLCP.mockClear();
-      onFCP.mockClear();
-      onTTFB.mockClear();
+      jest.mocked(onCLS).mockClear();
+      jest.mocked(onINP).mockClear();
+      jest.mocked(onLCP).mockClear();
+      jest.mocked(onFCP).mockClear();
+      jest.mocked(onTTFB).mockClear();
     });
 
     it('should initialize web vitals only once by default', () => {
       const result1 = initWebVitals({ onMetric: mockOnMetric });
       const result2 = initWebVitals({ onMetric: mockOnMetric });
 
-      expect(result1).toBe(true);  // First initialization
+      expect(result1).toBe(true); // First initialization
       expect(result2).toBe(false); // Second call should be ignored
 
       // Should only register listeners once
-      expect(onLCP).toHaveBeenCalledTimes(1);
-      expect(onCLS).toHaveBeenCalledTimes(1);
+      expect(jest.mocked(onLCP)).toHaveBeenCalledTimes(1);
+      expect(jest.mocked(onCLS)).toHaveBeenCalledTimes(1);
     });
 
     it('should allow re-initialization when force=true', () => {
@@ -162,17 +160,33 @@ describe('Performance Metrics', () => {
       const result = initWebVitals({ onMetric: mockOnMetric, force: true });
 
       expect(result).toBe(true);
-      expect(onLCP).toHaveBeenCalledTimes(2);
+      expect(jest.mocked(onLCP)).toHaveBeenCalledTimes(2);
     });
 
     it('should prevent duplicate LCP emissions', () => {
       initWebVitals({ onMetric: mockOnMetric });
 
       // Simulate LCP callbacks
-      const lcpCallback = onLCP.mock.calls[0][0];
-      
-      lcpCallback({ name: 'LCP', value: 1000, rating: 'good' });
-      lcpCallback({ name: 'LCP', value: 1200, rating: 'needs-improvement' });
+      const lcpCallback = jest.mocked(onLCP).mock.calls[0][0];
+
+      lcpCallback({
+        name: 'LCP',
+        value: 1000,
+        rating: 'good',
+        delta: 0,
+        id: 'lcp-1',
+        navigationType: 'navigate',
+        entries: [],
+      } as any);
+      lcpCallback({
+        name: 'LCP',
+        value: 1200,
+        rating: 'needs-improvement',
+        delta: 0,
+        id: 'lcp-2',
+        navigationType: 'navigate',
+        entries: [],
+      } as any);
 
       // Should only call onMetric once for LCP
       const lcpCalls = mockOnMetric.mock.calls.filter(call => call[0].name === 'LCP');
@@ -183,8 +197,16 @@ describe('Performance Metrics', () => {
     it('should clamp negative metric values to 0', () => {
       initWebVitals({ onMetric: mockOnMetric });
 
-      const clsCallback = onCLS.mock.calls[0][0];
-      clsCallback({ name: 'CLS', value: -0.5 }); // Negative CLS shouldn't happen but test robustness
+      const clsCallback = jest.mocked(onCLS).mock.calls[0][0];
+      clsCallback({
+        name: 'CLS',
+        value: -0.5,
+        rating: 'poor',
+        delta: -0.5,
+        id: 'cls-1',
+        navigationType: 'navigate',
+        entries: [],
+      } as any); // Negative CLS shouldn't happen but test robustness
 
       expect(mockOnMetric).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -199,14 +221,14 @@ describe('Performance Metrics', () => {
         startTime: 0,
         duration: 1500,
         domContentLoadedEventEnd: 1000,
-        type: 'navigate'
+        type: 'navigate',
       } as PerformanceNavigationTiming;
 
       mockPerformance.getEntriesByType.mockReturnValue([mockNavEntry]);
 
-      initWebVitals({ 
-        onMetric: mockOnMetric, 
-        includeNavigationMetrics: true 
+      initWebVitals({
+        onMetric: mockOnMetric,
+        includeNavigationMetrics: true,
       });
 
       // Should emit navigation metrics
@@ -233,7 +255,7 @@ describe('Performance Metrics', () => {
 
     it('should add navigation type to web vital records', () => {
       const mockNavEntry = {
-        type: 'reload'
+        type: 'reload',
       } as PerformanceNavigationTiming;
 
       mockPerformance.getEntriesByType.mockReturnValue([mockNavEntry]);
@@ -241,8 +263,16 @@ describe('Performance Metrics', () => {
       initWebVitals({ onMetric: mockOnMetric });
 
       // Trigger a metric callback
-      const fcpCallback = onFCP.mock.calls[0][0];
-      fcpCallback({ name: 'FCP', value: 800 });
+      const fcpCallback = jest.mocked(onFCP).mock.calls[0][0];
+      fcpCallback({
+        name: 'FCP',
+        value: 800,
+        rating: 'good',
+        delta: 0,
+        id: 'fcp-1',
+        navigationType: 'reload',
+        entries: [],
+      } as any);
 
       expect(mockOnMetric).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -259,7 +289,7 @@ describe('Performance Metrics', () => {
         startTime: 0,
         duration: undefined,
         domContentLoadedEventEnd: 500,
-        type: 'navigate'
+        type: 'navigate',
       } as any;
 
       mockPerformance.getEntriesByType.mockReturnValue([mockNavEntry]);
@@ -274,7 +304,7 @@ describe('Performance Metrics', () => {
         startTime: 0,
         duration: Infinity,
         domContentLoadedEventEnd: 500,
-        type: 'navigate'
+        type: 'navigate',
       } as PerformanceNavigationTiming;
 
       mockPerformance.getEntriesByType.mockReturnValue([mockNavEntry]);
@@ -289,7 +319,7 @@ describe('Performance Metrics', () => {
         startTime: 0,
         duration: NaN,
         domContentLoadedEventEnd: 500,
-        type: 'navigate'
+        type: 'navigate',
       } as PerformanceNavigationTiming;
 
       mockPerformance.getEntriesByType.mockReturnValue([mockNavEntry]);
