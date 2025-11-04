@@ -21,6 +21,94 @@ export interface PredictionResult {
   raw?: unknown;
 }
 
+export interface QuantumPredictionParams extends PredictionRequest {
+  optimizationLevel?: 'baseline' | 'annealed' | 'variational';
+  decoherenceMitigation?: boolean;
+  samplingShots?: number;
+}
+
+export interface RealTimePredictionRequest {
+  sport?: string;
+  limit?: number;
+  userId?: string;
+}
+
+export interface RealTimePrediction {
+  prop_id: string;
+  player_name: string;
+  stat_type: string;
+  line: number;
+  sport: string;
+  league: string;
+  game_time: string;
+  predicted_value: number;
+  prediction_probability: number;
+  confidence_level: 'very_low' | 'low' | 'medium' | 'high' | 'very_high';
+  confidence_score: number;
+  primary_model: string;
+  ensemble_models: string[];
+  model_agreement: number;
+  shap_explanation: Record<string, unknown>;
+  key_factors: string[];
+  reasoning: string;
+  expected_value: number;
+  risk_score: number;
+  recommendation: 'STRONG_BUY' | 'BUY' | 'HOLD' | 'WEAK_SELL' | 'STRONG_SELL';
+  prediction_time: string;
+  data_freshness: number;
+  api_latency: number;
+}
+
+export interface RealTimeSystemHealth {
+  status: string;
+  models_loaded: number;
+  active_predictions: number;
+  api_latency_avg: number;
+  data_freshness_avg: number;
+  error_rate: number;
+  last_update: string;
+}
+
+export interface RealTimeModelInfo {
+  model_id: string;
+  model_name: string;
+  loaded_at: string;
+  feature_count: number;
+  status: string;
+}
+
+export interface RealTimePredictionStats {
+  total_predictions: number;
+  total_api_calls: number;
+  total_errors: number;
+  uptime_seconds: number;
+  models_loaded: number;
+  cache_size: number;
+  error_rate: number;
+  predictions_per_call: number;
+  timestamp: string;
+}
+
+export interface RealTimeModelSnapshot {
+  models_loaded: number;
+  models: RealTimeModelInfo[];
+  timestamp: string;
+}
+
+export interface RealTimeSubscriptionOptions {
+  request?: RealTimePredictionRequest;
+  intervalMs?: number;
+  emitErrors?: boolean;
+  transform?: (predictions: RealTimePrediction[]) => RealTimePrediction[];
+}
+
+export interface PredictionOptimizationOptions {
+  minConfidence?: number;
+  maxConfidence?: number;
+  smoothingWindow?: number;
+  strategy?: 'auto' | 'remote' | 'heuristic';
+}
+
 type PredictionPayload = PredictionRequest & {
   timestamp: string;
   sportsData?: unknown;
@@ -31,6 +119,10 @@ export class UnifiedPredictionService extends BaseService {
   private static instance: UnifiedPredictionService;
   private readonly dataService: UnifiedDataService;
   private readonly defaultPredictionTtlMs = 10 * 60 * 1000;
+  private readonly realTimeEndpoints = [
+    '/api/predictions/prizepicks/enhanced',
+    '/api/predictions/prizepicks/live',
+  ];
 
   protected constructor() {
     super('UnifiedPredictionService', UnifiedServiceRegistry.getInstance());
@@ -81,6 +173,33 @@ export class UnifiedPredictionService extends BaseService {
       },
       this.defaultPredictionTtlMs
     );
+  }
+
+  async getQuantumPrediction(params: QuantumPredictionParams): Promise<PredictionResult> {
+    const quantumMetadata = {
+      mode: params.optimizationLevel ?? 'variational',
+      decoherenceMitigation: params.decoherenceMitigation ?? true,
+      samplingShots: params.samplingShots ?? 256,
+      requestedAt: new Date().toISOString(),
+    };
+
+    const enrichedRequest: PredictionRequest = {
+      ...params,
+      modelType: params.modelType ?? 'quantum-inspired',
+      metadata: {
+        ...params.metadata,
+        quantum: quantumMetadata,
+      },
+    };
+
+    this.logger.info('Quantum prediction requested', {
+      sport: enrichedRequest.sport,
+      market: enrichedRequest.market,
+      modelType: enrichedRequest.modelType,
+      mode: quantumMetadata.mode,
+    });
+
+    return this.makePrediction(enrichedRequest);
   }
 
   async batchPredict(requests: PredictionRequest[]): Promise<PredictionResult[]> {
@@ -194,6 +313,339 @@ export class UnifiedPredictionService extends BaseService {
     keys.filter(key => key.startsWith(prefix)).forEach(key => this.cache.delete(key));
 
     this.logger.info('Prediction cache cleared', { sport: sport ?? 'all' });
+  }
+
+  async getRealTimePredictions(
+    request: RealTimePredictionRequest = {}
+  ): Promise<RealTimePrediction[]> {
+    const params: Record<string, string> = {};
+    if (request.sport) {
+      params.sport = request.sport;
+    }
+    if (typeof request.limit === 'number') {
+      params.limit = String(request.limit);
+    }
+
+    const headers = request.userId ? { user_id: request.userId } : undefined;
+    let lastError: unknown;
+
+    for (const endpoint of this.realTimeEndpoints) {
+      try {
+        const data = await this.fetchRealTimeEndpoint<unknown>(endpoint, {
+          params,
+          headers,
+        });
+        const predictions = Array.isArray(data)
+          ? data
+          : this.extractArray(this.asRecord(data) ?? {}, ['predictions']) ?? [];
+
+        const sanitized = predictions.filter(
+          (item): item is RealTimePrediction => item !== null && typeof item === 'object'
+        );
+
+        this.logger.info('Real-time predictions fetched', {
+          endpoint,
+          count: sanitized.length,
+          sport: request.sport ?? 'all',
+        });
+
+        return sanitized;
+      } catch (error) {
+        lastError = error;
+        this.logger.warn('Real-time prediction endpoint failed, trying fallback', {
+          endpoint,
+          error: this.toErrorMessage(error),
+        });
+      }
+    }
+
+    this.handleError(lastError, {
+      code: 'REALTIME_PREDICTIONS_FAILED',
+      source: 'UnifiedPredictionService.getRealTimePredictions',
+      details: { sport: request.sport, limit: request.limit },
+    });
+
+    throw lastError instanceof Error
+      ? lastError
+      : new Error('Unable to fetch real-time predictions');
+  }
+
+  async getRealTimeSystemHealth(): Promise<RealTimeSystemHealth> {
+    try {
+      return await this.fetchRealTimeEndpoint<RealTimeSystemHealth>(
+        '/api/predictions/prizepicks/health'
+      );
+    } catch (error) {
+      this.handleError(error, {
+        code: 'REALTIME_HEALTH_FAILED',
+        source: 'UnifiedPredictionService.getRealTimeSystemHealth',
+      });
+      throw error;
+    }
+  }
+
+  async getRealTimePredictionExplanation(propId: string): Promise<Record<string, unknown>> {
+    try {
+      const data = await this.fetchRealTimeEndpoint<Record<string, unknown>>(
+        `/api/predictions/prizepicks/explain/${propId}`
+      );
+      return this.asRecord(data) ?? {};
+    } catch (error) {
+      this.handleError(error, {
+        code: 'REALTIME_EXPLANATION_FAILED',
+        source: 'UnifiedPredictionService.getRealTimePredictionExplanation',
+        details: { propId },
+      });
+      throw error;
+    }
+  }
+
+  async getRealTimeLoadedModels(): Promise<RealTimeModelSnapshot> {
+    try {
+      return await this.fetchRealTimeEndpoint<RealTimeModelSnapshot>(
+        '/api/predictions/prizepicks/models'
+      );
+    } catch (error) {
+      this.handleError(error, {
+        code: 'REALTIME_MODELS_FAILED',
+        source: 'UnifiedPredictionService.getRealTimeLoadedModels',
+      });
+      throw error;
+    }
+  }
+
+  async getRealTimePredictionStats(): Promise<RealTimePredictionStats> {
+    try {
+      return await this.fetchRealTimeEndpoint<RealTimePredictionStats>(
+        '/api/predictions/prizepicks/stats'
+      );
+    } catch (error) {
+      this.handleError(error, {
+        code: 'REALTIME_STATS_FAILED',
+        source: 'UnifiedPredictionService.getRealTimePredictionStats',
+      });
+      throw error;
+    }
+  }
+
+  async triggerRealTimeModelTraining(): Promise<{
+    message: string;
+    timestamp: string;
+    status: string;
+  }> {
+    try {
+      return await this.postRealTimeEndpoint('/api/predictions/prizepicks/train', {});
+    } catch (error) {
+      this.handleError(error, {
+        code: 'REALTIME_TRAINING_FAILED',
+        source: 'UnifiedPredictionService.triggerRealTimeModelTraining',
+      });
+      throw error;
+    }
+  }
+
+  async checkRealTimeApiHealth(): Promise<boolean> {
+    try {
+      const status = await this.handleRequest(() =>
+        this.api.get('/health', { timeout: 5000 }).then(res => res.status)
+      );
+      return status === 200;
+    } catch (error) {
+      this.logger.warn('Real-time API health check failed', {
+        error: this.toErrorMessage(error),
+      });
+      return false;
+    }
+  }
+
+  async getRealTimeApiInfo(): Promise<Record<string, unknown>> {
+    try {
+      const data = await this.fetchRealTimeEndpoint<Record<string, unknown>>('/');
+      return this.asRecord(data) ?? {};
+    } catch (error) {
+      this.handleError(error, {
+        code: 'REALTIME_API_INFO_FAILED',
+        source: 'UnifiedPredictionService.getRealTimeApiInfo',
+      });
+      throw error;
+    }
+  }
+
+  formatConfidenceLevel(level: string): string {
+    const labels: Record<string, string> = {
+      very_low: 'Very Low',
+      low: 'Low',
+      medium: 'Medium',
+      high: 'High',
+      very_high: 'Very High',
+    };
+    return labels[level] ?? level;
+  }
+
+  formatRecommendation(recommendation: string): string {
+    const labels: Record<string, string> = {
+      STRONG_BUY: 'Strong Buy',
+      BUY: 'Buy',
+      HOLD: 'Hold',
+      WEAK_SELL: 'Weak Sell',
+      STRONG_SELL: 'Strong Sell',
+    };
+    return labels[recommendation] ?? recommendation;
+  }
+
+  getConfidenceColor(level: string): string {
+    const colors: Record<string, string> = {
+      very_low: '#ef4444',
+      low: '#f97316',
+      medium: '#eab308',
+      high: '#22c55e',
+      very_high: '#16a34a',
+    };
+    return colors[level] ?? '#6b7280';
+  }
+
+  getRecommendationColor(recommendation: string): string {
+    const colors: Record<string, string> = {
+      STRONG_BUY: '#16a34a',
+      BUY: '#22c55e',
+      HOLD: '#eab308',
+      WEAK_SELL: '#f97316',
+      STRONG_SELL: '#ef4444',
+    };
+    return colors[recommendation] ?? '#6b7280';
+  }
+
+  subscribeToRealTimePredictions(
+    callback: (predictions: RealTimePrediction[]) => void,
+    options: RealTimeSubscriptionOptions = {}
+  ): () => void {
+    const intervalMs = Math.max(options.intervalMs ?? 15000, 5000);
+    const { request = {}, emitErrors = false, transform } = options;
+
+    let active = true;
+    let inFlight = false;
+
+    const tick = async () => {
+      if (!active || inFlight) {
+        return;
+      }
+      inFlight = true;
+      try {
+        const predictions = await this.getRealTimePredictions(request);
+        const next = transform ? transform(predictions) : predictions;
+        if (active) {
+          callback(next);
+          this.emit('prediction:update', next);
+        }
+      } catch (error) {
+        if (emitErrors) {
+          this.handleError(error, {
+            code: 'REALTIME_SUBSCRIPTION_ERROR',
+            source: 'UnifiedPredictionService.subscribeToRealTimePredictions',
+          });
+        } else {
+          this.logger.warn('Real-time subscription tick failed', {
+            error: this.toErrorMessage(error),
+          });
+        }
+      } finally {
+        inFlight = false;
+      }
+    };
+
+    void tick();
+    const timer = setInterval(() => void tick(), intervalMs);
+
+    return () => {
+      active = false;
+      clearInterval(timer);
+      this.logger.info('Real-time prediction subscription cancelled');
+    };
+  }
+
+  async optimizePrediction(
+    prediction: PredictionResult,
+    options: PredictionOptimizationOptions = {}
+  ): Promise<PredictionResult> {
+    const payload = {
+      prediction,
+      options,
+    };
+
+    if (options.strategy !== 'heuristic') {
+      try {
+        const response = await this.handleRequest(() =>
+          this.postJson<unknown>('/api/predictions/optimize', payload)
+        );
+        if (response) {
+          return this.normalizePredictionResponse(response, prediction.request);
+        }
+      } catch (error) {
+        this.logger.warn('Remote prediction optimization unavailable, falling back', {
+          error: this.toErrorMessage(error),
+        });
+      }
+    }
+
+    const minConfidence = options.minConfidence ?? 0;
+    const maxConfidence = options.maxConfidence ?? 1;
+    const smoothingWindow = options.smoothingWindow ?? 3;
+
+    const adjustedConfidence = this.clampConfidence(
+      Math.min(maxConfidence, Math.max(minConfidence, prediction.confidence))
+    );
+
+    const factors = Array.isArray(prediction.factors) ? [...prediction.factors] : [];
+    factors.push({
+      type: 'optimization',
+      strategy: 'heuristic',
+      appliedAt: new Date().toISOString(),
+      smoothingWindow,
+    });
+
+    const rawRecord = this.asRecord(prediction.raw) ?? {};
+
+    return {
+      ...prediction,
+      confidence: adjustedConfidence,
+      factors,
+      raw: {
+        ...rawRecord,
+        optimization: {
+          strategy: 'heuristic',
+          minConfidence,
+          maxConfidence,
+          smoothingWindow,
+        },
+      },
+    };
+  }
+
+  private async fetchRealTimeEndpoint<T>(
+    path: string,
+    options: {
+      params?: Record<string, string>;
+      headers?: Record<string, string>;
+      timeoutMs?: number;
+    } = {}
+  ): Promise<T> {
+    const { params, headers, timeoutMs } = options;
+    return this.handleRequest(() =>
+      this.api.get(path, { params, headers, timeout: timeoutMs }).then(response =>
+        this.unwrapResponse<T>(response.data, {
+          url: path,
+          params,
+        })
+      )
+    );
+  }
+
+  private async postRealTimeEndpoint<T>(path: string, payload: unknown): Promise<T> {
+    return this.handleRequest(() =>
+      this.api
+        .post(path, payload)
+        .then(response => this.unwrapResponse<T>(response.data, { url: path }))
+    );
   }
 
   private async buildPredictionPayload(request: PredictionRequest): Promise<PredictionPayload> {

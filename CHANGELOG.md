@@ -20,6 +20,7 @@ All sections below are historical (Archived). Only correct factual errors if nee
 - Documentation: `frontend/docs/observability.md` (safe observer API, guarantees, verification).
 - One-time bootstrap reliability start log: "🛡️ Reliability monitoring started (bootstrap)" (suppressed in test).
 - Line Shopping Optimizer page (`frontend/src/components/features/betting/LineShopping.tsx`) wired into the dashboard for multi-book odds comparisons, summary metrics, and sportsbook leaderboards powered by PropFinder data.
+- Prediction orchestration simplified via `frontend/src/services/unified/UnifiedPredictionService.ts`, retiring fragmented quantum, real-time, and optimization clients.
 
 - Opt-in compatibility: `LEGACY_DEPRECATION_HINTS` environment variable controls whether legacy health alias responses include deprecation metadata (`data.deprecated` and `data.forward`). This preserves canonical identical-envelope behavior by default while allowing legacy migration hints to be emitted when enabled. Tests and a short doc (`docs/LEGACY_DEPRECATION_HINTS.md`) were added to cover the new behavior.
 
