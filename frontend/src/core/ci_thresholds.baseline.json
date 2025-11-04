@@ -1,5 +1,0 @@
-{
-  "cache_hit_rate_min": 0.6,
-  "quickcheck_max_time_ms": 2000,
-  "logger_flush_max_time_ms": 500
-}
