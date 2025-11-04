@@ -1,5 +1,0 @@
-
-success data                                                            error
-------- ----                                                            -----
-   True @{opportunities=System.Object[]; total=3; filtered=3; summary=} 
-
