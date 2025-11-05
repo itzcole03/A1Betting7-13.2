@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 import { Clock, ExternalLink, Filter, Newspaper, Search, Star, TrendingUp } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-// @ts-expect-error TS(6142): Module '../components/ui/badge' was resolved to 'C... Remove this comment to see the full error message
-import { Badge } from '../components/ui/badge';
-// @ts-expect-error TS(6142): Module '../components/ui/button' was resolved to '... Remove this comment to see the full error message
-import { Button } from '../components/ui/button';
-// @ts-expect-error TS(6142): Module '../components/ui/card' was resolved to 'C:... Remove this comment to see the full error message
-import { Card } from '../components/ui/card';
+// @ts-expect-error TS(6142): Module '../components/shared/ui/badge' was resolved to 'C... Remove this comment to see the full error message
+import { Badge } from '../components/shared/ui/badge';
+// @ts-expect-error TS(6142): Module '../components/shared/ui/button' was resolved to '... Remove this comment to see the full error message
+import { Button } from '../components/shared/ui/button';
+// @ts-expect-error TS(6142): Module '../components/shared/ui/card' was resolved to 'C:... Remove this comment to see the full error message
+import { Card } from '../components/shared/ui/card';
 
 interface NewsArticle {
   id: string;

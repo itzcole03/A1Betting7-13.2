@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import { FixedSizeList as List } from 'react-window';
-import { _useTheme as useTheme } from '../components/common/theme/ThemeProvider';
+import { _useTheme as useTheme } from '../components/shared/common/theme/ThemeProvider';
 
 // Mock admin check - in real app, this would come from auth context
 const _isAdmin = true; // For demonstration

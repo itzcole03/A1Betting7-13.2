@@ -16,8 +16,8 @@ import pytest
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from services.background_task_manager import BackgroundTaskManager, TaskPriority
-from services.production_logging_service import SystemHealthMetrics, production_logger
+from backend.services.background_task_manager import BackgroundTaskManager, TaskPriority
+from backend.services.production_logging_service import SystemHealthMetrics, production_logger
 
 
 class TestBackgroundTaskManagerStability:

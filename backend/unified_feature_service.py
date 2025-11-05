@@ -1,13 +1,14 @@
 # Copied and adapted from Newfolder (example structure)
 from typing import Any, Dict
 
-from feature_cache import FeatureCache
 from feature_logger import FeatureLogger
 from feature_monitor import FeatureMonitor
 from feature_registry import FeatureRegistry
 from feature_selector import FeatureSelector
 from feature_transformation import FeatureTransformer
 from feature_validator import FeatureValidator
+
+from backend.feature_cache import FeatureCache
 
 
 class UnifiedFeatureService:

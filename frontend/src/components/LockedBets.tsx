@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ErrorBoundary from './core/ErrorBoundary';
-import { _showToast } from './Toast';
+import { _showToast } from './shared/common/notifications/Toaster';
 // Elite modules for analytics, optimization, and dashboards
 // import ConsolidatedUniversalAnalytics from './analytics/ConsolidatedUniversalAnalytics'; // Not found
 // import ConsolidatedUniversalDashboard from './dashboard/ConsolidatedUniversalDashboard'; // Not found

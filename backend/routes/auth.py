@@ -5,11 +5,10 @@ test-friendly behavior. Uses a lightweight shim when production auth
 service isn't available.
 """
 
-import hashlib
 from typing import Optional
 
-from fastapi import APIRouter, Header, HTTPException, Request
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import APIRouter, Header
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr
 
 from ..core.response_models import ResponseBuilder
@@ -38,40 +37,7 @@ class TokenResponse(BaseModel):
     refresh_token: Optional[str] = None
 
 
-# Prefer real auth service, otherwise fall back to test shim
-try:
-    from ..services.auth_service import auth_service  # type: ignore
-except Exception:
-    try:
-        from ..services.auth_service import (
-            get_auth_service as _get_auth_service,
-        )  # type: ignore
-
-        auth_service = _get_auth_service()  # type: ignore
-    except Exception:
-        try:
-            from ..services.auth_service_shim import (
-                auth_service_shim as auth_service,
-            )  # type: ignore
-        except Exception:
-            # Last fallback: use the singleton from services/auth_service.py if present
-            try:
-                from ..services.auth_service import (
-                    get_auth_service as _get_auth_service2,
-                )  # type: ignore
-
-                auth_service = _get_auth_service2()
-            except Exception:
-                auth_service = None  # type: ignore
-            # As a final attempt, directly import the singleton getter and use it
-            try:
-                from ..services.auth_service import (
-                    get_auth_service as _get_auth_service_final,
-                )  # type: ignore
-
-                auth_service = _get_auth_service_final()
-            except Exception:
-                auth_service = None  # type: ignore
+auth_service = _get_auth_service()
 
 
 @router.head("/auth/login", status_code=204)
@@ -80,7 +46,7 @@ async def login_readiness_check():
 
 
 @router.post("/auth/register")
-async def register(request: RegisterRequest, req: Request):
+async def register(request: RegisterRequest):
     try:
         # Basic password strength validation: handle weak passwords
         # early so tests that send weak passwords receive a validation
@@ -91,35 +57,16 @@ async def register(request: RegisterRequest, req: Request):
                 details={"password": "too_short"},
             )
 
-        if auth_service and hasattr(auth_service, "register"):
-            result = await auth_service.register(
-                request.email,
-                request.password,
-                request.first_name or "",
-                request.last_name or "",
-            )
-            # If underlying service returns token info, normalize it
-            if isinstance(result, dict) and (
-                "access_token" in result or "user" in result
-            ):
-                # Provide a minimal compatibility 'message' when only user
-                # data is returned so older clients/tests find a top-level
-                # message or token field.
-                if "user" in result and "access_token" not in result:
-                    result.setdefault("message", "registered")
-                return ResponseBuilder.success(data=result)
-            return ResponseBuilder.success(
-                data={"message": "registered", **(result or {})}
-            )
-
-        return ResponseBuilder.success(data={"message": "registered (dev)"})
+        result = await auth_service.register(
+            request.email,
+            request.password,
+            request.first_name or "",
+            request.last_name or "",
+        )
+        return ResponseBuilder.success(data=result)
     except ValueError as e:
         # Duplicate user or business logic
         return ResponseBuilder.error(message=str(e), status_code=409)
-    except HTTPException:
-        raise
-    except Exception as e:
-        return ResponseBuilder.error(message="Registration failed", status_code=500)
 
 
 @router.post("/auth/login")
@@ -130,30 +77,17 @@ async def login(request: LoginRequest):
                 message="Email and password required", status_code=400
             )
 
-        if auth_service and hasattr(auth_service, "authenticate"):
-            token_info = await auth_service.authenticate(
-                request.email, request.password
-            )
-            # Ensure refresh_token is present when available
-            if isinstance(token_info, dict) and "refresh_token" not in token_info:
-                token_info["refresh_token"] = token_info.get("refresh_token")
-            return ResponseBuilder.success(data=token_info)
-
-        mock_token = f"dev_token_{request.email}_12345"
-        return ResponseBuilder.success(
-            data={
-                "access_token": mock_token,
-                "refresh_token": f"refresh_{mock_token}",
-                "token_type": "bearer",
-            }
-        )
+        token_info = await auth_service.authenticate(request.email, request.password)
+        return ResponseBuilder.success(data=token_info)
 
     except ValueError as e:
         return ResponseBuilder.error(message=str(e), status_code=401)
-    except HTTPException:
-        raise
-    except Exception as e:
-        return ResponseBuilder.error(message="Login failed", status_code=500)
+
+
+@router.post("/auth/logout")
+async def logout():
+    # Auth tokens are stateless; clients discard tokens on logout.
+    return ResponseBuilder.success(data={"message": "logged out"})
 
 
 @router.get("/auth/me")
@@ -164,16 +98,10 @@ async def get_current_user(authorization: Optional[str] = Header(None)):
         token = (
             authorization[7:] if authorization.startswith("Bearer ") else authorization
         )
-        if auth_service and hasattr(auth_service, "me"):
-            user = await auth_service.me(token)
-            return ResponseBuilder.success(data=user)
-        return ResponseBuilder.error(message="Unauthorized", status_code=401)
+        user = await auth_service.me(token)
+        return ResponseBuilder.success(data=user)
     except ValueError as e:
         return ResponseBuilder.error(message=str(e), status_code=401)
-    except HTTPException:
-        raise
-    except Exception:
-        return ResponseBuilder.error(message="Unauthorized", status_code=401)
 
 
 @router.post("/auth/refresh")
@@ -184,16 +112,10 @@ async def refresh_token(authorization: Optional[str] = Header(None)):
         token = (
             authorization[7:] if authorization.startswith("Bearer ") else authorization
         )
-        if auth_service and hasattr(auth_service, "refresh"):
-            refreshed = await auth_service.refresh(token)
-            return ResponseBuilder.success(data=refreshed)
-        return ResponseBuilder.error(message="Unable to refresh token", status_code=401)
+        refreshed = await auth_service.refresh(token)
+        return ResponseBuilder.success(data=refreshed)
     except ValueError as e:
         return ResponseBuilder.error(message=str(e), status_code=401)
-    except HTTPException:
-        raise
-    except Exception:
-        return ResponseBuilder.error(message="Unable to refresh token", status_code=401)
 
 
 # Additional endpoints used by tests (change-password, reset-password, verify-email, profile update)
@@ -202,67 +124,74 @@ async def change_password(data: dict, authorization: Optional[str] = Header(None
     try:
         # Development-friendly behavior: if JSON contains email + current_password + new_password,
         # allow credential-based password change (dev-only). Otherwise require Authorization header.
+        if data:
+            email_value = data.get("email")
+            current_password_value = data.get("current_password")
+            new_password_value = data.get("new_password")
+        else:
+            email_value = None
+            current_password_value = None
+            new_password_value = None
+
         if (
-            data
-            and data.get("email")
-            and data.get("current_password")
-            and data.get("new_password")
+            isinstance(email_value, str)
+            and isinstance(current_password_value, str)
+            and isinstance(new_password_value, str)
         ):
-            if auth_service and hasattr(auth_service, "change_password_by_credentials"):
-                await auth_service.change_password_by_credentials(
-                    data.get("email"),
-                    data.get("current_password"),
-                    data.get("new_password"),
-                )
-                return ResponseBuilder.success(data={"message": "password changed"})
-            return ResponseBuilder.error(
-                message="Auth service does not support credential change",
-                status_code=501,
+            await auth_service.change_password_by_credentials(
+                email_value,
+                current_password_value,
+                new_password_value,
             )
+            return ResponseBuilder.success(data={"message": "password changed"})
 
         if not authorization:
             return ResponseBuilder.error(message="Missing token", status_code=401)
         token = (
             authorization[7:] if authorization.startswith("Bearer ") else authorization
         )
-        if auth_service and hasattr(auth_service, "change_password"):
-            await auth_service.change_password(
-                token, data.get("current_password"), data.get("new_password")
+        new_password_from_token = data.get("new_password") if data else None
+        if not isinstance(new_password_from_token, str) or not new_password_from_token:
+            return ResponseBuilder.error(
+                message="New password required", status_code=400
             )
-            return ResponseBuilder.success(data={"message": "password changed"})
-        return ResponseBuilder.error(message="Unauthorized", status_code=401)
+
+        current_password_param: Optional[str]
+        if current_password_value is None:
+            current_password_param = None
+        elif isinstance(current_password_value, str):
+            current_password_param = current_password_value
+        else:
+            return ResponseBuilder.error(
+                message="Invalid current password payload", status_code=400
+            )
+
+        await auth_service.change_password(
+            token, current_password_param, new_password_from_token
+        )
+        return ResponseBuilder.success(data={"message": "password changed"})
     except ValueError as e:
         return ResponseBuilder.error(message=str(e), status_code=401)
-    except Exception:
-        return ResponseBuilder.error(
-            message="Unable to change password", status_code=500
-        )
 
 
 @router.post("/auth/api/auth/reset-password")
 async def reset_password(data: dict):
-    try:
-        email = data.get("email")
-        if auth_service and hasattr(auth_service, "reset_password"):
-            await auth_service.reset_password(email)
-            return ResponseBuilder.success(data={"message": "reset initiated"})
-        return ResponseBuilder.success(data={"message": "reset initiated (dev)"})
-    except Exception:
-        return ResponseBuilder.error(
-            message="Unable to reset password", status_code=500
-        )
+    email_value = data.get("email")
+    if not isinstance(email_value, str) or not email_value:
+        return ResponseBuilder.error(message="Email is required", status_code=400)
+    await auth_service.reset_password(email_value)
+    return ResponseBuilder.success(data={"message": "reset initiated"})
 
 
 @router.post("/auth/verify-email/")
 async def verify_email(data: dict):
-    try:
-        token = data.get("token")
-        if auth_service and hasattr(auth_service, "verify_email"):
-            await auth_service.verify_email(token)
-            return ResponseBuilder.success(data={"message": "verified"})
-        return ResponseBuilder.success(data={"message": "verified (dev)"})
-    except Exception:
-        return ResponseBuilder.error(message="Unable to verify email", status_code=500)
+    token_value = data.get("token")
+    if not isinstance(token_value, str) or not token_value:
+        return ResponseBuilder.error(
+            message="Verification token missing", status_code=400
+        )
+    await auth_service.verify_email(token_value)
+    return ResponseBuilder.success(data={"message": "verified"})
 
 
 @router.put("/auth/api/user/profile")
@@ -273,41 +202,19 @@ async def update_profile(data: dict, authorization: Optional[str] = Header(None)
         token = (
             authorization[7:] if authorization.startswith("Bearer ") else authorization
         )
-        if auth_service and hasattr(auth_service, "update_profile"):
-            updated = await auth_service.update_profile(
-                token, data.get("first_name"), data.get("last_name")
-            )
-            return ResponseBuilder.success(data=updated)
-        return ResponseBuilder.error(message="Unauthorized", status_code=401)
+        updated = await auth_service.update_profile(
+            token, data.get("first_name"), data.get("last_name")
+        )
+        return ResponseBuilder.success(data=updated)
     except ValueError as e:
         return ResponseBuilder.error(message=str(e), status_code=401)
-    except Exception:
-        return ResponseBuilder.error(
-            message="Unable to update profile", status_code=500
-        )
 
 
 # Dev-only: inspect in-memory auth users
 @router.get("/internal/dev/auth-users")
 async def dev_list_auth_users():
-    try:
-        svc = None
-        try:
-            svc = _get_auth_service()
-        except Exception:
-            svc = globals().get("auth_service")
-
-        if not svc:
-            return ResponseBuilder.error(
-                message="Auth service not available", status_code=500
-            )
-
-        users = list(getattr(svc, "_users", {}).keys())
-        return ResponseBuilder.success(data={"users": users})
-    except Exception as e:
-        return ResponseBuilder.error(
-            message=f"Unable to read auth users: {e}", status_code=500
-        )
+    users = await auth_service.list_known_users()
+    return ResponseBuilder.success(data={"users": users})
 
 
 class DevSetPasswordRequest(BaseModel):
@@ -317,34 +224,5 @@ class DevSetPasswordRequest(BaseModel):
 
 @router.post("/internal/dev/set-password")
 async def dev_set_password(request: DevSetPasswordRequest):
-    try:
-        svc = None
-        try:
-            svc = _get_auth_service()
-        except Exception:
-            svc = globals().get("auth_service")
-
-        if not svc:
-            return ResponseBuilder.error(
-                message="Auth service not available", status_code=500
-            )
-
-        # Ensure the underlying in-memory store exists
-        users = getattr(svc, "_users", None)
-        if users is None:
-            try:
-                setattr(svc, "_users", {})
-                users = svc._users
-            except Exception as e:
-                return ResponseBuilder.error(
-                    message=f"Auth service does not expose _users: {e}", status_code=500
-                )
-
-        # Hash and set the password
-        hashed = hashlib.sha256(request.new_password.encode("utf-8")).hexdigest()
-        users[request.email] = hashed
-        return ResponseBuilder.success(data={"message": "password set"})
-    except Exception as e:
-        return ResponseBuilder.error(
-            message=f"Unable to set password: {e}", status_code=500
-        )
+    await auth_service.dev_set_password(request.email, request.new_password)
+    return ResponseBuilder.success(data={"message": "password set"})

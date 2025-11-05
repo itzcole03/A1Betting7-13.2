@@ -1,60 +1,44 @@
+import type { UserContext } from '../utils/FeatureFlags';
 import { FeatureFlags } from '../utils/FeatureFlags';
 
-// Initialize the feature flag manager
-const _featureFlagManager = FeatureFlags.getInstance();
+const featureFlagManager = FeatureFlags.getInstance();
 
-// Initialize feature flags (this could be done elsewhere in the app startup)
-featureFlagManager.initialize().catch(console.error);
+void featureFlagManager.initialize().catch(error => {
+  console.error('Failed to initialize feature flags', error);
+});
 
-/**
- * Check if a feature is enabled
- * @param featureId - The feature identifier to check
- * @param context - Optional user context for feature flag evaluation
- * @returns Promise<boolean> - Whether the feature is enabled
- */
-export const _isFeatureEnabled = async (featureId: string, context?: unknown): Promise<boolean> => {
+export const isFeatureEnabled = async (
+  featureId: string,
+  context?: UserContext
+): Promise<boolean> => {
   try {
-    // Ensure feature flags are initialized
     await featureFlagManager.initialize();
-
-    // Use the feature flag manager to check if feature is enabled
     return featureFlagManager.isFeatureEnabled(featureId, context);
   } catch (error) {
     console.error(`Error checking feature flag ${featureId}:`, error);
-    // Return false by default if there's an error
     return false;
   }
 };
 
-/**
- * Get all feature flags status
- * @returns Promise<Record<string, boolean>> - Object with feature status
- */
-export const _getAllFeatures = async (): Promise<Record<string, boolean>> => {
+export const getAllFeatures = async (): Promise<Record<string, boolean>> => {
   try {
     await featureFlagManager.initialize();
-    const _features = ['INJURIES', 'NEWS', 'WEATHER', 'REALTIME', 'ESPN', 'ODDS', 'ANALYTICS'];
-    const _result: Record<string, boolean> = {};
+    const featureIds = ['INJURIES', 'NEWS', 'WEATHER', 'REALTIME', 'ESPN', 'ODDS', 'ANALYTICS'];
 
-    for (const _feature of features) {
-      result[feature] = featureFlagManager.isFeatureEnabled(feature);
-    }
+    const entries = featureIds.map(
+      featureId => [featureId, featureFlagManager.isFeatureEnabled(featureId)] as const
+    );
 
-    return result;
+    return Object.fromEntries(entries);
   } catch (error) {
     console.error('Error getting all features:', error);
     return {};
   }
 };
 
-/**
- * Configuration service for app-wide settings
- */
-export const _configService = {
+export const configService = {
   isFeatureEnabled,
   getAllFeatures,
-
-  // Default feature configurations
   features: {
     INJURIES: true,
     NEWS: true,

@@ -24,9 +24,9 @@ except ImportError:
     opt = None
 
 try:
-    from config import config  # type: ignore[import]
-except ImportError:
-    config = None
+    from backend.config import config  # type: ignore[import]
+except Exception:  # pragma: no cover - fallback during minimal test runs
+    config = None  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 

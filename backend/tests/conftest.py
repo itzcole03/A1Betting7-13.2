@@ -12,12 +12,13 @@ def test_app():
     This eliminates 404s and fixture drift by using the ONLY app entry point.
     """
     from backend.core.app import create_app
+
     return create_app()
 
 
+import os
 from unittest.mock import MagicMock, patch
 
-import os
 import pytest
 from sqlmodel import SQLModel
 
@@ -26,11 +27,12 @@ from sqlmodel import SQLModel
 
 # Force tests to use an in-memory SQLite database to avoid persistent DB conflicts
 # Set this before importing backend.database (which reads DATABASE_URL at import time)
-os.environ.setdefault('DATABASE_URL', 'sqlite+aiosqlite:///:memory:')
+os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
 
 from backend.database import sync_engine
 from backend.models.base import Base
 from backend.models.user import User, UserORM
+from backend.services.production_logging_service import production_logger
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -56,6 +58,15 @@ def mock_database_health():
         yield mock_health
 
 
+@pytest.fixture(autouse=True)
+def reset_production_logger_errors():
+    """Ensure error tracking begins fresh for each test."""
+
+    production_logger.error_tracking.clear()
+    yield
+    production_logger.error_tracking.clear()
+
+
 @pytest.fixture(scope="session")
 def create_test_user():
     """Create a persistent-in-session test user if missing and return the user id.
@@ -64,6 +75,7 @@ def create_test_user():
     failures when run repeatedly in the same CI runner or local session.
     """
     from sqlmodel import Session
+
     from backend.database import sync_engine
 
     user_id = "test-user-1"

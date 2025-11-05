@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
-from utils.llm_engine import llm_engine
+from backend.utils.llm_engine import llm_engine
 
 logger = logging.getLogger(__name__)
 

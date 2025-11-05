@@ -1,6 +1,6 @@
 /**
  * Changelog Management Service
- * 
+ *
  * Automates the maintenance and updates of the formal changelog,
  * ensuring comprehensive documentation of all transparency and
  * reliability improvements.
@@ -10,7 +10,14 @@ interface ChangelogEntry {
   date: string;
   version: string;
   type: 'MAJOR' | 'MINOR' | 'PATCH' | 'HOTFIX';
-  category: 'FEATURE' | 'IMPROVEMENT' | 'BUGFIX' | 'SECURITY' | 'TRANSPARENCY' | 'PERFORMANCE' | 'MONITORING';
+  category:
+    | 'FEATURE'
+    | 'IMPROVEMENT'
+    | 'BUGFIX'
+    | 'SECURITY'
+    | 'TRANSPARENCY'
+    | 'PERFORMANCE'
+    | 'MONITORING';
   title: string;
   description: string;
   impact: 'HIGH' | 'MEDIUM' | 'LOW';
@@ -67,8 +74,8 @@ class ChangelogManagementService {
         'A1Betting_App_Issues_Report(4).md',
         'TRANSPARENCY_AND_RELIABILITY_REPORT.md',
         'CORE_FUNCTIONALITY_RELIABILITY_INTEGRATION_SUMMARY.md',
-        'LIVE_DEMO_ENHANCEMENT_IMPLEMENTATION_SUMMARY.md'
-      ]
+        'LIVE_DEMO_ENHANCEMENT_IMPLEMENTATION_SUMMARY.md',
+      ],
     };
 
     await this.addEntry(newEntry);
@@ -162,7 +169,7 @@ All critical recommendations implemented:
       'QuantumTransparencyNotice',
       'AdvancedAIDashboard',
       'DataPipelineStabilityMonitor',
-      'LiveDemoPerformanceMonitor'
+      'LiveDemoPerformanceMonitor',
     ];
   }
 
@@ -177,14 +184,14 @@ All critical recommendations implemented:
       'frontend/src/services/coreFunctionalityValidator.ts',
       'frontend/src/services/liveDemoEnhancementService.ts',
       'frontend/src/components/monitoring/LiveDemoMonitoringDashboard.tsx',
-      'frontend/src/components/common/QuantumTransparencyNotice.tsx',
+      'frontend/src/components/shared/common/QuantumTransparencyNotice.tsx',
       'frontend/src/components/ai/AdvancedAIDashboard.tsx',
       'frontend/src/services/dataPipelineStabilityMonitor.ts',
       'frontend/src/services/liveDemoPerformanceMonitor.ts',
       'frontend/src/App.tsx',
       'TRANSPARENCY_AND_RELIABILITY_REPORT.md',
       'CORE_FUNCTIONALITY_RELIABILITY_INTEGRATION_SUMMARY.md',
-      'LIVE_DEMO_ENHANCEMENT_IMPLEMENTATION_SUMMARY.md'
+      'LIVE_DEMO_ENHANCEMENT_IMPLEMENTATION_SUMMARY.md',
     ];
   }
 
@@ -193,11 +200,11 @@ All critical recommendations implemented:
    */
   private async addEntry(entry: ChangelogEntry): Promise<void> {
     const formattedEntry = this.formatChangelogEntry(entry);
-    
+
     // Add to beginning of changelog (most recent first)
     const existingContent = await this.readChangelogContent();
     const newContent = this.insertNewEntry(existingContent, formattedEntry);
-    
+
     await this.writeChangelogContent(newContent);
     this.updateMetadata(entry);
   }
@@ -207,9 +214,12 @@ All critical recommendations implemented:
    */
   private formatChangelogEntry(entry: ChangelogEntry): string {
     const emoji = this.getCategoryEmoji(entry.category);
-    const impact = entry.impact === 'HIGH' ? '🚀 MAJOR' : 
-                   entry.impact === 'MEDIUM' ? '⚡ ENHANCED' : 
-                   '🔧 IMPROVED';
+    const impact =
+      entry.impact === 'HIGH'
+        ? '🚀 MAJOR'
+        : entry.impact === 'MEDIUM'
+        ? '⚡ ENHANCED'
+        : '🔧 IMPROVED';
 
     return `
 # [${entry.date}] - ${entry.title}
@@ -228,7 +238,11 @@ ${entry.references ? `#### 📚 References\n${entry.references.map(r => `- ${r}`
 
 **Impact**: ${entry.impact} - ${this.getImpactDescription(entry.impact)}
 
-${entry.breaking ? '⚠️ **Breaking Changes**: This update may require configuration updates.' : '✅ **Backward Compatible**: No breaking changes introduced.'}
+${
+  entry.breaking
+    ? '⚠️ **Breaking Changes**: This update may require configuration updates.'
+    : '✅ **Backward Compatible**: No breaking changes introduced.'
+}
 
 ---
 `.trim();
@@ -239,13 +253,13 @@ ${entry.breaking ? '⚠️ **Breaking Changes**: This update may require configu
    */
   private getCategoryEmoji(category: ChangelogEntry['category']): string {
     const emojis = {
-      'FEATURE': '🚀',
-      'IMPROVEMENT': '⚡',
-      'BUGFIX': '🐞',
-      'SECURITY': '🛡️',
-      'TRANSPARENCY': '🔍',
-      'PERFORMANCE': '⚡',
-      'MONITORING': '📊'
+      FEATURE: '🚀',
+      IMPROVEMENT: '⚡',
+      BUGFIX: '🐞',
+      SECURITY: '🛡️',
+      TRANSPARENCY: '🔍',
+      PERFORMANCE: '⚡',
+      MONITORING: '📊',
     };
     return emojis[category] || '🔧';
   }
@@ -255,9 +269,9 @@ ${entry.breaking ? '⚠️ **Breaking Changes**: This update may require configu
    */
   private getImpactDescription(impact: ChangelogEntry['impact']): string {
     const descriptions = {
-      'HIGH': 'Significant improvements to core functionality, user experience, or system capabilities',
-      'MEDIUM': 'Notable enhancements that improve specific features or workflows',
-      'LOW': 'Minor improvements and optimizations'
+      HIGH: 'Significant improvements to core functionality, user experience, or system capabilities',
+      MEDIUM: 'Notable enhancements that improve specific features or workflows',
+      LOW: 'Minor improvements and optimizations',
     };
     return descriptions[impact];
   }
@@ -269,16 +283,16 @@ ${entry.breaking ? '⚠️ **Breaking Changes**: This update may require configu
     // Find the first existing entry to insert before it
     const lines = existingContent.split('\n');
     const firstEntryIndex = lines.findIndex(line => line.startsWith('# ['));
-    
+
     if (firstEntryIndex === -1) {
       // No existing entries, add at the end
       return existingContent + '\n\n' + newEntry;
     }
-    
+
     // Insert new entry before the first existing entry
     const beforeFirstEntry = lines.slice(0, firstEntryIndex).join('\n');
     const afterFirstEntry = lines.slice(firstEntryIndex).join('\n');
-    
+
     return beforeFirstEntry + '\n\n' + newEntry + '\n\n' + afterFirstEntry;
   }
 
@@ -306,8 +320,8 @@ ${entry.breaking ? '⚠️ **Breaking Changes**: This update may require configu
         transparency: false,
         reliability: false,
         performance: false,
-        monitoring: false
-      }
+        monitoring: false,
+      },
     };
   }
 
@@ -319,7 +333,7 @@ ${entry.breaking ? '⚠️ **Breaking Changes**: This update may require configu
     this.metadata.totalEntries++;
     this.metadata.categories[entry.category] = (this.metadata.categories[entry.category] || 0) + 1;
     this.metadata.recentActivity.unshift(entry);
-    
+
     // Keep only last 10 entries in recent activity
     if (this.metadata.recentActivity.length > 10) {
       this.metadata.recentActivity = this.metadata.recentActivity.slice(0, 10);
@@ -332,9 +346,9 @@ ${entry.breaking ? '⚠️ **Breaking Changes**: This update may require configu
   private async updateCompletionStatus(): Promise<void> {
     this.metadata.completionStatus = {
       transparency: true, // QuantumTransparencyNotice and documentation complete
-      reliability: true,  // ReliabilityMonitoringOrchestrator and dashboards complete
-      performance: true,  // LiveDemoEnhancementService and monitoring complete
-      monitoring: true    // Comprehensive monitoring infrastructure complete
+      reliability: true, // ReliabilityMonitoringOrchestrator and dashboards complete
+      performance: true, // LiveDemoEnhancementService and monitoring complete
+      monitoring: true, // Comprehensive monitoring infrastructure complete
     };
   }
 
@@ -406,13 +420,16 @@ ${Object.entries(this.metadata.completionStatus)
 - **Categories Covered**: ${Object.keys(this.metadata.categories).length}
 
 ### 📈 Recent Activity
-${this.metadata.recentActivity.slice(0, 5).map(entry => 
-  `- **${entry.date}**: ${entry.title} (${entry.category})`
-).join('\n')}
+${this.metadata.recentActivity
+  .slice(0, 5)
+  .map(entry => `- **${entry.date}**: ${entry.title} (${entry.category})`)
+  .join('\n')}
 
 ### 🎯 Impact Summary
 - **High Impact Changes**: ${this.metadata.recentActivity.filter(e => e.impact === 'HIGH').length}
-- **Medium Impact Changes**: ${this.metadata.recentActivity.filter(e => e.impact === 'MEDIUM').length}
+- **Medium Impact Changes**: ${
+      this.metadata.recentActivity.filter(e => e.impact === 'MEDIUM').length
+    }
 - **Low Impact Changes**: ${this.metadata.recentActivity.filter(e => e.impact === 'LOW').length}
 
 ### 📋 Compliance Status
@@ -449,7 +466,7 @@ All transparency and reliability recommendations from A1Betting_App_Issues_Repor
       .map(([area]) => area);
 
     const recommendations = [];
-    
+
     if (missing.length === 0) {
       recommendations.push('All areas complete - continue maintaining regular updates');
       recommendations.push('Consider adding user impact metrics to future entries');
@@ -462,11 +479,11 @@ All transparency and reliability recommendations from A1Betting_App_Issues_Repor
     return {
       isComplete: missing.length === 0,
       missingAreas: missing,
-      recommendations
+      recommendations,
     };
   }
 }
 
 // Export singleton instance
 export const changelogManagementService = new ChangelogManagementService();
-export type { ChangelogEntry, ChangelogSection, ChangelogMetadata };
+export type { ChangelogEntry, ChangelogMetadata, ChangelogSection };

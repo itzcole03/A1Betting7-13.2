@@ -13,9 +13,9 @@ from typing import Any, Dict, List, Optional
 import aiohttp
 import numpy as np
 import redis.asyncio as redis
-from feature_cache import FeatureCache
 
 from backend.config_manager import config_manager
+from backend.feature_cache import FeatureCache
 
 logger = logging.getLogger(__name__)
 

@@ -1,41 +1,33 @@
-"""
-Seed the database with the default admin user for A1Betting.
-"""
+"""Utilities to seed the default admin account into the database."""
 
 import asyncio
 
-from backend.auth.user_service import SessionLocal, User, UserService
-from backend.models.api_models import UserRegistration
+from backend.services.auth_service import get_auth_service
+
+ADMIN_EMAIL = "ncr@a1betting.com"
+ADMIN_PASSWORD = "A1Betting1337!"
+ADMIN_FIRST_NAME = "A1"
+ADMIN_LAST_NAME = "Admin"
 
 
-def seed_admin():
-    session = SessionLocal()
-    user_service = UserService(session)
-    admin_email = "ncr@a1betting.com"
-    admin_username = "admin"
-    admin_password = "A1Betting1337!"
-    admin_first_name = "A1"
-    admin_last_name = "Admin"
-
-    # Check if admin already exists
-    existing = (
-        session.query(User)
-        .filter((User.username == admin_username) | (User.email == admin_email))
-        .first()
-    )
-    if existing:
+async def seed_admin_async() -> None:
+    service = get_auth_service()
+    try:
+        await service.register(
+            email=ADMIN_EMAIL,
+            password=ADMIN_PASSWORD,
+            first_name=ADMIN_FIRST_NAME,
+            last_name=ADMIN_LAST_NAME,
+        )
+    except ValueError:
         print("Admin user already exists.")
         return
 
-    user_data = UserRegistration(
-        username=admin_username,
-        email=admin_email,
-        password=admin_password,
-        first_name=admin_first_name,
-        last_name=admin_last_name,
-    )
-    user_service.create_user(user_data)
     print("Admin user created.")
+
+
+def seed_admin() -> None:
+    asyncio.run(seed_admin_async())
 
 
 if __name__ == "__main__":

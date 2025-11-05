@@ -11,7 +11,7 @@ from typing import Any, Callable, Dict, List, Optional
 import numpy as np
 import requests
 from feature_flags import FeatureFlags
-from utils.circuit_breaker import CircuitBreaker  # <-- Add this import
+from backend.utils.circuit_breaker import CircuitBreaker  # <-- Add this import
 
 from backend.feature_engineering import FeatureEngineering
 

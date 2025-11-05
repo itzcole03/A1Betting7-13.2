@@ -6,7 +6,7 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from utils.metrics_collector import metrics_collector
+from backend.utils.metrics_collector import metrics_collector
 
 class MetricsMiddleware(BaseHTTPMiddleware):
     """Middleware for collecting request metrics."""

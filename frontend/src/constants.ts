@@ -1,8 +1,26 @@
 // Centralized environment variable access with Jest compatibility
 // This file provides a safe way to access Vite environment variables in both Vite and Jest environments
 
+type EnvKey =
+  | 'VITE_API_URL'
+  | 'VITE_WS_ENDPOINT'
+  | 'VITE_WS_URL'
+  | 'VITE_THEODDS_API_KEY'
+  | 'VITE_SPORTRADAR_API_KEY'
+  | 'VITE_DAILYFANTASY_API_KEY'
+  | 'VITE_PRIZEPICKS_API_KEY'
+  | 'VITE_PRIZEPICKS_API_URL'
+  | 'VITE_SENTIMENT_API_URL'
+  | 'VITE_SENTIMENT_API_KEY'
+  | 'VITE_ENABLE_SENTIMENT'
+  | 'VITE_DISABLE_SOCIAL_SENTIMENT'
+  | 'VITE_SPORTRADAR_API_ENDPOINT'
+  | 'VITE_ODDS_API_ENDPOINT'
+  | 'VITE_ESPN_API_ENDPOINT'
+  | 'VITE_SOCIAL_API_ENDPOINT';
+
 // Environment variable defaults for testing
-const defaultValues = {
+const defaultValues: Record<EnvKey, string | undefined> = {
   VITE_API_URL: 'http://localhost:8000',
   VITE_WS_ENDPOINT: 'ws://localhost:8000/ws',
   VITE_WS_URL: 'ws://localhost:8000/ws',
@@ -19,10 +37,10 @@ const defaultValues = {
   VITE_ODDS_API_ENDPOINT: undefined,
   VITE_ESPN_API_ENDPOINT: undefined,
   VITE_SOCIAL_API_ENDPOINT: undefined,
-} as const;
+};
 
 // Function to get environment variables safely
-const getEnvVar = (key: keyof typeof defaultValues): string | undefined => {
+const getEnvVar = (key: EnvKey): string | undefined => {
   // Check if we're in a test environment (Jest)
   if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
     return defaultValues[key];
@@ -31,7 +49,7 @@ const getEnvVar = (key: keyof typeof defaultValues): string | undefined => {
   // Use import.meta.env for Vite environments, fallback to defaults
   if (process.env.NODE_ENV === 'test') {
     // In Jest test environment, use process.env
-    return process.env[key] || defaultValues[key];
+    return process.env[key] ?? defaultValues[key];
   }
 
   // In Vite environment, try to access import.meta.env
@@ -39,7 +57,7 @@ const getEnvVar = (key: keyof typeof defaultValues): string | undefined => {
     // Use dynamic evaluation to avoid Jest parsing issues
     const importMeta = new Function('return import.meta')();
     if (importMeta && importMeta.env) {
-      return importMeta.env[key] || defaultValues[key];
+      return importMeta.env[key] ?? defaultValues[key];
     }
   } catch (e) {
     // Fallback if import.meta is not available

@@ -13,8 +13,11 @@ from typing import Any, Dict, List, Optional, Set
 import redis.asyncio as redis
 from fastapi import WebSocket, WebSocketDisconnect
 
+from backend.services.core.unified_data_service import (
+    UnifiedDataService,
+    get_data_service,
+)
 from backend.services.enhanced_ml_service import enhanced_ml_service
-from backend.services.real_data_integration import real_data_service
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("realtime_websocket")
@@ -137,6 +140,7 @@ class RealTimeDataStreamer:
         self.is_streaming = False
         self.stream_interval = 30  # seconds
         self.redis_client: Optional[redis.Redis] = None
+        self._data_service: Optional[UnifiedDataService] = None
 
     async def initialize(self):
         """Initialize the data streamer"""
@@ -269,19 +273,36 @@ class RealTimeDataStreamer:
     async def _fetch_latest_odds(self) -> Optional[Dict[str, Any]]:
         """Fetch latest odds from multiple sources"""
         try:
-            # This would integrate with real odds APIs
-            odds_data = {
-                "NFL": await self._get_nfl_odds(),
-                "NBA": await self._get_nba_odds(),
-                "MLB": await self._get_mlb_odds(),
-                "updated_at": datetime.now().isoformat(),
-            }
-
-            return odds_data
-
+            service = await self._get_unified_data_service()
+            if service:
+                opportunities = await service.fetch_real_betting_opportunities()
+                if opportunities:
+                    odds_data: Dict[str, Any] = {}
+                    for opportunity in opportunities:
+                        sport = (opportunity.sport or "UNKNOWN").upper()
+                        odds_data.setdefault(sport, []).append(opportunity.dict())
+                    odds_data["updated_at"] = datetime.now().isoformat()
+                    return odds_data
         except Exception as e:
             logger.error(f"Error fetching latest odds: {e}")
-            return None
+        # Fallback to static data if unified service unavailable or empty
+        return {
+            "NFL": await self._get_nfl_odds(),
+            "NBA": await self._get_nba_odds(),
+            "MLB": await self._get_mlb_odds(),
+            "updated_at": datetime.now().isoformat(),
+        }
+
+    async def _get_unified_data_service(self) -> Optional[UnifiedDataService]:
+        """Lazy-load the unified data service for real odds lookups"""
+        if self._data_service:
+            return self._data_service
+        try:
+            self._data_service = await get_data_service()
+        except Exception as exc:
+            logger.warning("Falling back to stub odds data: %s", exc)
+            self._data_service = None
+        return self._data_service
 
     async def _get_nfl_odds(self) -> List[Dict[str, Any]]:
         """Get current NFL odds"""

@@ -1,5 +1,5 @@
-import GlassCard from '@/components/ui/GlassCard';
-import GlowButton from '@/components/ui/GlowButton';
+import GlassCard from '@/components/shared/ui/GlassCard';
+import GlowButton from '@/components/shared/ui/GlowButton';
 import { motion } from 'framer-motion';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';

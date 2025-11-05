@@ -1,0 +1,611 @@
+{
+  "summary": {
+    "total_directories": 728,
+    "total_unique_filenames": 5168,
+    "files_with_duplicates": 888,
+    "redundant_service_groups": 180,
+    "redundant_component_groups": 170,
+    "unified_architecture_files": 252,
+    "optimized_files": 48,
+    "legacy_files": 88
+  },
+  "file_extensions": {
+    ".ts": 2096,
+    ".py": 1826,
+    ".tsx": 997,
+    ".md": 788,
+    ".json": 174,
+    ".txt": 135,
+    ".js": 133,
+    ".css": 41,
+    ".cjs": 35,
+    ".yml": 33,
+    ".yaml": 24,
+    ".ps1": 23,
+    ".sh": 22,
+    ".html": 22,
+    ".prompt": 12,
+    ".bat": 11,
+    ".properties": 7,
+    ".policy": 7,
+    ".csv": 6,
+    ".ini": 6,
+    ".example": 6,
+    ".webm": 6,
+    ".ts                           # \ud83c\udd95 Consolidated exports": 5,
+    ".prof": 4,
+    ".xml": 4,
+    ".ts                             # \ud83c\udd95 Consolidated exports": 4,
+    ".7": 3,
+    ".mjs": 3,
+    ".jsonl": 3,
+    ".db": 3
+  },
+  "top_directories_by_file_count": {
+    "root": 718,
+    "backend/": 385,
+    "backend//services/": 341,
+    "frontend//src//components/": 283,
+    "frontend//src//services/": 224,
+    "frontend//src//utils/": 199,
+    "backend//routes/": 187,
+    "frontend//src//hooks/": 162,
+    "frontend/": 139,
+    "scripts/": 135,
+    "frontend//src//components//ui/": 115,
+    "reports/": 105,
+    "frontend//src//core/": 99,
+    "backend//tests/": 91,
+    "frontend//src//services//unified/": 76,
+    "frontend//src//services//analytics/": 75,
+    "frontend//src//components//analytics/": 69,
+    "frontend//src//components//betting/": 68,
+    "backend//models/": 64,
+    "frontend//src//pages/": 61,
+    "frontend//src//types/": 57,
+    "tests//backend/": 56,
+    "frontend//src//services//ml//models/": 45,
+    "frontend//src//components//base/": 40,
+    "frontend//src//components//prediction/": 38,
+    "frontend//src//utils//__tests__/": 37,
+    "tests//backend//routes/": 37,
+    ".github/": 37,
+    "frontend//src//components//shared/": 35,
+    "frontend//src//components//core/": 33,
+    "frontend//src/": 32,
+    "frontend//src//__tests__/": 32,
+    "backend//middleware/": 30,
+    "frontend//src//components//common/": 30,
+    "frontend//src//components//predictions/": 30,
+    "tests/": 30,
+    "frontend//src//components//modern/": 29,
+    "frontend//src//components//features//betting/": 28,
+    "frontend//src//services//prediction/": 28,
+    "docs/": 27,
+    "frontend//src//services//ml//optimization/": 26,
+    "frontend//src//models/": 25,
+    ".github//prompts/": 25,
+    "backend//cleanup_phase1/": 24,
+    "frontend//src//components//user-friendly/": 24,
+    "backend//alembic/": 23,
+    "frontend//src//adapters/": 23,
+    "backend//utils/": 22,
+    "frontend//src//contexts/": 22,
+    "frontend//src//test/": 22
+  },
+  "redundant_services_sample": {
+    "auth_": [
+      "backend//auth_service.py",
+      "backend//services//auth_service.py",
+      "backend//auth_service.py",
+      "backend//auth_service.py",
+      "backend//services//auth_service.py"
+    ],
+    "enhanced_model_": [
+      "backend//enhanced_model_service.py",
+      "backend//enhanced_model_service.py"
+    ],
+    "model_": [
+      "backend//model_service.py",
+      "backend//model_service.py"
+    ],
+    "monitoring_": [
+      "backend//monitoring_service.py",
+      "backend//monitoring_service.py"
+    ],
+    "portfolio_rationale_": [
+      "backend//portfolio_rationale_service.py",
+      "portfolio_rationale_service.py  # LLM narrative generation"
+    ],
+    "unified_feature_": [
+      "backend//unified_feature_service.py",
+      "backend//unified_feature_service.py"
+    ],
+    "": [
+      "backend//auth//service.py",
+      "backend//domains//analytics//service.py",
+      "backend//domains//data//service.py",
+      "backend//domains//integration//service.py",
+      "backend//domains//optimization//service.py",
+      "backend//domains//service.py",
+      "backend//users//service.py",
+      "sports/              # Sports domain/service.py",
+      "ml/                  # ML domain/service.py",
+      "service.py"
+    ],
+    "user_": [
+      "backend//auth//user_service.py",
+      "backend//auth//user_service.py"
+    ],
+    "advanced_ml_": [
+      "backend//cleanup_phase1//advanced_ml_service.py",
+      "backend//services//advanced_ml_service.py",
+      "backend//services//advanced_ml_service.py"
+    ],
+    "advanced_ensemble_": [
+      "backend//services//advanced_ensemble_service.py",
+      "backend//services//advanced_ensemble_service.py"
+    ],
+    "advanced_security_": [
+      "backend//services//advanced_security_service.py",
+      "backend//services//advanced_security_service.py"
+    ],
+    "autonomous_monitoring_": [
+      "backend//services//autonomous_monitoring_service.py",
+      "backend//services//autonomous_monitoring_service.py"
+    ],
+    "bankroll_": [
+      "backend//services//bankroll_service.py",
+      "backend//services//bankroll_service.py"
+    ],
+    "batch_prop_analysis_": [
+      "backend//services//batch_prop_analysis_service.py",
+      "backend//services//batch_prop_analysis_service.py"
+    ],
+    "database_migration_": [
+      "backend//services//database_migration_service.py",
+      "backend//services//database_migration_service.py"
+    ],
+    "database_": [
+      "backend//services//database_service.py",
+      "backend//services//database_service.py"
+    ],
+    "email_": [
+      "backend//services//email_service.py",
+      "backend//services//email_service.py"
+    ],
+    "enhanced_database_migration_": [
+      "backend//services//enhanced_database_migration_service.py",
+      "backend//services//enhanced_database_migration_service.py"
+    ],
+    "enhanced_ml_ensemble_": [
+      "backend//services//enhanced_ml_ensemble_service.py",
+      "backend//services//enhanced_ml_ensemble_service.py"
+    ],
+    "enhanced_ml_": [
+      "backend//services//enhanced_ml_service.py",
+      "backend//services//enhanced_ml_service.py"
+    ]
+  },
+  "redundant_components_sample": {
+    "App": [
+      "frontend//admin//src//App.tsx",
+      "frontend//src//App.tsx",
+      "frontend//src//__tests__//App.e2e.error.test.tsx",
+      "frontend//src//__tests__//App.e2e.test.tsx",
+      "frontend//src//__tests__//App.empty-state.e2e.test.tsx",
+      "frontend//src//__tests__//App.test.tsx"
+    ],
+    "main": [
+      "frontend//admin//src//main.tsx",
+      "frontend//src//main.tsx",
+      "src//main.tsx"
+    ],
+    "index": [
+      "frontend//src//index.tsx",
+      "frontend//src//components//index.tsx",
+      "frontend//src//components//elite//index.tsx",
+      "frontend//src//components//lazy//index.tsx",
+      "frontend//src//components//MoneyMaker//index.tsx",
+      "frontend//src//components//shared//index.tsx",
+      "frontend//src//components//user-friendly//index.tsx",
+      "frontend//src//interfaces//index.tsx",
+      "frontend//src//pages//index.tsx"
+    ],
+    "BettingInterface": [
+      "frontend//src//__tests__//BettingInterface.e2e.test.tsx",
+      "frontend//src//components//betting//BettingInterface.tsx"
+    ],
+    "PropOllamaUnified": [
+      "frontend//src//__tests__//components//PropOllamaUnified.e2e.test.tsx",
+      "frontend//src//components//PropOllamaUnified.tsx",
+      "frontend//src//components//__tests__//PropOllamaUnified.test.tsx"
+    ],
+    "ConcurrentFeaturesProvider": [
+      "frontend//src//app//ConcurrentFeaturesProvider.tsx",
+      "frontend//src//app//ConcurrentFeaturesProvider.smoke.test.tsx",
+      "frontend//src//app//ConcurrentFeaturesProvider.test.tsx",
+      "app//providers/              # \u2705 Modern state management/ConcurrentFeaturesProvider.tsx"
+    ],
+    "ModernStateProvider": [
+      "frontend//src//app//ModernStateProvider.tsx",
+      "app//providers/              # \u2705 Modern state management/ModernStateProvider.tsx"
+    ],
+    "AuthContext": [
+      "frontend//src//auth//AuthContext.tsx",
+      "frontend//src//contexts//AuthContext.tsx",
+      "frontend//src//contexts//__mocks__//AuthContext.tsx",
+      "frontend//src//contexts//AuthContext.test.tsx"
+    ],
+    "Accordion": [
+      "frontend//src//components//Accordion.tsx",
+      "frontend//src//components//base//Accordion.tsx"
+    ],
+    "Alert": [
+      "frontend//src//components//Alert.tsx",
+      "frontend//src//components//base//Alert.tsx"
+    ],
+    "AllFeatures": [
+      "frontend//src//components//AllFeatures.test.tsx",
+      "frontend//src//test//integration//AllFeatures.test.tsx"
+    ],
+    "AnalyticsTab": [
+      "frontend//src//components//AnalyticsTab.jsx",
+      "src//AnalyticsTab.tsx"
+    ],
+    "AppInitializer": [
+      "frontend//src//components//AppInitializer.tsx",
+      "frontend//src//components//core//AppInitializer.tsx"
+    ],
+    "Arbitrage": [
+      "frontend//src//components//Arbitrage.tsx",
+      "frontend//src//components//features//betting//Arbitrage.tsx"
+    ],
+    "ArbitrageDetector": [
+      "frontend//src//components//ArbitrageDetector.tsx",
+      "frontend//src//components//features//betting//ArbitrageDetector.tsx"
+    ],
+    "ArbitragePage": [
+      "frontend//src//components//ArbitragePage.test.tsx",
+      "frontend//src//components//ArbitragePage.tsx"
+    ],
+    "AuthLayout": [
+      "frontend//src//components//AuthLayout.tsx",
+      "frontend//src//layouts//AuthLayout.tsx"
+    ],
+    "AuthProvider": [
+      "frontend//src//components//AuthProvider.tsx",
+      "frontend//src//providers//AuthProvider.tsx"
+    ],
+    "Avatar": [
+      "frontend//src//components//Avatar.tsx",
+      "frontend//src//components//base//Avatar.tsx"
+    ],
+    "BackendConnectionTest": [
+      "frontend//src//components//BackendConnectionTest.tsx",
+      "frontend//src//components//debug//BackendConnectionTest.tsx"
+    ]
+  },
+  "duplicate_files_sample": {
+    "README.md": [
+      "README.md",
+      "ahk//README.md",
+      "automation//README.md",
+      "backend//README.md",
+      "data//README.md",
+      "docs//README.md",
+      "docs//architecture//README.md",
+      "frontend//README.md",
+      "frontend//admin//README.md",
+      "frontend//public//README.md",
+      "frontend//src//README.md",
+      "frontend//src//adapters//README.md",
+      "frontend//src//analytics//README.md",
+      "frontend//src//components//README.md",
+      "frontend//src//components//analytics//README.md",
+      "frontend//src//components//betting//README.md",
+      "frontend//src//components//common//README.md",
+      "frontend//src//components//common//buttons//README.md",
+      "frontend//src//components//common//layout//README.md",
+      "frontend//src//components//common//loading//README.md",
+      "frontend//src//components//common//modals//README.md",
+      "frontend//src//components//common//notifications//README.md",
+      "frontend//src//components//common//README.md",
+      "frontend//src//components//dashboard//README.md",
+      "frontend//src//components//ml//README.md",
+      "frontend//src//components//MoneyMaker//README.md",
+      "frontend//src//components//monitoring//README.md",
+      "frontend//src//components//player//README.md",
+      "frontend//src//components//prediction//README.md",
+      "frontend//src//components//ui//README.md",
+      "frontend//src//components//ui//betting//README.md",
+      "frontend//src//core//FinalPredictionEngine//README.md",
+      "frontend//src//core//tests//README.md",
+      "frontend//src//core//UltimateBrain//README.md",
+      "frontend//src//hooks//README.md",
+      "frontend//src//services//README.md",
+      "frontend//src//services//analytics//README.md",
+      "frontend//src//services//integrations//README.md",
+      "frontend//src//services//ml//README.md",
+      "frontend//src//services//ml//ensemble//README.md",
+      "frontend//src//services//ml//models//README.md",
+      "frontend//src//services//notification//README.md",
+      "frontend//src//services//risk//README.md",
+      "frontend//src//services//social//README.md",
+      "frontend//src//services//unified//README.md",
+      "frontend//src//test//README.md",
+      "frontend//src//types//README.md",
+      "native//README.md",
+      "prompts//README.md",
+      "Refactoring and Unifying a Large Application Repository//README.md",
+      "scripts//README.md",
+      "tests//_compat//README.md",
+      "tests//e2e//README.md",
+      "tests//load//README.md",
+      "tools//README.md",
+      "README.md",
+      "backend//README.md",
+      "backend//README.md",
+      "frontend//README.md"
+    ],
+    "=2.2.7": [
+      "=2.2.7",
+      "backend//=2.2.7",
+      "backend//=2.2.7"
+    ],
+    "ADMIN_MODE_FEATURES.md": [
+      "ADMIN_MODE_FEATURES.md",
+      "ADMIN_MODE_FEATURES.md"
+    ],
+    "API_AUDIT_REPORT.md": [
+      "API_AUDIT_REPORT.md",
+      "backend//API_AUDIT_REPORT.md",
+      "docs//API_AUDIT_REPORT.md"
+    ],
+    "API_DOCUMENTATION.md": [
+      "API_DOCUMENTATION.md",
+      "API_DOCUMENTATION.md"
+    ],
+    "babel.config.cjs": [
+      "babel.config.cjs",
+      "frontend//babel.config.cjs"
+    ],
+    "BACKEND_FILE_USAGE_ANALYSIS.md": [
+      "BACKEND_FILE_USAGE_ANALYSIS.md",
+      "backend//BACKEND_FILE_USAGE_ANALYSIS.md",
+      "backend//BACKEND_FILE_USAGE_ANALYSIS.md",
+      "backend//BACKEND_FILE_USAGE_ANALYSIS.md"
+    ],
+    "background_agents.py": [
+      "background_agents.py",
+      "backend//background_agents.py",
+      "backend//background_agents.py",
+      "backend//background_agents.py"
+    ],
+    "builder.config.json": [
+      "builder.config.json",
+      "frontend//builder.config.json"
+    ],
+    "config.py": [
+      "config.py",
+      "backend//config.py",
+      "backend//cleanup_phase1//archived_files//config.py",
+      "frontend//src//utils//config.py",
+      "core/                 # Shared kernel/config.py",
+      "backend//config.py",
+      "backend//cleanup_phase1//config.py"
+    ],
+    "conftest.py": [
+      "conftest.py",
+      "backend//tests//conftest.py",
+      "backend//tests//llm//conftest.py",
+      "tests//conftest.py",
+      "tests//ingestion//conftest.py",
+      "tests//statistical//conftest.py",
+      "backend//tests//conftest.py"
+    ],
+    "copilot-instructions.md": [
+      "copilot-instructions.md",
+      "frontend//admin//copilot-instructions.md",
+      ".github//copilot-instructions.md"
+    ],
+    "feature_cache.py": [
+      "feature_cache.py",
+      "backend//feature_cache.py",
+      "backend//feature_cache.py"
+    ],
+    "FEATURE_INTEGRATION_ROADMAP.md": [
+      "FEATURE_INTEGRATION_ROADMAP.md",
+      "FEATURE_INTEGRATION_ROADMAP.md"
+    ],
+    "Inventory.md": [
+      "Inventory.md",
+      "frontend//Inventory.md",
+      "Inventory.md"
+    ],
+    "jest.config.cjs": [
+      "jest.config.cjs",
+      "frontend//jest.config.cjs"
+    ],
+    "jest.fetch.polyfill.js": [
+      "jest.fetch.polyfill.js",
+      "frontend//jest.fetch.polyfill.js"
+    ],
+    "jest.matchmedia.js": [
+      "jest.matchmedia.js",
+      "frontend//jest.matchmedia.js"
+    ],
+    "jest.polyfill.textencoder.js": [
+      "jest.polyfill.textencoder.js",
+      "frontend//jest.polyfill.textencoder.js"
+    ],
+    "jest.setup.e2e.js": [
+      "jest.setup.e2e.js",
+      "frontend//jest.setup.e2e.js"
+    ],
+    "jest.setup.js": [
+      "jest.setup.js",
+      "frontend//jest.setup.js"
+    ],
+    "jest.setup.ts": [
+      "jest.setup.ts",
+      "frontend//jest.setup.ts"
+    ],
+    "MODERNIZATION_ROADMAP.md": [
+      "MODERNIZATION_ROADMAP.md",
+      "Roadmaps//MODERNIZATION_ROADMAP.md"
+    ],
+    "package.json": [
+      "package.json",
+      "frontend//package.json",
+      "frontend//admin//package.json",
+      "frontend//src//core//tests//package.json",
+      "scripts//package.json",
+      "tests//e2e//package.json"
+    ],
+    "PHASE_2_COMPLETION_REPORT.md": [
+      "PHASE_2_COMPLETION_REPORT.md",
+      "backend//PHASE_2_COMPLETION_REPORT.md",
+      "backend//PHASE_2_COMPLETION_REPORT.md"
+    ],
+    "postcss.config.js": [
+      "postcss.config.js",
+      "frontend//postcss.config.js"
+    ],
+    "PR_DESCRIPTION.md": [
+      "PR_DESCRIPTION.md",
+      "patch_bundle//PR_DESCRIPTION.md"
+    ],
+    "pytest.ini": [
+      "pytest.ini",
+      "backend//pytest.ini",
+      "tests//backend//pytest.ini",
+      "backend//pytest.ini"
+    ],
+    "requirements-dev.txt": [
+      "requirements-dev.txt",
+      "backend//requirements-dev.txt"
+    ],
+    "requirements.txt": [
+      "requirements.txt",
+      "backend//requirements.txt",
+      "backend//requirements.txt"
+    ]
+  },
+  "unified_files_sample": [
+    "unified_services_profile.prof",
+    "backend//main_unified.py",
+    "backend//requirements_unified.txt",
+    "backend//requirements_unified_optimized.txt",
+    "backend//test_unified_prediction.py",
+    "backend//unified_feature_service.py",
+    "backend//alembic//a488fec67a2b_unified_base_for_match_and_historical_.py",
+    "backend//routes//unified_api.py",
+    "backend//routes//unified_batch_compat.py",
+    "backend//routes//unified_sports_routes.py",
+    "backend//routes//ws_client_unified.py",
+    "backend//services//UNIFIED_CACHE_MIGRATION_STATUS.md",
+    "backend//services//unified_cache_service.py",
+    "backend//services//unified_config.py",
+    "backend//services//unified_data_fetcher.py",
+    "backend//services//unified_data_pipeline.py",
+    "backend//services//unified_error_handler.py",
+    "backend//services//unified_logging.py",
+    "backend//services//unified_odds_aggregation_service.py",
+    "backend//services//unified_prediction_service.py",
+    "backend//services//unified_session_utils.py",
+    "backend//services//core//unified_cache_service.py",
+    "backend//services//core//unified_data_service.py",
+    "backend//services//core//unified_ml_service.py",
+    "backend//services//metrics//unified_metrics_collector.py",
+    "backend//testing//test_suite_unified.py",
+    "frontend//test_unified_data_service.js",
+    "frontend//reports//shims_quickcheck//unified_shims_runner.txt",
+    "frontend//src//__tests__//components//PropOllamaUnified.e2e.test.tsx",
+    "frontend//src//analytics//UnifiedFeatureService.d.ts"
+  ],
+  "optimized_files_sample": [
+    "docker-compose.optimized.yml",
+    "Dockerfile.frontend.optimized",
+    "OPTIMIZED_REALTIME_IMPLEMENTATION_COMPLETE.md",
+    "test_optimized_realtime_integration.py",
+    "backend//optimized_production_integration.py",
+    "backend//requirements_unified_optimized.txt",
+    "backend//domains//database//optimized_models.py",
+    "backend//models//streaming_optimized.py",
+    "backend//routes//optimized_api_routes.py",
+    "backend//routes//optimized_real_time_routes.py",
+    "backend//routes//optimized_routes.py",
+    "backend//services//optimized_baseball_savant_client.py",
+    "backend//services//optimized_cache_service.py",
+    "backend//services//optimized_data_service.py",
+    "backend//services//optimized_data_validation_orchestrator.py",
+    "backend//services//optimized_database_service.py",
+    "backend//services//optimized_intelligent_caching_service.py",
+    "backend//services//optimized_monte_carlo.py",
+    "backend//services//optimized_real_time_data_service.py",
+    "backend//services//optimized_redis_service.py",
+    "backend//services//core//optimized_realtime_service.py",
+    "backend//services//core//optimized_shap_service.py",
+    "frontend//vite.config.optimized.ts",
+    "frontend//src//components//OptimizedDashboard.tsx",
+    "frontend//src//components//mobile//MobileOptimizedInterface.d.ts",
+    "frontend//src//components//mobile//MobileOptimizedInterface.tsx",
+    "frontend//src//components//modern//OptimizedPropFinderDashboard.tsx",
+    "frontend//src//components//modern//OptimizedPropFinderKillerDashboard.tsx",
+    "frontend//src//components//optimized//OptimizedPropList.fixed.tsx",
+    "frontend//src//components//optimized//OptimizedPropList.tsx"
+  ],
+  "legacy_files_sample": [
+    "DEPRECATED_ENTRY_POINTS.md",
+    "legacy_test_failures_summary.md",
+    "legacy_test_results.txt",
+    "legacy_test_results6.txt",
+    "tmp_backend_opps.json",
+    "tmp_frontend_opps.json",
+    "tmp_frontend_opps2.json",
+    "tmp_frontend_proxied.json",
+    "tmp_headless_console.txt",
+    "tmp_headless_response.json",
+    "tmp_propfinder_after_asdict.json",
+    "tmp_propfinder_last_payload.json",
+    "tmp_propfinder_last_payload_responsebuilder.json",
+    "tmp_propfinder_middleware_final.json",
+    "tmp_propfinder_opps.json",
+    "tmp_propfinder_parsed_after_flat.json",
+    "tmp_propfinder_parsed_before_flat.json",
+    "tmp_propfinder_responsebuilder_final.json",
+    "tmp_propfinder_responsebuilder_final_always.json",
+    "tmp_propfinder_responsebuilder_inspect.json",
+    "backend//main_backup.py",
+    "backend//main_deprecated.py",
+    "backend//routes//meta_legacy.py",
+    "backend//routes//risk_personalization_backup.py",
+    "backend//scripts//check_legacy_endpoints.py",
+    "backend//services//legacy_registry.py",
+    "backend//tests//test_legacy_disable_flag.py",
+    "backend//tests//test_legacy_usage.py",
+    "backend//tests//tmp_test_fail.py",
+    "docs//LEGACY_DEPRECATION_HINTS.md",
+    "docs//migration//legacy_deprecation_plan.md",
+    "frontend//BACKUP_AND_RESTORE.md",
+    "frontend//BACKUP_EXPORT_EXTENSIBILITY_AUDIT.md",
+    "frontend//src//components//dashboard//PropFinderDashboard.tsx.backup",
+    "frontend//src//components//ev//EVOpportunitiesPlaceholder.tsx",
+    "frontend//src//core//ci_thresholds.baseline.json",
+    "frontend//src//diagnostics//LegacyUsagePanel.tsx",
+    "frontend//src//hooks//useLegacyUsage.ts",
+    "frontend//src//pages//BankrollPageOld.tsx",
+    "frontend//src//services//unified//UnifiedBackupService.d.ts",
+    "frontend//src//services//unified//UnifiedBackupService.ts",
+    "frontend//src//utils//api_old.ts",
+    "frontend//src//websocket//websocketUrlLegacyElimination.test.ts",
+    "infrastructure//backup//backup-recovery.yaml",
+    "patch_bundle//backend_middleware_legacy_middleware.py",
+    "patch_bundle//docs_LEGACY_DEPRECATION_HINTS.md",
+    "patch_bundle//tests_backend_test_legacy_middleware_deprecation_flag.py",
+    "reports//tmp_propfinder_after_enrich_nba_1.json",
+    "reports//tmp_propfinder_after_enrich_nba_10.json",
+    "reports//tmp_propfinder_after_enrich_nba_11.json"
+  ]
+}

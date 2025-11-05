@@ -1638,18 +1638,10 @@ def create_app() -> FastAPI:
         from backend.users.routes import router as users_router
 
         _app.include_router(auth_router, prefix="/api")
-        # Backwards-compatibility: also expose auth routes at root (/auth/*)
-        try:
-            _app.include_router(auth_router)
-            logger.info(
-                "SUCCESS: Auth routes also exposed at root (/auth/*) for compatibility"
-            )
-        except Exception as _e:
-            logger.warning(
-                f"WARNING: Could not mount auth_router at root for compatibility: {_e}"
-            )
         _app.include_router(users_router)
-        logger.info("SUCCESS: Auth and users routes included (auth with /api prefix)")
+        logger.info(
+            "SUCCESS: Auth and users routes included (auth routed via /api prefix)"
+        )
     except ImportError as e:
         logger.warning(f"WARNING: Could not import auth/users routes: {e}")
 
@@ -3754,6 +3746,19 @@ def create_app() -> FastAPI:
                 return resp
 
         return await call_next(request)
+
+    # LLM Explanation Routes (REST endpoints for explanation workflows)
+    try:
+        from backend.routes.llm_explanations import router as llm_explanations_router
+
+        _app.include_router(llm_explanations_router, tags=["LLM Explanations"])
+        logger.info(
+            "SUCCESS: LLM explanation routes included (/api/edges/* explanation endpoints)"
+        )
+    except ImportError as e:
+        logger.warning(f"WARNING: Could not import LLM explanation routes: {e}")
+    except Exception as e:
+        logger.error(f"ERROR: Failed to register LLM explanation routes: {e}")
 
     # --- PHASE 5 CONSOLIDATED ROUTES ---
     # Consolidated PrizePicks API (replaces 3 legacy route files)

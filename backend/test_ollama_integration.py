@@ -15,7 +15,7 @@ from pathlib import Path
 backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
-from services.ollama_service import get_ollama_service, ExplainRequest
+from backend.services.ollama_service import get_ollama_service, ExplainRequest
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

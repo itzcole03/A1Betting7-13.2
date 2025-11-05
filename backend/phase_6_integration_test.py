@@ -61,7 +61,7 @@ class Phase6IntegrationTester:
     async def test_phase_1_data_integration(self):
         """Test Phase 1: Real PrizePicks data integration"""
         try:
-            from services.real_prizepicks_service import real_prizepicks_service
+            from backend.services.real_prizepicks_service import real_prizepicks_service
             
             # Test service initialization
             print("  📊 Testing PrizePicks service...")
@@ -81,7 +81,7 @@ class Phase6IntegrationTester:
     async def test_phase_3_ml_training(self):
         """Test Phase 3: ML training service"""
         try:
-            from services.real_ml_training_service import real_ml_training_service
+            from backend.services.real_ml_training_service import real_ml_training_service
             
             print("  🤖 Testing ML training service...")
             

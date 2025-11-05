@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), tailwindcss()],
-    root: path.resolve(__dirname, "."),
+    root: path.resolve(__dirname, "frontend"),
     build: {
       outDir: "dist",
       // Enable code splitting and performance optimizations
@@ -29,17 +29,22 @@ export default defineConfig(({ mode }) => {
             // React ecosystem
             "react-vendor": ["react", "react-dom", "react-router-dom"],
 
-            // UI libraries
-            "ui-vendor": ["@headlessui/react", "@heroicons/react"],
+            // UI libraries we actually ship
+            "ui-vendor": [
+              "@heroicons/react",
+              "framer-motion",
+              "lucide-react",
+              "react-hot-toast",
+            ],
 
-            // Data fetching and state management
-            "state-vendor": ["zustand", "swr"],
+            // Data fetching and state management helpers
+            "state-vendor": ["zustand", "@tanstack/react-query"],
 
             // Analytics and ML visualization
             "chart-vendor": ["chart.js", "react-chartjs-2"],
 
-            // Utilities
-            "utils-vendor": ["date-fns", "lodash"],
+            // Utilities leveraged across the app
+            "utils-vendor": ["clsx", "class-variance-authority", "immer"],
           },
           // Optimize chunk file names
           chunkFileNames: (chunkInfo) => {

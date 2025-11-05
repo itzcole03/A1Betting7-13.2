@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-// @ts-expect-error TS(6142): Module '../components/ui/NotificationToast' was re... Remove this comment to see the full error message
-import { Toast, ToastContainer } from '../components/ui/NotificationToast';
+// @ts-expect-error TS(6142): Module '../components/shared/ui/NotificationToast' was re... Remove this comment to see the full error message
+import { Toast, ToastContainer } from '../components/shared/ui/NotificationToast';
 
 interface ToastContextType {
   toasts: Toast[];

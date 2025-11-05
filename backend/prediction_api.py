@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 # Import our real-time prediction engine
-from services.real_time_prediction_engine import (
+from backend.services.real_time_prediction_engine import (
     PredictionConfidence,
     PredictionSystemHealth,
     RealTimePrediction,
@@ -402,7 +402,7 @@ async def train_models_background():
         logger.info("🔄 Background model training started...")
 
         # Import here to avoid circular imports
-        from services.real_ml_training_service import real_ml_training_service
+        from backend.services.real_ml_training_service import real_ml_training_service
 
         # Collect training data
         training_data = await real_ml_training_service.collect_real_training_data()

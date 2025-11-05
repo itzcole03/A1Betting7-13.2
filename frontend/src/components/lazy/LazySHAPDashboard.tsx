@@ -5,46 +5,46 @@
 
 import React, { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { LoadingSpinner, ErrorDisplay } from '../shared';
+import { ErrorDisplay, LoadingSpinner } from '../shared';
 
 // Lazy load the heavy SHAP components
-const InteractiveSHAPDashboard = React.lazy(() => 
+const InteractiveSHAPDashboard = React.lazy(() =>
   import('../enhanced/InteractiveSHAPDashboard').then(module => ({
-    default: module.default || module
+    default: module.default || module,
   }))
 );
 
-const SHAPAnalysis = React.lazy(() => 
+const SHAPAnalysis = React.lazy(() =>
   import('../features/shap/SHAPAnalysis').then(module => ({
-    default: module.default || module
+    default: module.default || module,
   }))
 );
 
 // Loading component
 const SHAPLoadingComponent: React.FC = () => (
   <LoadingSpinner
-    variant="brain"
-    size="xl"
-    color="primary"
-    message="Initializing ML explainability dashboard with interactive visualizations..."
-    showProgress={true}
-    className="py-16"
+    variant='brain'
+    size='xl'
+    tone='primary'
+    label='Initializing ML explainability dashboard with interactive visualizations...'
+    showProgress
+    className='py-16'
   />
 );
 
 // Error fallback component
-const SHAPErrorFallback: React.FC<{ error: Error; resetErrorBoundary: () => void }> = ({ 
-  error, 
-  resetErrorBoundary 
+const SHAPErrorFallback: React.FC<{ error: Error; resetErrorBoundary: () => void }> = ({
+  error,
+  resetErrorBoundary,
 }) => (
   <ErrorDisplay
-    variant="default"
-    title="SHAP Analysis Failed to Load"
+    variant='default'
+    title='SHAP Analysis Failed to Load'
     message={error.message}
     error={error}
     showDetails={true}
     onRetry={resetErrorBoundary}
-    className="max-w-lg mx-auto"
+    className='max-w-lg mx-auto'
   />
 );
 
@@ -88,16 +88,9 @@ export const LazySHAPDashboard: React.FC<LazySHAPDashboardProps> = ({
   ...props
 }) => {
   return (
-    <ErrorBoundary
-      FallbackComponent={SHAPErrorFallback}
-      onReset={() => window.location.reload()}
-    >
+    <ErrorBoundary FallbackComponent={SHAPErrorFallback} onReset={() => window.location.reload()}>
       <Suspense fallback={<SHAPLoadingComponent />}>
-        {variant === 'analysis' ? (
-          <SHAPAnalysis />
-        ) : (
-          <InteractiveSHAPDashboard {...props} />
-        )}
+        {variant === 'analysis' ? <SHAPAnalysis /> : <InteractiveSHAPDashboard {...props} />}
       </Suspense>
     </ErrorBoundary>
   );

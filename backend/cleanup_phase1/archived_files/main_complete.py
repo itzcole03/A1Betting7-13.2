@@ -21,10 +21,12 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, current_dir)
 sys.path.insert(0, parent_dir)
 
-from services.async_performance_optimizer import AsyncPerformanceOptimizer
+from backend.services.async_performance_optimizer import AsyncPerformanceOptimizer
 
 # Import services
-from services.comprehensive_prizepicks_service import ComprehensivePrizePicksService
+from backend.services.comprehensive_prizepicks_service import (
+    ComprehensivePrizePicksService,
+)
 
 # Configure logging with more detail
 
@@ -124,14 +126,14 @@ def check_prizepicks_api_status() -> Dict[str, Any]:
 
 
 import uvicorn
-
-# Import enhanced PropOllama
-from enhanced_propollama_engine import EnhancedPropOllamaEngine
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel
-from utils.llm_engine import llm_engine
+
+# Import enhanced PropOllama
+from backend.enhanced_propollama_engine import EnhancedPropOllamaEngine
+from backend.utils.llm_engine import llm_engine
 
 
 class ModelStatus(Enum):
@@ -937,7 +939,7 @@ enhanced_engine_available = False
 EnhancedPropOllamaEngine = None
 
 try:
-    from enhanced_propollama_engine import EnhancedPropOllamaEngine
+    from backend.enhanced_propollama_engine import EnhancedPropOllamaEngine
 
     enhanced_engine_available = True
     logger.info("Enhanced PropOllama engine imported successfully")

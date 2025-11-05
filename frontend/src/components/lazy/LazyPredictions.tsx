@@ -5,50 +5,44 @@
 
 import React, { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { LoadingSpinner, ErrorDisplay } from '../shared';
+import { ErrorDisplay, LoadingSpinner } from '../shared';
 
 // Lazy load heavy prediction components that actually exist
-const UnifiedAIPredictionsDashboard = React.lazy(() => 
-  import('../ai/UnifiedAIPredictionsDashboard')
+const UnifiedAIPredictionsDashboard = React.lazy(
+  () => import('../ai/UnifiedAIPredictionsDashboard')
 );
 
-const PredictionDisplay = React.lazy(() => 
-  import('../PredictionDisplay')
-);
+const PredictionDisplay = React.lazy(() => import('../PredictionDisplay'));
 
-const RealTimePredictions = React.lazy(() => 
-  import('../RealTimePredictions')
-);
+const RealTimePredictions = React.lazy(() => import('../RealTimePredictions'));
 
-const AdvancedPredictions = React.lazy(() => 
-  import('../phase3/AdvancedPredictions')
-);
+const AdvancedPredictions = React.lazy(() => import('../phase3/AdvancedPredictions'));
 
 // Loading component for predictions
 const PredictionsLoadingComponent: React.FC = () => (
   <LoadingSpinner
-    variant="chart"
-    size="xl"
-    color="success"
-    message="Initializing AI-powered prediction engines and real-time data streams..."
-    showProgress={true}
-    className="py-16"
+    variant='chart'
+    size='xl'
+    tone='success'
+    label='Initializing AI-powered prediction engines and real-time data streams...'
+    showProgress
+    className='py-16'
   />
 );
 
 // Error fallback for predictions
-const PredictionsErrorFallback: React.FC<{ error: Error; resetErrorBoundary: () => void }> = ({ 
-  error, 
-  resetErrorBoundary 
+const PredictionsErrorFallback: React.FC<{ error: Error; resetErrorBoundary: () => void }> = ({
+  error,
+  resetErrorBoundary,
 }) => (
   <ErrorDisplay
-    variant="default"
-    title="Predictions Failed to Load"
+    variant='default'
+    title='Predictions Failed to Load'
     message={error.message}
     error={error}
     showDetails={true}
     onRetry={resetErrorBoundary}
-    className="max-w-lg mx-auto"
+    className='max-w-lg mx-auto'
   />
 );
 
@@ -86,28 +80,26 @@ export const LazyPredictions: React.FC<LazyPredictionsProps> = ({
       FallbackComponent={PredictionsErrorFallback}
       onReset={() => window.location.reload()}
     >
-      <Suspense fallback={<PredictionsLoadingComponent />}>
-        {renderComponent()}
-      </Suspense>
+      <Suspense fallback={<PredictionsLoadingComponent />}>{renderComponent()}</Suspense>
     </ErrorBoundary>
   );
 };
 
 // Individual component wrappers for more granular control
-export const LazyAIDashboard: React.FC = (props) => (
-  <LazyPredictions variant="ai-dashboard" {...props} />
+export const LazyAIDashboard: React.FC = props => (
+  <LazyPredictions variant='ai-dashboard' {...props} />
 );
 
-export const LazyPredictionDisplay: React.FC = (props) => (
-  <LazyPredictions variant="prediction-display" {...props} />
+export const LazyPredictionDisplay: React.FC = props => (
+  <LazyPredictions variant='prediction-display' {...props} />
 );
 
-export const LazyRealtimePredictions: React.FC = (props) => (
-  <LazyPredictions variant="realtime" {...props} />
+export const LazyRealtimePredictions: React.FC = props => (
+  <LazyPredictions variant='realtime' {...props} />
 );
 
-export const LazyAdvancedPredictions: React.FC = (props) => (
-  <LazyPredictions variant="advanced" {...props} />
+export const LazyAdvancedPredictions: React.FC = props => (
+  <LazyPredictions variant='advanced' {...props} />
 );
 
 export default LazyPredictions;

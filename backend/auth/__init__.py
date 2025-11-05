@@ -19,7 +19,6 @@ from .security import (
     verify_password,
     verify_token,
 )
-from .user_service import User, UserProfile, UserService
 
 __all__ = [
     "SecurityManager",
@@ -31,7 +30,4 @@ __all__ = [
     "create_refresh_token",
     "verify_token",
     "extract_user_from_token",
-    "User",
-    "UserProfile",
-    "UserService",
 ]

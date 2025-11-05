@@ -24,7 +24,7 @@ try:
     from backend.services.provider_resilience_manager import provider_resilience_manager
 except ImportError:
     try:
-        from services.provider_resilience_manager import provider_resilience_manager
+        from backend.services.provider_resilience_manager import provider_resilience_manager
     except ImportError:
         # Create mock for testing if not available
         provider_resilience_manager = None

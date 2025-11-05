@@ -141,13 +141,13 @@ export const COMPONENT_BOUNDARIES: ComponentBoundary[] = [
     description: 'Core components should only import utilities and base libraries'
   },
   {
-    domain: 'components/ui',
+    domain: 'components/shared/ui',
     allowedImports: ['@/lib', '@/utils', '@/types', 'react', 'class-variance-authority', 'clsx'],
     description: 'UI components should be pure and not import business logic'
   },
   {
     domain: 'components/features',
-    allowedImports: ['@/lib', '@/utils', '@/types', '@/services', '@/hooks', '@/components/core', '@/components/ui', 'react'],
+    allowedImports: ['@/lib', '@/utils', '@/types', '@/services', '@/hooks', '@/components/core', '@/components/shared/ui', 'react'],
     description: 'Feature components can import services and hooks'
   },
   {

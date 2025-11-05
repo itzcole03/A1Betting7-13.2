@@ -4,9 +4,9 @@
  */
 import React, { createRef } from 'react';
 import { render, screen } from '@testing-library/react';
-import Input from '../components/ui/input';
-import Label from '../components/ui/label';
-import Select from '../components/ui/select';
+import Input from '../components/shared/ui/input';
+import Label from '../components/shared/ui/label';
+import Select from '../components/shared/ui/select';
 
 describe('UI Component Typing Smoke Tests', () => {
   test('Input renders with ref and error', () => {

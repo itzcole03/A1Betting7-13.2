@@ -39,7 +39,46 @@ try:
 
     globals()["system_monitor"] = system_monitor
     __all__.append("system_monitor")
-except Exception:
+except (
+    Exception
+):  # pragma: no cover - best-effort compatibility  # pylint: disable=broad-exception-caught
     # If the shim is not available or import fails, silently continue; tests
     # that require it will fail and the shim can be added as needed.
+    pass
+
+# Backwards-compatibility module aliases for relocated shims
+try:
+    import sys
+
+    from . import aioredis as _aioredis  # type: ignore
+
+    sys.modules.setdefault("aioredis", _aioredis)
+
+    from . import background_agents as _background_agents  # type: ignore
+
+    sys.modules.setdefault("background_agents", _background_agents)
+
+    from . import enhanced_propollama_engine as _enhanced_engine  # type: ignore
+
+    sys.modules.setdefault("enhanced_propollama_engine", _enhanced_engine)
+
+    from . import feature_cache as _feature_cache  # type: ignore
+
+    sys.modules.setdefault("feature_cache", _feature_cache)
+
+    from . import config as _config_module  # type: ignore
+
+    sys.modules.setdefault("config", _config_module)
+
+    from . import services as _services_module  # type: ignore
+
+    sys.modules.setdefault("services", _services_module)
+
+    from . import utils as _utils_module  # type: ignore
+
+    sys.modules.setdefault("utils", _utils_module)
+except (
+    Exception
+):  # pragma: no cover - best-effort compatibility  # pylint: disable=broad-exception-caught
+    # Best-effort registration; missing optional shims should not break runtime
     pass

@@ -35,7 +35,7 @@ async def match_prediction(req: MatchPredictionRequest) -> MatchPredictionRespon
 
         # Real ML implementation using trained models
         try:
-            from services.real_ml_service import real_ml_service
+            from backend.services.real_ml_service import real_ml_service
 
             # Prepare features for ML model
             features = {
@@ -327,7 +327,7 @@ async def predict_endpoint(input_data: InputData) -> Dict[str, Any]:
 
         # Use real ML models for prediction
         try:
-            from services.real_ml_service import real_ml_service
+            from backend.services.real_ml_service import real_ml_service
 
             # Prepare features
             features = {**input_data.team_stats, **input_data.player_stats}
@@ -397,7 +397,7 @@ async def get_advanced_analytics() -> Dict[str, Any]:
     try:
         # Get real ML performance metrics
         try:
-            from services.real_ml_service import real_ml_service
+            from backend.services.real_ml_service import real_ml_service
 
             # Get real model performance
             performance = await real_ml_service.get_model_performance()

@@ -29,7 +29,7 @@ from ..core.response_models import ResponseBuilder, StandardAPIResponse
 from ..services.cache import redis_cache
 
 # Temporarily commenting out corrupted data_fetchers
-# from services.data_fetchers import fetch_betting_opportunities_internal
+# from backend.services.data_fetchers import fetch_betting_opportunities_internal
 
 logger = logging.getLogger(__name__)
 

@@ -11,7 +11,7 @@ const cn = (...classes: (string | undefined | false)[]): string => {
 };
 
 interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'light' | 'strong' | 'minimal';
+  variant?: 'default' | 'light' | 'strong' | 'minimal' | 'featured' | 'compact';
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   children: React.ReactNode;
 }
@@ -24,12 +24,15 @@ const GlassCard: React.FC<GlassCardProps> = ({
   ...props
 }) => {
   const baseClasses = 'glass-card';
-  
+
   const variantClasses = {
     default: '',
     light: 'glass-card--light',
     strong: 'glass-card--strong',
-    minimal: 'opacity-80'
+    minimal: 'opacity-80',
+    featured:
+      'bg-gradient-to-br from-cyan-500/20 via-transparent to-transparent border border-cyan-500/30 shadow-lg shadow-cyan-500/10',
+    compact: 'bg-slate-900/70 border border-slate-700/60',
   };
 
   const paddingClasses = {
@@ -37,17 +40,12 @@ const GlassCard: React.FC<GlassCardProps> = ({
     sm: 'p-3',
     md: 'p-4',
     lg: 'p-6',
-    xl: 'p-8'
+    xl: 'p-8',
   };
 
   return (
     <div
-      className={cn(
-        baseClasses,
-        variantClasses[variant],
-        paddingClasses[padding],
-        className
-      )}
+      className={cn(baseClasses, variantClasses[variant], paddingClasses[padding], className)}
       {...props}
     >
       {children}

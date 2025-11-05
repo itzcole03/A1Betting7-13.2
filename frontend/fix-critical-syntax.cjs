@@ -118,7 +118,7 @@ const criticalPatterns = [
   'core/',
   'components/QuantumSportsPlatform',
   'components/ViteErrorBoundary',
-  'components/common/theme',
+  'components/shared/common/theme',
   'types/',
   'services/',
 ];

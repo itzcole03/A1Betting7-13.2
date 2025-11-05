@@ -34,7 +34,7 @@ async def startup_event():
     """Initialize services on startup"""
     global prizepicks_service
     try:
-        from services.comprehensive_prizepicks_service import ComprehensivePrizePicksService
+        from backend.services.comprehensive_prizepicks_service import ComprehensivePrizePicksService
         prizepicks_service = ComprehensivePrizePicksService()
         
         # Start the real-time data ingestion in the background

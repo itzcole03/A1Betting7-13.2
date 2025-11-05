@@ -186,7 +186,8 @@ Key backend patterns:
 - `frontend/src/components/dashboard/PropFinderDashboard.tsx` — main prop explorer with debounced search, EV indicators, and arbitrage surfacing.
 - `frontend/src/components/arbitrage/LiveArbitragePanel.tsx` — real-time arbitrage summary widget.
 - `frontend/src/components/analysis/MovementAnalysis.tsx` — trend visualizations using Chart.js.
-- Shared UI primitives live under `frontend/src/components/ui/` (buttons, tables, tooltips).
+- Shared UI primitives live under `frontend/src/components/base/` (buttons, tables, tooltips).
+- Advanced UI patterns live under `frontend/src/components/shared/ui/`.
 
 ### Commands
 

@@ -303,7 +303,7 @@ class Phase7ProductionLauncher:
             sys.path.append(".")
 
             # Test database initialization
-            from services.real_ml_training_service import real_ml_training_service
+            from backend.services.real_ml_training_service import real_ml_training_service
 
             # Validate database structure
             db_ready = True  # Simplified validation

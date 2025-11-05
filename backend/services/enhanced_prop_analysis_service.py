@@ -13,6 +13,7 @@ from backend.services.enhanced_ml_service import enhanced_ml_service
 from backend.services.mlb_provider_client import MLBProviderClient
 from backend.services.mlb_stats_api_client import MLBStatsAPIClient
 from backend.services.real_shap_service import RealSHAPService
+from backend.services.unified_data_service import UnifiedDataService, get_data_service
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ class EnhancedPropAnalysisService:
         self.initialized = False
 
         # Performance optimization - lazy import to avoid circular dependencies
-        self.optimized_data_service = None
+        self.unified_data_service: Optional[UnifiedDataService] = None
 
     async def initialize(self):
         """Initialize all required services"""
@@ -44,18 +45,14 @@ class EnhancedPropAnalysisService:
                 logger.warning("MLB client initialization failed: %s", str(e))
                 self.mlb_client = None
 
-            # Initialize optimized data service
+            # Initialize unified data service
             try:
-                from backend.services.optimized_data_service import (
-                    optimized_data_service,
-                )
-
-                self.optimized_data_service = optimized_data_service
-                await self.optimized_data_service.initialize()
-                logger.info("Optimized data service integrated successfully")
+                self.unified_data_service = await get_data_service()
+                await self.unified_data_service.ensure_optimized_ready()
+                logger.info("Unified data service integrated successfully")
             except Exception as e:
-                logger.warning(f"Optimized data service initialization failed: {e}")
-                self.optimized_data_service = None
+                logger.warning("Unified data service initialization failed: %s", str(e))
+                self.unified_data_service = None
 
             self.initialized = True
             logger.info("Enhanced Prop Analysis Service initialized with optimizations")
@@ -92,7 +89,7 @@ class EnhancedPropAnalysisService:
                 await self.initialize()
 
             # Use optimized path if available, fallback to original method
-            if self.optimized_data_service:
+            if self.unified_data_service:
                 return await self._get_enhanced_prop_analysis_optimized(
                     prop_id, player_name, stat_type, line, team, matchup
                 )
@@ -119,7 +116,10 @@ class EnhancedPropAnalysisService:
         """
         try:
             # Get comprehensive player data in one optimized call
-            player_data = await self.optimized_data_service.get_player_data_optimized(
+            if self.unified_data_service is None:
+                raise RuntimeError("Unified data service unavailable")
+
+            player_data = await self.unified_data_service.get_player_data_optimized(
                 player_name, [stat_type]
             )
 

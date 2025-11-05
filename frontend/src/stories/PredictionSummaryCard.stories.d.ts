@@ -1,5 +1,5 @@
 ﻿import { Meta, StoryObj } from '@storybook/react.ts';
-import { PredictionSummaryCard } from '@/components/ui/PredictionSummaryCard.ts';
+import { PredictionSummaryCard } from '@/components/shared/ui/PredictionSummaryCard.ts';
 declare const _meta: Meta<typeof PredictionSummaryCard>;
 export default meta;
 type Story = StoryObj<typeof PredictionSummaryCard>;

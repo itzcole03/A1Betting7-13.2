@@ -203,7 +203,7 @@ class UltraHighAccuracyEngine:
         try:
             # Use real ML service if available
             try:
-                from services.real_ml_service import real_ml_service
+                from backend.services.real_ml_service import real_ml_service
                 
                 # Get real ML prediction
                 ml_prediction = await real_ml_service.predict_win_probability(features)

@@ -29,7 +29,8 @@ try:
 
     # Test critical imports first
     try:
-        from config import config_manager
+        from backend.config_manager import config_manager
+
         print("✅ Config module loaded successfully")
     except ImportError as e:
         print(f"❌ Config import failed: {e}")
@@ -37,6 +38,7 @@ try:
 
     try:
         from ensemble_engine import ultra_ensemble_engine
+
         print("✅ Ensemble engine loaded successfully")
     except ImportError as e:
         print(f"⚠️ Ensemble engine import failed: {e}")

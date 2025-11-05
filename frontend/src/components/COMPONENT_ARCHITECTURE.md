@@ -58,13 +58,13 @@ App.tsx
 ```typescript
 // Single source of truth
 import { Button, Card, Modal, UserFriendlyApp } from '@/components';
-import { Input, Sidebar } from '@/components/ui';
+import { Input, Sidebar } from '@/components/shared/ui';
 ```
 
 ### ❌ **AVOID** - Deep imports
 ```typescript
 // Don't do this anymore
-import Button from '../../components/ui/button';
+import Button from '../../components/shared/ui/button';
 import Card from '../../../base/Card';
 ```
 
@@ -88,7 +88,7 @@ import Card from '../../../base/Card';
 
 ### ✅ **Organized Structure**
 - Main exports in `components/index.ts`
-- UI exports in `components/ui/index.ts`
+- UI exports in `components/shared/ui/index.ts`
 - Clear separation of concerns
 - Eliminated circular dependencies
 

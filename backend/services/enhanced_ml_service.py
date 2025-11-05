@@ -11,13 +11,21 @@ class EnhancedMLService:
         # Return a deterministic dummy prediction
         return {"prediction": 0.5, "confidence": 0.5, "input": payload}
 
-    async def predict_batch(self, requests: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def predict_batch(
+        self, requests: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         await asyncio.sleep(0)
         return [await self.predict_single(r) for r in requests]
 
-    async def register_model(self, model_name: str, version: str, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def register_model(
+        self, model_name: str, version: str, metadata: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         key = f"{model_name}:{version}"
-        self._models[key] = {"name": model_name, "version": version, "metadata": metadata or {}}
+        self._models[key] = {
+            "name": model_name,
+            "version": version,
+            "metadata": metadata or {},
+        }
         await asyncio.sleep(0)
         return self._models[key]
 
@@ -35,6 +43,8 @@ _enhanced_ml_service = EnhancedMLService()
 
 def get_enhanced_ml_service() -> EnhancedMLService:
     return _enhanced_ml_service
+
+
 """
 Enhanced Real ML Service with Production-Ready Models
 This replaces fallback models with actual trained ML models using real data.
@@ -66,7 +76,6 @@ try:
     from sklearn.neural_network import MLPClassifier
     from sklearn.preprocessing import StandardScaler
 
-    from backend.services.real_data_integration import ml_data_pipeline
     from backend.utils.enhanced_logging import get_logger
 
     logger = get_logger("enhanced_ml_service")
@@ -95,6 +104,12 @@ except Exception:
     logger = logging.getLogger("enhanced_ml_service")
 
 
+from backend.services.core.unified_data_service import (
+    UnifiedDataService,
+    get_data_service,
+)
+
+
 class EnhancedRealMLService:
     """Enhanced ML service with production-ready models trained on real data"""
 
@@ -106,6 +121,7 @@ class EnhancedRealMLService:
         self.model_performance = {}
         self.ensemble_weights = {}
         self.is_initialized = False
+        self._data_service: Optional[UnifiedDataService] = None
 
     async def initialize(self):
         """Initialize enhanced ML service with basic setup only"""
@@ -115,12 +131,13 @@ class EnhancedRealMLService:
             # Always initialize fallback models first as a safety net
             await self._initialize_enhanced_fallback_models()
 
-            # Initialize data pipeline
+            # Ensure unified data service is ready for downstream training
             try:
-                await ml_data_pipeline.initialize()
-                logger.info("ML data pipeline initialized successfully")
+                service = await self._get_unified_data_service()
+                if service:
+                    logger.info("Unified data service ready for ML data ingestion")
             except Exception as e:
-                logger.warning(f"ML data pipeline initialization failed: {e}")
+                logger.warning(f"Unified data service initialization failed: {e}")
 
             # NOTE: Sport-specific models are now trained lazily when sports are activated
             logger.info(
@@ -148,11 +165,81 @@ class EnhancedRealMLService:
                 True  # Mark as initialized even with just fallback models
             )
 
+    async def _get_unified_data_service(self) -> Optional[UnifiedDataService]:
+        """Lazily acquire the unified data service for real data fetches."""
+        if self._data_service is not None:
+            return self._data_service
+
+        try:
+            self._data_service = await get_data_service()
+        except Exception as exc:
+            logger.warning(f"Unified data service unavailable: {exc}")
+            self._data_service = None
+        return self._data_service
+
+    async def _build_training_frame_from_unified(
+        self, sport: str
+    ) -> "pd.DataFrame":  # type: ignore[name-defined]
+        """Construct a training dataframe using unified betting opportunities."""
+        service = await self._get_unified_data_service()
+        if service is None:
+            return pd.DataFrame()
+
+        try:
+            opportunities = await service.fetch_real_betting_opportunities()
+        except Exception as exc:
+            logger.warning(
+                f"Failed to fetch real betting opportunities for {sport}: {exc}"
+            )
+            return pd.DataFrame()
+
+        rows: List[Dict[str, Any]] = []
+        target_sport = sport.upper()
+        for opportunity in opportunities:
+            if (opportunity.sport or "").upper() != target_sport:
+                continue
+
+            rows.append(
+                {
+                    "odds": opportunity.odds,
+                    "expected_value": opportunity.expected_value,
+                    "kelly_fraction": opportunity.kelly_fraction,
+                    "confidence": opportunity.confidence,
+                    "probability": opportunity.probability,
+                    "target": 1 if opportunity.recommendation == "bet" else 0,
+                }
+            )
+
+        if target_sport == "MLB" and not rows:
+            try:
+                props = await service.fetch_real_prizepicks_props()
+                for prop in props:
+                    if (prop.get("sport") or "").upper() != target_sport:
+                        continue
+                    confidence = float(prop.get("confidence", 0.7))
+                    rows.append(
+                        {
+                            "odds": float(prop.get("over_odds", 1.9)),
+                            "expected_value": 0.0,
+                            "kelly_fraction": 0.0,
+                            "confidence": confidence,
+                            "probability": 0.5 + min(0.2, confidence - 0.5),
+                            "target": 1 if confidence >= 0.7 else 0,
+                        }
+                    )
+            except Exception as exc:
+                logger.debug("Failed to augment MLB training data with props: %s", exc)
+
+        if not rows:
+            return pd.DataFrame()
+
+        return pd.DataFrame(rows)
+
     async def _train_enhanced_nfl_models(self):
         """Train NFL-specific models with real data"""
         try:
             # Get real NFL training data
-            nfl_data = await ml_data_pipeline.generate_real_training_data("NFL")
+            nfl_data = await self._build_training_frame_from_unified("NFL")
 
             if nfl_data.empty:
                 logger.warning("No NFL training data available, using synthetic data")
@@ -185,7 +272,7 @@ class EnhancedRealMLService:
     async def _train_enhanced_nba_models(self):
         """Train NBA-specific models with real data"""
         try:
-            nba_data = await ml_data_pipeline.generate_real_training_data("NBA")
+            nba_data = await self._build_training_frame_from_unified("NBA")
 
             if nba_data.empty:
                 nba_data = self._generate_synthetic_nba_data()
@@ -211,7 +298,7 @@ class EnhancedRealMLService:
     async def _train_enhanced_mlb_models(self):
         """Train MLB-specific models leveraging existing MLB integration"""
         try:
-            mlb_data = await ml_data_pipeline.generate_real_training_data("MLB")
+            mlb_data = await self._build_training_frame_from_unified("MLB")
 
             if mlb_data.empty:
                 mlb_data = self._generate_synthetic_mlb_data()

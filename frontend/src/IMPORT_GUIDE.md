@@ -112,7 +112,7 @@ export * from './ui';
 
 ### **Subdirectory index files**
 ```typescript
-// components/ui/index.ts
+// components/shared/ui/index.ts
 export { default as Button } from '../Button';
 export { default as Card } from '../Card';
 export * from './input';
@@ -159,7 +159,7 @@ const HeavyComponent = lazy(() => import('@/components/HeavyComponent'));
 ### **Tree Shaking Optimization**
 ```typescript
 // ✅ Good - specific imports
-import { Button } from '@/components/ui';
+import { Button } from '@/components/shared/ui';
 
 // ❌ Avoid - imports entire library
 import * as AllComponents from '@/components';

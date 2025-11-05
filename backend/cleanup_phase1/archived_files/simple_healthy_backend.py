@@ -147,7 +147,7 @@ async def get_prizepicks_props() -> List[Dict[str, Any]]:
         import os
         sys.path.append(os.path.dirname(os.path.abspath(__file__)))
         
-        from services.real_prizepicks_service import real_prizepicks_service
+        from backend.services.real_prizepicks_service import real_prizepicks_service
         
         logger.info("🌐 Using REAL PrizePicks API integration - ZERO mock data")
         

@@ -25,7 +25,7 @@ from pathlib import Path
 # Add backend to path
 sys.path.append(str(Path(__file__).parent / "backend"))
 
-from services.streaming_stability_test import StreamingStabilityTester
+from backend.services.streaming_stability_test import StreamingStabilityTester
 
 
 def setup_logging(verbose: bool = False):

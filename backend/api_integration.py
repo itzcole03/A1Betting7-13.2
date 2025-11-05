@@ -459,7 +459,7 @@ async def prizepicks_props_fallback():
     return {"props": []}
 
 
-from backend.auth.user_service import UserProfile
+from backend.services.auth_service import UserProfile
 
 # For testability and config
 
@@ -698,8 +698,7 @@ async def unified_analysis_stub():
 
 
 # Register all routers on the global app instance
-app.include_router(auth_router)
-app.include_router(auth_router, prefix="/api/auth")
+app.include_router(auth_router, prefix="/api")
 app.include_router(propollama_router)
 app.include_router(propollama_router, prefix="/api/propollama")
 app.include_router(propollama_router2)
@@ -1009,7 +1008,7 @@ async def root(request: Request):
 api_router = APIRouter(prefix="/api", tags=["A1Betting API"])
 
 # Register the main API router for all other endpoints
-app.include_router(api_router)
+app.include_router(api_router, prefix="/api")
 
 # --- Register all routers from backend/routes/ ---
 

@@ -246,7 +246,7 @@ class ProductionOperationManager:
             if engine_ready:
                 # Import and validate prediction engine
                 sys.path.append('.')
-                from services.real_time_prediction_engine import RealTimePredictionEngine
+                from backend.services.real_time_prediction_engine import RealTimePredictionEngine
                 
                 # Initialize engine (simplified validation)
                 prediction_engine_active = True

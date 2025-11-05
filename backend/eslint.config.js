@@ -1,9 +1,2 @@
-import base from '../eslint-config/base.js';
-export default {
-  ...base,
-  root: true,
-  parserOptions: {
-    ...base.parserOptions,
-    project: './tsconfig.json'
-  }
-};
+// Backend ESM re-export to avoid drift from the canonical root ESLint config.
+export { default } from "../eslint.config.mjs";

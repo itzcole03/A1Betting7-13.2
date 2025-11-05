@@ -21,7 +21,7 @@ from cachetools import TTLCache
 from database import db_manager
 from prometheus_client import Counter, Histogram
 from sklearn.ensemble import RandomForestRegressor
-from utils.prediction_utils import (
+from backend.utils.prediction_utils import (
     calculate_confidence,
     calculate_uncertainty,
     feature_compatibility,

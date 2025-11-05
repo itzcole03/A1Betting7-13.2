@@ -54,7 +54,7 @@ except ImportError:
     logger.warning("Ultra accuracy engine not available")
 
 try:
-    from services.real_ml_service import RealMLModels
+    from backend.services.real_ml_service import RealMLModels
 
     REAL_ML_AVAILABLE = True
 except ImportError:

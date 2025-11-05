@@ -58,6 +58,26 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+# Shared cache instance used by tests; monkeypatched in unit suites.
+unified_cache_service: Optional[Any] = None
+
+
+async def get_unified_cache_service() -> Optional[Any]:
+    """Return (and memoize) the shared unified cache instance."""
+
+    global unified_cache_service
+    if unified_cache_service is not None:
+        return unified_cache_service
+
+    if get_cache is None or UnifiedCacheService is None:
+        return None
+
+    try:
+        unified_cache_service = await get_cache()
+    except Exception:
+        unified_cache_service = None
+    return unified_cache_service
+
 
 class Sport(Enum):
     NBA = "NBA"
@@ -244,14 +264,22 @@ class PropFinderDataService:
     async def _get_cache(self) -> Optional[Any]:
         """Return the shared cache instance if available."""
 
+        global unified_cache_service
+
         if get_cache is None or UnifiedCacheService is None:
             return None
+
+        if unified_cache_service is not None:
+            return unified_cache_service
 
         if self._cache is None:
             async with self._cache_lock:
                 if self._cache is None:
                     try:
-                        self._cache = await get_cache()
+                        cache_instance = await get_unified_cache_service()
+                        if cache_instance is None:
+                            cache_instance = await get_cache()
+                        self._cache = cache_instance
                     except Exception as exc:
                         self.logger.debug("Cache initialization failed: %s", exc)
                         return None

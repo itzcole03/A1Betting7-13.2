@@ -3,7 +3,7 @@
  * This script tests what happens when the backend is unavailable
  */
 /* eslint-env jest, node */
-/* global describe, test, expect, beforeEach, afterEach, jest, global, require, console */
+/* global describe, test, expect, beforeEach, afterEach, jest, global */
 
 import { PlayerDataService } from '../services/data/PlayerDataService';
 import { ApiService } from '../services/unified/ApiService';
@@ -43,20 +43,15 @@ describe('Fallback Behavior Tests', () => {
 
     const playerService = PlayerDataService.getInstance();
 
-    try {
-      const playerData = await playerService.getPlayer('test-player', 'MLB');
+    const playerData = await playerService.getPlayer('test-player', 'MLB');
 
-      // Should return mock data, not throw an error
-      expect(playerData).toBeDefined();
-      expect(playerData.id).toBe('test-player');
-      expect(playerData.name).toContain('Test');
-      expect(playerData.sport).toBe('MLB');
+    // Should return mock data, not throw an error
+    expect(playerData).toBeDefined();
+    expect(playerData.id).toBe('test-player');
+    expect(playerData.name).toContain('Test');
+    expect(playerData.sport).toBe('MLB');
 
-      // console.log('✅ PlayerDataService fallback working correctly');
-    } catch (error) {
-      // console.error('❌ PlayerDataService fallback failed:', error);
-      throw error;
-    }
+    // console.log('✅ PlayerDataService fallback working correctly');
   });
 
   test('ApiService should fail fast with short timeout', async () => {

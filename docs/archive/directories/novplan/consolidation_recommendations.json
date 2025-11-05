@@ -1,0 +1,225 @@
+{
+  "immediate_deletions": {
+    "description": "Files that should be deleted immediately",
+    "categories": {
+      "legacy_marked_files": {
+        "count": 50,
+        "action": "DELETE - These files are explicitly marked as legacy, backup, or deprecated",
+        "files": [
+          "DEPRECATED_ENTRY_POINTS.md",
+          "devops_api_monitoring_template.md",
+          "legacy_test_failures_summary.md",
+          "legacy_test_results.txt",
+          "legacy_test_results6.txt",
+          "tmp_backend_opps.json",
+          "tmp_frontend_opps.json",
+          "tmp_frontend_opps2.json",
+          "tmp_frontend_proxied.json",
+          "tmp_headless_console.txt",
+          "tmp_headless_response.json",
+          "tmp_propfinder_after_asdict.json",
+          "tmp_propfinder_last_payload.json",
+          "tmp_propfinder_last_payload_responsebuilder.json",
+          "tmp_propfinder_middleware_final.json",
+          "tmp_propfinder_opps.json",
+          "tmp_propfinder_parsed_after_flat.json",
+          "tmp_propfinder_parsed_before_flat.json",
+          "tmp_propfinder_responsebuilder_final.json",
+          "tmp_propfinder_responsebuilder_final_always.json",
+          "tmp_propfinder_responsebuilder_inspect.json",
+          "main_backup.py",
+          "main_deprecated.py",
+          "prompt_templates.yaml",
+          "meta_legacy.py",
+          "risk_personalization_backup.py",
+          "check_legacy_endpoints.py",
+          "legacy_registry.py",
+          "prompt_templates.py",
+          "test_legacy_disable_flag.py",
+          "test_legacy_usage.py",
+          "tmp_test_fail.py",
+          "test_prompt_templates.py",
+          "test_prompt_templates_fixed.py",
+          "LEGACY_DEPRECATION_HINTS.md",
+          "template.md",
+          "legacy_deprecation_plan.md",
+          "BACKUP_AND_RESTORE.md",
+          "BACKUP_EXPORT_EXTENSIBILITY_AUDIT.md",
+          "PropFinderDashboard.tsx.backup",
+          "EVOpportunitiesPlaceholder.tsx",
+          "ci_thresholds.baseline.json",
+          "LegacyUsagePanel.tsx",
+          "useLegacyUsage.ts",
+          "BankrollPageOld.tsx",
+          "TemporalPatternModel.d.ts",
+          "TemporalPatternModel.ts",
+          "UnifiedBackupService.d.ts",
+          "UnifiedBackupService.ts",
+          "api_old.ts"
+        ]
+      },
+      "temp_debug_files": {
+        "count": 23,
+        "action": "DELETE - Temporary debug files that should never be committed",
+        "files": [
+          "devops_api_monitoring_template.md",
+          "tmp_backend_opps.json",
+          "tmp_frontend_opps.json",
+          "tmp_frontend_opps2.json",
+          "tmp_frontend_proxied.json",
+          "tmp_headless_console.txt",
+          "tmp_headless_response.json",
+          "tmp_propfinder_after_asdict.json",
+          "tmp_propfinder_last_payload.json",
+          "tmp_propfinder_last_payload_responsebuilder.json",
+          "tmp_propfinder_middleware_final.json",
+          "tmp_propfinder_opps.json",
+          "tmp_propfinder_parsed_after_flat.json",
+          "tmp_propfinder_parsed_before_flat.json",
+          "tmp_propfinder_responsebuilder_final.json",
+          "tmp_propfinder_responsebuilder_final_always.json",
+          "tmp_propfinder_responsebuilder_inspect.json",
+          "prompt_templates.yaml",
+          "prompt_templates.py",
+          "tmp_test_fail.py",
+          "test_prompt_templates.py",
+          "test_prompt_templates_fixed.py",
+          "template.md"
+        ]
+      }
+    }
+  },
+  "service_consolidation": {
+    "description": "Services with multiple implementations that need consolidation",
+    "priority_consolidations": {
+      "prediction_services": {
+        "count": 12,
+        "action": "CONSOLIDATE into UnifiedPredictionService",
+        "target": "UnifiedPredictionService.ts",
+        "files_to_merge": [
+          "unified_prediction_service.py",
+          "UnifiedPredictionService.ts",
+          "predictionService.ts",
+          "quantumPredictionsService.ts",
+          "realTimePredictionService.ts",
+          "predictionOptimizationService.ts",
+          "PredictionIntegrationService.ts",
+          "PredictionService.ts",
+          "predictionService.ts",
+          "UnifiedEnhancedPredictionService.ts",
+          "UnifiedPredictionService.ts",
+          "unified_prediction_service.py"
+        ]
+      },
+      "data_services": {
+        "count": 37,
+        "action": "CONSOLIDATE into UnifiedDataService",
+        "target": "UnifiedDataService.ts",
+        "files_to_merge": [
+          "alternative_data_sources_service.py",
+          "data_warehouse_optimization_service.py",
+          "database_migration_service.py",
+          "database_service.py",
+          "enhanced_data_validation_service.py",
+          "enhanced_database_migration_service.py",
+          "optimized_data_service.py",
+          "optimized_database_service.py",
+          "optimized_real_time_data_service.py",
+          "real_data_service.py",
+          "unified_data_service.py",
+          "test_unified_data_service.js",
+          "dataIntegrationService.ts",
+          "DataNormalizationService.ts",
+          "dataScrapingService.ts"
+        ]
+      },
+      "cache_implementations": {
+        "count": 14,
+        "action": "CONSOLIDATE into UnifiedCache",
+        "target": "unified_cache_service.py / UnifiedCache.ts",
+        "files_to_merge": [
+          "cache_warming_service.py",
+          "cache_service.py",
+          "optimized_cache_service.py",
+          "redis_cache_service.py",
+          "unified_cache_service.py",
+          "unified_cache_service.py",
+          "test_intelligent_cache_service.py",
+          "AnalysisCacheService.ts",
+          "cacheService.ts",
+          "CacheService.ts",
+          "test_intelligent_cache_service.py",
+          "unified_cache_service.py (cache consolidation)",
+          "intelligent_cache_service.py",
+          "unified_cache_service.py"
+        ]
+      }
+    }
+  },
+  "dashboard_consolidation": {
+    "description": "Multiple dashboard implementations causing UI bloat",
+    "count": 84,
+    "action": "CONSOLIDATE - Keep only 3-5 core dashboards, remove variants",
+    "recommended_to_keep": [
+      "UnifiedDashboard.tsx (main entry point)",
+      "PlayerDashboard.tsx (player-specific view)",
+      "PropFinderDashboard.tsx (prop analysis)",
+      "PerformanceMonitoringDashboard.tsx (admin/monitoring)"
+    ],
+    "recommended_to_remove": [
+      "EnhancedDashboard.tsx (merge into UnifiedDashboard)",
+      "OptimizedDashboard.tsx (merge optimizations into UnifiedDashboard)",
+      "PropFinderDashboardSimple.tsx (redundant)",
+      "PropFinderDashboard.tsx.backup (backup file)",
+      "PropFinderDashboard.tsx.broken (broken file)"
+    ]
+  },
+  "prop_file_cleanup": {
+    "description": "Excessive prop-related files indicating feature sprawl",
+    "total_count": 392,
+    "action": "CONSOLIDATE and ORGANIZE - Move to dedicated /prop-finder module",
+    "debug_files_to_delete": [
+      "backend_propfinder_last_debug.txt",
+      "backend_propfinder_last_debug2.txt",
+      "backend_propfinder_last_debug_error.txt",
+      "backend_propfinder_last_debug_error_full.txt",
+      "backend_propfinder_last_debug_probe.txt",
+      "backend_propfinder_opps_8001.txt",
+      "backend_propfinder_opps_8001_error.txt",
+      "backend_propfinder_opps_8001_full.txt",
+      "backend_propfinder_opps_8001_trigger.txt",
+      "backend_propfinder_opps_probe.txt",
+      "backend_propfinder_opps_trigger.txt",
+      "prop_debug_disable.json",
+      "prop_debug_enable.json",
+      "prop_debug_last.json",
+      "tmp_propfinder_after_asdict.json",
+      "tmp_propfinder_last_payload.json",
+      "tmp_propfinder_last_payload_responsebuilder.json",
+      "tmp_propfinder_middleware_final.json",
+      "tmp_propfinder_opps.json",
+      "tmp_propfinder_parsed_after_flat.json",
+      "tmp_propfinder_parsed_before_flat.json",
+      "tmp_propfinder_responsebuilder_final.json",
+      "tmp_propfinder_responsebuilder_final_always.json",
+      "tmp_propfinder_responsebuilder_inspect.json"
+    ]
+  },
+  "test_file_optimization": {
+    "description": "Test file organization and cleanup",
+    "total_test_files": 964,
+    "action": "AUDIT - Ensure all tests are current and remove obsolete test files"
+  },
+  "config_consolidation": {
+    "description": "Multiple configuration files",
+    "total_config_files": 337,
+    "action": "CONSOLIDATE - Reduce to single source of truth per environment"
+  },
+  "summary": {
+    "total_files_analyzed": 6750,
+    "estimated_files_to_remove": 124,
+    "estimated_reduction_percentage": 1.84,
+    "redundant_service_groups": 75,
+    "dashboard_variants_to_consolidate": 84
+  }
+}

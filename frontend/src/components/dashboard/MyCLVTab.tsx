@@ -2,156 +2,34 @@
  * My CLV Tab Component
  * 
  * Frontend dashboard component for displaying user CLV analytics, performance metrics,
- * achievement badges, and personalized recommendations.
- */
-
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer, 
-  PieChart, 
-  Pie, 
-  Cell 
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from 'recharts';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Award, 
-  Target, 
-  BarChart3, 
-  DollarSign, 
-  Percent, 
-  Star, 
-  Trophy, 
-  Medal, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Award,
+  Target,
+  BarChart3,
+  DollarSign,
+  Percent,
+  Star,
+  Trophy,
+  Medal,
   RefreshCw,
-  Info
+  Info,
 } from 'lucide-react';
-
-// UI Components (would need to be implemented or imported from your UI library)
-interface CardProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-const Card: React.FC<CardProps> = ({ children, className = '' }) => (
-  <div className={`bg-white rounded-lg border border-gray-200 shadow-sm ${className}`}>
-    {children}
-  </div>
-);
-
-const CardHeader: React.FC<CardProps> = ({ children, className = '' }) => (
-  <div className={`px-6 py-4 border-b border-gray-200 ${className}`}>
-    {children}
-  </div>
-);
-
-const CardTitle: React.FC<CardProps> = ({ children, className = '' }) => (
-  <h3 className={`text-lg font-semibold text-gray-900 ${className}`}>
-    {children}
-  </h3>
-);
-
-const CardContent: React.FC<CardProps> = ({ children, className = '' }) => (
-  <div className={`px-6 py-4 ${className}`}>
-    {children}
-  </div>
-);
-
-interface ButtonProps {
-  children: React.ReactNode;
-  variant?: 'default' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
-  disabled?: boolean;
-  onClick?: () => void;
-  className?: string;
-}
-
-const Button: React.FC<ButtonProps> = ({ 
-  children, 
-  variant = 'default', 
-  size = 'md', 
-  disabled = false, 
-  onClick, 
-  className = '' 
-}) => {
-  const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
-  const variantClasses = variant === 'outline' 
-    ? 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50' 
-    : 'bg-blue-600 text-white hover:bg-blue-700';
-  const sizeClasses = size === 'sm' ? 'px-3 py-1.5 text-sm' : 'px-4 py-2 text-base';
-  
-  return (
-    <button
-      className={`${baseClasses} ${variantClasses} ${sizeClasses} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  );
-};
-
-interface AlertProps {
-  children: React.ReactNode;
-  variant?: 'default' | 'destructive';
-  className?: string;
-}
-
-const Alert: React.FC<AlertProps> = ({ children, variant = 'default', className = '' }) => {
-  const variantClasses = variant === 'destructive' 
-    ? 'border-red-200 bg-red-50 text-red-800' 
-    : 'border-blue-200 bg-blue-50 text-blue-800';
-  
-  return (
-    <div className={`border rounded-md p-4 ${variantClasses} ${className}`}>
-      {children}
-    </div>
-  );
-};
-
-const AlertDescription: React.FC<CardProps> = ({ children, className = '' }) => (
-  <div className={`text-sm ${className}`}>
-    {children}
-  </div>
-);
-
-interface SelectProps {
-  value: string;
-  onValueChange: (value: string) => void;
-  children: React.ReactNode;
-}
-
-const Select: React.FC<SelectProps> = ({ value, onValueChange, children }) => (
-  <div className="relative">
-    <select
-      value={value}
-      onChange={(e) => onValueChange(e.target.value)}
-      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-    >
-      {children}
-    </select>
-  </div>
-);
-
-const SelectTrigger: React.FC<{ className?: string; children: React.ReactNode }> = ({ children }) => (
-  <>{children}</>
-);
-
-const SelectValue: React.FC = () => null;
-
-const SelectContent: React.FC<CardProps> = ({ children }) => <>{children}</>;
-
-interface SelectItemProps {
-  value: string;
-  children: React.ReactNode;
-}
-
+import { Alert, Button, Card, CardContent, CardHeader, CardTitle, Select } from '../base';
 const SelectItem: React.FC<SelectItemProps> = ({ value, children }) => (
   <option value={value}>{children}</option>
 );
@@ -294,6 +172,7 @@ export const MyCLVTab: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<number>(30);
   const [refreshing, setRefreshing] = useState(false);
+  const lightCardStyles = 'bg-white/95 border-gray-200 text-slate-900';
 
   // Fetch CLV analytics
   const fetchCLVAnalytics = async (days: number = 30) => {
@@ -419,24 +298,29 @@ export const MyCLVTab: React.FC = () => {
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertDescription>
-          {error}
-          <Button variant="outline" size="sm" onClick={() => fetchCLVAnalytics(selectedPeriod)} className="ml-2">
-            Retry
-          </Button>
-        </AlertDescription>
+      <Alert
+        tone='error'
+        className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'
+      >
+        <span>{error}</span>
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={() => fetchCLVAnalytics(selectedPeriod)}
+        >
+          Retry
+        </Button>
       </Alert>
     );
   }
 
   if (!analytics) {
     return (
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
+      <Alert tone='info' className='flex items-center gap-3'>
+        <Info className='h-4 w-4' />
+        <span className='text-sm'>
           No CLV data available. Start placing bets to see your closing line value analytics!
-        </AlertDescription>
+        </span>
       </Alert>
     );
   }
@@ -452,16 +336,16 @@ export const MyCLVTab: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Select value={selectedPeriod.toString()} onValueChange={handlePeriodChange}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">7 days</SelectItem>
-              <SelectItem value="30">30 days</SelectItem>
-              <SelectItem value="90">90 days</SelectItem>
-              <SelectItem value="365">1 year</SelectItem>
-            </SelectContent>
+          <Select
+            size='sm'
+            className='w-32'
+            value={selectedPeriod.toString()}
+            onChange={(event) => handlePeriodChange(event.target.value)}
+          >
+            <option value='7'>7 days</option>
+            <option value='30'>30 days</option>
+            <option value='90'>90 days</option>
+            <option value='365'>1 year</option>
           </Select>
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
@@ -471,7 +355,7 @@ export const MyCLVTab: React.FC = () => {
 
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+    <Card variant='outline' className={lightCardStyles}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -487,7 +371,7 @@ export const MyCLVTab: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
+    <Card variant='outline' className={lightCardStyles}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -501,7 +385,7 @@ export const MyCLVTab: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
+    <Card variant='outline' className={lightCardStyles}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -516,7 +400,7 @@ export const MyCLVTab: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
+    <Card variant='outline' className={lightCardStyles}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -544,7 +428,7 @@ export const MyCLVTab: React.FC = () => {
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* CLV Distribution */}
-            <Card>
+            <Card variant='outline' className={lightCardStyles}>
               <CardHeader>
                 <CardTitle>CLV Distribution</CardTitle>
               </CardHeader>
@@ -577,7 +461,7 @@ export const MyCLVTab: React.FC = () => {
             </Card>
 
             {/* Performance Summary */}
-            <Card>
+            <Card variant='outline' className={lightCardStyles}>
               <CardHeader>
                 <CardTitle>Performance Summary</CardTitle>
               </CardHeader>
@@ -635,16 +519,16 @@ export const MyCLVTab: React.FC = () => {
 
           {/* Recommendations */}
           {analytics.recommendations.length > 0 && (
-            <Card>
+            <Card variant='outline' className={lightCardStyles}>
               <CardHeader>
                 <CardTitle>Personalized Recommendations</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   {analytics.recommendations.map((recommendation, index) => (
-                    <Alert key={index}>
-                      <Info className="h-4 w-4" />
-                      <AlertDescription>{recommendation}</AlertDescription>
+                    <Alert key={index} tone='info' className='flex items-start gap-3'>
+                      <Info className='mt-1 h-4 w-4 shrink-0' />
+                      <p className='text-sm leading-relaxed'>{recommendation}</p>
                     </Alert>
                   ))}
                 </div>
@@ -655,7 +539,7 @@ export const MyCLVTab: React.FC = () => {
 
         {/* History Tab */}
         <TabsContent value="history" className="space-y-4">
-          <Card>
+          <Card variant='outline' className={lightCardStyles}>
             <CardHeader>
               <CardTitle>CLV Performance Over Time</CardTitle>
             </CardHeader>
@@ -689,7 +573,7 @@ export const MyCLVTab: React.FC = () => {
         <TabsContent value="breakdown" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Sport Performance */}
-            <Card>
+            <Card variant='outline' className={lightCardStyles}>
               <CardHeader>
                 <CardTitle>Performance by Sport</CardTitle>
               </CardHeader>
@@ -716,7 +600,7 @@ export const MyCLVTab: React.FC = () => {
             </Card>
 
             {/* Market Performance */}
-            <Card>
+            <Card variant='outline' className={lightCardStyles}>
               <CardHeader>
                 <CardTitle>Performance by Market</CardTitle>
               </CardHeader>
@@ -746,7 +630,7 @@ export const MyCLVTab: React.FC = () => {
 
         {/* Achievements Tab */}
         <TabsContent value="achievements" className="space-y-4">
-          <Card>
+          <Card variant='outline' className={lightCardStyles}>
             <CardHeader>
               <CardTitle>Your Achievements</CardTitle>
             </CardHeader>

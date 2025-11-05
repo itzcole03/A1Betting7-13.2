@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Set
 
 from backend.models.api_models import EnrichedProp
 from backend.services.enhanced_prop_analysis_service import EnhancedPropAnalysisService
-from backend.services.optimized_data_service import optimized_data_service
+from backend.services.unified_data_service import UnifiedDataService, get_data_service
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +73,7 @@ class BatchPropAnalysisService:
         self.max_concurrent_players = 8  # Concurrent player processing limit
         self.max_concurrent_requests = 20  # Overall request limit
         self.batch_size_limit = 50  # Maximum batch size
+        self.data_service: Optional[UnifiedDataService] = None
 
         # Performance tracking
         self.processing_stats = {
@@ -86,8 +87,17 @@ class BatchPropAnalysisService:
     async def initialize(self):
         """Initialize all services"""
         await self.prop_analysis_service.initialize()
-        await optimized_data_service.initialize()
+        service = await get_data_service()
+        await service.ensure_optimized_ready()
+        self.data_service = service
         logger.info("BatchPropAnalysisService initialized")
+
+    async def _ensure_data_service(self) -> UnifiedDataService:
+        if self.data_service is None:
+            service = await get_data_service()
+            await service.ensure_optimized_ready()
+            self.data_service = service
+        return self.data_service
 
     async def process_batch(
         self,
@@ -152,7 +162,8 @@ class BatchPropAnalysisService:
 
             # Calculate metrics
             processing_time = (datetime.now() - start_time).total_seconds()
-            cache_metrics = await optimized_data_service.get_performance_metrics()
+            data_service = await self._ensure_data_service()
+            cache_metrics = await data_service.get_optimized_performance_metrics()
             cache_hit_rate = cache_metrics["cache_metrics"]["hit_rate"]
 
             # Update processing stats
@@ -220,7 +231,8 @@ class BatchPropAnalysisService:
                     all_stat_types.add(request.stat_type)
 
             # Warm cache for all players and stat types
-            await optimized_data_service.warm_cache(player_names, list(all_stat_types))
+            data_service = await self._ensure_data_service()
+            await data_service.warm_cache(player_names, list(all_stat_types))
 
             logger.debug(
                 f"Cache warmed for {len(player_names)} players with {len(all_stat_types)} stat types"
@@ -246,7 +258,8 @@ class BatchPropAnalysisService:
                 stat_types = [req.stat_type for req in requests]
 
                 # Get comprehensive player data once for all requests
-                player_data = await optimized_data_service.get_player_data_optimized(
+                data_service = await self._ensure_data_service()
+                player_data = await data_service.get_player_data_optimized(
                     player_name, stat_types
                 )
 
@@ -375,7 +388,8 @@ class BatchPropAnalysisService:
 
     async def get_processing_statistics(self) -> Dict[str, Any]:
         """Get comprehensive processing statistics"""
-        optimized_metrics = await optimized_data_service.get_performance_metrics()
+        data_service = await self._ensure_data_service()
+        optimized_metrics = await data_service.get_optimized_performance_metrics()
 
         return {
             "batch_processing": self.processing_stats,

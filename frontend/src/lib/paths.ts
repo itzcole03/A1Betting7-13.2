@@ -2,7 +2,7 @@
 
 export const COMPONENT_PATHS = {
   // Core components
-  UI: '@/components/ui',
+  UI: '@/components/shared/ui',
   CORE: '@/components/core',
   AUTH: '@/components/auth',
   

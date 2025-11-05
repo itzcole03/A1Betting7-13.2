@@ -4,6 +4,7 @@ import {
   PropOllamaRequest,
   propOllamaService,
 } from '../../services/propOllamaService';
+import { enhancedLogger } from '../../utils/enhancedLogger';
 import PropOllamaInput from './PropOllamaInput'; // Import new input component
 import PropOllamaMessages from './PropOllamaMessages'; // Import new message display component
 
@@ -23,6 +24,21 @@ export interface PropOllamaMessage {
   suggestions?: string[];
   shap_explanation?: Record<string, number>;
 }
+
+const UNKNOWN_ERROR_MESSAGE = 'Unknown error';
+
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  if (typeof error === 'string' && error) {
+    return error;
+  }
+  return UNKNOWN_ERROR_MESSAGE;
+};
+
+const toError = (error: unknown): Error =>
+  error instanceof Error ? error : new Error(getErrorMessage(error));
 
 const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = '' }) => {
   const baseClasses = `w-full h-screen flex flex-col rounded-lg border transition-all duration-200 ${
@@ -45,57 +61,137 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
     try {
       const healthData = await propOllamaService.getPropOllamaHealth();
       setError(null);
-      alert(`PropOllama API Health: ${healthData.status} - ${healthData.message}`);
-    } catch (err: any) {
-      setError(err.message || 'Health check failed');
+      const status = (healthData as { status?: string }).status ?? 'unknown';
+      const message = (healthData as { message?: string }).message ?? 'No details provided';
+      alert(`PropOllama API Health: ${status} - ${message}`);
+      enhancedLogger.info('PropOllama', 'checkHealth', 'Health check succeeded', {
+        status,
+        message,
+      });
+    } catch (err: unknown) {
+      const message = getErrorMessage(err) || 'Health check failed';
+      setError(message);
+      enhancedLogger.error(
+        'PropOllama',
+        'checkHealth',
+        'Health check failed',
+        undefined,
+        toError(err)
+      );
     }
   };
 
   useEffect(() => {
     const inputEl = document.getElementById('propollama-input');
-    if (inputEl) (inputEl as HTMLInputElement).focus();
+    if (inputEl instanceof HTMLInputElement) {
+      inputEl.focus();
+    }
 
-    // Fetch available models
-    // DEBUG: Log the service and method before calling
-    // @ts-ignore
-    console.log('[DEBUG] propOllamaService:', propOllamaService);
-    // @ts-ignore
-    console.log(
-      '[DEBUG] propOllamaService.getAvailableModels:',
-      propOllamaService.getAvailableModels
-    );
-    propOllamaService
-      .getAvailableModels()
-      .then(modelsArray => {
+    let isMounted = true;
+
+    const fetchModels = async () => {
+      try {
+        const modelsArray = await propOllamaService.getAvailableModels();
+        if (!isMounted) {
+          return;
+        }
         setModels(modelsArray);
         if (modelsArray.length > 0) {
           setSelectedModel(modelsArray[0]);
         }
-      })
-      .catch(err => setError(`Failed to fetch models: ${err.message}`));
-
-    // Fetch model health
-    const fetchModelHealth = async () => {
-      if (selectedModel) {
-        try {
-          const health = await propOllamaService.getModelHealth(selectedModel);
-          setModelHealth(prev => ({ ...prev, [selectedModel]: health }));
-        } catch (err: any) {
-          setError(`Failed to fetch model health for ${selectedModel}: ${err.message}`);
+        enhancedLogger.info('PropOllama', 'fetchModels', 'Fetched available models', {
+          count: modelsArray.length,
+        });
+      } catch (err) {
+        if (!isMounted) {
+          return;
         }
-      } else if (models.length > 0) {
-        const firstModel = models[0];
-        setSelectedModel(firstModel);
-        try {
-          const health = await propOllamaService.getModelHealth(firstModel);
-          setModelHealth(prev => ({ ...prev, [firstModel]: health }));
-        } catch (err: any) {
-          setError(`Failed to fetch model health for ${firstModel}: ${err.message}`);
-        }
+        const message = getErrorMessage(err);
+        setError(`Failed to fetch models: ${message}`);
+        enhancedLogger.error(
+          'PropOllama',
+          'fetchModels',
+          'Failed to fetch available models',
+          undefined,
+          toError(err)
+        );
       }
     };
-    fetchModelHealth();
-  }, [selectedModel, models.length]);
+
+    fetchModels().catch(error => {
+      enhancedLogger.error(
+        'PropOllama',
+        'fetchModels',
+        'Unhandled fetch models error',
+        undefined,
+        toError(error)
+      );
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (models.length === 0) {
+      return;
+    }
+
+    const modelToCheck = selectedModel || models[0];
+
+    if (!modelToCheck) {
+      return;
+    }
+
+    if (!selectedModel) {
+      setSelectedModel(modelToCheck);
+      return;
+    }
+
+    let isMounted = true;
+
+    const fetchModelHealth = async (modelName: string) => {
+      try {
+        const health = await propOllamaService.getModelHealth(modelName);
+        if (!isMounted) {
+          return;
+        }
+        setModelHealth(prev => ({ ...prev, [modelName]: health }));
+        enhancedLogger.debug('PropOllama', 'fetchModelHealth', 'Fetched model health', {
+          modelName,
+          status: health.status,
+        });
+      } catch (err) {
+        if (!isMounted) {
+          return;
+        }
+        const message = getErrorMessage(err);
+        setError(`Failed to fetch model health for ${modelName}: ${message}`);
+        enhancedLogger.error(
+          'PropOllama',
+          'fetchModelHealth',
+          'Failed to fetch model health',
+          { modelName },
+          toError(err)
+        );
+      }
+    };
+
+    fetchModelHealth(modelToCheck).catch(error => {
+      enhancedLogger.error(
+        'PropOllama',
+        'fetchModelHealth',
+        'Unhandled fetch model health error',
+        { modelName: modelToCheck },
+        toError(error)
+      );
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [models, selectedModel]);
 
   const handleSuggestionClick = (suggestion: string) => {
     setInput(suggestion);
@@ -148,9 +244,16 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
       };
 
       setMessages(prev => [...prev, aiResponse]);
-    } catch (err: any) {
-      console.error('[PropOllama] Error:', err);
-      setError(err.message || 'Unknown error');
+    } catch (err: unknown) {
+      const message = getErrorMessage(err);
+      setError(message);
+      enhancedLogger.error(
+        'PropOllama',
+        'handleSendMessage',
+        'Failed to send message',
+        undefined,
+        toError(err)
+      );
     } finally {
       setIsLoading(false);
       // messagesEndRef is now managed inside PropOllamaMessages
@@ -227,22 +330,20 @@ const PropOllama: React.FC<PropOllamaProps> = ({ variant = 'cyber', className = 
                   ))}
                 </select>
                 {/* Model health status */}
-                {selectedModel &&
-                  modelHealth[selectedModel] &&
-                  'status' in modelHealth[selectedModel] && (
-                    <span
-                      className={`ml-2 px-2 py-1 rounded text-xs ${
-                        modelHealth[selectedModel].status === 'ready'
-                          ? 'bg-green-700 text-green-100'
-                          : 'bg-red-700 text-red-100'
-                      }`}
-                    >
-                      {modelHealth[selectedModel].status}
-                      {modelHealth[selectedModel].last_error
-                        ? ` (${modelHealth[selectedModel].last_error})`
-                        : ''}
-                    </span>
-                  )}
+                {selectedModel && modelHealth[selectedModel] && (
+                  <span
+                    className={`ml-2 px-2 py-1 rounded text-xs ${
+                      modelHealth[selectedModel].status === 'ready'
+                        ? 'bg-green-700 text-green-100'
+                        : 'bg-red-700 text-red-100'
+                    }`}
+                  >
+                    {modelHealth[selectedModel].status}
+                    {modelHealth[selectedModel].last_error
+                      ? ` (${modelHealth[selectedModel].last_error})`
+                      : ''}
+                  </span>
+                )}
               </div>
             </div>
           </div>

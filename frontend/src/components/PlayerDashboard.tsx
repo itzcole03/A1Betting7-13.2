@@ -1,4 +1,3 @@
-import { Spinner } from '@/components/shared/Spinner';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import React, { useEffect, useState } from 'react';
 import {
@@ -11,6 +10,7 @@ import {
   YAxis,
 } from 'recharts';
 import 'tailwindcss/tailwind.css';
+import { Spinner } from './base';
 
 // Type definitions
 export interface GameLog {
