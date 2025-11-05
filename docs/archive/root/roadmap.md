@@ -8636,14 +8636,7 @@ Implementation Notes:
 - backend/services/unified_prediction_service.py: # Simple confidence interval based on standard deviation
 - backend/services/unified_prediction_service.py: # 95% confidence interval
 - backend/services/unified_prediction_service.py: # Global instance
-- backend/src/auth.py: # Optional JWT import
-- backend/src/auth.py: # type: ignore
-- backend/src/auth.py: # type: ignore
-- backend/src/auth.py: # type: ignore
-- backend/src/auth.py: # Real database integration
-- backend/src/auth.py: # type: ignore
-- backend/src/auth.py: # type: ignore
-- backend/src/auth.py: # type: ignore
+- backend/src/auth.py *(retired)*: superseded by backend/services/auth_service.py during Phase 2 consolidation
 - backend/testing/comprehensive_test_framework.py: #!/usr/bin/env python3
 - backend/testing/comprehensive_test_framework.py: # 'passed', 'failed', 'skipped'
 - backend/testing/comprehensive_test_framework.py: # Test configuration
