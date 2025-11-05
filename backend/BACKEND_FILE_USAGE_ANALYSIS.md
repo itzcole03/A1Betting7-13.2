@@ -171,11 +171,11 @@ This directory contains the backend services, APIs, feature engineering, and ana
 
 ---
 
-## backend/src/auth.py
-- **Purpose:** Handles authentication endpoints and logic.
-- **Usage:** Provides FastAPI router for login and token issuance; uses a stub user database.
-- **Notes:** Uses hardcoded secret and plain-text passwords for demonstration; should use secure storage and environment variables in production.
-- **Status:** Active but requires security improvements for production.
+## backend/src/auth.py *(retired)*
+- **Purpose:** Former standalone FastAPI auth router used during early development.
+- **Usage:** Provided demo login/token issuance against a stub data store; superseded by `backend/services/auth_service.py` and `backend/routes/auth.py`.
+- **Notes:** Removed in Phase 2 consolidation to eliminate redundant authentication paths.
+- **Status:** Removed; rely on the unified auth service instead.
 
 ---
 
