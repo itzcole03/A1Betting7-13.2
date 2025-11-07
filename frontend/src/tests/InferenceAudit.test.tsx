@@ -1,15 +1,30 @@
 /**
  * PR9: Frontend Tests for Inference Audit Components
- * 
+ *
  * Tests covering the useInferenceAudit hook and InferenceAuditPanel component.
  */
 
-import { renderHook, waitFor, render, screen, fireEvent, act, within, type RenderHookResult, type RenderResult } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import {
+  act,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+  within,
+  type RenderHookResult,
+  type RenderResult,
+} from '@testing-library/react';
 import React from 'react';
 
-import { useInferenceAudit, useConfidenceDistribution, useShadowComparison, usePerformanceMetrics } from '../inference/useInferenceAudit';
 import { InferenceAuditPanel } from '../diagnostics/InferenceAuditPanel';
+import {
+  useConfidenceDistribution,
+  useInferenceAudit,
+  usePerformanceMetrics,
+  useShadowComparison,
+} from '../inference/useInferenceAudit';
 
 // Mock fetch globally
 const mockFetch = jest.fn();
@@ -52,7 +67,7 @@ const mockRecentEntries = [
   },
   {
     request_id: 'req-124',
-    timestamp: (Date.now() / 1000) - 30,
+    timestamp: Date.now() / 1000 - 30,
     model_version: 'enhanced_model_v2',
     feature_hash: 'def456ghi',
     latency_ms: 38.1,
@@ -120,7 +135,7 @@ const queueAuditFetchSequence = ({
 };
 
 const flushPendingEffects = () =>
-  new Promise<void>((resolve) => {
+  new Promise<void>(resolve => {
     setTimeout(resolve, 0);
   });
 
@@ -243,7 +258,7 @@ describe('useInferenceAudit Hook', () => {
     // Test development interval
     process.env.NODE_ENV = 'development';
     const { result: devResult } = renderHook(() => useInferenceAudit({ autoStart: false }));
-    
+
     // Test production interval
     process.env.NODE_ENV = 'production';
     const { result: prodResult } = renderHook(() => useInferenceAudit({ autoStart: false }));
@@ -263,7 +278,7 @@ describe('useConfidenceDistribution Hook', () => {
 
     expect(result.current.data).toHaveLength(5);
     expect(result.current.total).toBe(100);
-    
+
     // Check specific bins
     const bins = result.current.data;
     expect(bins.find(b => b.range === '0.6-0.8')).toEqual({ range: '0.6-0.8', count: 35 });

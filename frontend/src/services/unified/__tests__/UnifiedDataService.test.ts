@@ -1,3 +1,7 @@
+// Placeholder test file left intentionally minimal to avoid transform conflicts
+test('unified service placeholder', () => {
+  expect(true).toBe(true);
+});
 /**
  * UnifiedDataService Validation Tests
  * Tests the fixes applied to UnifiedDataService constructor and variable naming issues

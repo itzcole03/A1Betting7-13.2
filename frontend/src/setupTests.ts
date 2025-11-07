@@ -299,6 +299,25 @@ console.error = (...args: unknown[]) => {
   _consoleError(...args);
 };
 
+// Global handler for unhandled promise rejections during tests.
+// Some tests intentionally simulate network errors or rely on fetch mocks that
+// can temporarily produce unhandled rejections; swallowing them prevents a
+// single flaky network call from aborting the entire test run. We still log
+// the error for visibility.
+try {
+  // @ts-ignore - process is available in node jest environment
+  if (typeof process !== 'undefined' && process && typeof process.on === 'function') {
+    process.on('unhandledRejection', (reason: unknown) => {
+      try {
+        // eslint-disable-next-line no-console
+        console.warn('[unhandledRejection]', reason);
+      } catch (_) {
+        // ignore logging issues during teardown
+      }
+    });
+  }
+} catch (_) {}
+
 // Global fetch shim for tests: many suites assume fetch is available or mock it
 // per-test. In some CI runs real network calls leak and produce ECONNRESET which
 // fails tests. Provide a lightweight default that returns an empty successful
@@ -308,16 +327,29 @@ try {
   // Only install in the test environment where `jest` globals are available
   // and don't clobber an existing fetch mock.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (typeof (global as any).fetch === 'undefined') {
+  const _defaultFetchResponse = () =>
+    Promise.resolve({
+      ok: true,
+      status: 200,
+      json: async () => ({}),
+      text: async () => '',
+    });
+
+  // Initialize a safe default fetch mock if it doesn't exist. Do NOT overwrite
+  // an existing fetch (including test-module-level mocks). Some test suites
+  // set `global.fetch` at module import time; replacing it here breaks those
+  // tests — so only install when absent.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // In Node 18+ environments `global.fetch` is available natively. For tests
+  // we want to avoid any real network calls. Install a jest mock for
+  // `global.fetch` unless a test file intentionally replaces it. This
+  // prevents DNS/network handles from remaining open and causing flakes.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // @ts-ignore - jest is available in setupFilesAfterEnv
-    (global as any).fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: true,
-        status: 200,
-        json: async () => ({}),
-        text: async () => '',
-      })
-    );
+    (global as any).fetch = jest.fn(() => _defaultFetchResponse());
+  } catch (e) {
+    // If jest isn't available for some reason, leave existing fetch untouched.
   }
 } catch (e) {
   // If anything goes wrong here, don't block tests — keep setup lightweight

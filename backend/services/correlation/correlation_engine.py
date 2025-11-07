@@ -238,7 +238,9 @@ class CorrelationEngine:
         if prop_ids and isinstance(prop_ids[0], CorrelationRecord):
             records: List[CorrelationRecord] = prop_ids  # type: ignore
             # Build matrix and sample size map from records
-            unique_props = sorted({r.prop_id_a for r in records} | {r.prop_id_b for r in records})
+            unique_props = sorted(
+                {r.prop_id_a for r in records} | {r.prop_id_b for r in records}
+            )
             matrix: Dict[int, Dict[int, float]] = {p: {p: 1.0} for p in unique_props}
             sample_size_map: Dict[str, int] = {}
 

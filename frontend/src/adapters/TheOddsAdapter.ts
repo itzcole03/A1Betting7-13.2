@@ -131,10 +131,10 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
     // Implementation needed
   }
 
-  public async getData(): Promise<TheOddsData> {
-    if (!this.cache.data) {
-      return this.fetchData();
-    }
+  public async getData(): Promise<TheOddsData | null> {
+    // Return cached data when available. Explicit fetches should use
+    // fetchData() so callers can control network behavior and tests can
+    // exercise fetchData independently.
     return this.cache.data;
   }
 
