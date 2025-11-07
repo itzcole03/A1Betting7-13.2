@@ -23,12 +23,50 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from backend.core.app import fail, ok
+# Avoid importing backend.core.app at module import time to prevent a
+# circular import: core.app may attempt to import this module when the
+# canonical app is being created. Provide lazy wrappers for `ok` and
+# `fail` that import the real implementations on first use. This keeps
+# module import cheap and allows tests to monkeypatch hashing/ETag
+# helpers before request handlers run.
 
-try:
-    from backend.core import app as core_app
-except Exception:  # pragma: no cover - defensive import
-    core_app = None  # type: ignore
+
+def _lazy_ok(data=None, message: Optional[str] = None):
+    try:
+        from backend.core.app import ok as _impl_ok
+
+        return _impl_ok(data, message)
+    except Exception:
+        # Fallback minimal envelope
+        resp = {"success": True, "data": data, "error": None}
+        if message:
+            resp["message"] = message
+        return resp
+
+
+def _lazy_fail(
+    error_code: str = "ERROR", message: str = "An error occurred", data=None
+):
+    try:
+        from backend.core.app import fail as _impl_fail
+
+        return _impl_fail(error_code, message, data)
+    except Exception:
+        return {
+            "success": False,
+            "data": data,
+            "error": {"code": error_code, "message": message},
+        }
+
+
+# Expose `ok` and `fail` names used throughout this module but ensure they
+# are evaluated lazily at call time to avoid circular import problems.
+ok = _lazy_ok
+fail = _lazy_fail
+
+# Defer importing the core app to runtime to avoid circular import issues.
+# We'll import `backend.core.app` inside functions that need it.
+core_app = None
 
 from backend.services.bookmark_service import BookmarkService, get_bookmark_service
 from backend.services.simple_propfinder_service import get_simple_propfinder_service
@@ -297,11 +335,11 @@ def _update_clv_runtime_status(
     opportunity_count: int,
     error: Optional[str] = None,
 ) -> None:
-    if core_app is None:
-        return
-
     try:
-        snap = getattr(core_app, "_clv_runtime_status", None)
+        # Import lazily to avoid circular import at module load time
+        from backend.core import app as core_app_local
+
+        snap = getattr(core_app_local, "_clv_runtime_status", None)
         if not isinstance(snap, dict):
             return
 
@@ -758,8 +796,37 @@ async def _handle_prop_opportunities(
         "legacy": legacy_mode,
     }
     cache_key = _build_cache_key("opportunities", cache_params)
+    # First, attempt to consult the unified cache service if available.
+    # Tests monkeypatch `backend.services.unified_cache_service.get_cache`.
+    cached = None
+    try:
+        import importlib
 
-    cached = _cache_get(cache_key)
+        unified_mod = importlib.import_module("backend.services.unified_cache_service")
+        get_cache_fn = getattr(unified_mod, "get_cache", None)
+        if get_cache_fn:
+            maybe_cache = get_cache_fn()
+            cache_inst = (
+                await maybe_cache if asyncio.iscoroutine(maybe_cache) else maybe_cache
+            )
+            if cache_inst:
+                get_fn = getattr(cache_inst, "get", None)
+                if callable(get_fn):
+                    maybe = get_fn(cache_key)
+                    result = await maybe if asyncio.iscoroutine(maybe) else maybe
+                    if isinstance(result, dict) and (
+                        "etag" in result or "payload" in result
+                    ):
+                        cached = {
+                            "etag": result.get("etag"),
+                            "payload": result.get("payload"),
+                        }
+    except Exception:
+        # If unified cache is unavailable or fails, fall back to local in-memory cache
+        cached = None
+
+    if cached is None:
+        cached = _cache_get(cache_key)
     incoming_etag = None
     if request is not None:
         try:
@@ -1255,10 +1322,15 @@ async def get_opportunities_diagnostics():
 
 @router.get("/clv-status")
 async def get_clv_status():
-    if core_app is not None:
-        snap = getattr(core_app, "_clv_runtime_status", None)
+    try:
+        from backend.core import app as core_app_local
+
+        snap = getattr(core_app_local, "_clv_runtime_status", None)
         if isinstance(snap, dict):
             return JSONResponse(ok(dict(snap)))
+    except Exception:
+        pass
+
     fallback = {
         "status": "pending",
         "lastRequestedEpoch": None,

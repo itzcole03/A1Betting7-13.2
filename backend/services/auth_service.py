@@ -473,6 +473,20 @@ class AuthService:
             yield None
             return
         session = self._session_factory()
+        # SQLModel's AsyncSession exposes an `exec` helper; some test
+        # environments or SQLAlchemy-only sessions may not. Provide a
+        # small compatibility shim so code that calls `await session.exec(...)`
+        # continues to work by delegating to `session.execute(...)`.
+        if not hasattr(session, "exec"):
+
+            async def _exec(statement, *args, **kwargs):
+                # SQLModel's AsyncSession.exec returns a ScalarResult for ORM
+                # selects so that callers can call `.first()` / `.all()` and
+                # get model instances. Prefer `scalars` to mimic that behavior.
+                return await session.scalars(statement, *args, **kwargs)
+
+            # Attach the coroutine as an attribute on the session instance.
+            setattr(session, "exec", _exec)
         try:
             yield session
         finally:

@@ -1,12 +1,12 @@
 {
   "suite_summary": {
     "success": true,
-    "timestamp": "2025-11-04T20:59:24.599059+00:00",
+    "timestamp": "2025-11-07T04:40:35.302932+00:00",
     "total_tests": 12,
     "passed_tests": 12,
     "failed_tests": 0,
     "pass_rate": 1.0,
-    "duration_seconds": 0.016983,
+    "duration_seconds": 0.017145,
     "seed_used": 42,
     "categories": {
       "monte_carlo": {
@@ -42,7 +42,7 @@
   "detailed_results": [
     {
       "test_name": "normal_distribution_mc_vs_analytic",
-      "timestamp": "2025-11-04T20:59:24.583076+00:00",
+      "timestamp": "2025-11-07T04:40:35.287228+00:00",
       "passed": "True",
       "metric_value": 0.003674476700887941,
       "threshold_value": 0.01,
@@ -61,7 +61,7 @@
     },
     {
       "test_name": "normal_distribution_mc_vs_analytic",
-      "timestamp": "2025-11-04T20:59:24.583076+00:00",
+      "timestamp": "2025-11-07T04:40:35.287228+00:00",
       "passed": "True",
       "metric_value": 0.003674476700887941,
       "threshold_value": 0.01,
@@ -80,7 +80,7 @@
     },
     {
       "test_name": "exponential_distribution_mc_vs_analytic",
-      "timestamp": "2025-11-04T20:59:24.585091+00:00",
+      "timestamp": "2025-11-07T04:40:35.288872+00:00",
       "passed": "True",
       "metric_value": 0.013847909257064861,
       "threshold_value": 0.01,
@@ -99,7 +99,7 @@
     },
     {
       "test_name": "exponential_distribution_mc_vs_analytic",
-      "timestamp": "2025-11-04T20:59:24.585091+00:00",
+      "timestamp": "2025-11-07T04:40:35.288872+00:00",
       "passed": "True",
       "metric_value": 0.013847909257064861,
       "threshold_value": 0.01,
@@ -118,7 +118,7 @@
     },
     {
       "test_name": "beta_distribution_mc_vs_analytic",
-      "timestamp": "2025-11-04T20:59:24.586965+00:00",
+      "timestamp": "2025-11-07T04:40:35.290884+00:00",
       "passed": "True",
       "metric_value": 0.009229360294874311,
       "threshold_value": 0.01,
@@ -137,7 +137,7 @@
     },
     {
       "test_name": "beta_distribution_mc_vs_analytic",
-      "timestamp": "2025-11-04T20:59:24.586965+00:00",
+      "timestamp": "2025-11-07T04:40:35.290884+00:00",
       "passed": "True",
       "metric_value": 0.009229360294874311,
       "threshold_value": 0.01,
@@ -156,7 +156,7 @@
     },
     {
       "test_name": "betting_probability_distribution",
-      "timestamp": "2025-11-04T20:59:24.595004+00:00",
+      "timestamp": "2025-11-07T04:40:35.298671+00:00",
       "passed": "True",
       "metric_value": 0.0063266743408449955,
       "threshold_value": 0.01,
@@ -175,7 +175,7 @@
     },
     {
       "test_name": "correlation_psd_validation_valid_test_matrix",
-      "timestamp": "2025-11-04T20:59:24.596113+00:00",
+      "timestamp": "2025-11-07T04:40:35.299103+00:00",
       "passed": true,
       "metric_value": 0.6631388770708478,
       "threshold_value": 1e-08,
@@ -210,7 +210,7 @@
     },
     {
       "test_name": "correlation_drift_detection",
-      "timestamp": "2025-11-04T20:59:24.596113+00:00",
+      "timestamp": "2025-11-07T04:40:35.299279+00:00",
       "passed": true,
       "metric_value": 0.007001073117719123,
       "threshold_value": 0.15,
@@ -230,7 +230,7 @@
     },
     {
       "test_name": "correlation_psd_validation_drift_test_matrix",
-      "timestamp": "2025-11-04T20:59:24.596113+00:00",
+      "timestamp": "2025-11-07T04:40:35.299359+00:00",
       "passed": true,
       "metric_value": 0.6619786679400911,
       "threshold_value": 1e-08,
@@ -265,7 +265,7 @@
     },
     {
       "test_name": "ci_width_regression_betting_probabilities",
-      "timestamp": "2025-11-04T20:59:24.598061+00:00",
+      "timestamp": "2025-11-07T04:40:35.301079+00:00",
       "passed": true,
       "metric_value": 0.021834977797160565,
       "threshold_value": 0.05,
@@ -290,7 +290,7 @@
     },
     {
       "test_name": "ci_width_regression_dispersed_probabilities",
-      "timestamp": "2025-11-04T20:59:24.599059+00:00",
+      "timestamp": "2025-11-07T04:40:35.302719+00:00",
       "passed": true,
       "metric_value": 0.0,
       "threshold_value": 0.05,

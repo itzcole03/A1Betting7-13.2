@@ -18,6 +18,16 @@ from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 from .unified_cache_service import unified_cache
 
+# Provide a safe module-level symbol `cache_instrumentation` so tests and
+# other modules can patch or import it. The real implementation lives in
+# `backend.services.cache_instrumentation`; attempt to import it and fall
+# back to None when unavailable. Tests patch this name directly, so the
+# presence of the attribute is sufficient for test-time mocking.
+try:
+    from .cache_instrumentation import cache_instrumentation  # type: ignore
+except Exception:
+    cache_instrumentation = None
+
 logger = logging.getLogger(__name__)
 
 _CSE_DEBUG = os.environ.get("CACHE_SERVICE_EXT_DEBUG", "").lower() in (
@@ -37,6 +47,12 @@ class CacheServiceExt:
 
     def __init__(self):
         self._base = unified_cache
+        # Capture the module-level instrumentation reference at construction
+        # time. Tests patch the module symbol during the fixture and return
+        # the constructed instance after the patch context exits, so we
+        # store the reference here to ensure the instance retains the
+        # mocked instrumentation for methods called later.
+        self._instrumentation = cache_instrumentation
 
     async def get(self, key: str, default: Any = None, **kwargs) -> Any:
         try:
@@ -81,13 +97,51 @@ class CacheServiceExt:
         ttl_seconds: int = 3600,
         **kwargs
     ) -> Any:
-        # Conservative stampede protection is delegated to underlying cache.
+        # Conservative stampede protection: try to use cache_instrumentation's
+        # lock provider (if available). This mirrors the original behavior in
+        # the fuller implementation while keeping the shim minimal.
+        # Check cache first
         val = await self.get(key)
         if val is not None:
             return val
+
+        # If an instrumentation lock provider exists, use it for stampede
+        # protection. If not, fall back to computing directly.
+        lock = None
+        instr = getattr(self, "_instrumentation", None)
+        if instr is not None and hasattr(instr, "get_or_create_lock"):
+            try:
+                lock = instr.get_or_create_lock(key)
+            except Exception:
+                lock = None
+
+        if lock is not None:
+            # Use the provided async lock
+            async with lock:
+                # Re-check after acquiring lock
+                val = await self.get(key)
+                if val is not None:
+                    return val
+                built = await builder_fn()
+                if built is not None:
+                    await self.set(key, built, ttl_seconds)
+                    # Record rebuild event if instrumentation supports it
+                    if instr is not None and hasattr(instr, "record_rebuild_event"):
+                        try:
+                            instr.record_rebuild_event(key)
+                        except Exception:
+                            pass
+                return built
+
+        # No lock available - compute directly
         built = await builder_fn()
         if built is not None:
             await self.set(key, built, ttl_seconds)
+            if instr is not None and hasattr(instr, "record_rebuild_event"):
+                try:
+                    instr.record_rebuild_event(key)
+                except Exception:
+                    pass
         return built
 
     async def invalidate_pattern(self, pattern: str) -> int:
@@ -143,10 +197,35 @@ class CacheServiceExt:
             await self.set(test_key, "ok", ttl_seconds=60)
             val = await self.get(test_key)
             await self.delete(test_key)
-            return {"healthy": val is not None}
+            result: Dict[str, Any] = {"healthy": val is not None}
+
+            # Include per-operation bools for diagnostic assertions in tests
+            result["operations"] = {
+                "set": True,
+                "get": val is not None,
+                "delete": True,
+            }
+
+            # Attach a snapshot if instrumentation is present
+            try:
+                if cache_instrumentation is not None and hasattr(
+                    cache_instrumentation, "get_snapshot"
+                ):
+                    result["stats_snapshot"] = cache_instrumentation.get_snapshot()
+                else:
+                    result["stats_snapshot"] = {}
+            except Exception:
+                result["stats_snapshot"] = {}
+
+            return result
         except Exception as e:
             logger.error("Cache health check failed: %s", e)
-            return {"healthy": False, "error": str(e)}
+            # Provide the operations map even on failure so tests can inspect
+            return {
+                "healthy": False,
+                "error": str(e),
+                "operations": {"set": False, "get": False, "delete": False},
+            }
 
     async def close(self):
         if hasattr(self._base, "close"):
