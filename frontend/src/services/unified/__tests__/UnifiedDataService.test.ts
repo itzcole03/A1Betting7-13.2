@@ -8,9 +8,9 @@ test('unified service placeholder', () => {
  * Implements monitoring for data pipeline stability as recommended in Addendum 4
  */
 
+import { UnifiedCache } from '../UnifiedCache';
 import { UnifiedDataService } from '../UnifiedDataService';
 import { UnifiedServiceRegistry } from '../UnifiedServiceRegistry';
-import { UnifiedCache } from '../UnifiedCache';
 
 // Mock dependencies
 jest.mock('../UnifiedServiceRegistry');
@@ -24,7 +24,7 @@ describe('UnifiedDataService', () => {
   beforeEach(() => {
     // Reset all mocks
     jest.clearAllMocks();
-    
+
     // Mock cache instance
     mockCache = {
       get: jest.fn(),
@@ -108,21 +108,30 @@ describe('UnifiedDataService', () => {
         (dataService['api'].get as jest.Mock).mockRejectedValue(error);
 
         await expect(dataService.fetchSportsData('mlb')).rejects.toThrow('API Error');
-        expect(dataService['logger'].error).toHaveBeenCalledWith('Failed to fetch sports data', error);
+        expect(dataService['logger'].error).toHaveBeenCalledWith(
+          'Failed to fetch sports data',
+          error
+        );
       });
     });
 
     describe('fetchPlayerStats', () => {
       test('should properly construct cache keys and handle responses', async () => {
         mockCache.get.mockReturnValue(null);
-        const playerData = { stats: { avg: .300, hr: 25 } };
+        const playerData = { stats: { avg: 0.3, hr: 25 } };
         (dataService['api'].get as jest.Mock).mockResolvedValue({ data: playerData });
 
         const result = await dataService.fetchPlayerStats('player123', 'mlb');
 
         expect(mockCache.get).toHaveBeenCalledWith('player_stats_player123_mlb');
-        expect(dataService['api'].get).toHaveBeenCalledWith('/api/players/player123/stats?sport=mlb');
-        expect(mockCache.set).toHaveBeenCalledWith('player_stats_player123_mlb', playerData, 600000);
+        expect(dataService['api'].get).toHaveBeenCalledWith(
+          '/api/players/player123/stats?sport=mlb'
+        );
+        expect(mockCache.set).toHaveBeenCalledWith(
+          'player_stats_player123_mlb',
+          playerData,
+          600000
+        );
         expect(result).toBe(playerData);
       });
     });
@@ -167,9 +176,9 @@ describe('UnifiedDataService', () => {
 
         const expectedCacheKey = `search_test query_${JSON.stringify(filters)}`;
         expect(mockCache.get).toHaveBeenCalledWith(expectedCacheKey);
-        expect(dataService['api'].post).toHaveBeenCalledWith('/api/search', { 
-          query: 'test query', 
-          filters 
+        expect(dataService['api'].post).toHaveBeenCalledWith('/api/search', {
+          query: 'test query',
+          filters,
         });
         expect(mockCache.set).toHaveBeenCalledWith(expectedCacheKey, searchResults, 180000);
         expect(result).toBe(searchResults);
@@ -204,7 +213,10 @@ describe('UnifiedDataService', () => {
       (dataService['api'].get as jest.Mock).mockRejectedValue(timeoutError);
 
       await expect(dataService.fetchSportsData('mlb')).rejects.toThrow('TIMEOUT');
-      expect(dataService['logger'].error).toHaveBeenCalledWith('Failed to fetch sports data', timeoutError);
+      expect(dataService['logger'].error).toHaveBeenCalledWith(
+        'Failed to fetch sports data',
+        timeoutError
+      );
     });
 
     test('should handle API rate limits appropriately', async () => {
@@ -213,13 +225,18 @@ describe('UnifiedDataService', () => {
       rateLimitError.name = 'RateLimitError';
       (dataService['api'].get as jest.Mock).mockRejectedValue(rateLimitError);
 
-      await expect(dataService.fetchPlayerStats('player123', 'mlb')).rejects.toThrow('Rate limit exceeded');
-      expect(dataService['logger'].error).toHaveBeenCalledWith('Failed to fetch player stats', rateLimitError);
+      await expect(dataService.fetchPlayerStats('player123', 'mlb')).rejects.toThrow(
+        'Rate limit exceeded'
+      );
+      expect(dataService['logger'].error).toHaveBeenCalledWith(
+        'Failed to fetch player stats',
+        rateLimitError
+      );
     });
 
     test('should validate data integrity after fetching', async () => {
       mockCache.get.mockReturnValue(null);
-      
+
       // Test with valid data
       const validData = { teams: ['Team A'], lastUpdated: new Date().toISOString() };
       (dataService['api'].get as jest.Mock).mockResolvedValue({ data: validData });
@@ -233,8 +250,8 @@ describe('UnifiedDataService', () => {
   describe('Performance and Reliability', () => {
     test('should complete operations within reasonable time limits', async () => {
       mockCache.get.mockReturnValue(null);
-      (dataService['api'].get as jest.Mock).mockImplementation(() => 
-        new Promise(resolve => setTimeout(() => resolve({ data: {} }), 100))
+      (dataService['api'].get as jest.Mock).mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve({ data: {} }), 100))
       );
 
       const startTime = Date.now();

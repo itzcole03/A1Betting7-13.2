@@ -1,6 +1,6 @@
 /**
  * IMPLEMENTATION DESIGN NOTES (Based on Test Requirements):
- * 
+ *
  * PUBLIC API SURFACE:
  * - getInstance(): UnifiedDataService (singleton)
  * - resetForTests(): void (static method to reset singleton)
@@ -10,26 +10,26 @@
  * - fetchLiveData<T>(sport: string): Promise<T> (no caching)
  * - searchData<T>(query: string, filters?: any): Promise<T>
  * - clearCache(pattern?: string): void
- * 
+ *
  * CACHE KEY STRATEGY:
  * - Sports: sports_data_{sport}_{date||'today'}
  * - Players: player_stats_{playerId}_{sport}
- * - Teams: team_data_{teamId}_{sport}  
+ * - Teams: team_data_{teamId}_{sport}
  * - Search: search_{query}_{JSON.stringify(filters)}
- * 
+ *
  * TTL VALUES (per test expectations):
  * - Sports data: 300000ms (5 minutes)
  * - Player stats: 600000ms (10 minutes)
  * - Team data: 600000ms (10 minutes)
  * - Search results: 180000ms (3 minutes)
  * - Live data: NO CACHING
- * 
+ *
  * CACHING BEHAVIOR:
  * - Tests expect cache.get() to be called first
  * - If cache hit, return cached value immediately (no api call)
  * - If cache miss, call api.get/post, then cache.set with TTL
  * - Tests mock both UnifiedCache.getInstance() and api methods
- * 
+ *
  * ERROR HANDLING:
  * - Log errors via logger.error(message, error)
  * - Rethrow errors to caller
@@ -40,13 +40,46 @@ import { UnifiedCache } from './UnifiedCache';
 import { UnifiedServiceRegistry } from './UnifiedServiceRegistry';
 
 // Strengthen typing - remove any types
-export type UDGameData = { gameId: string; homeTeam: string; awayTeam: string; startTime: string; [k: string]: unknown };
-export interface UDSportsData { sport: string; games: UDGameData[] }
+export type UDGameData = {
+  gameId: string;
+  homeTeam: string;
+  awayTeam: string;
+  startTime: string;
+  [k: string]: unknown;
+};
+export interface UDSportsData {
+  sport: string;
+  games: UDGameData[];
+}
 export type UDPlayerStat = { statType: string; value: number; [k: string]: unknown };
-export interface UDPlayerStats { playerId: string; stats: UDPlayerStat[] }
-export type UDRosterMember = { playerId: string; name: string; position: string; [k: string]: unknown };
+export interface UDPlayerStats {
+  playerId: string;
+  stats: UDPlayerStat[];
+}
+export type UDRosterMember = {
+  playerId: string;
+  name: string;
+  position: string;
+  [k: string]: unknown;
+};
 export type UDTeamStat = { statType: string; value: number; [k: string]: unknown };
-export interface UDTeamData { teamId: string; roster: UDRosterMember[]; stats: UDTeamStat[] }
+export interface UDTeamData {
+  teamId: string;
+  roster: UDRosterMember[];
+  stats: UDTeamStat[];
+}
+
+// Normalized player shape used by normalization helpers
+export interface NormalizedPlayer {
+  playerId: string;
+  name?: string;
+  team?: string;
+  position?: string;
+  stats?: unknown;
+}
+
+// Odds type for sportsbook responses
+export type Odds = { market?: string; price?: number; [k: string]: unknown };
 
 // Strong typing interfaces for dependencies
 export interface ILogger {
@@ -90,7 +123,7 @@ export class UnifiedDataService {
   private static instance: UnifiedDataService | undefined;
   private cache: UnifiedCache;
   private registry: UnifiedServiceRegistry;
-  
+
   // Internal Maps for enhanced features
   private inFlight = new Map<string, Promise<unknown>>();
   private metrics: ServiceMetrics = {
@@ -98,20 +131,20 @@ export class UnifiedDataService {
     misses: 0,
     staleServed: 0,
     network: 0,
-    errors: 0
+    errors: 0,
   };
-  
+
   // Internal guard for observability
   private lastWarnTimestamp = 0;
-  
+
   // These are public to allow test mocking as per test setup
-  public api: IApiClient = { 
-    get: async <T = unknown>() => ({ data: {} as T }), 
-    post: async <T = unknown>() => ({ data: {} as T }) 
+  public api: IApiClient = {
+    get: async <T = unknown>() => ({ data: {} as T }),
+    post: async <T = unknown>() => ({ data: {} as T }),
   };
-  public logger: ILogger = { 
-    info: () => {}, 
-    error: () => {} 
+  public logger: ILogger = {
+    info: () => {},
+    error: () => {},
   };
 
   static getInstance(): UnifiedDataService {
@@ -142,14 +175,17 @@ export class UnifiedDataService {
   private async getOrFetch<T>(options: GetOrFetchOptions<T>): Promise<T> {
     const { key, ttl, fetcher, allowStale = false, revalidate = false } = options;
     const cache = this.getCache();
-    
+
     // Lightweight internal guard: warn if inFlight map grows too large
     const now = Date.now();
     if (this.inFlight.size > 100 && now - this.lastWarnTimestamp > 60000) {
-      this.logger.error('InFlight map size exceeded 100 entries', new Error(`Current size: ${this.inFlight.size}`));
+      this.logger.error(
+        'InFlight map size exceeded 100 entries',
+        new Error(`Current size: ${this.inFlight.size}`)
+      );
       this.lastWarnTimestamp = now;
     }
-    
+
     // Check cache first - add defensive try/catch
     let cachedData: T | null = null;
     try {
@@ -158,17 +194,17 @@ export class UnifiedDataService {
       this.metrics.errors++;
       this.logger.error(`Cache get failed for key: ${key}`, error);
     }
-    
+
     if (cachedData !== null && cachedData !== undefined) {
       this.metrics.hits++;
       this.logger.info(`cache hit (fresh): ${key}`);
-      
+
       // Handle stale-while-revalidate case
       if (revalidate) {
         // Start background refresh without waiting
         this.performBackgroundRevalidate(key, ttl, fetcher);
       }
-      
+
       return cachedData;
     }
 
@@ -195,18 +231,18 @@ export class UnifiedDataService {
   }
 
   private async performFetch<T>(
-    key: string, 
-    ttl: number, 
-    fetcher: () => Promise<T>, 
-    allowStale: boolean, 
+    key: string,
+    ttl: number,
+    fetcher: () => Promise<T>,
+    allowStale: boolean,
     staleData: T | null
   ): Promise<T> {
     try {
       this.logger.info(`network fetch start: ${key}`);
       this.metrics.network++;
-      
+
       const data = await fetcher();
-      
+
       // Cache the fresh data with defensive try/catch
       try {
         this.getCache().set(key, data, ttl);
@@ -214,19 +250,19 @@ export class UnifiedDataService {
         this.metrics.errors++;
         this.logger.error(`Cache set failed for key: ${key}`, error);
       }
-      
+
       this.logger.info(`network fetch success: ${key}`);
       return data;
     } catch (error) {
       this.metrics.errors++;
-      
+
       // If we have stale data and it's allowed, return it as fallback
       if (allowStale && staleData !== null && staleData !== undefined) {
         this.metrics.staleServed++;
         this.logger.info(`stale serve: ${key}`);
         return staleData;
       }
-      
+
       throw error;
     }
   }
@@ -259,7 +295,7 @@ export class UnifiedDataService {
    */
   async fetchSportsData(sport: string, date?: string): Promise<UDSportsData | unknown> {
     const cacheKey = `sports_data_${sport}_${date || 'today'}`;
-    
+
     return this.getOrFetch<UDSportsData | unknown>({
       key: cacheKey,
       ttl: 300000, // 5 minutes
@@ -271,35 +307,128 @@ export class UnifiedDataService {
           this.logger.error('Failed to fetch sports data', error);
           throw error;
         }
-      }
+      },
     });
   }
 
   /**
-   * Fetch player statistics with caching
-   * @param playerId - Player identifier
-   * @param sport - Sport identifier
-   * @returns Promise resolving to player statistics
-   * @note Uses 10-minute TTL cache with key pattern: player_stats_{playerId}_{sport}
-   * @note Supports stale-while-revalidate when configured
+   * Generic cache-backed fetch helper used by merged services.
+   * Keeps the existing getOrFetch semantics while exposing a simple
+   * endpoint-based helper for legacy merged code.
    */
-  async fetchPlayerStats(playerId: string, sport: string): Promise<UDPlayerStats | unknown> {
-    const cacheKey = `player_stats_${playerId}_${sport}`;
-    
+  private async fetchWithCache<T = unknown>(endpoint: string, ttl = 300000): Promise<T> {
+    return this.getOrFetch<T>({
+      key: endpoint,
+      ttl,
+      fetcher: async () => {
+        const resp = await this.api.get<T>(endpoint);
+        return resp.data as T;
+      },
+    });
+  }
+
+  // --------- Merged from dataIntegrationService.ts ----------
+  /**
+   * Fetch from multiple data sources in parallel and merge results.
+   * Each source is expected to expose either fetchData() or getData().
+   */
+  async fetchFromMultipleSources(sources: Array<any>): Promise<any> {
+    const promises = sources.map(s => this.fetchFromSource(s));
+    const results = await Promise.all(promises);
+    return this.mergeResults(results);
+  }
+
+  private async fetchFromSource(source: any): Promise<any> {
+    if (!source) return null;
+    if (typeof source.fetchData === 'function') return source.fetchData();
+    if (typeof source.getData === 'function') return source.getData();
+    // Fallback: if source is an endpoint string
+    if (typeof source === 'string') return this.fetchWithCache(source);
+    return null;
+  }
+
+  private mergeResults(results: any[]): any {
+    // Naive merge: if arrays, concat; if objects, shallow merge; else collect
+    if (!results || results.length === 0) return null;
+    if (results.every(r => Array.isArray(r))) return ([] as any[]).concat(...results);
+    return Object.assign({}, ...results.filter(r => r && typeof r === 'object'));
+  }
+
+  // --------- Merged from DataNormalizationService.ts ----------
+  private normalizePosition(pos: any): string | undefined {
+    if (!pos) return undefined;
+    const p = String(pos).toLowerCase();
+    if (p.startsWith('qb')) return 'QB';
+    if (p.startsWith('rb')) return 'RB';
+    if (p.startsWith('wr')) return 'WR';
+    return String(pos).toUpperCase();
+  }
+
+  private normalizeStats(rawStats: any): unknown {
+    // simple passthrough for now; normalization rules can be extended
+    return rawStats;
+  }
+
+  private normalizePlayerData(rawData: any): NormalizedPlayer {
+    return {
+      playerId: rawData.id || rawData.playerId,
+      name: rawData.name || rawData.playerName,
+      team: rawData.team || rawData.teamName,
+      position: this.normalizePosition(rawData.position),
+      stats: this.normalizeStats(rawData.stats),
+    } as NormalizedPlayer;
+  }
+
+  // --------- Merged from SportsbookDataService.ts ----------
+
+  async fetchSportsbookOdds(sport: string, event: string): Promise<Odds[]> {
+    const endpoint = `/api/v1/sportsbooks/${sport}/${event}/odds`;
+    return await this.fetchWithCache<Odds[]>(endpoint);
+  }
+
+  // --------- Merged from PlayerDataService.ts ----------
+  /**
+   * Support both legacy (playerId, sport) and new (playerId, season) flows.
+   * If the second parameter looks like a year/season (e.g. "2024" or "2024-2025"),
+   * treat it as a season path; otherwise preserve backward-compatible sport query.
+   */
+  async fetchPlayerStats(
+    playerId: string,
+    seasonOrSport: string
+  ): Promise<UDPlayerStats | unknown> {
+    // detect season-like string (simple heuristic)
+    const isSeason = typeof seasonOrSport === 'string' && /\d{4}/.test(seasonOrSport);
+    if (isSeason) {
+      const endpoint = `/api/v1/players/${playerId}/stats/${seasonOrSport}`;
+      const rawData = await this.fetchWithCache(endpoint);
+      // normalize to existing UDPlayerStats shape where possible
+      try {
+        return this.normalizePlayerData(rawData) as unknown as UDPlayerStats;
+      } catch (_) {
+        return rawData as UDPlayerStats;
+      }
+    }
+
+    // Fallback to previous behavior: sport-based query
+    const cacheKey = `player_stats_${playerId}_${seasonOrSport}`;
     return this.getOrFetch<UDPlayerStats | unknown>({
       key: cacheKey,
       ttl: 600000, // 10 minutes
       fetcher: async () => {
         try {
-          const response = await this.api.get<UDPlayerStats | unknown>(`/api/players/${playerId}/stats?sport=${sport}`);
+          const response = await this.api.get<UDPlayerStats | unknown>(
+            `/api/players/${playerId}/stats?sport=${seasonOrSport}`
+          );
           return response.data;
         } catch (error) {
           this.logger.error('Failed to fetch player stats', error);
           throw error;
         }
-      }
+      },
     });
   }
+
+  // NOTE: season-aware fetchPlayerStats implementation above handles both season and sport
 
   /**
    * Fetch team data with caching
@@ -311,19 +440,21 @@ export class UnifiedDataService {
    */
   async fetchTeamData(teamId: string, sport: string): Promise<UDTeamData | unknown> {
     const cacheKey = `team_data_${teamId}_${sport}`;
-    
+
     return this.getOrFetch<UDTeamData | unknown>({
       key: cacheKey,
       ttl: 600000, // 10 minutes
       fetcher: async () => {
         try {
-          const response = await this.api.get<UDTeamData | unknown>(`/api/teams/${teamId}?sport=${sport}`);
+          const response = await this.api.get<UDTeamData | unknown>(
+            `/api/teams/${teamId}?sport=${sport}`
+          );
           return response.data;
         } catch (error) {
           this.logger.error('Failed to fetch team data', error); // TEST_ADJUST: Match exact error message from tests
           throw error;
         }
-      }
+      },
     });
   }
 
@@ -348,10 +479,14 @@ export class UnifiedDataService {
    * @note Uses 3-minute TTL cache with key pattern: search_{query}_{JSON.stringify(filters)}
    * @note Supports forceRefresh, custom TTL, and stale behavior options
    */
-  async searchData<T = unknown>(query: string, filters: Record<string, unknown> = {}, options?: SearchOptions): Promise<T> {
+  async searchData<T = unknown>(
+    query: string,
+    filters: Record<string, unknown> = {},
+    options?: SearchOptions
+  ): Promise<T> {
     const cacheKey = `search_${query}_${JSON.stringify(filters)}`;
     const ttl = options?.ttl ?? 180000; // 3 minutes default
-    
+
     // Force refresh bypasses cache entirely
     if (options?.forceRefresh) {
       try {
@@ -364,7 +499,7 @@ export class UnifiedDataService {
         throw error;
       }
     }
-    
+
     return this.getOrFetch<T>({
       key: cacheKey,
       ttl,
@@ -377,7 +512,7 @@ export class UnifiedDataService {
           this.logger.error('Failed to search data', error);
           throw error;
         }
-      }
+      },
     });
   }
 
@@ -397,7 +532,7 @@ export class UnifiedDataService {
     // Clear by pattern - get all keys and filter
     const allKeys = cache.getKeys() || [];
     const keysToDelete = allKeys.filter((key: string) => key.includes(pattern));
-    
+
     keysToDelete.forEach((key: string) => {
       cache.delete(key);
     });
@@ -424,12 +559,12 @@ export class UnifiedDataService {
    */
   async getCachedData<T>(key: string): Promise<T | undefined> {
     const cache = this.getCache();
-    
+
     // Use has() to check if the key exists first
     if (!cache.has(key)) {
       return undefined;
     }
-    
+
     // If it exists, get the value (which might be null)
     const result = cache.get<T>(key);
     return result as T;
@@ -453,7 +588,7 @@ export class UnifiedDataService {
     const cache = this.getCache();
     const allKeys = cache.getKeys() || [];
     const keysToDelete = allKeys.filter((key: string) => key.startsWith(prefix));
-    
+
     keysToDelete.forEach((key: string) => {
       cache.delete(key);
     });
@@ -469,12 +604,12 @@ export class UnifiedDataService {
     for (const date of dates) {
       const cacheKey = `sports_data_${sport}_${date}`;
       const cache = this.getCache();
-      
+
       // Skip if already cached and fresh
       if (cache.get(cacheKey)) {
         continue;
       }
-      
+
       try {
         // Use existing fetchSportsData to maintain consistency
         await this.fetchSportsData(sport, date);
@@ -486,7 +621,7 @@ export class UnifiedDataService {
   }
 
   // NEW SAFE OPTIONAL METHODS FOR OBSERVABILITY
-  
+
   /**
    * Reset all internal metrics to zero
    * @note Safe operation - does not affect cache or in-flight requests
@@ -497,7 +632,7 @@ export class UnifiedDataService {
       misses: 0,
       staleServed: 0,
       network: 0,
-      errors: 0
+      errors: 0,
     };
   }
 
@@ -514,13 +649,18 @@ export class UnifiedDataService {
    * @returns Snapshot containing cache keys, in-flight count, metrics, and memory size
    * @note Provides comprehensive observability data for debugging
    */
-  debugSnapshot(): { keys: string[]; inFlight: number; metrics: UnifiedDataServiceMetrics; memorySize: number } {
+  debugSnapshot(): {
+    keys: string[];
+    inFlight: number;
+    metrics: UnifiedDataServiceMetrics;
+    memorySize: number;
+  } {
     const cache = this.getCache();
     return {
       keys: cache.getKeys() || [],
       inFlight: this.inFlight.size,
       metrics: { ...this.metrics },
-      memorySize: cache.getSize()
+      memorySize: cache.getSize(),
     };
   }
 }

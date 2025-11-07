@@ -131,10 +131,13 @@ export class TheOddsAdapter implements DataSource<TheOddsData> {
     // Implementation needed
   }
 
+  /**
+   * Return cached data or null. IMPORTANT: this method is cache-only and
+   * MUST NOT trigger network requests. Call `fetchData()` when a network
+   * fetch is required. Keeping `getData()` cache-only avoids accidental
+   * network I/O during simple reads and makes tests deterministic.
+   */
   public async getData(): Promise<TheOddsData | null> {
-    // Return cached data when available. Explicit fetches should use
-    // fetchData() so callers can control network behavior and tests can
-    // exercise fetchData independently.
     return this.cache.data;
   }
 

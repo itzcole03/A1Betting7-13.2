@@ -1,0 +1,1518 @@
+"""
+Intelligent Cache Service with Predictive Warming and Pipeline Optimization
+Enhanced caching layer with AI-driven prefetching, Redis pipelines, and smart invalidation
+"""
+
+import asyncio
+import hashlib
+import json
+import logging
+import os
+import time
+from collections import defaultdict, deque
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timedelta, timezone
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+
+import redis.asyncio as redis
+from redis import exceptions as redis_exceptions
+
+from backend.config_manager import A1BettingConfig
+from backend.utils.enhanced_logging import get_logger
+
+logger = get_logger("intelligent_cache")
+
+# Environment-gated debug for high-frequency cache logs to avoid
+# formatting & emit cost in production unless explicitly enabled.
+_INTELLIGENT_CACHE_DEBUG = os.environ.get("INTELLIGENT_CACHE_DEBUG", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+
+
+def _cache_debug(msg: str, *args, **kwargs):
+    """Emit debug logs only when INTELLIGENT_CACHE_DEBUG is enabled."""
+    if _INTELLIGENT_CACHE_DEBUG:
+        # use logger.debug lazy formatting to avoid building strings unnecessarily
+        logger.debug(msg, *args, **kwargs)
+
+
+# Prefer orjson when available for hot serialization paths, fall back to stdlib json
+try:
+    import orjson as _orjson  # type: ignore
+
+    def _dumps(obj: Any) -> str:
+        # orjson.dumps returns bytes
+        return _orjson.dumps(obj, default=str).decode("utf-8")
+
+    def _loads(buf: Union[bytes, str]) -> Any:
+        if isinstance(buf, str):
+            buf = buf.encode("utf-8")
+        return _orjson.loads(buf)
+
+except Exception:
+    _orjson = None
+
+    def _dumps(obj: Any) -> str:
+        return json.dumps(obj, default=str)
+
+    def _loads(buf: Union[bytes, str]) -> Any:
+        if isinstance(buf, (bytes, bytearray)):
+            try:
+                return json.loads(buf.decode("utf-8"))
+            except Exception:
+                return buf.decode("utf-8")
+        try:
+            return json.loads(str(buf))
+        except Exception:
+            return str(buf)
+
+
+@dataclass
+class CacheMetrics:
+    """Cache performance metrics"""
+
+    hits: int = 0
+    misses: int = 0
+    sets: int = 0
+    deletes: int = 0
+    pipeline_operations: int = 0
+    warming_operations: int = 0
+    evictions: int = 0
+    total_memory_used: int = 0
+    avg_response_time: float = 0.0
+    hit_rate: float = 0.0
+
+
+@dataclass
+class CachePattern:
+    """Data access pattern for predictive caching"""
+
+    key_pattern: str
+    access_frequency: int
+    last_access: datetime
+    avg_ttl: int
+    data_size: int
+    user_contexts: Set[str] = field(default_factory=set)
+    peak_hours: List[int] = field(default_factory=list)
+    seasonal_factor: float = 1.0
+
+
+class IntelligentCacheService:
+    """
+    Enhanced caching service with:
+    - Predictive cache warming based on access patterns
+    - Redis pipeline batching for bulk operations
+    - Intelligent TTL management
+    - Smart cache invalidation
+    - Real-time performance monitoring
+    """
+
+    def __init__(self):
+        self.config = A1BettingConfig()
+        self._redis_pool: Optional[redis.ConnectionPool] = None
+        self._memory_cache: Dict[str, Any] = {}
+        self._memory_cache_ttl: Dict[str, float] = {}
+        self._use_memory_fallback = False
+        self._initialization_attempted = False
+        self._memory_tasks_started = False
+        self._init_lock: asyncio.Lock = asyncio.Lock()
+        self._lean_mode = (
+            os.environ.get("APP_DEV_LEAN_MODE", "").lower() == "true"
+            or os.environ.get("DISABLE_STARTUP_HOOKS", "").lower() == "true"
+        )
+        # Tests should prefer memory fallback to avoid external dependencies
+        self._testing_mode = os.environ.get("TESTING", "").lower() in ("1", "true")
+        if self._testing_mode:
+            self._use_memory_fallback = True
+        if self._lean_mode:
+            self._use_memory_fallback = True
+
+        # Enhanced metrics and patterns
+        self.metrics = CacheMetrics()
+        self.access_patterns: Dict[str, CachePattern] = {}
+        self.warming_queue: asyncio.Queue = asyncio.Queue()
+        self.pipeline_buffer: List[Tuple[str, str, Any]] = []  # (operation, key, value)
+
+        # Configuration
+        self.pipeline_batch_size = 50
+        self.pipeline_timeout = 0.1  # 100ms
+        self.warming_enabled = True
+        self.pattern_analysis_interval = 300  # 5 minutes
+        self.max_pipeline_size = 1000
+
+        # Background tasks
+        self._pipeline_task: Optional[asyncio.Task] = None
+        self._warming_task: Optional[asyncio.Task] = None
+        self._pattern_analysis_task: Optional[asyncio.Task] = None
+        self._reconnect_task: Optional[asyncio.Task] = None
+        self._reconnect_attempts: int = 0
+
+        # Small in-memory cache for recent TTL calculations to avoid repeated
+        # expensive volatility model calls under bursty writes. Entries are
+        # cached for a few seconds.
+        # Cache window (seconds) and max entries are configurable via env vars
+        # to allow tuning per environment without code changes.
+        self._ttl_cache_seconds: int = int(
+            os.environ.get("INTELLIGENT_CACHE_TTL_CACHE_SECONDS", "5")
+        )
+        self._ttl_cache_max_entries: int = int(
+            os.environ.get("INTELLIGENT_CACHE_TTL_CACHE_MAX_ENTRIES", "5000")
+        )
+        # Store as {key: (ttl_value, expires_at_ts)}. We'll evict oldest when
+        # the cache grows beyond _ttl_cache_max_entries to avoid unbounded growth.
+        self._ttl_cache: Dict[str, Tuple[int, float]] = {}
+
+    async def initialize(self) -> None:
+        """Initialize enhanced caching service with background tasks"""
+        async with self._init_lock:
+            if self._initialization_attempted:
+                if self._use_memory_fallback:
+                    await self._ensure_memory_tasks()
+                return
+
+            self._initialization_attempted = True
+
+            if self._lean_mode:
+                await self._switch_to_memory_fallback(
+                    "lean environment",
+                    log_level="info",
+                    schedule_reconnect=False,
+                )
+                logger.info(
+                    "✅ Intelligent cache service running in memory-only mode (lean environment)"
+                )
+                return
+
+            self._use_memory_fallback = False
+
+            try:
+                # Initialize Redis connection
+                redis_url = self.config.cache.redis_url or "redis://localhost:6379"
+                self._redis_pool = redis.ConnectionPool.from_url(
+                    redis_url,
+                    max_connections=50,  # Increased for pipeline operations
+                    retry_on_timeout=True,
+                    socket_keepalive=True,
+                    socket_keepalive_options={},
+                    health_check_interval=30,
+                )
+
+                # Test connection
+                redis_client = redis.Redis(connection_pool=self._redis_pool)
+                await redis_client.ping()
+
+                # Start background tasks
+                await self._start_background_tasks()
+
+                logger.info("✅ Intelligent cache service initialized with Redis")
+
+            except Exception as e:
+                await self._switch_to_memory_fallback(f"Redis not available: {e}")
+                logger.info(
+                    "✅ Intelligent cache service initialized with memory fallback"
+                )
+
+    async def _start_background_tasks(self):
+        """Start background processing tasks"""
+        if not self._use_memory_fallback:
+            self._pipeline_task = asyncio.create_task(self._pipeline_processor())
+
+        if self.warming_enabled:
+            self._warming_task = asyncio.create_task(self._cache_warming_processor())
+
+        self._pattern_analysis_task = asyncio.create_task(self._pattern_analyzer())
+
+    async def _start_memory_tasks(self):
+        """Start limited tasks for memory-only mode"""
+        if self._memory_tasks_started:
+            return
+        self._memory_tasks_started = True
+        if self.warming_enabled:
+            self._warming_task = asyncio.create_task(self._cache_warming_processor())
+        self._pattern_analysis_task = asyncio.create_task(self._pattern_analyzer())
+
+    async def _ensure_memory_tasks(self):
+        if self._use_memory_fallback and not self._memory_tasks_started:
+            await self._start_memory_tasks()
+
+    async def _ensure_initialized(self):
+        if not self._initialization_attempted:
+            await self.initialize()
+        elif self._use_memory_fallback:
+            await self._ensure_memory_tasks()
+
+    async def _switch_to_memory_fallback(
+        self,
+        reason: str,
+        log_level: str = "warning",
+        schedule_reconnect: bool = True,
+    ) -> None:
+        """Switch service to in-memory mode safely."""
+        if self._use_memory_fallback:
+            return
+
+        self._use_memory_fallback = True
+        self._redis_pool = None
+
+        if self._pipeline_task is not None and not self._pipeline_task.done():
+            self._pipeline_task.cancel()
+        self._pipeline_task = None
+
+        await self._ensure_memory_tasks()
+
+        log_func = logger.warning if log_level != "info" else logger.info
+        prefix = "⚠️" if log_level != "info" else "ℹ️"
+        log_func(f"{prefix} Switching intelligent cache to memory fallback: {reason}")
+
+        if schedule_reconnect and not self._lean_mode:
+            self._schedule_redis_reconnect()
+
+    def get_redis(self) -> redis.Redis:
+        """Get Redis client from pool"""
+        if self._use_memory_fallback:
+            raise RuntimeError("Using memory fallback, Redis not available")
+        if not self._redis_pool:
+            raise RuntimeError("Cache service not initialized")
+        return redis.Redis(connection_pool=self._redis_pool)
+
+    def _should_switch_to_memory(self, exc: Exception) -> bool:
+        """Detect connection failures that should trigger the memory fallback."""
+        redis_error_types = (
+            redis_exceptions.RedisError,
+            ConnectionError,
+            TimeoutError,
+            asyncio.TimeoutError,
+            OSError,
+            RuntimeError,
+        )
+
+        current = exc
+        visited: Set[int] = set()
+
+        while current and id(current) not in visited:
+            if isinstance(current, redis_error_types):
+                return True
+            visited.add(id(current))
+            current = getattr(current, "__cause__", None) or getattr(
+                current, "__context__", None
+            )
+
+        return False
+
+    @staticmethod
+    def _describe_error(exc: Exception) -> str:
+        message = str(exc).strip()
+        return message or exc.__class__.__name__
+
+    def _schedule_redis_reconnect(self) -> None:
+        """Spawn a background task that keeps trying to restore Redis connectivity."""
+        if self._lean_mode:
+            return
+
+        if self._reconnect_task and not self._reconnect_task.done():
+            return
+
+        self._reconnect_task = asyncio.create_task(self._redis_reconnect_loop())
+
+    async def _redis_reconnect_loop(self) -> None:
+        """Attempt to reconnect to Redis with exponential backoff."""
+        delay_seconds = 1
+
+        try:
+            while self._use_memory_fallback and not self._lean_mode:
+                await asyncio.sleep(delay_seconds)
+
+                if not self._use_memory_fallback:
+                    break
+
+                try:
+                    # Reset initialization so a fresh connection is attempted.
+                    self._redis_pool = None
+                    self._initialization_attempted = False
+                    await self.initialize()
+
+                    if not self._use_memory_fallback and self._redis_pool:
+                        self._reconnect_attempts = 0
+                        logger.info("🔄 Redis cache reconnected successfully")
+                        break
+
+                    # If we are still in fallback mode, increase delay and continue.
+                    self._reconnect_attempts += 1
+                    delay_seconds = min(delay_seconds * 2, 60)
+
+                except Exception as exc:
+                    self._reconnect_attempts += 1
+                    _cache_debug("Redis reconnect attempt failed: %s", exc)
+                    delay_seconds = min(delay_seconds * 2, 60)
+
+        finally:
+            self._reconnect_task = None
+
+    async def get(
+        self, key: str, default: Any = None, user_context: Optional[str] = None
+    ) -> Any:
+        """Enhanced get with pattern tracking"""
+        start_time = time.time()
+
+        try:
+            await self._ensure_initialized()
+            if not self._use_memory_fallback and self._redis_pool is None:
+                await self._switch_to_memory_fallback(
+                    "Redis pool unavailable after initialization"
+                )
+                return await self._memory_get(key, default)
+            # Track access pattern
+            await self._track_access_pattern(key, user_context)
+
+            if self._use_memory_fallback:
+                value = await self._memory_get(key, default)
+            else:
+                value = await self._redis_get(key, default)
+
+            # Update metrics
+            if value is not None and value != default:
+                self.metrics.hits += 1
+                _cache_debug("✅ Cache hit for key: %s", key)
+            else:
+                self.metrics.misses += 1
+                _cache_debug("🔍 Cache miss for key: %s", key)
+
+            # Update response time
+            response_time = time.time() - start_time
+            self.metrics.avg_response_time = (
+                self.metrics.avg_response_time * 0.9 + response_time * 0.1
+            )
+
+            return value
+
+        except Exception as e:
+            if not self._use_memory_fallback and self._should_switch_to_memory(e):
+                await self._switch_to_memory_fallback(self._describe_error(e))
+                return await self._memory_get(key, default)
+
+            logger.error(f"❌ Cache get error for key {key}", exc_info=e)
+            self.metrics.misses += 1
+            return default
+
+    async def set(
+        self,
+        key: str,
+        value: Any,
+        ttl_seconds: int = 3600,
+        priority: str = "normal",
+        user_context: Optional[str] = None,
+        use_pipeline: bool = True,
+    ) -> bool:
+        """Enhanced set with pipeline optimization and intelligent TTL"""
+        try:
+            await self._ensure_initialized()
+            if not self._use_memory_fallback and self._redis_pool is None:
+                await self._switch_to_memory_fallback(
+                    "Redis pool unavailable after initialization"
+                )
+                return await self._memory_set(key, value, ttl_seconds)
+            # Calculate intelligent TTL based on patterns
+            smart_ttl = await self._calculate_smart_ttl(key, ttl_seconds, user_context)
+
+            if self._use_memory_fallback:
+                return await self._memory_set(key, value, smart_ttl)
+            elif use_pipeline and priority == "normal":
+                # Add to pipeline buffer for batching
+                await self._add_to_pipeline("SET", key, (value, smart_ttl))
+                return True
+            else:
+                # Immediate execution for high priority
+                return await self._redis_set(key, value, smart_ttl)
+
+        except Exception as e:
+            if not self._use_memory_fallback and self._should_switch_to_memory(e):
+                await self._switch_to_memory_fallback(self._describe_error(e))
+                return await self._memory_set(key, value, ttl_seconds)
+
+            logger.error(f"❌ Cache set error for key {key}", exc_info=e)
+            return False
+
+    async def get_many(
+        self, keys: List[str], user_context: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Optimized bulk get operation using Redis pipeline"""
+        if not keys:
+            return {}
+
+        try:
+            await self._ensure_initialized()
+            if not self._use_memory_fallback and self._redis_pool is None:
+                await self._switch_to_memory_fallback(
+                    "Redis pool unavailable after initialization"
+                )
+                return await self._memory_get_many(keys, user_context)
+            if self._use_memory_fallback:
+                return await self._memory_get_many(keys, user_context)
+            else:
+                return await self._redis_get_many(keys, user_context)
+
+        except Exception as e:
+            if not self._use_memory_fallback and self._should_switch_to_memory(e):
+                await self._switch_to_memory_fallback(self._describe_error(e))
+                return await self._memory_get_many(keys, user_context)
+
+            logger.error(f"❌ Bulk get error for {len(keys)} keys", exc_info=e)
+            return {}
+
+    async def set_many(
+        self,
+        items: Dict[str, Tuple[Any, int]],  # key -> (value, ttl)
+        user_context: Optional[str] = None,
+    ) -> int:
+        """Optimized bulk set operation using Redis pipeline"""
+        if not items:
+            return 0
+
+        try:
+            await self._ensure_initialized()
+            if not self._use_memory_fallback and self._redis_pool is None:
+                await self._switch_to_memory_fallback(
+                    "Redis pool unavailable after initialization"
+                )
+                return await self._memory_set_many(items, user_context)
+            if self._use_memory_fallback:
+                return await self._memory_set_many(items, user_context)
+            else:
+                return await self._redis_set_many(items, user_context)
+
+        except Exception as e:
+            if not self._use_memory_fallback and self._should_switch_to_memory(e):
+                await self._switch_to_memory_fallback(self._describe_error(e))
+                return await self._memory_set_many(items, user_context)
+
+            logger.error(f"❌ Bulk set error for {len(items)} items", exc_info=e)
+            return 0
+
+    async def warm_cache(
+        self, patterns: List[str], data_fetcher: Callable, priority: str = "normal"
+    ):
+        """Proactively warm cache for predicted access patterns"""
+        if not self.warming_enabled:
+            return
+
+        await self._ensure_initialized()
+        warming_request = {
+            "patterns": patterns,
+            "data_fetcher": data_fetcher,
+            "priority": priority,
+            "timestamp": time.time(),
+        }
+
+        await self.warming_queue.put(warming_request)
+        _cache_debug("🔥 Cache warming queued for %s patterns", len(patterns))
+
+    async def invalidate_pattern(self, pattern: str) -> int:
+        """Intelligently invalidate cache entries matching pattern"""
+        try:
+            await self._ensure_initialized()
+            if self._use_memory_fallback:
+                return await self._memory_invalidate_pattern(pattern)
+            else:
+                return await self._redis_invalidate_pattern(pattern)
+
+        except Exception as e:
+            logger.error(f"❌ Pattern invalidation error for {pattern}", exc_info=e)
+            return 0
+
+    async def set_sport_data(
+        self,
+        sport: str,
+        data_category: str,
+        key: str,
+        value: Any,
+        game_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        base_ttl: Optional[int] = None,
+    ) -> bool:
+        """Set sport data with intelligent TTL based on volatility models"""
+        try:
+            await self._ensure_initialized()
+            from backend.services.sport_volatility_models import (
+                DataCategory,
+                SportType,
+                sport_volatility_models,
+            )
+
+            # Convert strings to enums
+            sport_enum = SportType(sport.lower()) if sport else None
+            category_enum = None
+
+            # Map data category string to enum
+            category_mapping = {
+                "live_scores": DataCategory.LIVE_SCORES,
+                "live_odds": DataCategory.LIVE_ODDS,
+                "pre_game_odds": DataCategory.PRE_GAME_ODDS,
+                "player_stats": DataCategory.PLAYER_STATS,
+                "team_stats": DataCategory.TEAM_STATS,
+                "injury_reports": DataCategory.INJURY_REPORTS,
+                "game_schedules": DataCategory.GAME_SCHEDULES,
+                "player_props": DataCategory.PLAYER_PROPS,
+                "news_updates": DataCategory.NEWS_UPDATES,
+            }
+
+            category_enum = category_mapping.get(data_category.lower())
+
+            if sport_enum and category_enum:
+                # Get dynamic TTL from volatility model
+                access_count = 1
+                if key in self.access_patterns:
+                    access_count = self.access_patterns[key].access_frequency
+
+                dynamic_ttl = await sport_volatility_models.get_dynamic_ttl(
+                    sport=sport_enum,
+                    data_category=category_enum,
+                    game_id=game_id,
+                    user_id=user_id,
+                    access_count=access_count,
+                )
+
+                # Track user access
+                if user_id:
+                    await sport_volatility_models.track_user_access(
+                        user_id, sport_enum, category_enum
+                    )
+
+                # Use the dynamic TTL
+                ttl_to_use = dynamic_ttl
+
+                _cache_debug(
+                    "Sport-aware cache set: %s with TTL %s s (%s:%s)",
+                    key,
+                    ttl_to_use,
+                    sport,
+                    data_category,
+                )
+
+            else:
+                # Fallback to base TTL if provided, otherwise default
+                ttl_to_use = base_ttl if base_ttl else 3600
+                _cache_debug("Using fallback TTL %s s for %s", ttl_to_use, key)
+
+            # Set with calculated TTL
+            return await self.set(
+                key=key, value=value, ttl_seconds=ttl_to_use, user_context=user_id
+            )
+
+        except Exception as e:
+            logger.error(f"❌ Error in sport-aware cache set: {e}")
+            # Fallback to regular set
+            return await self.set(key, value, base_ttl or 3600)
+
+    async def get_sport_data(
+        self,
+        sport: str,
+        data_category: str,
+        key: str,
+        user_id: Optional[str] = None,
+        default: Any = None,
+    ) -> Any:
+        """Get sport data with user tracking for volatility optimization"""
+        try:
+            await self._ensure_initialized()
+            from backend.services.sport_volatility_models import (
+                DataCategory,
+                SportType,
+                sport_volatility_models,
+            )
+
+            # Get the data
+            result = await self.get(key, default, user_context=user_id)
+
+            # Track access for volatility modeling
+            try:
+                sport_enum = SportType(sport.lower()) if sport else None
+                category_mapping = {
+                    "live_scores": DataCategory.LIVE_SCORES,
+                    "live_odds": DataCategory.LIVE_ODDS,
+                    "pre_game_odds": DataCategory.PRE_GAME_ODDS,
+                    "player_stats": DataCategory.PLAYER_STATS,
+                    "team_stats": DataCategory.TEAM_STATS,
+                    "injury_reports": DataCategory.INJURY_REPORTS,
+                    "game_schedules": DataCategory.GAME_SCHEDULES,
+                    "player_props": DataCategory.PLAYER_PROPS,
+                    "news_updates": DataCategory.NEWS_UPDATES,
+                }
+                category_enum = category_mapping.get(data_category.lower())
+
+                if sport_enum and category_enum and user_id:
+                    await sport_volatility_models.track_user_access(
+                        user_id, sport_enum, category_enum
+                    )
+
+            except Exception as e:
+                logger.debug(f"⚠️ Error tracking sport data access: {e}")
+
+            return result
+
+        except Exception as e:
+            logger.error(f"❌ Error in sport-aware cache get: {e}")
+            return await self.get(key, default)
+
+    async def warm_sport_cache(
+        self, sport: str, priority_data: Optional[List[str]] = None
+    ) -> int:
+        """Warm cache for sport-specific data based on volatility priorities"""
+        try:
+            await self._ensure_initialized()
+            from backend.services.sport_volatility_models import (
+                SportType,
+                sport_volatility_models,
+            )
+
+            sport_enum = SportType(sport.lower()) if sport else None
+            if not sport_enum:
+                logger.warning(f"⚠️ Unknown sport for cache warming: {sport}")
+                return 0
+
+            # Get cache warming priorities
+            priorities = await sport_volatility_models.get_cache_warming_priorities(
+                sport_enum
+            )
+
+            warming_count = 0
+
+            # Focus on high-priority data categories
+            for data_category, priority_score in priorities[:5]:  # Top 5 priorities
+                try:
+                    # Generate cache warming patterns for this data category
+                    patterns = self._generate_warming_patterns(
+                        sport, data_category.value
+                    )
+
+                    if patterns:
+                        # Create a dummy data fetcher for warming
+                        async def sport_data_fetcher(pattern):
+                            # In production, this would fetch actual data
+                            # For now, return None to indicate warming attempt
+                            return None
+
+                        await self.warm_cache(
+                            patterns=patterns,
+                            data_fetcher=sport_data_fetcher,
+                            priority="high" if priority_score > 100 else "normal",
+                        )
+
+                        warming_count += len(patterns)
+
+                except Exception as e:
+                    logger.error(
+                        f"❌ Error warming cache for {data_category.value}: {e}"
+                    )
+
+            logger.info(f"🔥 Warmed {warming_count} cache patterns for {sport}")
+            return warming_count
+        except Exception as e:
+            logger.error(f"❌ Error warming sport cache: {e}")
+            return 0
+
+    async def get_stats(self) -> dict:
+        """Return a simplified stats dictionary expected by metrics endpoint and callers.
+
+        This method provides a lightweight snapshot of cache metrics so other
+        components (and tests) can call `await cache_service.get_stats()` even
+        when the full feature set isn't available in the test environment.
+        """
+        try:
+            stats = {
+                "hit_rate_percent": (
+                    getattr(self.metrics, "hit_rate", 0.0) * 100
+                    if getattr(self.metrics, "hit_rate", None) is not None
+                    else 0.0
+                ),
+                "total_requests": self.metrics.hits + self.metrics.misses,
+                "memory_usage_mb": getattr(self.metrics, "total_memory_used", 0)
+                // (1024 * 1024),
+                "hits": self.metrics.hits,
+                "misses": self.metrics.misses,
+                "evictions": self.metrics.evictions,
+            }
+
+            # Ensure numeric values
+            for k, v in list(stats.items()):
+                try:
+                    stats[k] = float(v)
+                except Exception:
+                    stats[k] = 0.0
+
+            return stats
+        except Exception as e:
+            logger.error(f"❌ Error collecting cache stats: {e}")
+            return {
+                "hit_rate_percent": 0.0,
+                "total_requests": 0,
+                "memory_usage_mb": 0,
+            }
+
+    def _generate_warming_patterns(self, sport: str, data_category: str) -> List[str]:
+        """Generate cache key patterns for warming based on sport and data category"""
+        patterns = []
+
+        base_patterns = {
+            "live_scores": [
+                f"sportradar_live_{sport}",
+                f"{sport}_live_games",
+                f"live_scores_{sport}_today",
+            ],
+            "live_odds": [
+                f"odds_live_{sport}",
+                f"{sport}_live_betting",
+                f"live_odds_{sport}_games",
+            ],
+            "player_stats": [
+                f"player_stats_{sport}_*",
+                f"{sport}_player_profiles_*",
+                f"stats_{sport}_players_*",
+            ],
+            "injury_reports": [
+                f"injuries_{sport}",
+                f"{sport}_injury_report",
+                f"injury_updates_{sport}",
+            ],
+            "game_schedules": [
+                f"schedule_{sport}",
+                f"{sport}_upcoming_games",
+                f"games_{sport}_schedule",
+            ],
+        }
+
+        return base_patterns.get(data_category, [f"{sport}_{data_category}"])
+
+    async def health_check(self) -> dict:
+        """Lightweight health check used by middleware/tests.
+
+        Returns a dict with `status`, `latency_ms`, and `test_passed` fields.
+        If Redis is available, perform a ping; otherwise, report memory fallback healthy.
+        """
+        start = time.time()
+        try:
+            if not self._use_memory_fallback:
+                client = self.get_redis()
+                # Try a quick ping
+                try:
+                    await client.ping()
+                    latency = (time.time() - start) * 1000.0
+                    return {
+                        "status": "healthy",
+                        "latency_ms": latency,
+                        "test_passed": True,
+                    }
+                except Exception:
+                    latency = (time.time() - start) * 1000.0
+                    return {
+                        "status": "degraded",
+                        "latency_ms": latency,
+                        "test_passed": False,
+                    }
+            else:
+                latency = (time.time() - start) * 1000.0
+                return {"status": "healthy", "latency_ms": latency, "test_passed": True}
+
+        except Exception as e:
+            latency = (time.time() - start) * 1000.0
+            _cache_debug("health_check error: %s", e)
+            return {"status": "unhealthy", "latency_ms": latency, "test_passed": False}
+
+    # Backwards-compatible alias used by some callers/tests
+    async def get_health(self) -> dict:
+        """Alias wrapper for compatibility with older cache_service interfaces."""
+        return await self.health_check()
+
+    async def get_sport_cache_metrics(self) -> Dict[str, Any]:
+        """Get sport-specific cache metrics and volatility insights"""
+        try:
+            from backend.services.sport_volatility_models import sport_volatility_models
+
+            # Get basic cache metrics
+            base_metrics = await self.get_metrics()
+
+            # Get volatility model summary
+            volatility_summary = sport_volatility_models.get_volatility_summary()
+
+            # Analyze cache keys by sport
+            sport_analysis = {}
+            for key in list(self.access_patterns.keys())[:100]:  # Sample first 100 keys
+                sport_type, data_category, user_id = (
+                    self._parse_cache_key_for_volatility(key)
+                )
+
+                if sport_type:
+                    sport_name = sport_type.value
+                    if sport_name not in sport_analysis:
+                        sport_analysis[sport_name] = {
+                            "total_keys": 0,
+                            "categories": {},
+                            "avg_access_frequency": 0,
+                            "total_accesses": 0,
+                        }
+
+                    sport_analysis[sport_name]["total_keys"] += 1
+
+                    if data_category:
+                        category_name = data_category.value
+                        if (
+                            category_name
+                            not in sport_analysis[sport_name]["categories"]
+                        ):
+                            sport_analysis[sport_name]["categories"][category_name] = 0
+                        sport_analysis[sport_name]["categories"][category_name] += 1
+
+                    # Add access frequency
+                    pattern = self.access_patterns[key]
+                    sport_analysis[sport_name][
+                        "total_accesses"
+                    ] += pattern.access_frequency
+
+            # Calculate averages
+            for sport_data in sport_analysis.values():
+                if sport_data["total_keys"] > 0:
+                    sport_data["avg_access_frequency"] = (
+                        sport_data["total_accesses"] / sport_data["total_keys"]
+                    )
+
+            return {
+                "base_metrics": asdict(base_metrics),
+                "volatility_models": volatility_summary,
+                "sport_analysis": sport_analysis,
+                "total_sport_aware_keys": sum(
+                    s["total_keys"] for s in sport_analysis.values()
+                ),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+
+        except Exception as e:
+            logger.error(f"❌ Error getting sport cache metrics: {e}")
+            return {"error": str(e)}
+
+    async def get_metrics(self) -> CacheMetrics:
+        """Get current cache performance metrics"""
+        # Calculate hit rate
+        total_requests = self.metrics.hits + self.metrics.misses
+        if total_requests > 0:
+            self.metrics.hit_rate = self.metrics.hits / total_requests
+
+        # Get memory usage if using Redis
+        if not self._use_memory_fallback:
+            try:
+                redis_client = self.get_redis()
+                info = await redis_client.info("memory")
+                self.metrics.total_memory_used = info.get("used_memory", 0)
+            except:
+                pass
+
+        return self.metrics
+
+    # Private methods for Redis operations
+
+    async def _redis_get(self, key: str, default: Any) -> Any:
+        """Redis get with deserialization"""
+        redis_client = self.get_redis()
+        value = await redis_client.get(key)
+
+        if value is None:
+            return default
+
+        try:
+            return _loads(value)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return value.decode("utf-8")
+
+    async def _redis_set(self, key: str, value: Any, ttl_seconds: int) -> bool:
+        """Redis set with serialization"""
+        redis_client = self.get_redis()
+
+        if not isinstance(value, (str, bytes)):
+            value = _dumps(value)
+        elif isinstance(value, bytes):
+            pass
+        else:
+            value = str(value)
+
+        result = await redis_client.set(key, value, ex=ttl_seconds)
+        if result:
+            self.metrics.sets += 1
+            _cache_debug("💾 Cache set for key: %s (TTL: %s s)", key, ttl_seconds)
+
+        return bool(result)
+
+    async def _redis_get_many(
+        self, keys: List[str], user_context: Optional[str]
+    ) -> Dict[str, Any]:
+        """Bulk get using Redis pipeline"""
+        redis_client = self.get_redis()
+
+        # Track access patterns for all keys
+        for key in keys:
+            await self._track_access_pattern(key, user_context)
+
+        # Use pipeline for bulk operation
+        async with redis_client.pipeline(transaction=False) as pipe:
+            for key in keys:
+                pipe.get(key)
+
+            values = await pipe.execute()
+
+        # Process results
+        result = {}
+        for key, value in zip(keys, values):
+            if value is not None:
+                try:
+                    result[key] = _loads(value)
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    result[key] = value.decode("utf-8")
+                self.metrics.hits += 1
+            else:
+                self.metrics.misses += 1
+
+        self.metrics.pipeline_operations += 1
+        _cache_debug("📦 Bulk get completed: %s/%s hits", len(result), len(keys))
+
+        return result
+
+    async def _redis_set_many(
+        self, items: Dict[str, Tuple[Any, int]], user_context: Optional[str]
+    ) -> int:
+        """Bulk set using Redis pipeline"""
+        redis_client = self.get_redis()
+
+        # Use pipeline for bulk operation
+        async with redis_client.pipeline(transaction=False) as pipe:
+            for key, (value, ttl) in items.items():
+                # Calculate smart TTL
+                smart_ttl = await self._calculate_smart_ttl(key, ttl, user_context)
+
+                # Serialize value
+                if not isinstance(value, (str, bytes)):
+                    value = _dumps(value)
+                elif isinstance(value, bytes):
+                    pass
+                else:
+                    value = str(value)
+
+                pipe.set(key, value, ex=smart_ttl)
+
+            results = await pipe.execute()
+
+        # Count successful operations
+        success_count = sum(1 for result in results if result)
+        self.metrics.sets += success_count
+        self.metrics.pipeline_operations += 1
+
+        _cache_debug(
+            "📦 Bulk set completed: %s/%s successful", success_count, len(items)
+        )
+
+        return success_count
+
+    async def _redis_invalidate_pattern(self, pattern: str) -> int:
+        """Invalidate Redis keys matching pattern"""
+        redis_client = self.get_redis()
+
+        # Find matching keys
+        keys = []
+        async for key in redis_client.scan_iter(match=pattern):
+            keys.append(key.decode("utf-8"))
+
+        if not keys:
+            return 0
+
+        # Delete in batches using pipeline
+        deleted_count = 0
+        batch_size = 100
+
+        for i in range(0, len(keys), batch_size):
+            batch = keys[i : i + batch_size]
+            async with redis_client.pipeline(transaction=False) as pipe:
+                for key in batch:
+                    pipe.delete(key)
+                results = await pipe.execute()
+
+            deleted_count += sum(results)
+
+        self.metrics.deletes += deleted_count
+        logger.info(f"🗑️ Invalidated {deleted_count} keys matching pattern: {pattern}")
+
+        return deleted_count
+
+    # Memory cache fallback methods
+
+    async def _memory_get(self, key: str, default: Any) -> Any:
+        """Memory cache get with TTL check"""
+        if key in self._memory_cache:
+            # Check TTL
+            if (
+                key in self._memory_cache_ttl
+                and time.time() > self._memory_cache_ttl[key]
+            ):
+                del self._memory_cache[key]
+                del self._memory_cache_ttl[key]
+                return default
+
+            return self._memory_cache[key]
+
+        return default
+
+    async def _memory_set(self, key: str, value: Any, ttl_seconds: int) -> bool:
+        """Memory cache set with TTL"""
+        self._memory_cache[key] = value
+        self._memory_cache_ttl[key] = time.time() + ttl_seconds
+        self.metrics.sets += 1
+
+        return True
+
+    async def _memory_get_many(
+        self, keys: List[str], user_context: Optional[str]
+    ) -> Dict[str, Any]:
+        """Memory cache bulk get"""
+        result = {}
+        for key in keys:
+            await self._track_access_pattern(key, user_context)
+            value = await self._memory_get(key, None)
+            if value is not None:
+                result[key] = value
+                self.metrics.hits += 1
+            else:
+                self.metrics.misses += 1
+
+        return result
+
+    async def _memory_set_many(
+        self, items: Dict[str, Tuple[Any, int]], user_context: Optional[str]
+    ) -> int:
+        """Memory cache bulk set"""
+        success_count = 0
+        for key, (value, ttl) in items.items():
+            smart_ttl = await self._calculate_smart_ttl(key, ttl, user_context)
+            if await self._memory_set(key, value, smart_ttl):
+                success_count += 1
+
+        return success_count
+
+    async def _memory_invalidate_pattern(self, pattern: str) -> int:
+        """Memory cache pattern invalidation"""
+        import fnmatch
+
+        keys_to_delete = [
+            key for key in self._memory_cache.keys() if fnmatch.fnmatch(key, pattern)
+        ]
+
+        for key in keys_to_delete:
+            del self._memory_cache[key]
+            if key in self._memory_cache_ttl:
+                del self._memory_cache_ttl[key]
+
+        self.metrics.deletes += len(keys_to_delete)
+        return len(keys_to_delete)
+
+    # Background processing tasks
+
+    async def _pipeline_processor(self):
+        """Background task to process pipeline operations"""
+        while True:
+            try:
+                if len(self.pipeline_buffer) >= self.pipeline_batch_size:
+                    await self._flush_pipeline()
+
+                # Also flush on timeout
+                await asyncio.sleep(self.pipeline_timeout)
+                if self.pipeline_buffer:
+                    await self._flush_pipeline()
+
+            except Exception as e:
+                logger.error(f"❌ Pipeline processor error: {e}")
+                await asyncio.sleep(1)
+
+    async def _flush_pipeline(self):
+        """Flush pipeline buffer to Redis"""
+        if not self.pipeline_buffer:
+            return
+
+        try:
+            redis_client = self.get_redis()
+            async with redis_client.pipeline(transaction=False) as pipe:
+                for operation, key, data in self.pipeline_buffer:
+                    if operation == "SET":
+                        value, ttl = data
+                        if not isinstance(value, (str, bytes)):
+                            value = _dumps(value)
+                        pipe.set(key, value, ex=ttl)
+
+                results = await pipe.execute()
+
+            # Update metrics
+            success_count = sum(1 for result in results if result)
+            self.metrics.sets += success_count
+            self.metrics.pipeline_operations += 1
+
+            _cache_debug(
+                "📦 Pipeline flushed: %s/%s successful",
+                success_count,
+                len(self.pipeline_buffer),
+            )
+
+        except Exception as e:
+            logger.error(f"❌ Pipeline flush error: {e}")
+        finally:
+            self.pipeline_buffer.clear()
+
+    async def _add_to_pipeline(self, operation: str, key: str, data: Any):
+        """Add operation to pipeline buffer"""
+        # If buffer is already large, flush first to free room
+        if len(self.pipeline_buffer) >= self.max_pipeline_size:
+            await self._flush_pipeline()
+
+        # For SET operations, serialize once here to avoid repeated
+        # serialization during flush. We store the serialized value so
+        # _flush_pipeline can write it directly.
+        if operation == "SET":
+            value, ttl = data
+            if not isinstance(value, (str, bytes)):
+                try:
+                    serialized = _dumps(value)
+                except Exception:
+                    # Fallback to str() if serialization fails
+                    serialized = str(value)
+            elif isinstance(value, bytes):
+                serialized = value
+            else:
+                serialized = str(value)
+
+            self.pipeline_buffer.append((operation, key, (serialized, ttl)))
+        else:
+            # For other ops, store as-is
+            self.pipeline_buffer.append((operation, key, data))
+
+    async def _cache_warming_processor(self):
+        """Background task to process cache warming requests"""
+        while True:
+            try:
+                # Get warming request with timeout
+                request = await asyncio.wait_for(self.warming_queue.get(), timeout=30)
+
+                patterns = request["patterns"]
+                data_fetcher = request["data_fetcher"]
+                priority = request.get("priority", "normal")
+
+                # Process warming request
+                await self._process_warming_request(patterns, data_fetcher, priority)
+
+                self.metrics.warming_operations += 1
+
+            except asyncio.TimeoutError:
+                # No warming requests - continue
+                continue
+            except Exception as e:
+                logger.error(f"❌ Cache warming error: {e}")
+                await asyncio.sleep(1)
+
+    async def _process_warming_request(
+        self, patterns: List[str], data_fetcher: Callable, priority: str
+    ):
+        """Process a cache warming request"""
+        for pattern in patterns:
+            try:
+                # Check if data already cached
+                if await self.get(pattern) is not None:
+                    continue
+
+                # Fetch data and cache it
+                data = await data_fetcher(pattern)
+                if data is not None:
+                    # Use longer TTL for warmed data
+                    ttl = 7200 if priority == "high" else 3600
+                    await self.set(
+                        pattern, data, ttl, priority="high", use_pipeline=False
+                    )
+
+                    _cache_debug("🔥 Cache warmed for pattern: %s", pattern)
+
+            except Exception as e:
+                logger.error(f"❌ Warming failed for pattern {pattern}: {e}")
+
+    async def _pattern_analyzer(self):
+        """Background task to analyze access patterns for predictive caching"""
+        while True:
+            try:
+                await asyncio.sleep(self.pattern_analysis_interval)
+
+                # Analyze patterns and trigger warming
+                await self._analyze_and_predict()
+
+            except Exception as e:
+                logger.error(f"❌ Pattern analysis error: {e}")
+                await asyncio.sleep(60)
+
+    async def _analyze_and_predict(self):
+        """Analyze access patterns and predict future cache needs"""
+        current_time = datetime.now()
+        current_hour = current_time.hour
+
+        # Find patterns that should be warmed
+        warming_candidates = []
+
+        for pattern_key, pattern in self.access_patterns.items():
+            # Check if pattern is frequently accessed at this time
+            if (
+                current_hour in pattern.peak_hours
+                and pattern.access_frequency > 10
+                and (current_time - pattern.last_access).seconds > pattern.avg_ttl * 0.8
+            ):
+
+                warming_candidates.append(pattern_key)
+
+        if warming_candidates:
+            logger.info(f"🔮 Predicted {len(warming_candidates)} patterns for warming")
+
+            # Queue warming requests (would need data fetcher registry in real implementation)
+            # This is a placeholder for the prediction logic
+
+    async def _track_access_pattern(self, key: str, user_context: Optional[str] = None):
+        """Track access patterns for predictive caching"""
+        current_time = datetime.now()
+
+        if key not in self.access_patterns:
+            self.access_patterns[key] = CachePattern(
+                key_pattern=key,
+                access_frequency=0,
+                last_access=current_time,
+                avg_ttl=3600,
+                data_size=0,
+                user_contexts=set(),
+                peak_hours=[],
+                seasonal_factor=1.0,
+            )
+
+        pattern = self.access_patterns[key]
+        pattern.access_frequency += 1
+        pattern.last_access = current_time
+
+        if user_context:
+            pattern.user_contexts.add(user_context)
+
+        # Track peak hours
+        current_hour = current_time.hour
+        if current_hour not in pattern.peak_hours:
+            pattern.peak_hours.append(current_hour)
+
+        # Limit peak hours to top 6
+        if len(pattern.peak_hours) > 6:
+            # Remove least frequent hour (simplified)
+            pattern.peak_hours = pattern.peak_hours[-6:]
+
+    async def _calculate_smart_ttl(
+        self, key: str, base_ttl: int, user_context: Optional[str] = None
+    ) -> int:
+        """Calculate intelligent TTL based on access patterns and sport volatility models"""
+        # Check short-lived cache to avoid repeated computation under high write load
+        now = time.time()
+        cached = self._ttl_cache.get(key)
+        if cached:
+            ttl_val, expires_at = cached
+            if now < expires_at:
+                return ttl_val
+        # Try to use sport-specific volatility models first
+        try:
+            from backend.services.sport_volatility_models import (
+                DataCategory,
+                SportType,
+                sport_volatility_models,
+            )
+
+            # Parse sport and data category from cache key
+            sport_type, data_category, user_id = self._parse_cache_key_for_volatility(
+                key, user_context
+            )
+
+            if sport_type and data_category:
+                # Get access count for this user and data type
+                access_count = 1
+                if key in self.access_patterns:
+                    access_count = self.access_patterns[key].access_frequency
+
+                # Extract game_id if present in key
+                game_id = self._extract_game_id_from_key(key)
+
+                # Use sport-specific volatility model
+                dynamic_ttl = await sport_volatility_models.get_dynamic_ttl(
+                    sport=sport_type,
+                    data_category=data_category,
+                    game_id=game_id or "",
+                    user_id=user_id or "",
+                    access_count=access_count,
+                )
+
+                # Track user access for future optimization
+                if user_id:
+                    await sport_volatility_models.track_user_access(
+                        user_id, sport_type, data_category
+                    )
+
+                _cache_debug(
+                    "Using sport volatility model TTL: %s s for %s", dynamic_ttl, key
+                )
+                return dynamic_ttl
+
+        except Exception as e:
+            _cache_debug("Sport volatility model fallback for %s: %s", key, e)
+
+        # Fallback to original logic if sport model not available
+        if key not in self.access_patterns:
+            # Cache fallback result briefly
+            ttl_result = base_ttl
+            # Evict oldest entry if we're over the max entries cap
+            if (
+                self._ttl_cache_max_entries is not None
+                and len(self._ttl_cache) >= self._ttl_cache_max_entries
+            ):
+                try:
+                    # pop oldest
+                    oldest_key = next(iter(self._ttl_cache))
+                    self._ttl_cache.pop(oldest_key, None)
+                except Exception:
+                    # Fall back to clearing one arbitrary entry
+                    self._ttl_cache.popitem()
+
+            self._ttl_cache[key] = (ttl_result, now + float(self._ttl_cache_seconds))
+            return ttl_result
+
+        pattern = self.access_patterns[key]
+
+        # Adjust TTL based on access frequency
+        frequency_factor = min(2.0, pattern.access_frequency / 10)
+
+        # Adjust for peak hours
+        current_hour = datetime.now().hour
+        peak_factor = 1.5 if current_hour in pattern.peak_hours else 1.0
+
+        # Apply seasonal factor
+        smart_ttl = int(
+            base_ttl * frequency_factor * peak_factor * pattern.seasonal_factor
+        )
+
+        # Ensure reasonable bounds
+        result_ttl = max(300, min(smart_ttl, 86400))  # 5 minutes to 24 hours
+        # Evict oldest entry if we're over the max entries cap
+        if (
+            self._ttl_cache_max_entries is not None
+            and len(self._ttl_cache) >= self._ttl_cache_max_entries
+        ):
+            try:
+                oldest_key = next(iter(self._ttl_cache))
+                self._ttl_cache.pop(oldest_key, None)
+            except Exception:
+                self._ttl_cache.popitem()
+
+        # Cache result for a short period to reduce repeated work on bursty sets
+        self._ttl_cache[key] = (result_ttl, now + float(self._ttl_cache_seconds))
+        return result_ttl
+
+    def _parse_cache_key_for_volatility(
+        self, key: str, user_context: Optional[str] = None
+    ) -> Tuple[Optional[Any], Optional[Any], Optional[str]]:
+        """Parse cache key to extract sport type and data category for volatility models"""
+        try:
+            from backend.services.sport_volatility_models import DataCategory, SportType
+
+            key_lower = key.lower()
+
+            # Detect sport type
+            sport_type = None
+            for sport in SportType:
+                if sport.value in key_lower:
+                    sport_type = sport
+                    break
+
+            # Detect data category
+            data_category = None
+            category_keywords = {
+                DataCategory.LIVE_SCORES: ["live", "score", "game_live"],
+                DataCategory.LIVE_ODDS: ["live_odds", "odds_live"],
+                DataCategory.PRE_GAME_ODDS: ["odds", "betting", "line"],
+                DataCategory.PLAYER_STATS: ["player", "stats", "profile"],
+                DataCategory.TEAM_STATS: ["team", "roster"],
+                DataCategory.INJURY_REPORTS: ["injury", "injured"],
+                DataCategory.GAME_SCHEDULES: ["schedule", "calendar", "upcoming"],
+                DataCategory.PLAYER_PROPS: ["props", "proposition"],
+                DataCategory.NEWS_UPDATES: ["news", "update", "headlines"],
+            }
+
+            for category, keywords in category_keywords.items():
+                if any(keyword in key_lower for keyword in keywords):
+                    data_category = category
+                    break
+
+            # Extract user ID from context or key
+            user_id = None
+            if user_context and "user" in user_context:
+                user_id = user_context
+            elif "user_" in key_lower:
+                # Try to extract user ID from key pattern like "user_123_data"
+                import re
+
+                match = re.search(r"user_(\w+)", key_lower)
+                if match:
+                    user_id = match.group(1)
+
+            return sport_type, data_category, user_id
+
+        except Exception as e:
+            logger.debug(f"⚠️ Error parsing cache key for volatility: {e}")
+            return None, None, None
+
+    def _extract_game_id_from_key(self, key: str) -> Optional[str]:
+        """Extract game ID from cache key if present"""
+        try:
+            import re
+
+            # Look for patterns like "game_12345" or "12345_game" or similar
+            patterns = [
+                r"game_([a-zA-Z0-9\-_]+)",
+                r"([a-zA-Z0-9\-_]+)_game",
+                r"event_([a-zA-Z0-9\-_]+)",
+                r"match_([a-zA-Z0-9\-_]+)",
+            ]
+
+            for pattern in patterns:
+                match = re.search(pattern, key.lower())
+                if match:
+                    return match.group(1)
+
+            return None
+
+        except Exception:
+            return None
+
+    async def close(self):
+        """Cleanup resources and stop background tasks"""
+        # Cancel background tasks
+        for task in [
+            self._pipeline_task,
+            self._warming_task,
+            self._pattern_analysis_task,
+        ]:
+            if task and not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+
+        # Flush any remaining pipeline operations
+        if self.pipeline_buffer:
+            await self._flush_pipeline()
+
+        # Close Redis connection
+        if self._redis_pool:
+            await self._redis_pool.disconnect()
+
+        logger.info("🔄 Intelligent cache service shutdown completed")
+
+
+# Global instance
+intelligent_cache_service = IntelligentCacheService()

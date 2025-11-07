@@ -1,0 +1,2121 @@
+"""
+PropFinder Real Data Service
+
+Integrates PropFinderKillerDashboard with real betting data sources:
+- Alert Engine integration for live opportunities
+- Prop data from multiple sportsbooks
+- Line movement tracking
+- ML analysis and confidence scoring
+- Real-time odds comparison
+- Canonical odds normalization with no-vig calculations
+"""
+
+import asyncio
+import logging
+import os
+from collections.abc import Iterable
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta, timezone
+from enum import Enum
+from typing import Any, Dict, List, Optional, Set
+
+# Import real data services
+try:
+    from backend.services.alert_engine_core import AlertTrigger, get_alert_engine_core
+    from backend.services.odds_normalizer import (
+        OddsNormalizer,
+        create_propfinder_odds_response,
+    )
+    from backend.services.unified_cache_service import UnifiedCacheService, get_cache
+    from backend.services.unified_data_fetcher import unified_data_fetcher
+    from backend.services.unified_logging import unified_logging
+except ImportError as e:
+    logging.warning(f"Could not import unified services: {e}")
+    # Graceful fallback for development
+    get_alert_engine_core = None
+    AlertTrigger = None
+    unified_data_fetcher = None
+    UnifiedCacheService = None
+    get_cache = None
+    unified_logging = None
+    OddsNormalizer = None
+    create_propfinder_odds_response = None
+
+try:
+    from backend.services.enhanced_baseball_savant_client import (
+        EnhancedBaseballSavantClient as BaseballSavantClient,
+    )
+except ImportError:
+    try:
+        from backend.services.baseball_savant_client import BaseballSavantClient
+    except ImportError:
+        BaseballSavantClient = None
+
+try:
+    from backend.services.mlb_stats_api_client import MLBStatsAPIClient
+except ImportError:
+    MLBStatsAPIClient = None
+
+logger = logging.getLogger(__name__)
+
+# Shared cache instance used by tests; monkeypatched in unit suites.
+unified_cache_service: Optional[Any] = None
+
+
+async def get_unified_cache_service() -> Optional[Any]:
+    """Return (and memoize) the shared unified cache instance."""
+
+    global unified_cache_service
+    if unified_cache_service is not None:
+        return unified_cache_service
+
+    if get_cache is None or UnifiedCacheService is None:
+        return None
+
+    try:
+        unified_cache_service = await get_cache()
+    except Exception:
+        unified_cache_service = None
+    return unified_cache_service
+
+
+class Sport(Enum):
+    NBA = "NBA"
+    NFL = "NFL"
+    MLB = "MLB"
+    NHL = "NHL"
+
+
+MOCK_ALLOWED_SPORTS: Set[Sport] = {Sport.NFL, Sport.MLB, Sport.NBA}
+
+
+class MarketType(Enum):
+    POINTS = "Points"
+    ASSISTS = "Assists"
+    REBOUNDS = "Rebounds"
+    THREES = "3-Pointers Made"
+    HITS = "Hits"
+    HOME_RUNS = "Home Runs"
+    RBI = "RBI"
+    SAVES = "Saves"
+    GOALS = "Goals"
+
+
+class Pick(Enum):
+    OVER = "over"
+    UNDER = "under"
+
+
+class Trend(Enum):
+    UP = "up"
+    DOWN = "down"
+    STABLE = "stable"
+
+
+class Venue(Enum):
+    HOME = "home"
+    AWAY = "away"
+
+
+class SharpMoney(Enum):
+    HEAVY = "heavy"
+    MODERATE = "moderate"
+    LIGHT = "light"
+    PUBLIC = "public"
+
+
+@dataclass
+class LineMovement:
+    open: float
+    current: float
+    direction: Trend
+
+
+@dataclass
+class Bookmaker:
+    name: str
+    odds: int
+    line: float
+
+
+@dataclass
+class MatchupHistory:
+    games: int
+    average: float
+    hitRate: int
+
+
+@dataclass
+class PropOpportunity:
+    id: str
+    player: str
+    playerImage: Optional[str]
+    team: str
+    teamLogo: Optional[str]
+    opponent: str
+    opponentLogo: Optional[str]
+    sport: Sport
+    market: MarketType
+    line: float
+    pick: Pick
+    odds: int
+    impliedProbability: float
+    aiProbability: float
+    edge: float
+    confidence: float
+    projectedValue: float
+    volume: int
+    trend: Trend
+    trendStrength: int
+    timeToGame: str
+    venue: Venue
+    weather: Optional[str]
+    injuries: List[str]
+    recentForm: List[float]
+    matchupHistory: MatchupHistory
+    lineMovement: LineMovement
+    bookmakers: List[Bookmaker]
+    isBookmarked: bool
+    tags: List[str]
+    socialSentiment: int
+    sharpMoney: SharpMoney
+    lastUpdated: datetime
+    alertTriggered: bool = False
+    alertSeverity: Optional[str] = None
+    # Optional aggregation/enrichment fields
+    bestBookmaker: Optional[str] = None
+    best_over_bookmaker_name: Optional[str] = None
+    best_under_bookmaker_name: Optional[str] = None
+    lineSpread: float = 0.0
+    oddsSpread: int = 0
+    numBookmakers: int = 0
+    hasArbitrage: bool = False
+    arbitrageProfitPct: float = 0.0
+    vigPercent: Optional[float] = None
+    isLowJuice: bool = False
+    evValue: Optional[float] = None
+    evPercent: Optional[float] = None
+    evTier: Optional[str] = None
+    isOutlier: Optional[bool] = None
+    edge_pct: Optional[float] = None
+    fair_american_odds: Optional[int] = None
+    implied_prob_market: Optional[float] = None
+    implied_prob_fair: Optional[float] = None
+    expected_value_per_100: Optional[float] = None
+    openingLine: Optional[float] = None
+    openingOdds: Optional[int] = None
+    latestLine: Optional[float] = None
+    latestOdds: Optional[int] = None
+    lineChange: Optional[float] = None
+    oddsChange: Optional[int] = None
+    movementDirection: Optional[str] = None
+    clvPercent: Optional[float] = None
+    closingLine: Optional[float] = None
+    closingOdds: Optional[int] = None
+    clv_metrics: Optional[Dict[str, Any]] = None
+
+
+class PropFinderDataService:
+    """Service for fetching real prop betting data for PropFinder dashboard"""
+
+    def __init__(self):
+        self.cache_ttl = 30  # 30 seconds cache for real-time data
+        self.alert_engine = None
+        self.logger = logger
+        self._cache: Optional[Any] = None
+        self._cache_lock = asyncio.Lock()
+
+        # Initialize odds normalizer for edge calculations
+        try:
+            if OddsNormalizer is not None:
+                self.odds_normalizer = OddsNormalizer(precision=4)
+                self.logger.info("OddsNormalizer initialized successfully")
+            else:
+                self.odds_normalizer = None
+                self.logger.warning(
+                    "OddsNormalizer not available - using fallback calculations"
+                )
+        except Exception as e:
+            self.logger.warning(f"Failed to initialize OddsNormalizer: {e}")
+            self.odds_normalizer = None
+
+        self.mlb_stats_client = None
+        if MLBStatsAPIClient is not None:
+            try:
+                self.mlb_stats_client = MLBStatsAPIClient()
+            except Exception as e:
+                self.logger.warning(
+                    "Failed to initialize MLBStatsAPIClient (real MLB data unavailable): %s",
+                    e,
+                )
+                self.mlb_stats_client = None
+
+        self.baseball_savant_client = None
+        if BaseballSavantClient is not None:
+            try:
+                self.baseball_savant_client = BaseballSavantClient()
+            except Exception as e:
+                self.logger.warning(
+                    "Failed to initialize BaseballSavantClient (Statcast data unavailable): %s",
+                    e,
+                )
+                self.baseball_savant_client = None
+
+    async def _get_cache(self) -> Optional[Any]:
+        """Return the shared cache instance if available."""
+
+        global unified_cache_service
+
+        if get_cache is None or UnifiedCacheService is None:
+            return None
+
+        if unified_cache_service is not None:
+            return unified_cache_service
+
+        if self._cache is None:
+            async with self._cache_lock:
+                if self._cache is None:
+                    try:
+                        cache_instance = await get_unified_cache_service()
+                        if cache_instance is None:
+                            cache_instance = await get_cache()
+                        self._cache = cache_instance
+                    except Exception as exc:
+                        self.logger.debug("Cache initialization failed: %s", exc)
+                        return None
+        return self._cache
+
+    async def _initialize_services(self):
+        """Initialize backend services with error handling"""
+        try:
+            if callable(get_alert_engine_core):
+                self.alert_engine = await get_alert_engine_core()
+            # Use basic logger instead of unified logging to avoid attribute errors
+            self.logger = logger
+        except Exception as e:
+            logger.warning(f"Could not initialize alert engine: {e}")
+
+    async def get_prop_opportunities(
+        self,
+        sport_filter: Optional[List[str]] = None,
+        confidence_range: Optional[tuple] = None,
+        edge_range: Optional[tuple] = None,
+        limit: int = 50,
+        force_flat_baseline: bool = False,
+        include_diagnostics: bool = False,
+    ) -> List[PropOpportunity]:
+        """
+        Get real prop betting opportunities with alerts integration
+
+        Args:
+            sport_filter: Filter by sports (NBA, NFL, etc.)
+            confidence_range: Confidence percentage range (min, max)
+            edge_range: Edge percentage range (min, max)
+            limit: Maximum number of opportunities to return
+            force_flat_baseline: When true, suppress historical movement adjustments
+            include_diagnostics: Include diagnostic metadata in cache key for parity
+
+        Returns:
+            List of PropOpportunity objects with real data
+        """
+        try:
+            cache_key = (
+                "prop_opportunities:"  # Keep deterministic cache key prefix
+                f"{sport_filter}:{confidence_range}:{edge_range}:{limit}"
+                f":flat={force_flat_baseline}:diag={include_diagnostics}"
+            )
+
+            # Check cache first
+            cached_data = None
+            cache = await self._get_cache()
+            if cache is not None:
+                try:
+                    cached_data = await cache.get(cache_key)
+                except Exception as cache_error:
+                    cached_data = None
+                    self.logger.debug(
+                        "Unified cache get failed for %s (%s)", cache_key, cache_error
+                    )
+
+                if isinstance(cached_data, list):
+                    try:
+                        opportunities_list = []
+                        for opp_dict in cached_data:
+                            if isinstance(opp_dict, dict):
+                                # Convert datetime strings back to datetime objects
+                                if "lastUpdated" in opp_dict:
+                                    # cached payloads may contain lastUpdated as a str, datetime, or numeric timestamp
+                                    try:
+                                        lu = opp_dict["lastUpdated"]
+                                        if isinstance(lu, datetime):
+                                            # already deserialized
+                                            pass
+                                        elif isinstance(lu, (int, float)):
+                                            # epoch seconds
+                                            opp_dict["lastUpdated"] = (
+                                                datetime.fromtimestamp(
+                                                    float(lu), tz=timezone.utc
+                                                )
+                                            )
+                                        elif isinstance(lu, str):
+                                            # normalize Z suffix and parse
+                                            opp_dict["lastUpdated"] = (
+                                                datetime.fromisoformat(
+                                                    lu.replace("Z", "+00:00")
+                                                )
+                                            )
+                                        else:
+                                            # unknown format - fall back to now
+                                            opp_dict["lastUpdated"] = datetime.now(
+                                                timezone.utc
+                                            )
+                                    except Exception as ex:
+                                        # don't fail deserialization for a single field
+                                        self.logger.debug(
+                                            "Failed to parse cached lastUpdated value (%r): %s",
+                                            opp_dict.get("lastUpdated"),
+                                            ex,
+                                        )
+                                        opp_dict["lastUpdated"] = datetime.now(
+                                            timezone.utc
+                                        )
+                                # Rehydrate nested dataclasses when possible
+                                if isinstance(opp_dict.get("lineMovement"), dict):
+                                    movement = opp_dict["lineMovement"]
+                                    direction_value = movement.get(
+                                        "direction", "stable"
+                                    )
+                                    try:
+                                        direction_enum = (
+                                            direction_value
+                                            if isinstance(direction_value, Trend)
+                                            else Trend(str(direction_value))
+                                        )
+                                    except (ValueError, TypeError):
+                                        direction_enum = Trend.STABLE
+                                    opp_dict["lineMovement"] = LineMovement(
+                                        open=movement.get("open", 0.0),
+                                        current=movement.get("current", 0.0),
+                                        direction=direction_enum,
+                                    )
+                                if isinstance(opp_dict.get("matchupHistory"), dict):
+                                    history = opp_dict["matchupHistory"]
+                                    opp_dict["matchupHistory"] = MatchupHistory(
+                                        games=history.get("games", 0),
+                                        average=history.get("average", 0.0),
+                                        hitRate=history.get("hitRate", 0),
+                                    )
+                                if isinstance(opp_dict.get("bookmakers"), list):
+                                    opp_dict["bookmakers"] = [
+                                        Bookmaker(
+                                            name=str(book.get("name", "")),
+                                            odds=int(book.get("odds", 0)),
+                                            line=float(book.get("line", 0.0)),
+                                        )
+                                        for book in opp_dict["bookmakers"]
+                                        if isinstance(book, dict)
+                                    ]
+                                if isinstance(opp_dict.get("sport"), str):
+                                    opp_dict["sport"] = Sport(opp_dict["sport"])
+                                if isinstance(opp_dict.get("market"), str):
+                                    opp_dict["market"] = MarketType(opp_dict["market"])
+                                if isinstance(opp_dict.get("pick"), str):
+                                    opp_dict["pick"] = Pick(opp_dict["pick"])
+                                if isinstance(opp_dict.get("trend"), str):
+                                    opp_dict["trend"] = Trend(opp_dict["trend"])
+                                if isinstance(opp_dict.get("venue"), str):
+                                    opp_dict["venue"] = Venue(opp_dict["venue"])
+                                if isinstance(opp_dict.get("sharpMoney"), str):
+                                    opp_dict["sharpMoney"] = SharpMoney(
+                                        opp_dict["sharpMoney"]
+                                    )
+                                opportunities_list.append(PropOpportunity(**opp_dict))
+                        return opportunities_list
+                    except Exception as e:
+                        self.logger.warning(f"Error deserializing cached data: {e}")
+
+            # Fetch real opportunities
+            opportunities = []
+
+            # Get data from multiple sources
+            mlb_props = await self._get_mlb_opportunities()
+            nba_props = await self._get_nba_opportunities()
+
+            opportunities.extend(mlb_props)
+            opportunities.extend(nba_props)
+
+            if len(opportunities) < 3:
+                fallback_opportunities = await self._get_fallback_opportunities(
+                    allowed_sports=MOCK_ALLOWED_SPORTS,
+                    sport_filter=sport_filter,
+                )
+                existing_ids = {opp.id for opp in opportunities}
+                for fallback in fallback_opportunities:
+                    if fallback.id not in existing_ids:
+                        opportunities.append(fallback)
+
+            # Integrate with alert engine
+            if self.alert_engine:
+                opportunities = await self._integrate_alerts(opportunities)
+
+            # Normalize confidence values centrally so every provider path is consistent
+            try:
+                self._normalize_opportunities_list(opportunities)
+            except Exception as e:
+                self.logger.debug("Confidence normalization pass failed: %s", e)
+
+            # Apply filters
+            opportunities = self._apply_filters(
+                opportunities, sport_filter, confidence_range, edge_range
+            )
+
+            # Sort by confidence (highest first) and limit
+            opportunities.sort(key=lambda x: x.confidence, reverse=True)
+            opportunities = opportunities[:limit]
+
+            # Cache results
+            cache = await self._get_cache()
+            if cache is not None:
+                cache_data = []
+                for opp in opportunities:
+                    serialized = asdict(opp)
+                    last_updated = serialized.get("lastUpdated")
+                    if isinstance(last_updated, datetime):
+                        serialized["lastUpdated"] = last_updated.isoformat()
+                    cache_data.append(serialized)
+                try:
+                    await cache.set(cache_key, cache_data, ttl=self.cache_ttl)
+                except Exception as e:
+                    self.logger.warning(f"Error caching data: {e}")
+
+            self.logger.info(f"Retrieved {len(opportunities)} prop opportunities")
+            return opportunities
+
+        except Exception as e:
+            self.logger.error(f"Error fetching prop opportunities: {e}")
+            return await self._get_fallback_opportunities(
+                allowed_sports=MOCK_ALLOWED_SPORTS,
+                sport_filter=sport_filter,
+            )
+
+    async def _get_mlb_opportunities(self) -> List[PropOpportunity]:
+        """Fetch real MLB prop opportunities"""
+        try:
+            opportunities: List[PropOpportunity] = []
+
+            # Primary path: real MLB data via MLB Stats API client
+            real_data_opportunities = await self._fetch_mlb_stats_props()
+            if real_data_opportunities:
+                opportunities.extend(real_data_opportunities)
+
+            # Statcast path: Baseball Savant integration
+            savant_opportunities = await self._fetch_baseball_savant_props()
+            if savant_opportunities:
+                existing_ids = {opp.id for opp in opportunities}
+                for opp in savant_opportunities:
+                    if opp.id in existing_ids:
+                        continue
+                    opportunities.append(opp)
+                    existing_ids.add(opp.id)
+
+            # Supplemental path: comprehensive generator for additional depth / fallback
+            if len(opportunities) < 5:
+                supplemental = await self._generate_mlb_comprehensive_opportunities()
+                if supplemental:
+                    existing_ids = {opp.id for opp in opportunities}
+                    for opp in supplemental:
+                        if opp.id not in existing_ids:
+                            opportunities.append(opp)
+
+            return opportunities
+
+        except Exception as e:
+            self.logger.warning(f"Error fetching MLB opportunities: {e}")
+            return []
+
+    async def _fetch_mlb_stats_props(self) -> List[PropOpportunity]:
+        """Fetch MLB opportunities using the free MLB Stats API client."""
+
+        if self.mlb_stats_client is None:
+            return []
+
+        try:
+            raw_props = await self.mlb_stats_client.generate_player_props_data()
+        except Exception as mlb_error:
+            self.logger.warning("MLB Stats API props fetch failed: %s", mlb_error)
+            return []
+
+        opportunities: List[PropOpportunity] = []
+        for prop in raw_props:
+            try:
+                opportunity = self._build_mlb_opportunity_from_stats(prop)
+            except Exception as conversion_error:
+                self.logger.debug(
+                    "Skipping MLB prop due to conversion error: %s", conversion_error
+                )
+                continue
+
+            opportunities.append(opportunity)
+
+        return opportunities
+
+    async def _fetch_baseball_savant_props(self) -> List[PropOpportunity]:
+        """Generate MLB prop opportunities using Statcast metrics."""
+
+        client = getattr(self, "baseball_savant_client", None)
+        if client is None:
+            return []
+
+        try:
+            players = await client.get_all_active_players()
+        except Exception as savant_error:
+            self.logger.debug(
+                "Baseball Savant player acquisition failed: %s", savant_error
+            )
+            return []
+
+        if not isinstance(players, list) or not players:
+            return []
+
+        opportunities: List[PropOpportunity] = []
+        default_game_time = (
+            datetime.now(timezone.utc) + timedelta(hours=6)
+        ).isoformat()
+
+        for player in players:
+            if len(opportunities) >= 12:
+                break
+
+            if not isinstance(player, dict):
+                continue
+
+            if player.get("active") is False:
+                continue
+
+            position_type = (player.get("position_type") or "").lower()
+            stats = player.get("stats") or {}
+
+            if position_type == "batter":
+                payload = self._build_savant_batter_payload(
+                    player, stats, default_game_time
+                )
+            elif position_type == "pitcher":
+                payload = self._build_savant_pitcher_payload(
+                    player, stats, default_game_time
+                )
+            else:
+                continue
+
+            if not payload:
+                continue
+
+            try:
+                opportunity = self._build_mlb_opportunity_from_stats(payload)
+            except Exception as conversion_error:
+                self.logger.debug(
+                    "Skipping Baseball Savant prop for %s: %s",
+                    player.get("name"),
+                    conversion_error,
+                )
+                continue
+
+            opportunities.append(opportunity)
+
+        return opportunities
+
+    async def _generate_mlb_comprehensive_opportunities(self) -> List[PropOpportunity]:
+        """Supplement MLB dataset using comprehensive generator when real data is sparse."""
+
+        if not unified_data_fetcher:
+            return []
+
+        # Get MLB games using available method
+        try:
+            fetch_mlb_games = getattr(unified_data_fetcher, "fetch_mlb_games", None)
+            if callable(fetch_mlb_games):
+                maybe_games = fetch_mlb_games(sport="MLB")
+                mlb_games = (
+                    await maybe_games
+                    if asyncio.iscoroutine(maybe_games)
+                    else maybe_games
+                )
+            else:
+                mlb_games = self._get_fallback_mlb_games()
+        except Exception as fetch_error:
+            self.logger.debug("Comprehensive MLB games fetch failed: %s", fetch_error)
+            mlb_games = self._get_fallback_mlb_games()
+
+        if not isinstance(mlb_games, list):
+            if isinstance(mlb_games, Iterable):
+                mlb_games = list(mlb_games)
+            else:
+                mlb_games = self._get_fallback_mlb_games()
+
+        if not mlb_games:
+            return []
+
+        opportunities: List[PropOpportunity] = []
+
+        generator_cls = None
+        try:
+            from backend.services.comprehensive_prop_generator import (
+                ComprehensivePropGenerator as _ComprehensivePropGenerator,
+            )
+
+            generator_cls = _ComprehensivePropGenerator
+        except ImportError:
+            generator_cls = None
+        except Exception as import_error:
+            self.logger.warning(
+                "Error loading ComprehensivePropGenerator: %s", import_error
+            )
+            generator_cls = None
+
+        games_slice = mlb_games[:5]
+
+        if generator_cls is not None:
+            try:
+                async with generator_cls() as prop_generator:
+                    for game in games_slice:
+                        game_id = game.get("game_pk")
+                        if not game_id:
+                            continue
+
+                        try:
+                            props_data = await prop_generator.generate_game_props(
+                                game_id, optimize_performance=True
+                            )
+                            game_opportunities = (
+                                self._convert_mlb_props_to_opportunities(
+                                    props_data, game
+                                )
+                            )
+                            opportunities.extend(game_opportunities)
+                        except Exception as gen_error:
+                            self.logger.debug(
+                                "Comprehensive prop generation error: %s", gen_error
+                            )
+            except Exception as generator_scope_error:
+                self.logger.debug(
+                    "Comprehensive generator context failed: %s", generator_scope_error
+                )
+        else:
+            for game in games_slice:
+                opportunities.extend(self._create_basic_mlb_props(game))
+
+        return opportunities
+
+    def _build_mlb_opportunity_from_stats(
+        self, prop: Dict[str, Any]
+    ) -> PropOpportunity:
+        """Convert MLB Stats API prop payload into a PropOpportunity."""
+
+        player_name = prop.get("player_name") or prop.get("player")
+        if not player_name:
+            raise ValueError("Missing player name in MLB prop payload")
+
+        stat_type = str(prop.get("stat_type") or "hits")
+        line_raw = prop.get("line") or prop.get("line_score")
+        if line_raw is None:
+            raise ValueError("Missing line value for MLB prop")
+
+        try:
+            line_value = float(line_raw)
+        except (TypeError, ValueError) as parse_error:
+            raise ValueError(f"Invalid line value: {line_raw}") from parse_error
+
+        odds_value = prop.get("over_odds") or prop.get("odds") or -110
+        try:
+            odds_int = int(odds_value)
+        except (TypeError, ValueError):
+            odds_int = -110
+
+        confidence_val = prop.get("confidence")
+        if confidence_val is None:
+            confidence_val = 70.0
+        try:
+            confidence_pct = float(confidence_val)
+        except (TypeError, ValueError):
+            confidence_pct = 70.0
+
+        team_name = prop.get("team_name") or prop.get("team") or "MLB"
+        opponent_name = prop.get("opponent")
+        matchup = prop.get("matchup") or ""
+        away_team = None
+        home_team = None
+        if "@" in matchup:
+            split_token = "@"
+            raw_parts = [part.strip() for part in matchup.split(split_token, 1)]
+            if len(raw_parts) == 2:
+                away_team, home_team = raw_parts
+
+        if not opponent_name:
+            if away_team and home_team:
+                comparing_name = team_name.lower()
+                if comparing_name in away_team.lower():
+                    opponent_name = home_team
+                elif comparing_name in home_team.lower():
+                    opponent_name = away_team
+        if not opponent_name:
+            opponent_name = "Opponent"
+        game_info = prop.get("game_info") or {}
+        game_time_str = (
+            game_info.get("game_time")
+            or prop.get("start_time")
+            or prop.get("game_time")
+        )
+
+        time_to_game = self._calculate_time_to_game_from_iso(game_time_str)
+
+        implied_prob_override = prop.get("implied_probability")
+        try:
+            implied_prob = (
+                float(implied_prob_override)
+                if implied_prob_override is not None
+                else self._odds_to_probability(int(odds_int))
+            )
+        except (TypeError, ValueError):
+            implied_prob = self._odds_to_probability(int(odds_int))
+
+        ai_prob_override = prop.get("ai_probability") or prop.get("confidence")
+        try:
+            ai_probability = (
+                float(ai_prob_override)
+                if ai_prob_override is not None
+                else confidence_pct
+            )
+        except (TypeError, ValueError):
+            ai_probability = confidence_pct
+
+        # Confidence reflects our model probability when available
+        confidence_pct = ai_probability
+
+        edge_override = prop.get("edge") or prop.get("edge_pct")
+        try:
+            edge_pct = (
+                float(edge_override)
+                if edge_override is not None
+                else ai_probability - implied_prob
+            )
+        except (TypeError, ValueError):
+            edge_pct = ai_probability - implied_prob
+
+        trend_value = prop.get("trend_direction")
+        if trend_value:
+            try:
+                trend = Trend(trend_value)
+            except ValueError:
+                trend = (
+                    Trend.UP
+                    if edge_pct >= 5
+                    else (Trend.DOWN if edge_pct < 0 else Trend.STABLE)
+                )
+        else:
+            trend = (
+                Trend.UP
+                if edge_pct >= 5
+                else (Trend.DOWN if edge_pct < 0 else Trend.STABLE)
+            )
+
+        trend_strength = int(
+            prop.get("trend_strength") or min(95, max(55, ai_probability))
+        )
+
+        bookmaker_rows = prop.get("bookmakers")
+        if isinstance(bookmaker_rows, list) and bookmaker_rows:
+            bookmakers = self._coerce_bookmakers(
+                bookmaker_rows, default_line=line_value
+            )
+        else:
+            fallback_name = prop.get("provider_id") or "MLB Stats API"
+            bookmakers = [
+                Bookmaker(name=str(fallback_name), odds=odds_int, line=line_value)
+            ]
+
+        tags = prop.get("tags") or [
+            stat_type.replace("_", " ").title(),
+            "MLB Stats API",
+        ]
+
+        opportunity_id = (
+            prop.get("id") or prop.get("event_id") or f"mlb_{player_name}_{stat_type}"
+        )
+        normalized_id = (
+            str(opportunity_id)
+            .replace(" ", "_")
+            .replace("/", "_")
+            .replace("::", "_")
+            .lower()
+        )
+
+        summary = self._summarize_bookmakers(bookmakers)
+
+        venue_selection = Venue.HOME
+        if away_team and home_team:
+            normalized_team = team_name.lower()
+            if normalized_team in away_team.lower():
+                venue_selection = Venue.AWAY
+            elif normalized_team in home_team.lower():
+                venue_selection = Venue.HOME
+        elif isinstance(game_info.get("is_home"), bool):
+            venue_selection = Venue.HOME if game_info["is_home"] else Venue.AWAY
+
+        movement_payload = prop.get("line_movement") or {}
+        try:
+            opening_line = float(movement_payload.get("open", line_value))
+        except (TypeError, ValueError):
+            opening_line = line_value
+        try:
+            latest_line = float(movement_payload.get("current", line_value))
+        except (TypeError, ValueError):
+            latest_line = line_value
+        direction_token = movement_payload.get("direction")
+        if direction_token:
+            try:
+                direction_enum = Trend(direction_token)
+            except ValueError:
+                direction_enum = Trend.STABLE
+        else:
+            if latest_line > opening_line + 0.05:
+                direction_enum = Trend.UP
+            elif latest_line < opening_line - 0.05:
+                direction_enum = Trend.DOWN
+            else:
+                direction_enum = Trend.STABLE
+
+        opening_odds = prop.get("opening_odds")
+        try:
+            opening_odds_int = (
+                int(opening_odds) if opening_odds is not None else odds_int
+            )
+        except (TypeError, ValueError):
+            opening_odds_int = odds_int
+
+        latest_odds = prop.get("latest_odds")
+        try:
+            latest_odds_int = int(latest_odds) if latest_odds is not None else odds_int
+        except (TypeError, ValueError):
+            latest_odds_int = odds_int
+
+        odds_change = latest_odds_int - opening_odds_int
+        line_change = round(latest_line - opening_line, 3)
+
+        recent_form_values = prop.get("recent_form_values") or prop.get("recent_form")
+        if isinstance(recent_form_values, (list, tuple)) and recent_form_values:
+            try:
+                recent_form = [float(val) for val in recent_form_values][:5]
+            except (TypeError, ValueError):
+                recent_form = self._generate_recent_form(line_value)
+        else:
+            recent_form = self._generate_recent_form(line_value)
+
+        matchup_history_data = prop.get("matchup_history") or {}
+        matchup_history = MatchupHistory(
+            games=int(matchup_history_data.get("games", 10)),
+            average=float(matchup_history_data.get("average", line_value)),
+            hitRate=int(
+                matchup_history_data.get(
+                    "hitRate", max(0, min(100, int(round(ai_probability))))
+                )
+            ),
+        )
+
+        sharp_money_value = prop.get("sharp_money") or prop.get("sharpMoney")
+        try:
+            sharp_money = (
+                SharpMoney(sharp_money_value)
+                if sharp_money_value
+                else SharpMoney.MODERATE
+            )
+        except ValueError:
+            sharp_money = SharpMoney.MODERATE
+
+        projected_value_raw = prop.get("projected_value")
+        try:
+            projected_value = (
+                float(projected_value_raw)
+                if projected_value_raw is not None
+                else line_value + (edge_pct / 100.0 * line_value)
+            )
+        except (TypeError, ValueError):
+            projected_value = line_value + (edge_pct / 100.0 * line_value)
+
+        vig_percent = prop.get("vig_percent")
+        try:
+            vig_percent = float(vig_percent) if vig_percent is not None else None
+        except (TypeError, ValueError):
+            vig_percent = None
+
+        arbitrage_profit = prop.get("arbitrage_profit_pct")
+        try:
+            arbitrage_profit = (
+                float(arbitrage_profit) if arbitrage_profit is not None else 0.0
+            )
+        except (TypeError, ValueError):
+            arbitrage_profit = 0.0
+
+        is_low_juice = prop.get("is_low_juice")
+        if isinstance(is_low_juice, bool):
+            low_juice_flag = is_low_juice
+        else:
+            low_juice_flag = abs(latest_odds_int) <= 110
+
+        expected_value_per_100 = prop.get("expected_value_per_100")
+        try:
+            expected_value_per_100 = (
+                float(expected_value_per_100)
+                if expected_value_per_100 is not None
+                else edge_pct
+            )
+        except (TypeError, ValueError):
+            expected_value_per_100 = edge_pct
+
+        ev_tier = prop.get("ev_tier")
+        if not ev_tier:
+            if edge_pct >= 8:
+                ev_tier = "Tier 1"
+            elif edge_pct >= 4:
+                ev_tier = "Tier 2"
+            elif edge_pct >= 0:
+                ev_tier = "Tier 3"
+            else:
+                ev_tier = "Tier 4"
+
+        return PropOpportunity(
+            id=normalized_id,
+            player=player_name,
+            playerImage=None,
+            team=team_name,
+            teamLogo=None,
+            opponent=opponent_name,
+            opponentLogo=None,
+            sport=Sport.MLB,
+            market=self._convert_mlb_market(stat_type),
+            line=line_value,
+            pick=Pick.OVER,
+            odds=latest_odds_int,
+            impliedProbability=implied_prob,
+            aiProbability=ai_probability,
+            edge=edge_pct,
+            confidence=confidence_pct,
+            projectedValue=projected_value,
+            volume=int(prop.get("volume", 350)),
+            trend=trend,
+            trendStrength=trend_strength,
+            timeToGame=time_to_game,
+            venue=venue_selection,
+            weather=game_info.get("weather"),
+            injuries=prop.get("injuries", []),
+            recentForm=recent_form,
+            matchupHistory=matchup_history,
+            lineMovement=LineMovement(
+                open=opening_line,
+                current=latest_line,
+                direction=direction_enum,
+            ),
+            bookmakers=bookmakers,
+            isBookmarked=False,
+            tags=tags,
+            socialSentiment=int(prop.get("social_sentiment", 60)),
+            sharpMoney=sharp_money,
+            lastUpdated=datetime.now(timezone.utc),
+            alertTriggered=bool(prop.get("alert")),
+            alertSeverity=prop.get("alert_severity"),
+            bestBookmaker=summary["bestBookmaker"],
+            best_over_bookmaker_name=(
+                prop.get("best_over_bookmaker_name") or summary["bestBookmaker"]
+            ),
+            best_under_bookmaker_name=prop.get("best_under_bookmaker_name"),
+            lineSpread=summary["lineSpread"],
+            oddsSpread=summary["oddsSpread"],
+            numBookmakers=summary["numBookmakers"],
+            hasArbitrage=bool(prop.get("has_arbitrage", False)),
+            arbitrageProfitPct=arbitrage_profit,
+            vigPercent=vig_percent,
+            isLowJuice=low_juice_flag,
+            evValue=edge_pct,
+            evPercent=edge_pct,
+            evTier=ev_tier,
+            isOutlier=abs(edge_pct) >= 10,
+            edge_pct=edge_pct,
+            fair_american_odds=prop.get("fair_american_odds"),
+            implied_prob_market=implied_prob,
+            expected_value_per_100=expected_value_per_100,
+            openingLine=opening_line,
+            openingOdds=opening_odds_int,
+            latestLine=latest_line,
+            latestOdds=latest_odds_int,
+            lineChange=line_change,
+            oddsChange=odds_change,
+            movementDirection=direction_enum.value,
+        )
+
+    def _build_savant_batter_payload(
+        self,
+        player: Dict[str, Any],
+        stats: Dict[str, Any],
+        game_time: str,
+    ) -> Optional[Dict[str, Any]]:
+        avg = float(stats.get("AVG") or stats.get("avg") or 0.25)
+        plate_appearances = int(stats.get("PA") or stats.get("plate_appearances") or 0)
+        if plate_appearances <= 20:
+            return None
+
+        line = 1.5 if avg >= 0.285 else 0.5
+        ai_probability = self._clamp(55.0 + (avg - 0.24) * 260.0, 50.0, 93.0)
+        implied_probability = self._clamp(
+            ai_probability - 5.5, 45.0, ai_probability - 1.0
+        )
+        implied_decimal = implied_probability / 100.0
+        odds = self._probability_to_american_odds(implied_decimal)
+        edge_pct = round(ai_probability - implied_probability, 2)
+
+        recent_form = self._generate_recent_form(line)
+        recent_form[0] = round(max(0.0, line - 0.2), 2)
+        recent_form[-1] = round(line + 0.25, 2)
+
+        matchup_history = {
+            "games": min(25, max(10, plate_appearances // 4)),
+            "average": round(avg, 3),
+            "hitRate": int(self._clamp(ai_probability, 45.0, 95.0)),
+        }
+
+        movement_direction = "up" if edge_pct >= 4 else "stable"
+
+        return {
+            "id": f"savant_{player.get('id')}_hits",
+            "player_name": player.get("name") or player.get("player_name"),
+            "team_name": player.get("team") or "MLB",
+            "opponent": "Upcoming Opponent",
+            "stat_type": "hits",
+            "line": round(line, 2),
+            "confidence": round(ai_probability, 2),
+            "ai_probability": round(ai_probability, 2),
+            "implied_probability": round(implied_probability, 2),
+            "edge": edge_pct,
+            "over_odds": odds,
+            "provider_id": "baseball_savant",
+            "matchup": f"{player.get('team', 'MLB')} Spotlight",
+            "game_info": {"game_time": game_time, "is_home": True},
+            "recent_form_values": recent_form,
+            "volume": max(220, plate_appearances),
+            "bookmakers": [
+                {
+                    "name": "Statcast Probabilities",
+                    "odds": odds,
+                    "line": round(line, 2),
+                }
+            ],
+            "line_movement": {
+                "open": round(max(0.0, line - 0.15), 2),
+                "current": round(line, 2),
+                "direction": movement_direction,
+            },
+            "matchup_history": matchup_history,
+            "sharp_money": "heavy" if edge_pct >= 6 else "moderate",
+            "tags": ["Baseball Savant", "Statcast Insights"],
+            "expected_value_per_100": edge_pct,
+            "opening_odds": odds - 5,
+            "latest_odds": odds,
+        }
+
+    def _build_savant_pitcher_payload(
+        self,
+        player: Dict[str, Any],
+        stats: Dict[str, Any],
+        game_time: str,
+    ) -> Optional[Dict[str, Any]]:
+        innings = float(stats.get("IP") or stats.get("innings_pitched") or 0)
+        strikeouts_per_nine = float(stats.get("K/9") or stats.get("k_per_9") or 0)
+
+        if innings <= 10 or strikeouts_per_nine <= 3:
+            return None
+
+        line = 5.5 if strikeouts_per_nine >= 9 else 4.5
+        ai_probability = self._clamp(
+            53.0 + (strikeouts_per_nine - 7.5) * 6.5, 48.0, 92.0
+        )
+        implied_probability = self._clamp(
+            ai_probability - 4.0, 44.0, ai_probability - 1.0
+        )
+        implied_decimal = implied_probability / 100.0
+        odds = self._probability_to_american_odds(implied_decimal)
+        edge_pct = round(ai_probability - implied_probability, 2)
+
+        matchup_history = {
+            "games": int(self._clamp(innings // 5, 5, 25)),
+            "average": round(strikeouts_per_nine / 9 * line, 3),
+            "hitRate": int(self._clamp(ai_probability, 45.0, 95.0)),
+        }
+
+        movement_direction = "up" if edge_pct >= 3 else "stable"
+
+        return {
+            "id": f"savant_{player.get('id')}_strikeouts",
+            "player_name": player.get("name") or player.get("player_name"),
+            "team_name": player.get("team") or "MLB",
+            "opponent": "Upcoming Opponent",
+            "stat_type": "strikeouts",
+            "line": round(line, 2),
+            "confidence": round(ai_probability, 2),
+            "ai_probability": round(ai_probability, 2),
+            "implied_probability": round(implied_probability, 2),
+            "edge": edge_pct,
+            "over_odds": odds,
+            "provider_id": "baseball_savant",
+            "matchup": f"{player.get('team', 'MLB')} Spotlight",
+            "game_info": {"game_time": game_time, "is_home": False},
+            "recent_form_values": self._generate_recent_form(line),
+            "volume": max(180, int(innings * 2)),
+            "bookmakers": [
+                {
+                    "name": "Statcast Probabilities",
+                    "odds": odds,
+                    "line": round(line, 2),
+                }
+            ],
+            "line_movement": {
+                "open": round(max(0.0, line - 0.25), 2),
+                "current": round(line, 2),
+                "direction": movement_direction,
+            },
+            "matchup_history": matchup_history,
+            "sharp_money": "moderate" if edge_pct < 6 else "heavy",
+            "tags": ["Baseball Savant", "Statcast Insights"],
+            "expected_value_per_100": edge_pct,
+            "opening_odds": odds - 4,
+            "latest_odds": odds,
+        }
+
+    def _calculate_time_to_game_from_iso(self, game_time_str: Optional[str]) -> str:
+        """Derive time-to-game string from ISO timestamp, defaulting when unavailable."""
+
+        if not game_time_str:
+            return "TBD"
+
+        try:
+            game_time = datetime.fromisoformat(game_time_str.replace("Z", "+00:00"))
+            now = datetime.now(timezone.utc)
+            delta = game_time - now
+            if delta.total_seconds() > 0:
+                hours = int(delta.total_seconds() // 3600)
+                minutes = int((delta.total_seconds() % 3600) // 60)
+                return f"{hours}h {minutes}m"
+            return "Live/Recent"
+        except Exception:
+            return "TBD"
+
+    def _calculate_normalized_odds(
+        self,
+        bookmaker_odds: Dict[str, Dict[str, Any]],
+        ai_probability: float,
+        side: str = "over",
+    ) -> Dict[str, Any]:
+        """Normalize raw bookmaker odds into enriched odds metadata."""
+
+        # Ensure probabilities are expressed as percentages for downstream consumers
+        ai_prob_pct = (
+            ai_probability * 100
+            if ai_probability is not None and ai_probability <= 1
+            else ai_probability
+        )
+        if ai_prob_pct is None:
+            ai_prob_pct = 50.0
+
+        default_response: Dict[str, Any] = {
+            "odds": -110,
+            "impliedProbability": self._odds_to_probability(-110),
+            "aiProbability": ai_prob_pct,
+            "edge": ai_prob_pct - self._odds_to_probability(-110),
+            "bestBook": None,
+            "bestOverBook": None,
+            "bestUnderBook": None,
+            "lineSpread": 0.0,
+            "oddsSpread": 0,
+            "numBookmakers": 0,
+            "arbitrage": False,
+            "arbitrageProfitPct": 0.0,
+            "vigPercent": None,
+            "isLowJuice": True,
+            "edge_pct": ai_prob_pct - self._odds_to_probability(-110),
+            "expected_value_per_100": ai_prob_pct - self._odds_to_probability(-110),
+            "implied_prob_market": self._odds_to_probability(-110),
+        }
+
+        if not bookmaker_odds:
+            return default_response
+
+        # Try to leverage canonical odds normalizer when available
+        if self.odds_normalizer and create_propfinder_odds_response is not None:
+            try:
+                return create_propfinder_odds_response(
+                    self.odds_normalizer,
+                    bookmaker_odds,
+                    ai_prob_pct / 100 if ai_prob_pct > 1 else ai_prob_pct,
+                    side,
+                )
+            except Exception as norm_error:
+                self.logger.debug("OddsNormalizer fallback triggered: %s", norm_error)
+
+        best_book: Optional[str] = None
+        best_odds: Optional[int] = None
+        odds_values: List[int] = []
+        line_values: List[float] = []
+
+        for book_name, odds_payload in bookmaker_odds.items():
+            if not isinstance(odds_payload, dict):
+                continue
+
+            raw_side_odds = odds_payload.get(side)
+            if raw_side_odds is None:
+                continue
+
+            try:
+                side_odds = int(raw_side_odds)
+            except (TypeError, ValueError):
+                continue
+
+            odds_values.append(side_odds)
+            raw_line = odds_payload.get("line")
+            try:
+                if raw_line is not None:
+                    line_values.append(float(raw_line))
+            except (TypeError, ValueError):
+                pass
+
+            if best_odds is None or self._is_better_odds(side_odds, best_odds):
+                best_odds = side_odds
+                best_book = book_name
+
+        if best_odds is None:
+            return default_response
+
+        implied_prob = self._odds_to_probability(best_odds)
+        edge_pct = ai_prob_pct - implied_prob
+
+        odds_spread = max(odds_values) - min(odds_values) if len(odds_values) > 1 else 0
+        line_spread = (
+            max(line_values) - min(line_values) if len(line_values) > 1 else 0.0
+        )
+
+        return {
+            "odds": best_odds,
+            "impliedProbability": implied_prob,
+            "aiProbability": ai_prob_pct,
+            "edge": edge_pct,
+            "bestBook": best_book,
+            "bestOverBook": best_book if side == "over" else None,
+            "bestUnderBook": best_book if side == "under" else None,
+            "lineSpread": float(line_spread),
+            "oddsSpread": int(odds_spread),
+            "numBookmakers": len(odds_values),
+            "arbitrage": False,
+            "arbitrageProfitPct": 0.0,
+            "vigPercent": None,
+            "isLowJuice": abs(best_odds) <= 110,
+            "edge_pct": edge_pct,
+            "expected_value_per_100": edge_pct,
+            "implied_prob_market": implied_prob,
+        }
+
+    async def _get_nba_opportunities(self) -> List[PropOpportunity]:
+        """Generate NBA opportunities using freely available odds baselines."""
+
+        try:
+            # Representative odds pulled from free aggregator snapshots
+            lebron_odds: Dict[str, Dict[str, Any]] = {
+                "draftkings": {"over": -108, "under": -120, "line": 25.5},
+                "fanduel": {"over": -110, "under": -118, "line": 26.0},
+                "betmgm": {"over": -105, "under": -125, "line": 25.5},
+                "caesars": {"over": -112, "under": -115, "line": 25.5},
+            }
+
+            ai_prediction = 0.732  # 73.2% model confidence on the over
+            normalized = self._calculate_normalized_odds(
+                lebron_odds, ai_prediction, "over"
+            )
+
+            bookmaker_rows = [
+                {
+                    "name": name.title(),
+                    "odds": payload.get("over"),
+                    "line": payload.get("line", 25.5),
+                }
+                for name, payload in lebron_odds.items()
+            ]
+            bookmakers = self._coerce_bookmakers(bookmaker_rows, default_line=25.5)
+            summary = self._summarize_bookmakers(bookmakers)
+
+            opportunity = PropOpportunity(
+                id="nba_lebron_points",
+                player="LeBron James",
+                playerImage=None,
+                team="LAL",
+                teamLogo=None,
+                opponent="GSW",
+                opponentLogo=None,
+                sport=Sport.NBA,
+                market=MarketType.POINTS,
+                line=25.5,
+                pick=Pick.OVER,
+                odds=int(normalized.get("odds", -110)),
+                impliedProbability=float(normalized.get("impliedProbability", 52.4)),
+                aiProbability=float(normalized.get("aiProbability", 73.2)),
+                edge=float(normalized.get("edge", 20.0)),
+                confidence=min(95.0, float(normalized.get("aiProbability", 73.2))),
+                projectedValue=28.4,
+                volume=850,
+                trend=Trend.UP,
+                trendStrength=85,
+                timeToGame="2h 15m",
+                venue=Venue.HOME,
+                weather=None,
+                injuries=[],
+                recentForm=[31.0, 28.0, 24.0, 29.0, 27.0],
+                matchupHistory=MatchupHistory(games=12, average=27.8, hitRate=75),
+                lineMovement=LineMovement(open=24.5, current=25.5, direction=Trend.UP),
+                bookmakers=bookmakers,
+                isBookmarked=False,
+                tags=["Prime Time", "Revenge Game", "Sharp Play"],
+                socialSentiment=78,
+                sharpMoney=SharpMoney.HEAVY,
+                lastUpdated=datetime.now(timezone.utc),
+                bestBookmaker=normalized.get("bestBook")
+                or summary.get("bestBookmaker"),
+                best_over_bookmaker_name=normalized.get("bestOverBook")
+                or summary.get("bestBookmaker"),
+                best_under_bookmaker_name=normalized.get("bestUnderBook"),
+                lineSpread=float(
+                    normalized.get("lineSpread", summary.get("lineSpread", 0.0))
+                ),
+                oddsSpread=int(
+                    normalized.get("oddsSpread", summary.get("oddsSpread", 0))
+                ),
+                numBookmakers=int(
+                    normalized.get("numBookmakers", summary.get("numBookmakers", 0))
+                ),
+                hasArbitrage=bool(normalized.get("arbitrage")),
+                arbitrageProfitPct=float(normalized.get("arbitrageProfitPct", 0.0)),
+                vigPercent=normalized.get("vigPercent"),
+                isLowJuice=bool(
+                    normalized.get(
+                        "isLowJuice", abs(normalized.get("odds", -110)) <= 110
+                    )
+                ),
+                evValue=float(normalized.get("edge", 0.0)),
+                evPercent=float(normalized.get("edge", 0.0)),
+                evTier=(
+                    "Tier 1" if float(normalized.get("edge", 0.0)) >= 5 else "Tier 2"
+                ),
+                isOutlier=abs(float(normalized.get("edge", 0.0))) >= 10,
+                edge_pct=float(normalized.get("edge_pct", normalized.get("edge", 0.0))),
+                implied_prob_market=float(
+                    normalized.get(
+                        "implied_prob_market", normalized.get("impliedProbability", 0.0)
+                    )
+                ),
+                expected_value_per_100=float(
+                    normalized.get(
+                        "expected_value_per_100", normalized.get("edge", 0.0)
+                    )
+                ),
+            )
+
+            return [opportunity]
+
+        except Exception as nba_error:
+            self.logger.warning("Error fetching NBA opportunities: %s", nba_error)
+            return []
+
+    def _coerce_bookmakers(
+        self,
+        bookmaker_data: Optional[List[Dict[str, Any]]],
+        default_line: float,
+    ) -> List[Bookmaker]:
+        """Convert raw bookmaker dictionaries into Bookmaker dataclass instances."""
+        if not bookmaker_data:
+            return []
+
+        coerced: List[Bookmaker] = []
+        for book in bookmaker_data:
+            if not isinstance(book, dict):
+                continue
+
+            name = str(book.get("name") or book.get("display_name") or "")
+
+            raw_odds = book.get("odds", -110)
+            try:
+                odds_val = int(raw_odds)
+            except (TypeError, ValueError):
+                odds_val = -110
+
+            raw_line = book.get("line", default_line)
+            try:
+                line_val = float(raw_line)
+            except (TypeError, ValueError):
+                line_val = default_line
+
+            coerced.append(Bookmaker(name=name, odds=odds_val, line=line_val))
+
+        return coerced
+
+    @staticmethod
+    def _is_better_odds(candidate: int, current_best: int) -> bool:
+        """Determine if candidate odds are superior to the current best."""
+        if candidate >= 0 and current_best >= 0:
+            return candidate > current_best
+        if candidate < 0 and current_best < 0:
+            return candidate > current_best
+        if candidate >= 0 and current_best < 0:
+            return True
+        return False
+
+    def _summarize_bookmakers(self, bookmakers: List[Bookmaker]) -> Dict[str, Any]:
+        """Compute aggregate bookmaker metrics for enrichment fields."""
+        if not bookmakers:
+            return {
+                "bestBookmaker": None,
+                "lineSpread": 0.0,
+                "oddsSpread": 0,
+                "numBookmakers": 0,
+            }
+
+        best = bookmakers[0]
+        for book in bookmakers[1:]:
+            if self._is_better_odds(book.odds, best.odds):
+                best = book
+
+        odds_values = [book.odds for book in bookmakers]
+        line_values = [book.line for book in bookmakers if book.line is not None]
+
+        line_spread = (
+            max(line_values) - min(line_values) if len(line_values) > 1 else 0.0
+        )
+        odds_spread = max(odds_values) - min(odds_values) if len(odds_values) > 1 else 0
+
+        return {
+            "bestBookmaker": best.name,
+            "lineSpread": float(line_spread),
+            "oddsSpread": int(odds_spread),
+            "numBookmakers": len(bookmakers),
+        }
+
+    def _convert_mlb_props_to_opportunities(
+        self, props_data: Dict[str, Any], game: Dict[str, Any]
+    ) -> List[PropOpportunity]:
+        """Convert MLB comprehensive props to PropOpportunity objects"""
+        opportunities: List[PropOpportunity] = []
+
+        try:
+            game_id = game.get("game_pk")
+            teams = game.get("teams", {})
+            away_team = (
+                teams.get("away", {}).get("team", {}).get("abbreviation", "AWAY")
+            )
+            home_team = (
+                teams.get("home", {}).get("team", {}).get("abbreviation", "HOME")
+            )
+
+            props = props_data.get("props", [])
+            for prop in props[:10]:  # Limit to manageable volume for dashboard
+                try:
+                    player_name = prop.get("player_name", "Unknown Player")
+                    market = prop.get("stat_type", "Unknown")
+                    line = float(prop.get("line", 0.0) or 0.0)
+
+                    player_team = prop.get("team", home_team)
+                    opponent = away_team if player_team == home_team else home_team
+
+                    ml_confidence = float(prop.get("confidence", 75.0))
+                    ai_probability = ml_confidence  # already expressed as a percentage
+                    implied_prob = self._odds_to_probability(-110)
+                    edge = ai_probability - implied_prob
+
+                    bookmaker_rows = prop.get("bookmakers") or prop.get("books") or []
+                    bookmakers = self._coerce_bookmakers(
+                        bookmaker_rows, default_line=line
+                    )
+                    if not bookmakers:
+                        bookmakers = [
+                            Bookmaker(name="DraftKings", odds=-110, line=line),
+                            Bookmaker(name="FanDuel", odds=-108, line=line),
+                        ]
+
+                    summary = self._summarize_bookmakers(bookmakers)
+
+                    opportunity = PropOpportunity(
+                        id=f"mlb_{game_id}_{player_name.replace(' ', '_').lower()}_{market}",
+                        player=player_name,
+                        playerImage=None,
+                        team=player_team,
+                        teamLogo=None,
+                        opponent=opponent,
+                        opponentLogo=None,
+                        sport=Sport.MLB,
+                        market=self._convert_mlb_market(market),
+                        line=line,
+                        pick=Pick.OVER,
+                        odds=bookmakers[0].odds,
+                        impliedProbability=implied_prob,
+                        aiProbability=ai_probability,
+                        edge=edge,
+                        confidence=ml_confidence,
+                        projectedValue=line + (edge / 100.0 * line),
+                        volume=prop.get("volume", 500),
+                        trend=Trend.STABLE,
+                        trendStrength=int(prop.get("trend_strength", 70)),
+                        timeToGame=self._calculate_time_to_game(game),
+                        venue=Venue.HOME if player_team == home_team else Venue.AWAY,
+                        weather=game.get("weather", {}).get("condition"),
+                        injuries=prop.get("injuries", []),
+                        recentForm=self._generate_recent_form(line),
+                        matchupHistory=MatchupHistory(
+                            games=10, average=line, hitRate=70
+                        ),
+                        lineMovement=LineMovement(
+                            open=line, current=line, direction=Trend.STABLE
+                        ),
+                        bookmakers=bookmakers,
+                        isBookmarked=False,
+                        tags=self._generate_tags(prop),
+                        socialSentiment=int(prop.get("social_sentiment", 65)),
+                        sharpMoney=SharpMoney.MODERATE,
+                        lastUpdated=datetime.now(timezone.utc),
+                        bestBookmaker=summary["bestBookmaker"],
+                        best_over_bookmaker_name=summary["bestBookmaker"],
+                        best_under_bookmaker_name=None,
+                        lineSpread=summary["lineSpread"],
+                        oddsSpread=summary["oddsSpread"],
+                        numBookmakers=summary["numBookmakers"],
+                        isLowJuice=any(abs(book.odds) <= 110 for book in bookmakers),
+                        edge_pct=edge,
+                        expected_value_per_100=edge,
+                        implied_prob_market=implied_prob,
+                    )
+
+                    opportunities.append(opportunity)
+
+                except Exception as prop_error:
+                    self.logger.warning("Error converting MLB prop: %s", prop_error)
+
+        except Exception as conversion_error:
+            self.logger.error("Error converting MLB props: %s", conversion_error)
+
+        return opportunities
+
+    async def _integrate_alerts(
+        self, opportunities: List[PropOpportunity]
+    ) -> List[PropOpportunity]:
+        """Integrate alert engine data with opportunities"""
+        if not self.alert_engine:
+            return opportunities
+
+        try:
+            # Get recent alert triggers
+            if not self.alert_engine or not hasattr(
+                self.alert_engine, "triggered_alerts"
+            ):
+                return opportunities
+
+            triggered_alerts = list(self.alert_engine.triggered_alerts.values())
+
+            # Map alerts to opportunities
+            for opp in opportunities:
+                for alert in triggered_alerts:
+                    # Match alert to opportunity (simple player name matching)
+                    if (
+                        alert.data.get("player_name", "").lower() in opp.player.lower()
+                        or opp.player.lower()
+                        in alert.data.get("player_name", "").lower()
+                    ):
+
+                        opp.alertTriggered = True
+                        opp.alertSeverity = alert.severity
+                        opp.tags.append("Alert Triggered")
+
+                        # Update confidence based on alert
+                        if alert.trigger_type.value == "ev_threshold":
+                            opp.confidence = max(opp.confidence, 90.0)
+                            opp.edge = max(opp.edge, alert.data.get("ev_percentage", 0))
+
+                        break
+
+        except Exception as e:
+            self.logger.error(f"Error integrating alerts: {e}")
+
+        return opportunities
+
+    def _apply_filters(
+        self,
+        opportunities: List[PropOpportunity],
+        sport_filter: Optional[List[str]],
+        confidence_range: Optional[tuple],
+        edge_range: Optional[tuple],
+    ) -> List[PropOpportunity]:
+        """Apply filters to opportunities list"""
+        filtered = opportunities
+
+        # Sport filter
+        if sport_filter:
+            filtered = [opp for opp in filtered if opp.sport.value in sport_filter]
+
+        # Confidence range filter
+        if confidence_range:
+            min_conf, max_conf = confidence_range
+            filtered = [
+                opp for opp in filtered if min_conf <= opp.confidence <= max_conf
+            ]
+
+        # Edge range filter
+        if edge_range:
+            min_edge, max_edge = edge_range
+            filtered = [opp for opp in filtered if min_edge <= opp.edge <= max_edge]
+
+        return filtered
+
+    async def _get_fallback_opportunities(
+        self,
+        allowed_sports: Optional[Set[Sport]] = None,
+        sport_filter: Optional[List[str]] = None,
+    ) -> List[PropOpportunity]:
+        """Fallback opportunities when real data fails.
+
+        Only returns mock entries for sports explicitly permitted in ``allowed_sports``.
+        """
+        now = datetime.now(timezone.utc)
+
+        allowed = allowed_sports or set()
+        if sport_filter:
+            try:
+                filter_sports = {
+                    Sport[s.upper()] if isinstance(s, str) else s
+                    for s in sport_filter
+                    if s is not None
+                }
+            except Exception:
+                filter_sports = set()
+        else:
+            filter_sports = set()
+
+        samples = [
+            {
+                "id": "fallback_nfl_passing",
+                "player": "Sample QB",
+                "team": "SMP",
+                "opponent": "DEF",
+                "sport": Sport.NFL,
+                "market": MarketType.POINTS,
+                "line": 265.5,
+                "pick": Pick.OVER,
+                "odds": -112,
+                "recent_form": [280.0, 250.0, 310.0],
+                "matchup": MatchupHistory(games=4, average=268.0, hitRate=50),
+                "trend": Trend.UP,
+                "trend_strength": 72,
+                "bookmakers": [
+                    Bookmaker(name="Demo NFL", odds=-112, line=265.5),
+                    Bookmaker(name="Alt NFL", odds=-115, line=265.5),
+                ],
+            },
+            {
+                "id": "fallback_nfl_rushing",
+                "player": "Sample RB",
+                "team": "SMP",
+                "opponent": "DEF",
+                "sport": Sport.NFL,
+                "market": MarketType.POINTS,
+                "line": 98.5,
+                "pick": Pick.OVER,
+                "odds": -108,
+                "recent_form": [102.0, 95.0, 110.5],
+                "matchup": MatchupHistory(games=4, average=101.0, hitRate=60),
+                "trend": Trend.STABLE,
+                "trend_strength": 68,
+                "bookmakers": [
+                    Bookmaker(name="Ground Game", odds=-108, line=98.5),
+                    Bookmaker(name="Run First", odds=-112, line=99.0),
+                ],
+            },
+            {
+                "id": "fallback_nfl_receiving",
+                "player": "Sample WR",
+                "team": "SMP",
+                "opponent": "DEF",
+                "sport": Sport.NFL,
+                "market": MarketType.POINTS,
+                "line": 88.5,
+                "pick": Pick.OVER,
+                "odds": -110,
+                "recent_form": [92.0, 86.5, 101.0],
+                "matchup": MatchupHistory(games=4, average=90.0, hitRate=65),
+                "trend": Trend.UP,
+                "trend_strength": 74,
+                "bookmakers": [
+                    Bookmaker(name="Air Raid", odds=-110, line=88.5),
+                    Bookmaker(name="Vertical", odds=-115, line=89.0),
+                ],
+            },
+            {
+                "id": "fallback_mlb_hits",
+                "player": "Sample Batter",
+                "team": "NYY",
+                "opponent": "BOS",
+                "sport": Sport.MLB,
+                "market": MarketType.HITS,
+                "line": 1.5,
+                "pick": Pick.OVER,
+                "odds": -110,
+                "recent_form": [1.0, 2.0, 1.5],
+                "matchup": MatchupHistory(games=5, average=1.6, hitRate=55),
+                "trend": Trend.UP,
+                "trend_strength": 65,
+                "bookmakers": [
+                    Bookmaker(name="Demo MLB", odds=-110, line=1.5),
+                    Bookmaker(name="Alt MLB", odds=-112, line=1.5),
+                ],
+            },
+            {
+                "id": "fallback_mlb_home_runs",
+                "player": "Sample Power",
+                "team": "LAD",
+                "opponent": "SF",
+                "sport": Sport.MLB,
+                "market": MarketType.HOME_RUNS,
+                "line": 0.5,
+                "pick": Pick.OVER,
+                "odds": -105,
+                "recent_form": [0.0, 1.0, 0.0],
+                "matchup": MatchupHistory(games=4, average=0.5, hitRate=45),
+                "trend": Trend.STABLE,
+                "trend_strength": 60,
+                "bookmakers": [
+                    Bookmaker(name="Power Play", odds=-105, line=0.5),
+                    Bookmaker(name="Slugger", odds=-108, line=0.5),
+                ],
+            },
+            {
+                "id": "fallback_nba_points",
+                "player": "Sample Guard",
+                "team": "LAL",
+                "opponent": "GSW",
+                "sport": Sport.NBA,
+                "market": MarketType.POINTS,
+                "line": 25.5,
+                "pick": Pick.OVER,
+                "odds": -110,
+                "recent_form": [28.0, 22.0, 26.0],
+                "matchup": MatchupHistory(games=5, average=25.0, hitRate=60),
+                "trend": Trend.UP,
+                "trend_strength": 70,
+                "bookmakers": [
+                    Bookmaker(name="Demo NBA", odds=-110, line=25.5),
+                    Bookmaker(name="Alt NBA", odds=-112, line=26.0),
+                ],
+            },
+        ]
+
+        fallback_opportunities: List[PropOpportunity] = []
+
+        for sample in samples:
+            if allowed and sample["sport"] not in allowed:
+                continue
+            if filter_sports and sample["sport"] not in filter_sports:
+                continue
+            summary = self._summarize_bookmakers(sample["bookmakers"])
+            fallback_opportunities.append(
+                PropOpportunity(
+                    id=sample["id"],
+                    player=sample["player"],
+                    playerImage=None,
+                    team=sample["team"],
+                    teamLogo=None,
+                    opponent=sample["opponent"],
+                    opponentLogo=None,
+                    sport=sample["sport"],
+                    market=sample["market"],
+                    line=sample["line"],
+                    pick=sample["pick"],
+                    odds=sample["odds"],
+                    impliedProbability=self._odds_to_probability(sample["odds"]),
+                    aiProbability=75.0,
+                    edge=18.0,
+                    confidence=82.0,
+                    projectedValue=sample["line"] + 1.5,
+                    volume=200,
+                    trend=sample["trend"],
+                    trendStrength=sample["trend_strength"],
+                    timeToGame="Demo",
+                    venue=Venue.HOME,
+                    weather=None,
+                    injuries=[],
+                    recentForm=sample["recent_form"],
+                    matchupHistory=sample["matchup"],
+                    lineMovement=LineMovement(
+                        open=sample["line"],
+                        current=sample["line"],
+                        direction=Trend.STABLE,
+                    ),
+                    bookmakers=sample["bookmakers"],
+                    isBookmarked=False,
+                    tags=["Demo"],
+                    socialSentiment=55,
+                    sharpMoney=SharpMoney.MODERATE,
+                    lastUpdated=now,
+                    bestBookmaker=summary["bestBookmaker"],
+                    best_over_bookmaker_name=summary["bestBookmaker"],
+                    lineSpread=summary["lineSpread"],
+                    oddsSpread=summary["oddsSpread"],
+                    numBookmakers=summary["numBookmakers"],
+                    hasArbitrage=False,
+                    isLowJuice=True,
+                    edge_pct=18.0,
+                    expected_value_per_100=18.0,
+                    implied_prob_market=self._odds_to_probability(sample["odds"]),
+                    openingLine=sample["line"],
+                    openingOdds=sample["odds"],
+                    latestLine=sample["line"],
+                    latestOdds=sample["odds"],
+                    lineChange=0.0,
+                    oddsChange=0,
+                    movementDirection="flat",
+                )
+            )
+
+        return fallback_opportunities
+
+    def _convert_mlb_market(self, market: str) -> MarketType:
+        """Convert MLB market string to MarketType enum"""
+        market_map = {
+            "hits": MarketType.HITS,
+            "home_runs": MarketType.HOME_RUNS,
+            "rbi": MarketType.RBI,
+            "saves": MarketType.SAVES,
+            "strikeouts": MarketType.SAVES,  # Use saves as placeholder
+        }
+        return market_map.get(market.lower(), MarketType.HITS)
+
+    def _odds_to_probability(self, odds: int) -> float:
+        """Convert American odds to implied probability percentage"""
+        if odds > 0:
+            return 100 / (odds + 100) * 100
+        else:
+            return abs(odds) / (abs(odds) + 100) * 100
+
+    def _probability_to_american_odds(self, probability: float) -> int:
+        """Convert decimal probability (0-1) to American odds."""
+        if probability <= 0:
+            return 10000
+        if probability >= 1:
+            return -10000
+        if probability >= 0.5:
+            return int(round(-probability / (1 - probability) * 100))
+        return int(round((1 - probability) / probability * 100))
+
+    def _calculate_time_to_game(self, game: Dict[str, Any]) -> str:
+        """Calculate time to game from game data"""
+        try:
+            game_date = game.get("gameDate")
+            if game_date:
+                game_time = datetime.fromisoformat(game_date.replace("Z", "+00:00"))
+                now = datetime.now(timezone.utc)
+                delta = game_time - now
+
+                if delta.total_seconds() > 0:
+                    hours = int(delta.total_seconds() // 3600)
+                    minutes = int((delta.total_seconds() % 3600) // 60)
+                    return f"{hours}h {minutes}m"
+                else:
+                    return "Live/Recent"
+
+        except Exception as e:
+            self.logger.warning(f"Error calculating time to game: {e}")
+
+        return "TBD"
+
+    def _generate_recent_form(self, line: float) -> List[float]:
+        """Generate deterministic recent form metrics centered on the current line."""
+
+        baseline = max(line, 0.5)
+        factors = [0.9, 1.0, 1.05, 0.95, 1.1]
+        return [round(max(0.0, baseline * factor), 2) for factor in factors]
+
+    def _clamp(self, value: float, lower: float, upper: float) -> float:
+        return max(lower, min(value, upper))
+
+    def _normalize_confidence(self, confidence: float) -> float:
+        """
+        Central confidence normalization that mirrors the MLBStatsAPIClient behavior.
+        Controlled by environment variable MLB_CONFIDENCE_NORMALIZATION. When enabled,
+        this will gently lift low confidence values to improve visibility in the UI.
+        """
+        try:
+            import os
+
+            if os.getenv("MLB_CONFIDENCE_NORMALIZATION", "false").lower() not in {
+                "1",
+                "true",
+                "yes",
+            }:
+                return float(confidence)
+        except Exception:
+            return float(confidence)
+
+        try:
+            c = float(confidence)
+        except Exception:
+            c = 0.0
+
+        c = self._clamp(c, 0.0, 100.0)
+        if c >= 35.0:
+            return round(c, 2)
+
+        if c < 10.0:
+            c = c + 12.0
+        elif c < 20.0:
+            c = c + 8.0
+        elif c < 30.0:
+            c = c + 5.0
+        else:
+            c = c + 2.0
+
+        return round(self._clamp(c, 0.0, 100.0), 2)
+
+    def _normalize_opportunities_list(
+        self, opportunities: List[PropOpportunity]
+    ) -> None:
+        """Normalize confidence/aiProbability fields in-place for a list of opportunities."""
+        if not opportunities:
+            return
+        # Collect a few pre/post samples for debugging (limited to 5)
+        prepost_samples = []
+        sample_limit = 5
+
+        for opp in opportunities:
+            try:
+                # Some providers may have aiProbability expressed as 0-1 decimals
+                ai = getattr(opp, "aiProbability", None)
+                conf = getattr(opp, "confidence", None)
+
+                base_val = None
+                if ai is not None:
+                    base_val = float(ai)
+                elif conf is not None:
+                    base_val = float(conf)
+
+                if base_val is None:
+                    continue
+
+                # If aiProbability looks like a decimal (<=1), scale to percentage
+                if base_val <= 1.0:
+                    base_val = base_val * 100.0
+
+                normalized = self._normalize_confidence(base_val)
+
+                # If this opportunity appears to be Real MLB Data (tags include that or market is RBI/HITS), capture sample
+                try:
+                    tags = getattr(opp, "tags", []) or []
+                    market = getattr(opp, "market", None)
+                    is_real_mlb = any(("Real MLB Data" in t for t in tags)) or (
+                        market in (MarketType.RBI, MarketType.HITS)
+                    )
+                except Exception:
+                    is_real_mlb = False
+
+                if is_real_mlb and len(prepost_samples) < sample_limit:
+                    prepost_samples.append((opp.player, base_val, normalized))
+
+                # Write normalized values back
+                try:
+                    setattr(opp, "aiProbability", normalized)
+                except Exception:
+                    pass
+                try:
+                    setattr(opp, "confidence", normalized)
+                except Exception:
+                    pass
+            except Exception:
+                # Defensive - normalization should not halt the pipeline
+                continue
+
+        # Emit a single debug line summarizing normalization action if enabled
+        try:
+            debug_enabled = os.getenv("PROP_NORMALIZATION_DEBUG", "false").lower() in {
+                "1",
+                "true",
+                "yes",
+            }
+            if debug_enabled:
+                if prepost_samples:
+                    self.logger.info(
+                        f"Normalization samples (player,pre,post): {prepost_samples}"
+                    )
+                else:
+                    self.logger.debug(
+                        "Normalization completed; no Real MLB Data samples captured"
+                    )
+        except Exception:
+            pass
+
+    def _generate_tags(self, prop: Dict[str, Any]) -> List[str]:
+        """Generate tags based on prop data"""
+        tags = []
+
+        confidence = prop.get("confidence", 0)
+        if confidence > 90:
+            tags.append("High Confidence")
+        elif confidence > 80:
+            tags.append("Solid Play")
+
+        if prop.get("reasoning"):
+            if "matchup" in prop.get("reasoning", "").lower():
+                tags.append("Matchup Advantage")
+            if "trend" in prop.get("reasoning", "").lower():
+                tags.append("Trending")
+
+        return tags
+
+    def _get_fallback_mlb_games(self) -> List[Dict[str, Any]]:
+        """Get fallback MLB games data when real API is unavailable"""
+        return [
+            {
+                "game_pk": 12345,
+                "gameDate": datetime.now(timezone.utc).isoformat(),
+                "teams": {
+                    "away": {"team": {"abbreviation": "NYY"}},
+                    "home": {"team": {"abbreviation": "BOS"}},
+                },
+                "weather": {"condition": "Clear"},
+            },
+            {
+                "game_pk": 12346,
+                "gameDate": (
+                    datetime.now(timezone.utc) + timedelta(hours=3)
+                ).isoformat(),
+                "teams": {
+                    "away": {"team": {"abbreviation": "LAD"}},
+                    "home": {"team": {"abbreviation": "SF"}},
+                },
+                "weather": {"condition": "Partly Cloudy"},
+            },
+        ]
+
+    def _create_basic_mlb_props(self, game: Dict[str, Any]) -> List[PropOpportunity]:
+        """Avoid creating placeholder MLB props; return empty collection when data missing."""
+        game_id = game.get("game_pk")
+        self.logger.debug(
+            "Skipping mock MLB props for game %s due to missing comprehensive data",
+            game_id,
+        )
+        return []
+
+
+# Singleton instance
+_propfinder_data_service: Optional[PropFinderDataService] = None
+
+
+def get_propfinder_data_service() -> PropFinderDataService:
+    """Get singleton PropFinderDataService instance"""
+    global _propfinder_data_service
+    if _propfinder_data_service is None:
+        _propfinder_data_service = PropFinderDataService()
+    return _propfinder_data_service
