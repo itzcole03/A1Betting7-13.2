@@ -1,0 +1,4175 @@
+{
+  "DELETE_UNUSED": [
+    {
+      "name": "A1BettingPreview.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\A1BettingPreview.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AccessRequestManager",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\AccessRequestManager.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdminFeatureFlags",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\AdminFeatureFlags.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdminSettings",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\AdminSettings.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CLVMetricsDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\CLVMetricsDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ErrorLogs",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\ErrorLogs.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModelSettings",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\ModelSettings.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UserManagement",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\UserManagement.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdminAnalytics.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\__tests__\\AdminAnalytics.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "WhatIfSimulator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\advanced\\WhatIfSimulator.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AIRecommendationsDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ai\\AIRecommendationsDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SetAlertButton",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\alerts\\SetAlertButton.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AllFeatures.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\AllFeatures.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedMatchupAnalysisTools",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analysis\\AdvancedMatchupAnalysisTools.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ConfidenceScoreCalculator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analysis\\ConfidenceScoreCalculator.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedConfidenceScoring",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analysis\\EnhancedConfidenceScoring.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MatchupAnalysisTools",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analysis\\MatchupAnalysisTools.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RealTimeAnalysisTrigger",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analysis\\RealTimeAnalysisTrigger.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AnalyticsDashboard.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\AnalyticsDashboard.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AnalyticsWidget.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\AnalyticsWidget.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ClusteringInsights",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\ClusteringInsights.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnsembleInsights",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\EnsembleInsights.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EvolutionaryInsights",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\EvolutionaryInsights.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "HyperMLInsights",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\HyperMLInsights.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MLInsights",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\MLInsights.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModelComparison",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\ModelComparison.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModelComparisonChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\ModelComparisonChart.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModelPerformanceDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\ModelPerformanceDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceAlerts",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\PerformanceAlerts.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceAnalyticsDashboard.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\PerformanceAnalyticsDashboard.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceExport",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\PerformanceExport.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PredictionConfidenceGraph",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\PredictionConfidenceGraph.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RealTimeAccuracyDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\RealTimeAccuracyDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RealTimeMetrics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\RealTimeMetrics.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskAssessmentMatrix",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\RiskAssessmentMatrix.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskInsights",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\RiskInsights.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SHAPInsight",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\SHAPInsight.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SophisticatedAnalyticsDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\SophisticatedAnalyticsDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "TimeSeriesInsights",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\TimeSeriesInsights.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UltraMLInsights",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\UltraMLInsights.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UserStatsSafe",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\UserStatsSafe.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskAssessmentMatrix.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\__tests__\\RiskAssessmentMatrix.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ShapExplanation.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\__tests__\\ShapExplanation.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AnalyticsPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\AnalyticsPage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RealTimeAPIIntegrationDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\api\\RealTimeAPIIntegrationDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ApiDebug",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ApiDebug.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ApiErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ApiErrorBoundary.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AppInitializer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\AppInitializer.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedArbitrageDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\arbitrage\\AdvancedArbitrageDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ArbitragePage.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ArbitragePage.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ArbitragePage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ArbitragePage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ProtectedRoute",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\auth\\ProtectedRoute.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RegisterForm",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\auth\\RegisterForm.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RouteGuard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\auth\\RouteGuard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedAuth",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\auth\\UnifiedAuth.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AuthLayout",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\AuthLayout.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AutoPilot",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\AutoPilot.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BacktestingTab",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BacktestingTab.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BankrollManager",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BankrollManager.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BankrollPage.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BankrollPage.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Accordion",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Accordion.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Avatar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Avatar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Breadcrumb",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Breadcrumb.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Dialog",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Dialog.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Dropdown",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Dropdown.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Modal",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Modal.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SkeletonLoader",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\SkeletonLoader.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedInput",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\UnifiedInput.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BestBetsDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BestBetsDisplay.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BestBetSelector",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BestBetSelector.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BetForm",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BetForm.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BetHistory",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BetHistory.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingAnalytics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingAnalytics.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingDataSource",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingDataSource.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingInterface",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingInterface.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingModal",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingModal.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingOpportunities",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingOpportunities.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingSettingsContainer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingSettingsContainer.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingSettingsPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingSettingsPanel.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingSettingsSummary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingSettingsSummary.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingStats",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingStats.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ConfigurationMatrix",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\ConfigurationMatrix.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnsembleResults",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\EnsembleResults.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EventList",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\EventList.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LiveOddsTicker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\LiveOddsTicker.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModelSelector",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\ModelSelector.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OddsDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\OddsDisplay.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PrizePicksEdgeDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\PrizePicksEdgeDisplay.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PrizePicksInterface",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\PrizePicksInterface.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PrizePicksMLEngine",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\PrizePicksMLEngine.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskProfileSelector",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\RiskProfileSelector.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SHAPVisualization",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\SHAPVisualization.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SportSelector",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\SportSelector.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "StakeSizingControl",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\StakeSizingControl.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedBettingHistory",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\UnifiedBettingHistory.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingHistory",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BettingHistory.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingOpportunities",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BettingOpportunities.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingStats",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BettingStats.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BookmakerAnalysis",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BookmakerAnalysis.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\builder\\BettingCard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BuilderIntegrationTest",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\builder\\BuilderIntegrationTest.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BuilderPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\builder\\BuilderPage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BuilderIntegration",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BuilderIntegration.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ServiceCapabilityMatrix",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\capabilities\\ServiceCapabilityMatrix.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OddsAggregationChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\charts\\OddsAggregationChart.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\charts\\PerformanceChart.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PlayerPerformanceChart.component.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\charts\\__tests__\\PlayerPerformanceChart.component.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CommunityEngagement",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\community\\CommunityEngagement.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdminWrapper",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\comprehensive\\AdminWrapper.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ComprehensiveAdminDashboard.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\comprehensive\\__tests__\\ComprehensiveAdminDashboard.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ComprehensivePropsLoader",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ComprehensivePropsLoader.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ConnectionStatus",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ConnectionStatus.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropOllamaContext",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\context\\PropOllamaContext.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SmartControlsBar.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\controls\\SmartControlsBar.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AppInitializer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\AppInitializer.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AppShell",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\AppShell.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LoadingScreen",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\LoadingScreen.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Navbar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\Navbar\\Navbar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Navbar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\Navbar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "React19ErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\React19ErrorBoundary.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Sidebar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\Sidebar\\Sidebar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Sidebar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\Sidebar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ThemeSelector",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\ThemeSelector.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CyberAnalyticsHub",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\cyber\\CyberAnalyticsHub.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CyberMLDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\cyber\\CyberMLDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DarkModeToggle",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\DarkModeToggle.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CheatsheetView",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\dashboard\\CheatsheetView.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CLVIntegrationExample",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\dashboard\\CLVIntegrationExample.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ClvLeaderboardPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\dashboard\\ClvLeaderboardPanel.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropFinderDashboardSimple",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\dashboard\\PropFinderDashboardSimple.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OpportunityRow.errorBoundary.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\dashboard\\__tests__\\OpportunityRow.errorBoundary.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DataEcosystemDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\data-ecosystem\\DataEcosystemDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DataFetchTest",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\debug\\DataFetchTest.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DirectAIDashboardLink",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\debug\\DirectAIDashboardLink.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DebugApiStatus",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\DebugApiStatus.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DebugPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\DebugPanel.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedBettingInterfaceDemo",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\demo\\EnhancedBettingInterfaceDemo.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "TypedAPIDemo",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\demo\\TypedAPIDemo.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MovementAnalysisDemo.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\demos\\__tests__\\MovementAnalysisDemo.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DevelopmentGuide",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\DevelopmentGuide.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ElectronIntegration",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\electron\\ElectronIntegration.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AIEdgeML",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\elite\\AIEdgeML.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BusinessAnalysis",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\elite\\BusinessAnalysis.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "index",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\elite\\index.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedPlayerDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\enhanced\\AdvancedPlayerDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AIInsightsPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\enhanced\\AIInsightsPanel.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedAPITestDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\enhanced\\EnhancedAPITestDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedCheatsheetsDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\enhanced\\EnhancedCheatsheetsDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedPrizePicks",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\enhanced\\EnhancedPrizePicks.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PortfolioOptimizer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\enhanced\\PortfolioOptimizer.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SmartStackingPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\enhanced\\SmartStackingPanel.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\EnhancedDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EntryCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\EntryCard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ESPNHeadlinesTicker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ESPNHeadlinesTicker.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EVBadge.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ev\\__tests__\\EVBadge.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EVSummaryWidget.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ev\\__tests__\\EVSummaryWidget.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedEventDetails",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\events\\UnifiedEventDetails.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ComponentUsageExamples",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\examples\\ComponentUsageExamples.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "featureCoverage.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\featureCoverage.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MLFactorViz",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\analytics\\MLFactorViz.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MLInsights",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\analytics\\MLInsights.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModelPerformance",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\analytics\\ModelPerformance.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceAnalytics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\analytics\\PerformanceAnalytics.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\analytics\\PerformanceChart.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ShapBreakdownModal",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\analytics\\ShapBreakdownModal.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ShapValueDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\analytics\\ShapValueDisplay.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ShapVisualization",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\analytics\\ShapVisualization.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BankrollManager",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\bankroll\\BankrollManager.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Arbitrage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\Arbitrage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ArbitrageDetector",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\ArbitrageDetector.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BetBuilder.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BetBuilder.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BetBuilder",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BetBuilder.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BetSlipSidebar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BetSlipSidebar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingOpportunities",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BettingOpportunities.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingRecommendations",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BettingRecommendations.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingStats",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BettingStats.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropCards",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\PropCards.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CheatsheetsDiagnostic",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\cheatsheets\\CheatsheetsDiagnostic.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CheatsheetsFallback",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\cheatsheets\\CheatsheetsFallback.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Dashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\dashboard\\Dashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\dashboard\\EnhancedDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "InjuryTracker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\injuries\\InjuryTracker.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LiveBetting",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\livebetting\\LiveBetting.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedAnalyticsPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\AdvancedAnalyticsPanel.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AppShell",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\AppShell.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DataQualityMonitor",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\DataQualityMonitor.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedPropFinderKillerDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\EnhancedPropFinderKillerDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EntryTracking",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\EntryTracking.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ESPNHeadlinesTicker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\ESPNHeadlinesTicker.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Header",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\Header.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Modals",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\Modals.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OptimizedPropFinderDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\OptimizedPropFinderDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OptimizedPropFinderKillerDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\OptimizedPropFinderKillerDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropCards",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\PropCards.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropFinderKillerDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\PropFinderKillerDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MoneyMaker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\moneymaker\\MoneyMaker.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ESPNHeadlinesTicker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\news\\ESPNHeadlinesTicker.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "NewsHub",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\news\\NewsHub.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OddsComparison",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\odds\\OddsComparison.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PatternRecognition",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\predictions\\PatternRecognition.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PredictionEnhancement",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\predictions\\PredictionEnhancement.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RealtimePredictionDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\predictions\\RealtimePredictionDisplay.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedAI",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\quantum\\AdvancedAI.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "QuantumAI",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\quantum\\QuantumAI.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskEngine",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\risk\\RiskEngine.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedSettings",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\settings\\AdvancedSettings.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SocialIntelligence",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\social\\SocialIntelligence.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SportRadarDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\sportradar\\SportRadarDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SuccessMetricsPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\testimonials\\SuccessMetricsPage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EntryTracking",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\tracking\\EntryTracking.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BankrollManager",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\user\\BankrollManager.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BankrollMetrics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\user\\BankrollMetrics.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskProfileManager",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\user\\RiskProfileManager.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskProfileSelector",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\user\\RiskProfileSelector.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UserConstraintsForm",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\user\\UserConstraintsForm.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "WeatherStation",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\weather\\WeatherStation.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "FeatureStatusPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\FeatureStatusPanel.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "FeedbackExamples",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\feedback\\FeedbackExamples.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "FilterBar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\FilterBar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CompactFilterBar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\CompactFilterBar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "FluentLiveFilters",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\FluentLiveFilters.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "InGameTimeFilter",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\InGameTimeFilter.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "QuantumFilters",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\QuantumFilters.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "HeadToHeadToggle.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\__tests__\\HeadToHeadToggle.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "TimeframeSelect.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\__tests__\\TimeframeSelect.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "FooterVersion",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\FooterVersion.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "GlobalErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\GlobalErrorBoundary.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Header",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\Header.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "index",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\index.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "InjuriesTab",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\InjuriesTab.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "InjuryTracker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\InjuryTracker.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MLInsights",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\insights\\MLInsights.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "IntegrationStatus",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\IntegrationStatus.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedIntelligenceHub_fixed",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\AdvancedIntelligenceHub_fixed.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedIntelligenceViews",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\EnhancedIntelligenceViews.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedModuleManagement",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\EnhancedModuleManagement.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedModuleSection",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\EnhancedModuleSection.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModuleEnhancement",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\ModuleEnhancement.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModuleEnhancements",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\ModuleEnhancements.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModuleManagementEnhanced",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\ModuleManagementEnhanced.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedKellyDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\kelly\\AdvancedKellyDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedSidebar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\AdvancedSidebar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AppShell",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\AppShell.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CyberFooter",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\CyberFooter.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CyberHeader",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\CyberHeader.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CyberLayout",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\CyberLayout.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CyberSidebar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\CyberSidebar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EliteSportsHeader",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\EliteSportsHeader.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedModernLayout",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\EnhancedModernLayout.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "index",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\lazy\\index.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "utils",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\lazy\\utils.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SmartLineupBuilder",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\lineup\\SmartLineupBuilder.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LineupComparisonTable",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LineupComparisonTable.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SavedLineups",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\lineups\\SavedLineups.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LiveBettingDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\live-betting\\LiveBettingDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LiveOddsTicker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LiveOddsTicker.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LiveWebSocketDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LiveWebSocketDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LoadingScreen",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LoadingScreen.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LockedBets.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LockedBets.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Login",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\Login.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MarketIntelligence",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\market\\MarketIntelligence.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MarketAnalysisDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\MarketAnalysisDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "CyberTheme",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mega\\CyberTheme.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MegaAdminPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mega\\MegaAdminPanel.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MegaLayout",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mega\\MegaLayout.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MegaPrizePicks",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mega\\MegaPrizePicks.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MegaUI",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mega\\MegaUI.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MLModelCenter",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ml\\MLModelCenter.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MLAnalytics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\MLAnalytics.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MLFactorViz",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\MLFactorViz.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MLPredictions",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\MLPredictions.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MobileOptimizedInterface",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mobile\\MobileOptimizedInterface.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MobilePropResearch",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mobile\\MobilePropResearch.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LineMovementModal",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\modals\\LineMovementModal.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModelPerformance",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ModelPerformance.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedUltimateMoneyMaker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\MoneyMaker\\EnhancedUltimateMoneyMaker.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "index",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\MoneyMaker\\index.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UltimateMoneyMaker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\MoneyMaker\\UltimateMoneyMaker.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ComprehensiveMonitoringDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\ComprehensiveMonitoringDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ComprehensiveReliabilityDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\ComprehensiveReliabilityDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DataPipelineMonitoringDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\DataPipelineMonitoringDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedMonitoringDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\EnhancedMonitoringDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LiveDemoMonitoringDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\LiveDemoMonitoringDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LiveDemoPerformanceDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\LiveDemoPerformanceDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MonitoringDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\MonitoringDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MonitoringIntegration",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\MonitoringIntegration.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceAlertContainer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\PerformanceAlertContainer.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\PerformanceChart.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\PerformanceDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Navbar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\Navbar\\Navbar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MainNavigation",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\navigation\\MainNavigation.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Navbar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\navigation\\Navbar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "NavigationMountGate",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\navigation\\NavigationMountGate.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Sidebar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\navigation\\Sidebar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ThemeToggle",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\navigation\\ThemeToggle.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedNavigation",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\navigation\\UnifiedNavigation.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "NewsHub",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\NewsHub.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "NewsTab",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\NewsTab.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "NoResultsFallback",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\NoResultsFallback.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ObservabilityHub",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\observability\\ObservabilityHub.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OfflineQueueSimple",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\observability\\OfflineQueueSimple.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OddsComparisonPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\odds\\OddsComparisonPanel.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ArbitrageWidget.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\odds\\__tests__\\ArbitrageWidget.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BestBookWidget.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\odds\\__tests__\\BestBookWidget.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OddsConsensusWidget.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\odds\\__tests__\\OddsConsensusWidget.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ValuePanel.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\odds\\__tests__\\ValuePanel.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OllamaStatus",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\OllamaStatus.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OpportunitiesList",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\OpportunitiesList.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OptimizedPropList.fixed",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\optimized\\OptimizedPropList.fixed.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OptimizedPropList",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\optimized\\OptimizedPropList.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OptimizedPropList.v2",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\optimized\\OptimizedPropList.v2.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OptimizedPropOllamaContainer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\optimized\\OptimizedPropOllamaContainer.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OptimizedDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\OptimizedDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UltraAccuracyOverview",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\overview\\UltraAccuracyOverview.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedLiveStreamPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\pages\\EnhancedLiveStreamPage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedLockedBetsPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\pages\\EnhancedLockedBetsPage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LiveStreamPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\pages\\LiveStreamPage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SettingsAdminPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\pages\\SettingsAdminPage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SimpleSettingsPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\pages\\SimpleSettingsPage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SmartSignalsPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\pages\\SmartSignalsPage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedSettingsAdminPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\pages\\UnifiedSettingsAdminPage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PatternRecognition",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PatternRecognition.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PayoutPreview.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PayoutPreview.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceAnalytics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PerformanceAnalytics.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Phase3Banner",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase3\\Phase3Banner.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DocumentationHub",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase4\\DocumentationHub.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LaunchDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase4\\LaunchDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LaunchReadinessChecker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase4\\LaunchReadinessChecker.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SystemTestingDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase4\\SystemTestingDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceMonitoringDashboard.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase4\\__tests__\\PerformanceMonitoringDashboard.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedPlayerDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\EnhancedPlayerDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OptimizedPlayerDashboardContainer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\OptimizedPlayerDashboardContainer.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PlayerDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\PlayerDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PlayerDashboardWrapper",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\PlayerDashboardWrapper.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PlayerVisualizationCharts",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\PlayerVisualizationCharts.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedPlayerDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\UnifiedPlayerDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PlayerDashboardContainer.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\__tests__\\PlayerDashboardContainer.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PlayerDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PlayerDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedConfidenceVisualizer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\AdvancedConfidenceVisualizer.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BetRecommendationCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\BetRecommendationCard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BetRecommendationList",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\BetRecommendationList.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MoneyMakerResults",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\MoneyMakerResults.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PredictionExplanationModal",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\PredictionExplanationModal.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PredictionForm",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\PredictionForm.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "QuantumPredictionsInterface",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\QuantumPredictionsInterface.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ShapValueBar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\ShapValueBar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UltraAccuracyDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\UltraAccuracyDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UncertaintyIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\UncertaintyIndicator.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedPredictionInterface",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\UnifiedPredictionInterface.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BetRecommendationCard.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\__tests__\\BetRecommendationCard.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BetRecommendationList.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\__tests__\\BetRecommendationList.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PredictionExplanationModal.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\__tests__\\PredictionExplanationModal.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ShapExplanation.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\__tests__\\ShapExplanation.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PredictionEnhancement",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PredictionEnhancement.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingOpportunities",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\BettingOpportunities.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DailyFantasyIntegration",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\DailyFantasyIntegration.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "FantasyPredictionEnhancer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\FantasyPredictionEnhancer.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "LivePredictions",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\LivePredictions.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModelPerformance",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\ModelPerformance.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PayoutPreviewPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\PayoutPreviewPanel.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PredictionGenerator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\PredictionGenerator.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RealtimePredictionDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\RealtimePredictionDisplay.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SHAPChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\SHAPChart.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ShapValueDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\ShapValueDisplay.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UniversalPredictions",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\UniversalPredictions.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DailyFantasyIntegration.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\__tests__\\DailyFantasyIntegration.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "FantasyPredictionEnhancer.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\__tests__\\FantasyPredictionEnhancer.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PredictionGenerator.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\__tests__\\PredictionGenerator.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ProfilePage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\profile\\ProfilePage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedProfile",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\profile\\UnifiedProfile.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ProgressBar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ProgressBar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropAnalysis",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PropAnalysis.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropCards",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PropCards.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropFinderDashboardExample",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PropFinderDashboardExample.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropGPT",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PropGPT.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "QuantumAI",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\QuantumAI.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "QuantumAITab",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\QuantumAITab.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "React19Comprehensive",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\React19Comprehensive.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "React19Test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\React19Test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RealTimeDataStream",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\realtime\\RealTimeDataStream.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RealTimePerformanceMonitor",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RealTimePerformanceMonitor.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RealtimePredictionDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RealtimePredictionDisplay.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RealtimeStatusBanner",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RealtimeStatusBanner.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RealTimeUpdates",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RealTimeUpdates.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RegisterForm",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RegisterForm.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ReliabilityPanel.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\reliability\\tests\\ReliabilityPanel.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedRevolutionaryInterface",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\revolutionary\\EnhancedRevolutionaryInterface.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RevolutionaryAccuracyInterface",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\revolutionary\\RevolutionaryAccuracyInterface.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskProfileManager",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\risk\\RiskProfileManager.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskManagerPage.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RiskManagerPage.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskManagerPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RiskManagerPage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskProfileManager",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RiskProfileManager.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskProfileSelector",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RiskProfileSelector.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedSearchDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\search\\AdvancedSearchDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RealTimePlayerLookup",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\search\\RealTimePlayerLookup.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedSearchInterface",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\search\\UnifiedSearchInterface.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UltimateSettingsPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\settings\\UltimateSettingsPage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedSettingsInterface",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\settings\\UnifiedSettingsInterface.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SettingsTab",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\SettingsTab.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ShapBreakdownModal",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ShapBreakdownModal.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SHAPTab",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\SHAPTab.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ShapValueDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ShapValueDisplay.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ShapVisualization",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ShapVisualization.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingButton",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\buttons\\BettingButton.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BettingButtonGroup",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\buttons\\BettingButtonGroup.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "QuickBetButton",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\buttons\\QuickBetButton.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "DataUnavailableMessage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\DataUnavailableMessage.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "withErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\ErrorBoundary\\withErrorBoundary.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "FilterBar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\FilterBar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "HealthBanner",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\HealthBanner.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MainLayout",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\layout\\MainLayout.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Navbar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\layout\\Navbar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Sidebar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\layout\\Sidebar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Modals",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\modals\\Modals.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskLevelIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\RiskLevelIndicator.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SafeButton",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\SafeButton.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SportSelector",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\SportSelector.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ThemeToggle",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\ThemeToggle.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ToastProvider",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\ToastProvider.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ValidationStatus",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\ValidationStatus.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ToastContext",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\feedback\\ToastContext.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "index",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\index.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ProtectedRoute",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\layout\\ProtectedRoute.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceLoader",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\loading\\PerformanceLoader.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropOllamaChatBox",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\PropOllamaChatBox.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskReasoningDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\RiskReasoningDisplay.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SHAPVisualization",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\SHAPVisualization.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SuspenseLazyExample",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\SuspenseLazyExample.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "advanced-charts",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\advanced-charts.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "alert",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\alert.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BackendControl",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\BackendControl.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "badge",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\badge.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BankrollTracker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\BankrollTracker.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BetSimulationTool",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\BetSimulationTool.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "card",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\card.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ChartOverride",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\ChartOverride.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ChartWrapper",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\ChartWrapper.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ConfidenceBands",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\ConfidenceBands.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EmptyState",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\EmptyState.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedMetricCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\EnhancedMetricCard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedPropCard.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\EnhancedPropCard.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "FeatureFlagIndicators",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\FeatureFlagIndicators.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "grid",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\grid.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "HistoricalPerformanceDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\HistoricalPerformanceDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "MarketOpportunityCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\MarketOpportunityCard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ml-status-indicators",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\ml-status-indicators.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModernActivityFeed",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\ModernActivityFeed.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ModernStatusBar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\ModernStatusBar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "NotificationCenter",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\NotificationCenter.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "NotificationToast",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\NotificationToast.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "OfflineIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\OfflineIndicator.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PredictionExplanationOverlay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\PredictionExplanationOverlay.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PredictionSummaryCard.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\PredictionSummaryCard.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "real-time-metrics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\real-time-metrics.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskHeatMap",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\RiskHeatMap.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SafeChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\SafeChart.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SearchModal",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\SearchModal.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ServiceStatusIndicators",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\ServiceStatusIndicators.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "slider",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\slider.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SourceHealthBar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\SourceHealthBar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "StyledSelect",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\StyledSelect.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "switch",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\switch.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "tabs-simple",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\tabs-simple.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "tabs",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\tabs.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedUI",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\UnifiedUI.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UniversalButton",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\UniversalButton.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "WinProbabilityMeter",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\WinProbabilityMeter.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "BankrollTracker.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\__tests__\\BankrollTracker.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ConfidenceBandChart.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\__tests__\\ConfidenceBandChart.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Sidebar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\Sidebar\\Sidebar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SimpleToaster",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\SimpleToaster.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SocialIntelligence",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\SocialIntelligence.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SocialTab",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\SocialTab.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "EnhancedSportsbookDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\sportsbook\\EnhancedSportsbookDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedMoneyMakerIntegration",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\strategy\\UnifiedMoneyMakerIntegration.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedStrategyConfig",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\strategy\\UnifiedStrategyConfig.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedStrategyEngineDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\strategy\\UnifiedStrategyEngineDisplay.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "StrategyAutomationToggle",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\StrategyAutomationToggle.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "StreamBackgroundCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\StreamBackgroundCard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "StreamingTab",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\StreamingTab.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ConsolidatedAPITest",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\testing\\ConsolidatedAPITest.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ThemeDemo",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ThemeDemo.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ThemeToggle",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ThemeToggle\\ThemeToggle.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ThemeToggle",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ThemeToggle.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ToastContext",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ToastContext.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ToggleSidebar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ToggleSidebar.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "TrendingProps",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\TrendingProps.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "IntelligentMergedInterface",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\unified\\IntelligentMergedInterface.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AnalyticsCommandCenter",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\AnalyticsCommandCenter.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ArbitrageHunter",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\ArbitrageHunter.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ComprehensiveUserProfile",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\ComprehensiveUserProfile.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ConsolidatedUserProfile",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\ConsolidatedUserProfile.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "index",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\index.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PortfolioCommander",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\PortfolioCommander.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PrizePicksPro",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\PrizePicksPro.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "RiskEngineInterface",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\RiskEngineInterface.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SearchNotificationHandlers",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\SearchNotificationHandlers.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SettingsTest",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\SettingsTest.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "SimpleSettings",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\SimpleSettings.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UltimateOpportunityScanner",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\UltimateOpportunityScanner.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UserFriendlyApp_fixed",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\UserFriendlyApp_fixed.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UserFriendlyDashboard_Production",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\UserFriendlyDashboard_Production.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropOllama.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\__tests__\\PropOllama.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UserFriendlyApp.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\__tests__\\UserFriendlyApp.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UserConstraintsForm",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\UserConstraintsForm.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ValidatorEventMonitor",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ValidatorEventMonitor.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedVisualizationsDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\visualizations\\AdvancedVisualizationsDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "InteractiveChartsHub",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\visualizations\\InteractiveChartsHub.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ViteErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ViteErrorBoundary.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "WeatherStation",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\WeatherStation.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "WeatherTab",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\WeatherTab.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "WebSocketAnalytics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\WebSocketAnalytics.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "WebSocketBatchingAnalytics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\WebSocketBatchingAnalytics.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "WebSocketLoadBalancerAnalytics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\WebSocketLoadBalancerAnalytics.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "WebSocketNotifications",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\WebSocketNotifications.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "WebSocketSecurityDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\WebSocketSecurityDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropFinderCompetitorDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\welcome\\PropFinderCompetitorDashboard.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "withErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\withErrorBoundary.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AdvancedAIDashboard.metrics.regression.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\__tests__\\AdvancedAIDashboard.metrics.regression.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "AppFlows.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\__tests__\\AppFlows.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "ErrorBoundaries.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\__tests__\\ErrorBoundaries.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Filters.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\__tests__\\Filters.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceMonitoringDashboard.metrics.regression.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\__tests__\\PerformanceMonitoringDashboard.metrics.regression.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PerformanceMonitoringDashboard.regression.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\__tests__\\PerformanceMonitoringDashboard.regression.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "Predictions.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\__tests__\\Predictions.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "PropOllamaUnified.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\__tests__\\PropOllamaUnified.test.tsx",
+      "reason": "Unused and low complexity"
+    },
+    {
+      "name": "UnifiedOllama.test",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\__tests__\\UnifiedOllama.test.tsx",
+      "reason": "Unused and low complexity"
+    }
+  ],
+  "INTEGRATE": [
+    {
+      "name": "CheatsheetsDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\cheatsheets\\CheatsheetsDashboard.tsx",
+      "reason": "High complexity, likely valuable",
+      "complexity": 56
+    },
+    {
+      "name": "LineupBuilder",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\lineup\\LineupBuilder.tsx",
+      "reason": "High complexity, likely valuable",
+      "complexity": 63
+    },
+    {
+      "name": "PrizePicks",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\prizepicks\\PrizePicks.tsx",
+      "reason": "High complexity, likely valuable",
+      "complexity": 70
+    },
+    {
+      "name": "SportsManager",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\sports\\SportsManager.tsx",
+      "reason": "High complexity, likely valuable",
+      "complexity": 57
+    },
+    {
+      "name": "LineupBuilder",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LineupBuilder.tsx",
+      "reason": "High complexity, likely valuable",
+      "complexity": 69
+    },
+    {
+      "name": "ConfidenceBandChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\ConfidenceBandChart.tsx",
+      "reason": "High complexity, likely valuable",
+      "complexity": 80
+    },
+    {
+      "name": "design-system",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\design-system.tsx",
+      "reason": "High complexity, likely valuable",
+      "complexity": 55
+    },
+    {
+      "name": "ModernCommandPalette",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\ModernCommandPalette.tsx",
+      "reason": "High complexity, likely valuable",
+      "complexity": 52
+    },
+    {
+      "name": "ModernNotificationCenter",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\ModernNotificationCenter.tsx",
+      "reason": "High complexity, likely valuable",
+      "complexity": 56
+    }
+  ],
+  "CONSOLIDATE": [],
+  "OPTIMIZE": [],
+  "KEEP_AS_IS": [
+    {
+      "name": "AnalyticsWidget",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\AnalyticsWidget.tsx",
+      "usage_count": 1
+    },
+    {
+      "name": "PerformanceAnalyticsDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\PerformanceAnalyticsDashboard.tsx",
+      "usage_count": 1
+    },
+    {
+      "name": "BankrollPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BankrollPage.tsx",
+      "usage_count": 1
+    },
+    {
+      "name": "SmartControlsBar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\controls\\SmartControlsBar.tsx",
+      "usage_count": 1
+    },
+    {
+      "name": "LockedBets",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LockedBets.tsx",
+      "usage_count": 1
+    },
+    {
+      "name": "PayoutPreview",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PayoutPreview.tsx",
+      "usage_count": 1
+    },
+    {
+      "name": "EnhancedPropCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\EnhancedPropCard.tsx",
+      "usage_count": 2
+    },
+    {
+      "name": "PredictionSummaryCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\PredictionSummaryCard.tsx",
+      "usage_count": 1
+    }
+  ],
+  "ADD_TESTS": [
+    {
+      "name": "AdminAnalytics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\AdminAnalytics.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "AdminPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\AdminPanel.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "AdvancedAIDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ai\\AdvancedAIDashboard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "AIExplanationPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ai\\AIExplanationPanel.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "UnifiedAIPredictionsDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ai\\UnifiedAIPredictionsDashboard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "MovementAnalysis",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analysis\\MovementAnalysis.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "CrossSportInsights",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\CrossSportInsights.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "DashboardFiltersPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\DashboardFiltersPanel.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "DashboardOverview",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\DashboardOverview.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ModelsPerformanceGrid",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\ModelsPerformanceGrid.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PerformanceAlertsPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\PerformanceAlertsPanel.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ShapExplanation",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\ShapExplanation.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "UserStats",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\UserStats.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "AnalyticsTab",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\AnalyticsTab.jsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ApiHealthIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ApiHealthIndicator.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "LiveArbitragePanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\arbitrage\\LiveArbitragePanel.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "AccessRequestForm",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\auth\\AccessRequestForm.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "AuthPage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\auth\\AuthPage.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "LoginForm",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\auth\\LoginForm.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PasswordChangeForm",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\auth\\PasswordChangeForm.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PermissionGuard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\auth\\PermissionGuard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "AuthProvider",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\AuthProvider.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "BackendConnectionTest",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BackendConnectionTest.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Alert",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Alert.tsx",
+      "usage_count": 8,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Badge",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Badge.tsx",
+      "usage_count": 21,
+      "priority": "HIGH"
+    },
+    {
+      "name": "Button",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Button.tsx",
+      "usage_count": 20,
+      "priority": "HIGH"
+    },
+    {
+      "name": "Card",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Card.tsx",
+      "usage_count": 32,
+      "priority": "HIGH"
+    },
+    {
+      "name": "Input",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Input.tsx",
+      "usage_count": 4,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Label",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Label.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Progress",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Progress.tsx",
+      "usage_count": 5,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Select",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Select.tsx",
+      "usage_count": 4,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Skeleton",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Skeleton.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Spinner",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Spinner.tsx",
+      "usage_count": 4,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Switch",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Switch.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Table",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Table.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Tabs",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Tabs.tsx",
+      "usage_count": 8,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Toast",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Toast.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Toaster",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Toaster.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Tooltip",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Tooltip.tsx",
+      "usage_count": 21,
+      "priority": "HIGH"
+    },
+    {
+      "name": "BetSlip",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BetSlip.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "BetSlip",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BetSlip.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "BetSlipComponent",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BetSlipComponent.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "BettingOpportunityCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\core\\BettingOpportunityCard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "KellyCalculator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\KellyCalculator.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PayoutPreview",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\PayoutPreview.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PerformanceMetrics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\PerformanceMetrics.tsx",
+      "usage_count": 17,
+      "priority": "HIGH"
+    },
+    {
+      "name": "UnifiedBettingInterface",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\UnifiedBettingInterface.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "AdvancedPerformanceCharts",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\charts\\AdvancedPerformanceCharts.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "MultiBookOddsChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\charts\\MultiBookOddsChart.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PerformanceLineComparison",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\charts\\PerformanceLineComparison.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PlayerLineTrendChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\charts\\PlayerLineTrendChart.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PlayerPerformanceChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\charts\\PlayerPerformanceChart.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ComprehensiveAdminDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\comprehensive\\ComprehensiveAdminDashboard.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "CondensedPropCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\CondensedPropCard.tsx",
+      "usage_count": 5,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ConfidenceIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ConfidenceIndicator.jsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ConfidenceIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ConfidenceIndicator.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ConnectionTest",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ConnectionTest.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropOllamaContainer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\containers\\PropOllamaContainer.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "AdvancedFilters",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\AdvancedFilters.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\ErrorBoundary.tsx",
+      "usage_count": 12,
+      "priority": "HIGH"
+    },
+    {
+      "name": "ErrorState",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\ErrorState.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Layout",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\Layout\\Layout.tsx",
+      "usage_count": 25,
+      "priority": "HIGH"
+    },
+    {
+      "name": "Layout",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\Layout.tsx",
+      "usage_count": 25,
+      "priority": "HIGH"
+    },
+    {
+      "name": "LoadingSpinner",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\LoadingSpinner.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "LoadingState",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\LoadingState.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Navigation",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\Navigation.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ServiceWorkerUpdateNotification",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\ServiceWorkerUpdateNotification.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "CustomizableDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\dashboard\\CustomizableDashboard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "MyCLVTab",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\dashboard\\MyCLVTab.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropFinderDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\dashboard\\PropFinderDashboard.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "BackendConnectionTest",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\debug\\BackendConnectionTest.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "DirectDataFetchTest",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\debug\\DirectDataFetchTest.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "FeaturedPropsServiceTest",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\debug\\FeaturedPropsServiceTest.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "SimpleDirectAPITest",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\debug\\SimpleDirectAPITest.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "SimplePropOllamaDebugContainer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\debug\\SimplePropOllamaDebugContainer.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "MovementAnalysisDemo",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\demos\\MovementAnalysisDemo.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "InteractiveSHAPDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\enhanced\\InteractiveSHAPDashboard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "EnhancedErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\EnhancedErrorBoundary.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "EnhancedPropCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\EnhancedPropCard.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "EnhancedGlobalErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\error\\EnhancedGlobalErrorBoundary.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ErrorBoundaryVersion",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ErrorBoundaryVersion.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ErrorFallback",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ErrorFallback.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "EVBadge",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ev\\EVBadge.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "EVSummaryWidget",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ev\\EVSummaryWidget.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PositiveEVFeedPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ev\\PositiveEVFeedPanel.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "UniversalDataExporter",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\export\\UniversalDataExporter.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "AdvancedAIDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\advanced-ai\\AdvancedAIDashboard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Analytics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\analytics\\Analytics.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PerformanceMetrics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\analytics\\PerformanceMetrics.tsx",
+      "usage_count": 17,
+      "priority": "HIGH"
+    },
+    {
+      "name": "PerformanceMonitor",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\analytics\\PerformanceMonitor.tsx",
+      "usage_count": 8,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ArbitrageOpportunities",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\ArbitrageOpportunities.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "BettingOpportunity",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BettingOpportunity.tsx",
+      "usage_count": 7,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "LineShopping",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\LineShopping.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\PropCard.tsx",
+      "usage_count": 7,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\modern\\PropCard.tsx",
+      "usage_count": 7,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ConfidenceIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\predictions\\ConfidenceIndicator.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PredictionDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\predictions\\PredictionDisplay.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "KellyCalculator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\risk\\KellyCalculator.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "NotificationSettings",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\settings\\NotificationSettings.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Settings",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\settings\\Settings.tsx",
+      "usage_count": 53,
+      "priority": "HIGH"
+    },
+    {
+      "name": "SHAPAnalysis",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\shap\\SHAPAnalysis.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "SuccessMetrics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\testimonials\\SuccessMetrics.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "BankrollStats",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\user\\BankrollStats.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "UserProfile",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\user\\UserProfile.tsx",
+      "usage_count": 7,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "UserStats",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\user\\UserStats.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "FeedbackWidget",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\feedback\\FeedbackWidget.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "BettingFilters",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\BettingFilters.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "HeadToHeadToggle",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\HeadToHeadToggle.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropFilters",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\PropFilters.tsx",
+      "usage_count": 5,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "TimeframeSelect",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\TimeframeSelect.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Layout",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\Layout.tsx",
+      "usage_count": 25,
+      "priority": "HIGH"
+    },
+    {
+      "name": "Navigation",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\Navigation.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "LazyPredictions",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\lazy\\LazyPredictions.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "LazySHAPDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\lazy\\LazySHAPDashboard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "LeanModeBanner",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LeanModeBanner.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "LineMovementChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LineMovementChart.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PayoutPreview",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\lineup\\PayoutPreview.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropList",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\lists\\PropList.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "LiveGameStats",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LiveGameStats.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "LoadingOverlay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LoadingOverlay.tsx",
+      "usage_count": 6,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "LoginForm",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LoginForm.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PerformanceAlert",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\PerformanceAlert.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "EnhancedNavigation",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\navigation\\EnhancedNavigation.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "RealtimeNotificationCenter",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\notifications\\RealtimeNotificationCenter.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ErrorRateDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\observability\\ErrorRateDashboard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "OfflineQueue",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\observability\\OfflineQueue.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PerformanceMetrics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\observability\\PerformanceMetrics.tsx",
+      "usage_count": 17,
+      "priority": "HIGH"
+    },
+    {
+      "name": "ArbitrageWidget",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\odds\\ArbitrageWidget.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "BestBookWidget",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\odds\\BestBookWidget.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "OddsConsensusWidget",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\odds\\OddsConsensusWidget.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ValuePanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\odds\\ValuePanel.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "OddsCompareDrawer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\OddsCompareDrawer.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PastMatchupTracker",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PastMatchupTracker.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PerformancePanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\performance\\PerformancePanel.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PerformanceMetrics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PerformanceMetrics.tsx",
+      "usage_count": 17,
+      "priority": "HIGH"
+    },
+    {
+      "name": "PerformanceMonitor",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PerformanceMonitor.tsx",
+      "usage_count": 8,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PerformanceMonitoringDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PerformanceMonitoringDashboard.tsx",
+      "usage_count": 5,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "AdvancedPredictions",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase3\\AdvancedPredictions.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Phase3Layout",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase3\\Phase3Layout.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Phase3Navigation",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase3\\Phase3Navigation.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "RealTimeAnalytics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase3\\RealTimeAnalytics.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "UnifiedDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase3\\UnifiedDashboard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "OnboardingFlow",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase4\\OnboardingFlow.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PerformanceMonitoringDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase4\\PerformanceMonitoringDashboard.tsx",
+      "usage_count": 5,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Phase4Banner",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase4\\Phase4Banner.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "StatusIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\phase4\\StatusIndicator.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PlayerAdvancedStats",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\PlayerAdvancedStats.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PlayerDashboardContainer",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\PlayerDashboardContainer.tsx",
+      "usage_count": 4,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PlayerMatchupAnalysis",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\PlayerMatchupAnalysis.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PlayerOverview",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\PlayerOverview.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PlayerPerformanceTrends",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\PlayerPerformanceTrends.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PlayerPropHistory",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\PlayerPropHistory.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PlayerQuickStats",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\PlayerQuickStats.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PlayerStatTrends",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\player\\PlayerStatTrends.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PlayerAvatar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PlayerAvatar.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PositiveEVFeed",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PositiveEVFeed.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PayoutPreview",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\PayoutPreview.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PredictionDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\PredictionDisplay.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ShapExplanation",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\ShapExplanation.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PredictionDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PredictionDisplay.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ConfidenceIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\ConfidenceIndicator.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PredictionCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\PredictionCard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PredictionsTab",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PredictionsTab.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PropCard.tsx",
+      "usage_count": 7,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ArbitrageBadge",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\propfinder\\ArbitrageBadge.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "EvPill",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\propfinder\\EvPill.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "MiniLineSparkline",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\propfinder\\MiniLineSparkline.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropFinderRow",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PropFinderRow.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropList",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PropList.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropOllamaUnified",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PropOllamaUnified.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "QuantumSportsPlatform",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\QuantumSportsPlatform.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "RealTimePredictions",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RealTimePredictions.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Register",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\Register.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ReliabilityIntegrationWrapper",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\reliability\\ReliabilityIntegrationWrapper.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ReliabilityPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\reliability\\ReliabilityPanel.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "AdvancedSearchPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\search\\AdvancedSearchPanel.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "EnhancedAdvancedSearchSystem",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\search\\EnhancedAdvancedSearchSystem.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "SearchResultsDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\search\\SearchResultsDisplay.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "SHAPAnalysis",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\SHAPAnalysis.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ConfidenceIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\ConfidenceIndicator.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\ErrorBoundary.tsx",
+      "usage_count": 12,
+      "priority": "HIGH"
+    },
+    {
+      "name": "ErrorMessage",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\ErrorMessage.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Layout",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\layout\\Layout.tsx",
+      "usage_count": 25,
+      "priority": "HIGH"
+    },
+    {
+      "name": "LoadingSkeleton",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\LoadingSkeleton.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "QuantumTransparencyNotice",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\QuantumTransparencyNotice.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ThemeProvider",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\theme\\ThemeProvider.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "DemoModeIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\DemoModeIndicator.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ErrorBoundary.tsx",
+      "usage_count": 12,
+      "priority": "HIGH"
+    },
+    {
+      "name": "ErrorDisplay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ErrorDisplay.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ErrorFallback",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\feedback\\ErrorFallback.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "FeedbackWidget",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\feedback\\FeedbackWidget.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "GlassCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\GlassCard.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "HeavyAnalytics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\HeavyAnalytics.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Navigation",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\layout\\Navigation.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "StatusBadge",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\StatusBadge.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "BettingFilters",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\betting\\BettingFilters.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "BettingOpportunityCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\betting\\BettingOpportunityCard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "button",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\button.tsx",
+      "usage_count": 277,
+      "priority": "HIGH"
+    },
+    {
+      "name": "ChartErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\ChartErrorBoundary.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "CyberButton",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\CyberButton.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "EnhancedErrorBoundary",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\EnhancedErrorBoundary.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "GlassCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\GlassCard.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "GlowButton",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\GlowButton.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "GlowCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\GlowCard.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "HolographicText",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\HolographicText.tsx",
+      "usage_count": 3,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "input",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\input.tsx",
+      "usage_count": 124,
+      "priority": "HIGH"
+    },
+    {
+      "name": "label",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\label.tsx",
+      "usage_count": 106,
+      "priority": "HIGH"
+    },
+    {
+      "name": "LoadingOverlay",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\LoadingOverlay.tsx",
+      "usage_count": 6,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "LoadingWave",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\LoadingWave.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "MetricCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\MetricCard.tsx",
+      "usage_count": 6,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "ParticleField",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\ParticleField.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "progress",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\progress.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "select",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\select.tsx",
+      "usage_count": 110,
+      "priority": "HIGH"
+    },
+    {
+      "name": "SmartControlsBar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\SmartControlsBar.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "StatusIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\StatusIndicator.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropCard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\unified\\PropCard.tsx",
+      "usage_count": 7,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "SmartAlerts",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\SmartAlerts.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "SmartControlsBar",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\SmartControlsBar.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropSorting",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\sorting\\PropSorting.tsx",
+      "usage_count": 5,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "MultipleSportsbookComparison",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\sportsbook\\MultipleSportsbookComparison.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "StatcastMetrics",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\StatcastMetrics.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "GameStatsPanel",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\stats\\GameStatsPanel.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "FairOddsCalculator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\tools\\FairOddsCalculator.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "BetTrackingDashboard",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\tracking\\BetTrackingDashboard.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "UnifiedOllama",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\UnifiedOllama.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Message",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\Message.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropOllama",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\PropOllama.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropOllamaInput",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\PropOllamaInput.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PropOllamaMessages",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\PropOllamaMessages.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "Settings",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\Settings.tsx",
+      "usage_count": 53,
+      "priority": "HIGH"
+    },
+    {
+      "name": "UserFriendlyApp",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\UserFriendlyApp.tsx",
+      "usage_count": 4,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "UserProfile",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\UserProfile.tsx",
+      "usage_count": 7,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "UserFriendlyApp",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\__mocks__\\UserFriendlyApp.tsx",
+      "usage_count": 4,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "UserProfile",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\UserProfile.tsx",
+      "usage_count": 7,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "VirtualizedPropList",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\VirtualizedPropList.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PerformanceHeatmap",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\visualizations\\PerformanceHeatmap.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "PerformanceTrendsChart",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\visualizations\\PerformanceTrendsChart.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "SprayChartVisualization",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\visualizations\\SprayChartVisualization.tsx",
+      "usage_count": 1,
+      "priority": "MEDIUM"
+    },
+    {
+      "name": "WebSocketStatusIndicator",
+      "path": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\WebSocketStatusIndicator.tsx",
+      "usage_count": 2,
+      "priority": "MEDIUM"
+    }
+  ]
+}

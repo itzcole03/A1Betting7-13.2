@@ -1,0 +1,95 @@
+import { useCallback, useEffect, useState } from 'react';
+// @ts-expect-error TS(2307): Cannot find module '@/services/MLSimulationService... Remove this comment to see the full error message
+import { MLSimulationService } from '@/services/MLSimulationService';
+import { PlayerForm, PlayerStats, Prediction } from '@/types/betting';
+
+export const _useMLSimulation = () => {
+  const [simulationService] = useState(() => new MLSimulationService());
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    try {
+      simulationService.initializeSimulation();
+      setIsInitialized(true);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to initialize simulation'));
+    }
+  }, [simulationService]);
+
+  const _generatePrediction = useCallback(
+    (gameId: string, playerId: string, metric: keyof PlayerStats): Prediction => {
+      if (!isInitialized) {
+        throw new Error('Simulation not initialized');
+      }
+      return simulationService.generatePrediction(gameId, playerId, metric);
+    },
+    [simulationService, isInitialized]
+  );
+
+  const _getTeamStats = useCallback(
+    (teamId: string) => {
+      if (!isInitialized) {
+        throw new Error('Simulation not initialized');
+      }
+      return simulationService.getTeamStats(teamId);
+    },
+    [simulationService, isInitialized]
+  );
+
+  const _getPlayerStats = useCallback(
+    (playerId: string) => {
+      if (!isInitialized) {
+        throw new Error('Simulation not initialized');
+      }
+      return simulationService.getPlayerStats(playerId);
+    },
+    [simulationService, isInitialized]
+  );
+
+  const _getGamePredictions = useCallback(
+    (gameId: string) => {
+      if (!isInitialized) {
+        throw new Error('Simulation not initialized');
+      }
+      return simulationService.getGamePredictions(gameId);
+    },
+    [simulationService, isInitialized]
+  );
+
+  const _updatePlayerForm = useCallback(
+    (playerId: string, form: PlayerForm) => {
+      if (!isInitialized) {
+        throw new Error('Simulation not initialized');
+      }
+      simulationService.updatePlayerForm(playerId, form);
+    },
+    [simulationService, isInitialized]
+  );
+
+  const _updateInjuryStatus = useCallback(
+    // @ts-expect-error TS(2304): Cannot find name 'InjuryStatus'.
+    (playerId: string, status: InjuryStatus) => {
+      if (!isInitialized) {
+        throw new Error('Simulation not initialized');
+      }
+      simulationService.updateInjuryStatus(playerId, status);
+    },
+    [simulationService, isInitialized]
+  );
+
+  return {
+    isInitialized,
+    error,
+    generatePrediction,
+    getTeamStats,
+    getPlayerStats,
+    getGamePredictions,
+    updatePlayerForm,
+    //     updateInjuryStatus
+  };
+};
+
+// Backwards-compatible alias
+export const useMLSimulation = _useMLSimulation;
+export default _useMLSimulation;

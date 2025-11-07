@@ -1,0 +1,1197 @@
+[
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\elite\\AIEdgeML.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\AIEdgeML.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\AdminSettings.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\AdminSettings.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\AdvancedConfidenceVisualizer.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\AdvancedConfidenceVisualizer.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\AdvancedSidebar.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\AdvancedSidebar.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ApiDebug.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ApiDebug.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ApiErrorBoundary.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ApiErrorBoundary.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\AppInitializer.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\AppInitializer.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\AppShell.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\AppShell.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\Arbitrage.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\Arbitrage.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\ArbitrageDetector.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ArbitrageDetector.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\ArbitrageHunter.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ArbitrageHunter.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ArbitragePage.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ArbitragePage.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\AuthLayout.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\AuthLayout.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\AuthProvider.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\AuthProvider.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\debug\\BackendConnectionTest.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BackendConnectionTest.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\user\\BankrollManager.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BankrollManager.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\user\\BankrollMetrics.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BankrollMetrics.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\user\\BankrollStats.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BankrollStats.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BestBetSelector.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BestBetSelector.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BetBuilder.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BetBuilder.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BetBuilder.test.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BetBuilder.test.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BetForm.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BetForm.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BetHistory.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BetHistory.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\BetRecommendationCard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BetRecommendationCard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\BetRecommendationList.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BetRecommendationList.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BetSlipSidebar.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BetSlipSidebar.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingAnalytics.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingAnalytics.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\buttons\\BettingButton.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingButton.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\buttons\\BettingButtonGroup.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingButtonGroup.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\builder\\BettingCard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingCard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingDataSource.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingDataSource.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingInterface.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingInterface.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingModal.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingModal.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\BettingOpportunities.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingOpportunities.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BettingOpportunity.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingOpportunity.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BettingRecommendations.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingRecommendations.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingSettingsContainer.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingSettingsContainer.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingSettingsPanel.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingSettingsPanel.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\BettingSettingsSummary.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingSettingsSummary.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\betting\\BettingStats.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BettingStats.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BookmakerAnalysis.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BookmakerAnalysis.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\builder\\BuilderIntegrationTest.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BuilderIntegrationTest.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\builder\\BuilderPage.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BuilderPage.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\elite\\BusinessAnalysis.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BusinessAnalysis.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\ClusteringInsights.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ClusteringInsights.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\CompactFilterBar.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\CompactFilterBar.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\ComprehensiveUserProfile.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ComprehensiveUserProfile.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\ConfidenceIndicator.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ConfidenceIndicator.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ConnectionStatus.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ConnectionStatus.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ConnectionTest.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ConnectionTest.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\ConsolidatedUserProfile.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ConsolidatedUserProfile.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\cyber\\CyberAnalyticsHub.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\CyberAnalyticsHub.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\CyberHeader.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\CyberHeader.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\CyberLayout.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\CyberLayout.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\cyber\\CyberMLDashboard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\CyberMLDashboard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\CyberSidebar.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\CyberSidebar.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mega\\CyberTheme.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\CyberTheme.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\DailyFantasyIntegration.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\DailyFantasyIntegration.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\DataUnavailableMessage.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\DataUnavailableMessage.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\DebugApiStatus.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\DebugApiStatus.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\DebugPanel.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\DebugPanel.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\DevelopmentGuide.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\DevelopmentGuide.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\news\\ESPNHeadlinesTicker.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ESPNHeadlinesTicker.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\EliteSportsHeader.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\EliteSportsHeader.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\enhanced\\EnhancedAPITestDashboard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\EnhancedAPITestDashboard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\EnhancedIntelligenceViews.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\EnhancedIntelligenceViews.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\layout\\EnhancedModernLayout.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\EnhancedModernLayout.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\EnhancedModuleManagement.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\EnhancedModuleManagement.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\EnhancedModuleSection.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\EnhancedModuleSection.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\enhanced\\EnhancedPrizePicks.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\EnhancedPrizePicks.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\revolutionary\\EnhancedRevolutionaryInterface.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\EnhancedRevolutionaryInterface.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\EnsembleInsights.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\EnsembleInsights.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\EntryCard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\EntryCard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\tracking\\EntryTracking.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\EntryTracking.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\feedback\\ErrorFallback.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ErrorFallback.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\ErrorLogs.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ErrorLogs.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\ErrorMessage.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ErrorMessage.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\ErrorState.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ErrorState.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\EventList.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\EventList.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\FantasyPredictionEnhancer.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\FantasyPredictionEnhancer.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\FeatureStatusPanel.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\FeatureStatusPanel.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\feedback\\FeedbackWidget.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\FeedbackWidget.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\FilterBar.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\FilterBar.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\FluentLiveFilters.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\FluentLiveFilters.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\Header.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\Header.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\HyperMLInsights.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\HyperMLInsights.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\InGameTimeFilter.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\InGameTimeFilter.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\IntegrationStatus.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\IntegrationStatus.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\unified\\IntelligentMergedInterface.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\IntelligentMergedInterface.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\risk\\KellyCalculator.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\KellyCalculator.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LineupComparisonTable.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\LineupComparisonTable.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LiveOddsTicker.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\LiveOddsTicker.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\LivePredictions.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\LivePredictions.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LoadingScreen.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\LoadingScreen.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\core\\LoadingState.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\LoadingState.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\LoginForm.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\LoginForm.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\MLFactorViz.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MLFactorViz.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\insights\\MLInsights.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MLInsights.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\MLPredictions.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MLPredictions.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\layout\\MainLayout.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MainLayout.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\MarketAnalysisDashboard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MarketAnalysisDashboard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\market\\MarketIntelligence.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MarketIntelligence.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mega\\MegaAdminPanel.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MegaAdminPanel.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mega\\MegaLayout.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MegaLayout.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mega\\MegaPrizePicks.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MegaPrizePicks.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mega\\MegaUI.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MegaUI.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\mobile\\MobileOptimizedInterface.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MobileOptimizedInterface.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\modals\\Modals.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\Modals.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\ModelComparison.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ModelComparison.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\ModelComparisonChart.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ModelComparisonChart.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\ModelPerformance.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ModelPerformance.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\ModelPerformanceDashboard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ModelPerformanceDashboard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\ModelSelector.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ModelSelector.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\admin\\ModelSettings.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ModelSettings.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\ModuleEnhancement.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ModuleEnhancement.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\ModuleEnhancements.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ModuleEnhancements.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\intelligence\\ModuleManagementEnhanced.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ModuleManagementEnhanced.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\MoneyMakerResults.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MoneyMakerResults.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\MonitoringDashboard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\MonitoringDashboard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\layout\\Navbar.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\Navbar.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\layout\\Navigation.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\Navigation.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\NoResultsFallback.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\NoResultsFallback.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\OddsDisplay.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\OddsDisplay.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\OllamaStatus.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\OllamaStatus.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PatternRecognition.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PatternRecognition.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\PayoutPreview.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PayoutPreview.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\PayoutPreviewPanel.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PayoutPreviewPanel.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\PerformanceAlert.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PerformanceAlert.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\PerformanceAlertContainer.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PerformanceAlertContainer.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\PerformanceAlerts.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PerformanceAlerts.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PerformanceAnalytics.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PerformanceAnalytics.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\monitoring\\PerformanceChart.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PerformanceChart.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\PerformanceExport.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PerformanceExport.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PerformanceMetrics.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PerformanceMetrics.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PerformanceMonitor.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PerformanceMonitor.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\PortfolioCommander.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PortfolioCommander.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\PredictionConfidenceGraph.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PredictionConfidenceGraph.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PredictionDisplay.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PredictionDisplay.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PredictionEnhancement.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PredictionEnhancement.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\PredictionExplanationModal.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PredictionExplanationModal.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\PredictionForm.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PredictionForm.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\PredictionGenerator.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PredictionGenerator.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\PrizePicksEdgeDisplay.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PrizePicksEdgeDisplay.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\PrizePicksInterface.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PrizePicksInterface.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\profile\\ProfilePage.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ProfilePage.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PropAnalysis.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PropAnalysis.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\unified\\PropCard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PropCard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PropCards.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PropCards.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PropGPT.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PropGPT.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PropList.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PropList.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\layout\\ProtectedRoute.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ProtectedRoute.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\filters\\QuantumFilters.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\QuantumFilters.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\QuantumPredictionsInterface.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\QuantumPredictionsInterface.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\buttons\\QuickBetButton.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\QuickBetButton.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\api\\RealTimeAPIIntegrationDashboard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RealTimeAPIIntegrationDashboard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\RealTimeAccuracyDashboard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RealTimeAccuracyDashboard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\realtime\\RealTimeDataStream.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RealTimeDataStream.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\RealTimeMetrics.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RealTimeMetrics.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RealTimeUpdates.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RealTimeUpdates.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RealtimePredictionDisplay.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RealtimePredictionDisplay.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RegisterForm.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RegisterForm.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\revolutionary\\RevolutionaryAccuracyInterface.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RevolutionaryAccuracyInterface.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\RiskAssessmentMatrix.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RiskAssessmentMatrix.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\RiskEngineInterface.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RiskEngineInterface.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\RiskInsights.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RiskInsights.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\RiskLevelIndicator.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RiskLevelIndicator.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RiskManagerPage.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RiskManagerPage.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RiskProfileManager.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RiskProfileManager.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RiskProfileSelector.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RiskProfileSelector.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\RiskReasoningDisplay.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RiskReasoningDisplay.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\SHAPChart.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\SHAPChart.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\SHAPInsight.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\SHAPInsight.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\SHAPVisualization.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\SHAPVisualization.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\SafeButton.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\SafeButton.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\lineups\\SavedLineups.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\SavedLineups.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\SettingsTest.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\SettingsTest.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ShapBreakdownModal.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ShapBreakdownModal.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\ShapExplanation.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ShapExplanation.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\ShapValueBar.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ShapValueBar.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ShapValueDisplay.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ShapValueDisplay.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ShapVisualization.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ShapVisualization.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\Sidebar\\Sidebar.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\Sidebar.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\SimpleSettings.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\SimpleSettings.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\SimpleToaster.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\SimpleToaster.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\SkeletonLoader.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\SkeletonLoader.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\lineup\\SmartLineupBuilder.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\SmartLineupBuilder.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\SportSelector.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\SportSelector.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\StakeSizingControl.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\StakeSizingControl.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\StrategyAutomationToggle.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\StrategyAutomationToggle.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ThemeDemo.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ThemeDemo.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ThemeToggle.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ThemeToggle.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\TimeSeriesInsights.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\TimeSeriesInsights.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ToastContext.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ToastContext.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\ToastProvider.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ToastProvider.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Toaster.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\Toaster.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ToggleSidebar.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ToggleSidebar.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\TrendingProps.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\TrendingProps.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\UltimateOpportunityScanner.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UltimateOpportunityScanner.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\settings\\UltimateSettingsPage.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UltimateSettingsPage.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\UltraAccuracyDashboard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UltraAccuracyDashboard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\overview\\UltraAccuracyOverview.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UltraAccuracyOverview.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\UltraMLInsights.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UltraMLInsights.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\UncertaintyIndicator.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UncertaintyIndicator.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\auth\\UnifiedAuth.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UnifiedAuth.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\betting\\UnifiedBettingHistory.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UnifiedBettingHistory.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\events\\UnifiedEventDetails.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UnifiedEventDetails.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\strategy\\UnifiedMoneyMakerIntegration.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UnifiedMoneyMakerIntegration.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\navigation\\UnifiedNavigation.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UnifiedNavigation.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\UnifiedPredictionInterface.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UnifiedPredictionInterface.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\profile\\UnifiedProfile.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UnifiedProfile.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\settings\\UnifiedSettingsInterface.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UnifiedSettingsInterface.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\strategy\\UnifiedStrategyConfig.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UnifiedStrategyConfig.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\strategy\\UnifiedStrategyEngineDisplay.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UnifiedStrategyEngineDisplay.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\predictions\\UniversalPredictions.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UniversalPredictions.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\UserConstraintsForm.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UserConstraintsForm.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\UserFriendlyApp_fixed.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UserFriendlyApp_fixed.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\UserFriendlyDashboard_Production.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UserFriendlyDashboard_Production.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\features\\user\\UserStats.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UserStats.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\UserStatsSafe.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\UserStatsSafe.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\common\\ValidationStatus.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ValidationStatus.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\WebSocketBatchingAnalytics.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\WebSocketBatchingAnalytics.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\WebSocketLoadBalancerAnalytics.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\WebSocketLoadBalancerAnalytics.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\WebSocketSecurityDashboard.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\WebSocketSecurityDashboard.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\advanced\\WhatIfSimulator.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\WhatIfSimulator.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\advanced-charts.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\advanced-charts.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\user-friendly\\index.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\index.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\tabs-simple.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\tabs-simple.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Layout.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\withErrorBoundary.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\withErrorBoundary.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\AllFeatures.test.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\analytics\\AnalyticsDashboard.test.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\AnalyticsDashboard.test.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\AllFeatures.test.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\ArbitragePage.test.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\ArbitragePage.test.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\AllFeatures.test.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\BankrollPage.test.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BankrollPage.test.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\AllFeatures.test.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\PayoutPreview.test.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PayoutPreview.test.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\AllFeatures.test.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\RiskManagerPage.test.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\RiskManagerPage.test.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\AllFeatures.test.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\controls\\SmartControlsBar.test.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\SmartControlsBar.test.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\AllFeatures.test.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\featureCoverage.test.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\featureCoverage.test.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\label.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\Label.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\Label.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\OptimizedPropList.fixed.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\optimized\\OptimizedPropList.v2.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\OptimizedPropList.v2.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\BetRecommendationCard.test.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\prediction\\__tests__\\BetRecommendationList.test.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\BetRecommendationList.test.tsx"
+  },
+  {
+    "canonical": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\base\\EnhancedPropCard.test.tsx",
+    "reexported": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\frontend\\src\\components\\shared\\ui\\PredictionSummaryCard.test.tsx",
+    "original_backup": "C:\\Users\\bcmad\\Downloads\\A1Betting7-13.2\\tmp\\component_analysis\\consolidation_backups_20251107T185205Z\\PredictionSummaryCard.test.tsx"
+  }
+]

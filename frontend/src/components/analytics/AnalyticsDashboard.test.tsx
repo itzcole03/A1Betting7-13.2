@@ -1,7 +1,3 @@
-// AnalyticsDashboard.test.tsx
-// Purpose: Tests AnalyticsDashboard component rendering and analytics logic. Expand with more coverage as features are added.
-
-import { expect, test } from '@jest/globals';
-test('dummy test', () => {
-  expect(true).toBe(true);
-});
+// AUTO-GENERATED: re-export to consolidated component
+export * from '../base/AllFeatures.test.tsx';
+export { default } from '../base/AllFeatures.test.tsx';

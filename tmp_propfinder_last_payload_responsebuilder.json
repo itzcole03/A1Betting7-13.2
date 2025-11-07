@@ -1,33 +1,3 @@
 {
-  "is_valid": true,
-  "has_critical_errors": false,
-  "has_warnings": false,
-  "warning_count": 1,
-  "warnings": [
-    {
-      "level": "info",
-      "category": "provider_specific",
-      "field": "line",
-      "message": "Line precision unusual for Internal",
-      "actual_value": 25.5,
-      "expected_value": "Multiple of 1.0",
-      "provider": "Internal",
-      "suggestion": "Internal typically uses 1.0 increments",
-      "timestamp": 1762491146.5091126
-    }
-  ],
-  "validation_summary": {
-    "status": "info_only",
-    "total_warnings": 1,
-    "by_level": {
-      "info": 1
-    },
-    "by_category": {
-      "provider_specific": 1
-    },
-    "recommendation": "Data quality good - only informational notices"
-  },
-  "provider": "Internal",
-  "timestamp": 1762491146.5091305,
-  "processed_data_available": true
+  "status": "ok"
 }
