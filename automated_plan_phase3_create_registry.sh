@@ -3,7 +3,7 @@ echo "Phase 3: Creating central component registry..."
 
 set -e
 
-cat > /home/ubuntu/frontend/src/components/index.ts << 'REGISTRY_EOF'
+cat > ./frontend/src/components/index.ts << 'REGISTRY_EOF'
 /**
  * Central Component Registry
  */
