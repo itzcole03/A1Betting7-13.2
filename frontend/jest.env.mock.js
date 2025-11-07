@@ -103,6 +103,23 @@ if (!global.fetch) {
   global.fetch = jest.fn();
 }
 
+// Ensure axios.isAxiosError exists when axios is mocked in tests (some tests
+// mock axios and expect isAxiosError to be callable). Provide a safe shim so
+// tests don't fail if the mock doesn't include that helper.
+try {
+  // Require axios if available in the test environment
+  // (this is a noop if axios is mocked by tests later)
+  // eslint-disable-next-line global-require, import/no-extraneous-dependencies
+  const axios = require('axios');
+  if (axios && typeof axios.isAxiosError !== 'function') {
+    axios.isAxiosError = function isAxiosError(err) {
+      return !!(err && (err.isAxiosError === true || err.response));
+    };
+  }
+} catch (e) {
+  // ignore if axios isn't installed in this environment
+}
+
 // Mock WebSocket for WebSocket context tests
 global.WebSocket = class WebSocket {
   constructor(url) {

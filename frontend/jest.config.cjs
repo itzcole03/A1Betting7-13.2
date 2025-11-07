@@ -40,9 +40,9 @@ module.exports = {
     '^react-error-boundary$': '<rootDir>/src/__mocks__/react-error-boundary.tsx',
   },
 
-  // Transform configuration
+  // Transform configuration: use babel-jest to handle TS/TSX and ESM syntax
   transform: {
-    '^.+\\.[tj]sx?$': '<rootDir>/jest-transform-replace-import-meta.cjs',
+    '^.+\\.[tj]sx?$': 'babel-jest',
   },
 
   // Transform ESM modules in node_modules
