@@ -1,5 +1,3 @@
-describe('BetRecommendationList', () => {
-  it('should run a placeholder test', () => {
-    expect(true).toBe(true);
-  });
-});
+// AUTO-GENERATED: re-export to consolidated component
+export * from '../../base/BetRecommendationCard.test.tsx';
+export { default } from '../../base/BetRecommendationCard.test.tsx';
