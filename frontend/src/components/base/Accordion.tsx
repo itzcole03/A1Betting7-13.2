@@ -1,6 +1,8 @@
 import React, { useId, useState } from 'react';
 
-export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface AccordionProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
+  // Allow ReactNode title while avoiding conflict with the native 'title' attribute
   title: React.ReactNode;
   defaultOpen?: boolean;
   children: React.ReactNode;
