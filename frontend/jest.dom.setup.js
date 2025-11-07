@@ -1,11 +1,11 @@
-// Jest DOM setup for testing library
-import '@testing-library/jest-dom';
+// Jest DOM setup for testing library (CommonJS for Jest)
+require('@testing-library/jest-dom');
 
 // Configure testing library
-import { configure } from '@testing-library/react';
+const { configure } = require('@testing-library/react');
 
 // Make React available globally for tests that use JSX without explicit import
-import React from 'react';
+const React = require('react');
 globalThis.React = React;
 
 configure({
