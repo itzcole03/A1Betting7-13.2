@@ -7,15 +7,15 @@ interface EnvConfig {
   // WebSocket configuration
   VITE_WS_URL?: string;
   VITE_WEBSOCKET_ENABLED?: string;
-  
-  // API configuration  
+
+  // API configuration
   VITE_API_URL?: string;
   VITE_BACKEND_URL?: string;
-  
+
   // Development flags
   VITE_DEBUG?: string;
   NODE_ENV?: string;
-  
+
   // Test environment detection
   JEST_WORKER_ID?: string;
   VITEST?: string;
@@ -31,17 +31,19 @@ class SafeEnvironment {
 
   private initializeEnvironment(): void {
     if (this.initialized) return;
-
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console
       console.log('[EnvDiag] Initializing environment resolution...');
     }
 
     try {
-      // Detect environment type
-      const isVite = typeof import.meta !== 'undefined' && import.meta.env;
-      const isJest = typeof process !== 'undefined' && (process.env.JEST_WORKER_ID || process.env.NODE_ENV === 'test');
-      const isVitest = typeof process !== 'undefined' && process.env.VITEST;
+      // Detect environment type using safe fallbacks
+      const maybeImportMeta = (globalThis as any).importMeta ?? (globalThis as any).__import_meta__;
+      const isVite = !!(maybeImportMeta && maybeImportMeta.env);
+      const isJest =
+        typeof process !== 'undefined' &&
+        (process.env.JEST_WORKER_ID || process.env.NODE_ENV === 'test');
+      const isVitest = typeof process !== 'undefined' && !!process.env.VITEST;
       const isBrowser = typeof window !== 'undefined';
       const isNode = typeof process !== 'undefined';
 
@@ -53,9 +55,9 @@ class SafeEnvironment {
           isVitest,
           isBrowser,
           isNode,
-          hasImportMeta: typeof import.meta !== 'undefined',
-          hasImportMetaEnv: typeof import.meta !== 'undefined' && !!import.meta.env,
-          hasProcessEnv: typeof process !== 'undefined' && !!process.env
+          hasImportMeta: !!maybeImportMeta,
+          hasImportMetaEnv: !!(maybeImportMeta && maybeImportMeta.env),
+          hasProcessEnv: typeof process !== 'undefined' && !!process.env,
         });
       }
 
@@ -75,7 +77,6 @@ class SafeEnvironment {
         // eslint-disable-next-line no-console
         console.log('[EnvDiag] Environment resolution complete:', this.envCache);
       }
-
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
@@ -90,10 +91,11 @@ class SafeEnvironment {
     const sources: Array<{ name: string; value: string | undefined }> = [];
 
     try {
-      // Try import.meta.env first (Vite)
-      if (typeof import.meta !== 'undefined' && import.meta.env) {
+      // Try import.meta.env via global shim first (Vite)
+      const maybeImportMeta = (globalThis as any).importMeta ?? (globalThis as any).__import_meta__;
+      if (maybeImportMeta && maybeImportMeta.env) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const viteValue = (import.meta.env as any)[key];
+        const viteValue = (maybeImportMeta.env as any)[key];
         sources.push({ name: 'import.meta.env', value: viteValue });
         if (viteValue !== undefined) {
           value = viteValue;
@@ -118,7 +120,10 @@ class SafeEnvironment {
 
     try {
       // Try global window env (fallback for browser)
-      if (typeof window !== 'undefined' && (window as unknown as Record<string, unknown>).__VITE_ENV__) {
+      if (
+        typeof window !== 'undefined' &&
+        (window as unknown as Record<string, unknown>).__VITE_ENV__
+      ) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const windowValue = ((window as unknown as Record<string, any>).__VITE_ENV__ as any)[key];
         sources.push({ name: 'window.__VITE_ENV__', value: windowValue });
@@ -138,7 +143,7 @@ class SafeEnvironment {
       console.log(`[EnvDiag] Resolved ${key}:`, {
         finalValue: value,
         sources,
-        cached: true
+        cached: true,
       });
     }
   }
@@ -158,7 +163,7 @@ class SafeEnvironment {
    * Get environment variable with default value
    */
   public getWithDefault<K extends keyof EnvConfig>(
-    key: K, 
+    key: K,
     defaultValue: NonNullable<EnvConfig[K]>
   ): NonNullable<EnvConfig[K]> {
     const value = this.get(key);
@@ -169,11 +174,7 @@ class SafeEnvironment {
    * Check if we're in a test environment
    */
   public isTestEnvironment(): boolean {
-    return !!(
-      this.get('JEST_WORKER_ID') || 
-      this.get('VITEST') || 
-      this.get('NODE_ENV') === 'test'
-    );
+    return !!(this.get('JEST_WORKER_ID') || this.get('VITEST') || this.get('NODE_ENV') === 'test');
   }
 
   /**
@@ -195,7 +196,7 @@ class SafeEnvironment {
    */
   public getWebSocketUrl(): string {
     const wsUrl = this.get('VITE_WS_URL');
-    
+
     if (wsUrl) {
       if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
@@ -249,15 +250,15 @@ class SafeEnvironment {
   public isWebSocketEnabled(): boolean {
     const enabled = this.get('VITE_WEBSOCKET_ENABLED');
     const result = enabled === 'true' || enabled === '1';
-    
+
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console
       console.log('[EnvDiag] WebSocket enabled check:', {
         rawValue: enabled,
-        result
+        result,
       });
     }
-    
+
     return result;
   }
 

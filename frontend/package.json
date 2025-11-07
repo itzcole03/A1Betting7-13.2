@@ -92,6 +92,7 @@
     }
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@babel/preset-env": "^7.28.0",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
@@ -126,8 +127,8 @@
     "msw": "^2.10.4",
     "react-test-renderer": "^19.1.1",
     "tailwindcss": "^4.1.11",
-    "tsx": "^4.20.4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.4",
     "typescript": "^5.9.2",
     "vite": "^7.1.2",
     "vite-plugin-html": "^3.2.2",

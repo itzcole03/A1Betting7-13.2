@@ -11,7 +11,7 @@ Object.defineProperty(global, 'import', {
         VITE_API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:8000',
       },
       url: 'http://localhost:3000',
-      resolve: (path) => new URL(path, 'http://localhost:3000').href,
+      resolve: path => new URL(path, 'http://localhost:3000').href,
     },
   },
   writable: true,
@@ -130,12 +130,12 @@ global.WebSocket = class WebSocket {
       this.onopen && this.onopen();
     }, 0);
   }
-  
+
   static CONNECTING = 0;
   static OPEN = 1;
   static CLOSING = 2;
   static CLOSED = 3;
-  
+
   send() {}
   close() {
     this.readyState = WebSocket.CLOSED;

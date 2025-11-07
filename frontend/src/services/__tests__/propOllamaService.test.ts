@@ -4,7 +4,6 @@ jest.mock('../../utils/getEnvVar', () => ({
 }));
 
 import axios from 'axios';
-import propOllamaService from '../propOllamaService';
 
 const mockValidatePropRecommendations = jest.fn(async () => ({
   executedAt: '2025-11-02T00:00:00.000Z',
@@ -26,14 +25,20 @@ const mockValidatePropRecommendations = jest.fn(async () => ({
 
 jest.mock('axios');
 
+(axios as any).isAxiosError = (err: any) => !!err && !!err.isAxiosError;
+
 // Always mock backendDiscovery properly
 jest.mock('../backendDiscovery', () => ({
   discoverBackend: jest.fn().mockResolvedValue('http://localhost:8000'),
 }));
 
-jest.mock('../../core/UnifiedPredictionEngine', () => ({
+// Defer module mocking to runtime to avoid hoisting-related initialization order issues
+jest.doMock('../../core/UnifiedPredictionEngine', () => ({
   validatePropRecommendations: mockValidatePropRecommendations,
 }));
+
+// Require the service after mocks are configured
+const propOllamaService = require('../propOllamaService').default;
 
 describe('propOllamaService', () => {
   const axiosMock = axios as jest.Mocked<typeof axios>;

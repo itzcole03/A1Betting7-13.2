@@ -32,8 +32,8 @@ if (typeof globalThis.vi === 'undefined') {
     restoreAllMocks: () => jest.restoreAllMocks(),
     useFakeTimers: () => jest.useFakeTimers(),
     useRealTimers: () => jest.useRealTimers(),
-  // Vitest provides `mocked` to get typed mock; under Jest we return the function
-  mocked: (fn) => fn,
+    // Vitest provides `mocked` to get typed mock; under Jest we return the function
+    mocked: fn => fn,
   };
 }
 

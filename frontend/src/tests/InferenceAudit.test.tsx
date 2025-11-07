@@ -87,10 +87,7 @@ type AuditResponseOverrides = {
   drift?: typeof mockDriftStatus | null;
 };
 
-const resolveAsync = <T,>(value: T) =>
-  new Promise<T>((resolve) => {
-    setTimeout(() => resolve(value), 0);
-  });
+const resolveAsync = <T,>(value: T) => Promise.resolve(value);
 
 const queueAuditFetchSequence = ({
   summary = mockSummary,

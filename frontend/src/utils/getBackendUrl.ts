@@ -1,22 +1,22 @@
 // Utility to get backend URL for all environments (Vite/browser and Jest/node)
 const DEFAULT_BACKEND_URL = 'http://localhost:8000';
 
-// Use dynamic function to avoid import.meta parsing in Node/Jest
+// Safe read of Vite-style import.meta.env via a global shim if available
 function getViteEnvSafe(): Record<string, string> {
-  // In Jest/Node, skip import.meta entirely
+  // In Jest/Node, skip import.meta entirely if running as a test worker
   if (typeof process !== 'undefined' && process.env && process.env.JEST_WORKER_ID) {
     return {};
   }
-  // Only access import.meta.env if it exists and is an object, using dynamic function
+
   try {
-     
-    const getEnv = new Function(
-      'return (typeof import!=="undefined" && import.meta && import.meta.env) ? import.meta.env : {}'
-    );
-    return getEnv();
+    const maybeImportMeta = (globalThis as any).importMeta ?? (globalThis as any).__import_meta__;
+    if (maybeImportMeta && maybeImportMeta.env) {
+      return maybeImportMeta.env as Record<string, string>;
+    }
   } catch (e) {
-    // Ignore if import.meta is not defined
+    // ignore
   }
+
   return {};
 }
 
@@ -27,7 +27,10 @@ export function getBackendUrl(): string {
   // For Jest/Node, keep returning the absolute URL.
   try {
     const inBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
-    const isDev = import.meta.env ? import.meta.env.MODE === 'development' : false;
+    // Prefer checking a safe shim or NODE_ENV to detect development
+    const viteEnv = getViteEnvSafe();
+    const isDev =
+      (viteEnv && viteEnv.MODE === 'development') || process.env.NODE_ENV === 'development';
     if (inBrowser && isDev) {
       return ''; // use relative paths like '/api/...' so Vite proxy picks them up
     }

@@ -17,6 +17,7 @@ import { OnboardingProvider } from './onboarding/OnboardingContext';
 import OnboardingFlow from './onboarding/OnboardingFlow';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 // import { liveDemoEnhancementService } from './services/liveDemoEnhancementService'; // DISABLED - causing console spam
+import { isDev as isDevEnv } from './bootstrap/getEnv';
 import { signalNavReady } from './navigation/navReadySignal';
 import { UpdateModal } from './update/UpdateModal';
 import { createTimeoutSignal } from './utils/createTimeoutSignal';
@@ -66,12 +67,12 @@ function App() {
       defaultOptions: {
         queries: {
           // Keep dev footprints small: short GC and no retries to avoid runaway memory
-          gcTime: import.meta.env.DEV ? 60_000 : 5 * 60_000,
-          staleTime: import.meta.env.DEV ? 15_000 : 60_000,
-          retry: import.meta.env.DEV ? false : 2,
+          gcTime: isDevEnv() ? 60_000 : 5 * 60_000,
+          staleTime: isDevEnv() ? 15_000 : 60_000,
+          retry: isDevEnv() ? false : 2,
         },
         mutations: {
-          retry: import.meta.env.DEV ? false : 2,
+          retry: isDevEnv() ? false : 2,
         },
       },
     });
@@ -85,7 +86,7 @@ function App() {
 
   // Register service worker and check API version compatibility on app start
   useEffect(() => {
-    const isDev = import.meta.env.DEV;
+    const isDev = isDevEnv();
     let disposed = false;
     let validationModule: {
       startValidation: (intervalMs: number) => void;
@@ -296,7 +297,7 @@ function App() {
     <ErrorBoundaryVersion>
       <QueryClientProvider client={queryClient}>
         {/* DEV global controls (always rendered in DEV so devs can enable dashboard even when gated) */}
-        {import.meta.env.DEV && (
+        {isDevEnv() && (
           <div data-testid='dev-global-controls'>
             <div style={{ position: 'fixed', bottom: 80, right: 12, zIndex: 9999 }}>
               <button
@@ -466,7 +467,7 @@ const AppContent: React.FC = () => {
 
   // Show user-friendly UI for all authenticated users
   enhancedLogger.info('App', 'render', 'Rendering UserFriendlyApp (clean UI)');
-  const isDevMode = Boolean(import.meta.env.DEV);
+  const isDevMode = Boolean(isDevEnv());
   const enableReliabilityMonitoring = !isDevMode;
 
   // DEV-CONVENIENCE: If running in development and the user is blocked by onboarding/auth gating,
