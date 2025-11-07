@@ -11,12 +11,9 @@ import {
   Zap,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-// @ts-expect-error TS(6142): Module '../components/shared/ui/badge' was resolved to 'C... Remove this comment to see the full error message
-import { Badge } from '../components/shared/ui/badge';
-// @ts-expect-error TS(6142): Module '../components/shared/ui/button' was resolved to '... Remove this comment to see the full error message
-import { Button } from '../components/shared/ui/button';
-// @ts-expect-error TS(6142): Module '../components/shared/ui/card' was resolved to 'C:... Remove this comment to see the full error message
-import { Card } from '../components/shared/ui/card';
+import { Badge } from './base/Badge';
+import { Button } from './base/Button';
+import { Card } from './base/Card';
 
 interface AutoBetRule {
   id: string;

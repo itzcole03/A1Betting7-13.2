@@ -1,18 +1,5 @@
 """Backend package initializer for test environment."""
 
-import warnings
-
-warnings.filterwarnings(
-    "ignore",
-    category=UserWarning,
-    message="pkg_resources is deprecated as an API.*",
-)
-warnings.filterwarnings(
-    "ignore",
-    category=UserWarning,
-    module=r"woodwork\.__init__",
-)
-
 __all__ = ["services", "routes"]
 
 """Backend package initializer for test shim compatibility.

@@ -419,6 +419,7 @@ db_manager = DatabaseConnectionManager(database_config)
 
 
 # Convenience function for getting database session
+@asynccontextmanager
 async def get_db_session():
     """Get database session - convenience function"""
     async with db_manager.get_session() as session:

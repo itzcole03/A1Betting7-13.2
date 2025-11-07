@@ -1612,8 +1612,28 @@ class UnifiedDataService:
     Provides data fetching, validation, caching, and aggregation.
     """
 
-    def __init__(self, cache_service: Optional[UnifiedCacheService] = None):
+    def __init__(
+        self,
+        cache_service: Optional[UnifiedCacheService] = None,
+        default_source: Optional[Union[str, DataSourceType]] = None,
+    ):
         self.cache_service = cache_service
+        # Legacy callers may pass a default_source string or enum. Normalize it.
+        self.default_source: Optional[DataSourceType] = None
+        if default_source is not None:
+            if isinstance(default_source, DataSourceType):
+                self.default_source = default_source
+            else:
+                try:
+                    self.default_source = DataSourceType(default_source)
+                except Exception:
+                    # Allow case-insensitive by name mapping
+                    try:
+                        self.default_source = DataSourceType[
+                            str(default_source).upper()
+                        ]
+                    except Exception:
+                        self.default_source = None
         self.adapters: Dict[DataSourceType, DataSourceAdapter] = {}
         self.validators: Dict[str, DataValidator] = {}
         self.configs: Dict[DataSourceType, DataSourceConfig] = {}
@@ -1790,6 +1810,14 @@ class UnifiedDataService:
 
         return data
 
+    async def fetch_live_data(self, league: str, kind: str) -> Dict[str, Any]:
+        """Compatibility helper: fetch live data for a given league/kind.
+
+        Builds the canonical endpoint and delegates to fetch_with_optimization_simple.
+        """
+        endpoint = f"/api/v1/sports/{league}/{kind}/live"
+        return await self.fetch_with_optimization_simple(endpoint, params={})
+
     def _build_cache_key(
         self,
         prefix: str,
@@ -1936,6 +1964,163 @@ class UnifiedDataService:
             }
 
         return metrics
+
+    # --- Backwards-compatible helper aliases (legacy surface) ---
+    def normalize_player_data(self, raw: Any) -> Dict[str, Any]:
+        """Compatibility helper: normalize various player payload shapes.
+
+        Tests and legacy callers expect a simple normalizer that handles
+        keys like 'playerName' / 'player_name' and 'teamName' etc.
+        """
+        if not isinstance(raw, dict):
+            return {}
+
+        # Flexible name keys used across older payloads
+        name = (
+            raw.get("name")
+            or raw.get("playerName")
+            or raw.get("player_name")
+            or raw.get("full_name")
+            or raw.get("playerFullName")
+        )
+
+        # Flexible team keys
+        team = (
+            raw.get("team")
+            or raw.get("teamName")
+            or raw.get("team_name")
+            or raw.get("team_abbr")
+            or raw.get("teamAbbr")
+        )
+
+        # Flexible player id keys
+        pid = (
+            raw.get("id")
+            or raw.get("player_id")
+            or raw.get("playerId")
+            or raw.get("playerIdStr")
+        )
+
+        out: Dict[str, Any] = {}
+        if pid is not None:
+            out["player_id"] = pid
+        if name is not None:
+            out["name"] = name
+        if team is not None:
+            out["team"] = team
+        # Preserve raw payload for legacy callers/tests
+        out["_raw"] = raw
+
+        return out
+
+    def _render_realtime_signature(self, cfg: Dict[str, Any]) -> str:
+        """Stable-ish signature for a realtime config (legacy API)."""
+        try:
+            import hashlib
+            import json
+
+            payload = json.dumps(cfg or {}, sort_keys=True, default=str)
+            return hashlib.md5(payload.encode()).hexdigest()
+        except Exception:
+            return ""
+
+    # --- Additional legacy aliases expected by tests / callers ---
+    async def get_player_data(
+        self, player_name: str, stat_types: List[str], force_refresh: bool = False
+    ):
+        """Legacy alias that delegates to the optimized player data engine."""
+        return await self.get_player_data_optimized(
+            player_name, stat_types, force_refresh
+        )
+
+    async def fetch_performance(self, user_id: Optional[int] = None):
+        """Legacy alias for fetch_real_performance_stats."""
+        return await self.fetch_real_performance_stats(user_id)
+
+    async def fetch_prizepicks(self):
+        """Legacy alias for PrizePicks props fetch."""
+        return await self.fetch_real_prizepicks_props()
+
+    async def fetch_live_odds(self, api_url: str):
+        """Legacy alias for validated live odds."""
+        return await self.get_validated_live_odds(api_url)
+
+    async def fetch_with_optimization_simple(
+        self, endpoint: str, params: Optional[Dict[str, Any]] = None, **kwargs
+    ):
+        """Small convenience wrapper to call fetch_with_optimization for common flows."""
+        src = self.default_source or DataSourceType.ODDS_API
+        return await self.fetch_with_optimization(
+            src, endpoint, params=params or {}, **kwargs
+        )
+
+    async def _create_session(self):
+        """Session factory used by retry helpers/tests (monkeypatch target)."""
+        try:
+            import aiohttp
+
+            return aiohttp.ClientSession()
+        except Exception:
+            # Provide a simple fallback object for tests that monkeypatch this
+            class _Dummy:
+                async def get(self, *a, **k):
+                    raise RuntimeError("No HTTP session available")
+
+            return _Dummy()
+
+    async def _fetch_with_retry(
+        self,
+        url: str,
+        params: Optional[Dict[str, Any]] = None,
+        retries: int = 3,
+        backoff: float = 0.1,
+    ) -> Dict[str, Any]:
+        """Perform simple GET with retry semantics used by tests.
+
+        This function is intentionally lightweight so tests can monkeypatch
+        `_create_session` to return a FakeSession that implements async get().
+        """
+        import asyncio as _asyncio
+
+        # Obtain session; _create_session may be sync or async (tests monkeypatch)
+        sess_candidate = self._create_session()
+        session = sess_candidate
+        try:
+            if _asyncio.iscoroutine(sess_candidate):
+                session = await sess_candidate
+        except Exception:
+            # If session creation fails, raise to allow retries
+            raise
+
+        attempt = 0
+        last_exc = None
+        while attempt < retries:
+            try:
+                resp = await session.get(url, params=params)
+                # mimic response.raise_for_status()
+                if hasattr(resp, "raise_for_status"):
+                    resp.raise_for_status()
+
+                # Try JSON first
+                try:
+                    data = resp.json()
+                    return data
+                except Exception:
+                    # Fallback to text
+                    text = getattr(resp, "text", None)
+                    return {"text": text}
+
+            except Exception as exc:
+                last_exc = exc
+                attempt += 1
+                if attempt >= retries:
+                    break
+                await _asyncio.sleep(backoff * attempt)
+
+        # If we get here, raise last exception
+        if last_exc:
+            raise last_exc
+        return {}
 
     async def health_check(self) -> Dict[str, Any]:
         """Perform health check on all data sources"""

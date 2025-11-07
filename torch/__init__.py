@@ -66,3 +66,42 @@ except (
         _fn_mod.relu = _relu
         _fn_mod.softmax = _softmax
         sys.modules["torch.nn.functional"] = _fn_mod
+
+    # Minimal cuda namespace shim so code that checks `torch.cuda.is_available()`
+    # or other lightweight cuda helpers does not raise AttributeError in tests.
+    class _CudaShim:
+        @staticmethod
+        def is_available():
+            return False
+
+        @staticmethod
+        def device_count():
+            return 0
+
+        @staticmethod
+        def memory_allocated():
+            return 0
+
+        @staticmethod
+        def memory_reserved():
+            return 0
+
+        @staticmethod
+        def max_memory_allocated():
+            return 0
+
+        @staticmethod
+        def empty_cache():
+            return None
+
+        # Minimal amp namespace expected by some codepaths
+        amp = _types.SimpleNamespace(autocast=lambda *a, **k: (lambda ctx: ctx))
+
+    cuda = _CudaShim()
+
+    # Minimal device helper that mirrors torch.device(...) usage in the codebase.
+    def device(name_or_spec):
+        return name_or_spec
+
+    # Export names from fallback
+    __all__ += ["cuda", "device", "Tensor", "tensor", "nn"]

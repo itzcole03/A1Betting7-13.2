@@ -22,6 +22,9 @@ export type { BreadcrumbItem, BreadcrumbProps } from './Breadcrumb';
 export { Input } from './Input';
 export type { InputProps, InputSize, InputVariant } from './Input';
 
+export { Label } from './Label';
+export type { LabelProps } from './Label';
+
 export { Dialog } from './Dialog';
 export type { DialogProps } from './Dialog';
 

@@ -10,7 +10,6 @@ This module provides production-ready authentication components including:
 
 import os
 import logging
-import warnings
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
@@ -21,23 +20,6 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
-
-warnings.filterwarnings(
-    "ignore",
-    category=UserWarning,
-    message="pkg_resources is deprecated as an API.*",
-)
-
-try:
-    import bcrypt  # type: ignore
-except ImportError:  # pragma: no cover - optional dependency may be missing
-    bcrypt = None  # type: ignore
-else:  # pragma: no cover - ensure passlib finds a version attribute
-    if not hasattr(bcrypt, "__about__"):
-        class _BcryptAbout:
-            __version__ = getattr(bcrypt, "__version__", "unknown")
-
-        bcrypt.__about__ = _BcryptAbout()  # type: ignore[attr-defined]
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

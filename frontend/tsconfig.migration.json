@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/components/sportsbook/EnhancedSportsbookDashboard.tsx",
+    "src/components/odds/ValuePanel.tsx",
+    "src/components/BankrollPage.tsx",
+    "src/hooks/useArbitrageOps.ts",
+    "src/components/features/livebetting/LiveBettingDashboard.tsx",
+    "src/pages/PerformanceChartsDemo.tsx",
+    "src/components/features/lockedbets/LockedBets.tsx"
+  ]
+}
