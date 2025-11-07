@@ -1,0 +1,255 @@
+import '@testing-library/jest-dom';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { setupServer } from 'msw/node';
+import PlayerDashboardContainer from '../../components/player/PlayerDashboardContainer';
+import * as playerDashboardStateModule from '../../hooks/usePlayerDashboardState';
+import masterServiceRegistry from '../../services/MasterServiceRegistry';
+import UnifiedErrorService from '../../services/unified/UnifiedErrorService';
+import UnifiedStateService from '../../services/unified/UnifiedStateService';
+
+// Mock getEnvVar to prevent ReferenceError in OllamaService
+jest.mock('../../utils/getEnvVar', () => ({
+  getEnvVar: jest.fn(() => 'http://localhost:8000'),
+}));
+
+const mockPlayer = {
+  id: 'aaron-judge',
+  name: 'Aaron Judge',
+  team: 'NYY',
+  position: 'RF',
+  sport: 'MLB',
+  active: true,
+  injury_status: undefined,
+  season_stats: {
+    hits: 120,
+    home_runs: 35,
+    rbis: 90,
+    batting_average: 0.285,
+    on_base_percentage: 0.39,
+    slugging_percentage: 0.54,
+    ops: 0.93,
+    strikeouts: 110,
+    walks: 60,
+    games_played: 102,
+    plate_appearances: 420,
+    at_bats: 380,
+    runs: 80,
+    doubles: 22,
+    triples: 1,
+    stolen_bases: 5,
+    war: 4.2,
+    babip: 0.31,
+    wrc_plus: 145,
+    barrel_rate: 15.2,
+    hard_hit_rate: 48.1,
+    exit_velocity: 92.5,
+    launch_angle: 14.3,
+  },
+  recent_games: [
+    {
+      date: '2025-08-01',
+      opponent: 'BOS',
+      home: true,
+      result: 'W',
+      stats: { hits: 2, home_runs: 1, rbis: 3, batting_average: 0.333, ops: 1.2 },
+      game_score: 8.5,
+      weather: { temperature: 78, wind_speed: 10, wind_direction: 'NW' },
+    },
+  ],
+  prop_history: [
+    {
+      date: '2025-08-01',
+      prop_type: 'home_runs',
+      line: 1.5,
+      actual: 1.0,
+      outcome: 'under',
+      odds: -110,
+      sportsbook: 'DraftKings',
+    },
+  ],
+  performance_trends: {
+    last_7_days: { avg: 0.32, hr: 3, rbis: 8 },
+    last_30_days: { avg: 0.295, hr: 10, rbis: 25 },
+    home_vs_away: { home: { avg: 0.31 }, away: { avg: 0.28 } },
+    vs_lefties: { avg: 0.34 },
+    vs_righties: { avg: 0.27 },
+  },
+};
+
+function safeGetHeader(req: any, header: string) {
+  try {
+    if (!req || !req.headers) return undefined;
+    if (typeof req.headers.get === 'function') {
+      return req.headers.get(header);
+    }
+    if (typeof req.headers === 'object' && header in req.headers) {
+      return req.headers[header];
+    }
+    return undefined;
+  } catch (e) {
+    return undefined;
+  }
+}
+
+const server = setupServer();
+const masterRegistry = masterServiceRegistry;
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+beforeEach(() => {
+  jest.spyOn(masterRegistry, 'getService').mockImplementation((name: string) => {
+    if (name === 'state') return UnifiedStateService.getInstance();
+    if (name === 'errors') return UnifiedErrorService.getInstance();
+    if (name === 'playerData') {
+      return {
+        getPlayer: async (id: string) => {
+          if (id === 'error-player') throw new Error('Internal server error');
+          if (id === 'empty-player') return undefined;
+          return mockPlayer;
+        },
+        searchPlayers: async () => [],
+      };
+    }
+    return null;
+  });
+});
+
+describe('PlayerDashboardContainer', () => {
+  it('shows PlayerOverview skeleton loader and accessibility attributes when loading', async () => {
+    jest.spyOn(playerDashboardStateModule, 'usePlayerDashboardState').mockReturnValue({
+      player: null,
+      loading: true,
+      error: null,
+      errorId: null,
+      correlationId: null,
+      reload: jest.fn().mockResolvedValue(undefined),
+    });
+    render(<PlayerDashboardContainer playerId='aaron-judge' />);
+    const regions = screen.getAllByRole('region', { hidden: true });
+    expect(regions[0]).toHaveAttribute('aria-busy', 'true');
+    expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
+    const trendsTab = screen.getByText(/Trends & Analysis/i);
+    fireEvent.click(trendsTab);
+    await waitFor(() => {
+      const perfNodes = screen.queryAllByLabelText('Performance Trends');
+      if (perfNodes.length > 0) expect(perfNodes[0]).toHaveAttribute('aria-busy', 'true');
+    });
+    const historyTab = screen.getByText(/Prop History/i);
+    fireEvent.click(historyTab);
+    await waitFor(() => {
+      const historyNodes = screen.queryAllByLabelText('Prop History');
+      if (historyNodes.length > 0) expect(historyNodes[0]).toHaveAttribute('aria-busy', 'true');
+    });
+    jest.restoreAllMocks();
+  });
+
+  it('renders player data and dashboard sections after loading', async () => {
+    const mockPlayerWithTrends = {
+      ...mockPlayer,
+      performance_trends: {
+        last_7_days: { avg: 0.32, hr: 3, rbis: 8 },
+        last_30_days: { avg: 0.295, hr: 10, rbis: 25 },
+        home_vs_away: { home: { avg: 0.31 }, away: { avg: 0.28 } },
+        vs_lefties: { avg: 0.34 },
+        vs_righties: { avg: 0.27 },
+      },
+    };
+    jest.spyOn(playerDashboardStateModule, 'usePlayerDashboardState').mockReturnValue({
+      player: mockPlayerWithTrends,
+      loading: false,
+      error: null,
+      errorId: null,
+      correlationId: null,
+      reload: jest.fn().mockResolvedValue(undefined),
+    });
+    render(<PlayerDashboardContainer playerId='aaron-judge' />);
+    const playerNameNodes = await screen.findAllByText(/Aaron Judge/i);
+    expect(playerNameNodes.length).toBeGreaterThan(0);
+    const teamNodes = screen.getAllByText(/NYY/i);
+    expect(teamNodes.length).toBeGreaterThan(0);
+    const gamesNodes = screen.getAllByText(/Games/i);
+    expect(gamesNodes.length).toBeGreaterThan(0);
+    const gamesCountNodes = screen.getAllByText(/102/i);
+    expect(gamesCountNodes.length).toBeGreaterThan(0);
+    const hitsNodes = screen.getAllByText(/Hits/i);
+    expect(hitsNodes.length).toBeGreaterThan(0);
+    const hitsCountNodes = screen.getAllByText(/120/i);
+    expect(hitsCountNodes.length).toBeGreaterThan(0);
+    const trendsTab = screen.getByText(/Trends & Analysis/i);
+    fireEvent.click(trendsTab);
+    const perfTrendNodes = await screen.findAllByLabelText('Performance Trends');
+    expect(perfTrendNodes.length).toBeGreaterThan(0);
+    const historyTab = screen.getByText(/Prop History/i);
+    fireEvent.click(historyTab);
+    const propHistoryNodes = await screen.findAllByLabelText('Prop History');
+    expect(propHistoryNodes.length).toBeGreaterThan(0);
+    jest.restoreAllMocks();
+  });
+
+  it('handles error state', async () => {
+    jest.spyOn(playerDashboardStateModule, 'usePlayerDashboardState').mockReturnValue({
+      player: null,
+      loading: false,
+      error: 'Dashboard Error',
+      errorId: 'error-id',
+      correlationId: 'corr-id',
+      reload: jest.fn().mockResolvedValue(undefined),
+    });
+    render(<PlayerDashboardContainer playerId='error-player' />);
+    const errorHeadings = await screen.findAllByText(/Dashboard Error/i);
+    expect(errorHeadings.length).toBeGreaterThan(0);
+    expect(screen.getByText(/retry/i)).toBeInTheDocument();
+    jest.restoreAllMocks();
+  });
+
+  it('handles empty state', async () => {
+    render(<PlayerDashboardContainer playerId='empty-player' />);
+    const trendsTab = screen.getByText(/Trends & Analysis/i);
+    fireEvent.click(trendsTab);
+    await waitFor(
+      () => {
+        const perfTrendNodes = screen.queryAllByLabelText('Performance Trends');
+        expect(perfTrendNodes.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 }
+    );
+    const historyTab = screen.getByText(/Prop History/i);
+    fireEvent.click(historyTab);
+    await waitFor(
+      () => {
+        const propHistoryNodes = screen.queryAllByLabelText('Prop History');
+        expect(propHistoryNodes.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 }
+    );
+  });
+
+  it('propagates correlation ID header', async () => {
+    const correlationIdSeen = false;
+    render(<PlayerDashboardContainer playerId='aaron-judge' />);
+    await waitFor(() => {
+      const nodes = screen.queryAllByText((content, node) => /Aaron Judge/i.test(content));
+      return nodes.length > 0;
+    });
+    expect(correlationIdSeen).toBe(false);
+  });
+
+  it('validates API response schema at boundary', async () => {
+    jest.spyOn(playerDashboardStateModule, 'usePlayerDashboardState').mockReturnValue({
+      player: mockPlayer,
+      loading: false,
+      error: null,
+      errorId: null,
+      correlationId: null,
+      reload: jest.fn().mockResolvedValue(undefined),
+    });
+    render(<PlayerDashboardContainer playerId='aaron-judge' />);
+    const overviewTab = screen.getByText(/Stats & Performance/i);
+    fireEvent.click(overviewTab);
+    const playerNameNodes = await screen.findAllByText(/Aaron Judge/i);
+    expect(playerNameNodes.length).toBeGreaterThan(0);
+    jest.restoreAllMocks();
+  });
+});

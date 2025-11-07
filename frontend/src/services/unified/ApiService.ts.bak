@@ -1,0 +1,319 @@
+/**
+ * Unified API Service - Centralized HTTP client for A1Betting Platform
+ * Handles authentication, retries, caching, and error management
+ */
+
+import EventEmitter from 'eventemitter3';
+import { createTimeoutSignal } from '../../utils/createTimeoutSignal';
+import { discoverBackend } from '../backendDiscovery';
+
+// Add missing ApiConfig interface
+type ApiConfig = {
+  baseURL: string;
+  timeout: number;
+  retryAttempts: number;
+  retryDelay: number;
+};
+
+// Abstract base class for API services (matches .d.ts)
+export interface ApiServiceEvents {
+  error: (error: Error) => void;
+  request: (endpoint: string) => void;
+  response: (response: ApiResponse<unknown>) => void;
+}
+
+export abstract class BaseApiService extends EventEmitter<ApiServiceEvents> {
+  protected readonly client: object;
+  protected readonly config: ApiConfig;
+  constructor(config: ApiConfig) {
+    super();
+    // Runtime guard for config
+    if (
+      !config ||
+      typeof config.baseURL !== 'string' ||
+      typeof config.timeout !== 'number' ||
+      typeof config.retryAttempts !== 'number' ||
+      typeof config.retryDelay !== 'number'
+    ) {
+      throw new Error('Invalid ApiConfig');
+    }
+    this.config = config;
+    const client = this.initializeClient();
+    if (typeof client !== 'object' || client === null) {
+      throw new Error('Invalid client initialization');
+    }
+    this.client = client;
+  }
+  protected abstract initializeClient(): object;
+  protected abstract handleError(error: Error): void;
+}
+
+interface ApiResponse<T = unknown> {
+  data: T;
+  status: number;
+  statusText: string;
+  headers: Record<string, string>;
+}
+
+interface RequestConfig {
+  headers?: Record<string, string>;
+  params?: Record<string, unknown>;
+  timeout?: number;
+  retries?: number;
+  cache?: boolean;
+  cacheTime?: number;
+}
+
+export class ApiService {
+  private static instance: ApiService;
+  private config: ApiConfig;
+  private cache: Map<string, { data: ApiResponse<unknown>; expires: number }> = new Map();
+  private requestInterceptors: Array<(config: RequestConfig) => RequestConfig> = [];
+  private responseInterceptors: Array<(response: ApiResponse<unknown>) => ApiResponse<unknown>> =
+    [];
+
+  private constructor() {
+    // Use getEnvVar for robust env access
+    const getEnvVar = (() => {
+      try {
+        return (key: string, fallback?: string) => {
+          // In test environment, use process.env
+          if (typeof process !== 'undefined' && process.env) {
+            return process.env[key] || fallback;
+          }
+          // In browser environment, try window.__VITE_ENV__ if available
+          if (
+            typeof window !== 'undefined' &&
+            typeof (window as { __VITE_ENV__?: Record<string, string> }).__VITE_ENV__ === 'object'
+          ) {
+            return (
+              (window as { __VITE_ENV__?: Record<string, string> }).__VITE_ENV__![key] || fallback
+            );
+          }
+          return fallback;
+        };
+      } catch (e) {
+        return (_key: string, fallback?: string) => fallback;
+      }
+    })();
+    const baseURL = getEnvVar('VITE_API_BASE_URL', 'http://localhost:8000');
+    this.config = {
+      baseURL: typeof baseURL === 'string' ? baseURL : 'http://localhost:8000',
+      timeout: 3000,
+      retryAttempts: 0,
+      retryDelay: 1000,
+    };
+  }
+
+  public static getInstance(): ApiService {
+    if (!ApiService.instance) {
+      ApiService.instance = new ApiService();
+    }
+    return ApiService.instance;
+  }
+
+  /**
+   * Get the current backend URL using discovery service
+   */
+  private async getBaseURL(): Promise<string> {
+    try {
+      // Add timeout to backend discovery
+      const discoveryPromise = discoverBackend();
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Backend discovery timeout')), 2000)
+      );
+
+      const _url = await Promise.race([discoveryPromise, timeoutPromise]);
+      if (!_url) {
+        throw new Error('No backend discovered');
+      }
+      return _url;
+    } catch (error) {
+      console.warn('[ApiService] Backend discovery failed, using fallback:', error);
+      // Return null to indicate backend is unavailable - services should use mock data
+      throw new Error('Backend unavailable - use mock data');
+    }
+  }
+
+  addRequestInterceptor(interceptor: (config: RequestConfig) => RequestConfig): void {
+    this.requestInterceptors.push(interceptor);
+  }
+
+  addResponseInterceptor(
+    interceptor: (response: ApiResponse<unknown>) => ApiResponse<unknown>
+  ): void {
+    this.responseInterceptors.push(interceptor);
+  }
+
+  private async executeRequest<T>(
+    method: string,
+    url: string,
+    data?: T,
+    config: RequestConfig = {}
+  ): Promise<ApiResponse<T>> {
+    let _fullUrl = '';
+    let _cacheKey = '';
+    try {
+      const _baseURL = await this.getBaseURL();
+      _fullUrl = `${_baseURL}${url}`;
+      _cacheKey = `${method}:${_fullUrl}:${JSON.stringify(data || {})}`;
+
+      // Check cache for GET requests
+      if (method === 'GET' && config.cache !== false) {
+        const _cached = this.cache.get(_cacheKey);
+        if (_cached && _cached.expires > Date.now()) {
+          // Runtime type guard for cached data
+          if (_cached.data && typeof _cached.data === 'object' && 'data' in _cached.data) {
+            return _cached.data as ApiResponse<T>;
+          }
+        }
+      }
+    } catch (error) {
+      // Backend unavailable - throw error to let services handle gracefully
+      console.warn('[ApiService] Backend unavailable:', error);
+      throw new Error('Backend unavailable');
+    }
+
+    // Apply request interceptors
+    let _finalConfig = { ...config };
+    for (const _interceptor of this.requestInterceptors) {
+      _finalConfig = _interceptor(_finalConfig);
+    }
+
+    const _baseRequestOptions: RequestInit = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ..._finalConfig.headers,
+      },
+    };
+
+    if (data) {
+      _baseRequestOptions.body = JSON.stringify(data);
+    }
+
+    const _maxRetries = _finalConfig.retries || this.config.retryAttempts;
+    let _lastError: Error | undefined;
+
+    for (let _attempt = 0; _attempt <= _maxRetries; _attempt++) {
+      try {
+        const _timeout = createTimeoutSignal(_finalConfig.timeout || this.config.timeout);
+        const _requestOptions: RequestInit = {
+          ..._baseRequestOptions,
+          signal: _timeout.signal,
+        };
+
+        let _response: Response;
+        try {
+          _response = await fetch(_fullUrl, _requestOptions);
+        } finally {
+          _timeout.cleanup();
+        }
+
+        if (!_response.ok) {
+          throw new Error(`HTTP ${_response.status}: ${_response.statusText}`);
+        }
+
+        const _responseData = await _response.json();
+        // Runtime guard for responseData
+        if (typeof _responseData !== 'object' || _responseData === null) {
+          throw new Error('Invalid API response data');
+        }
+        const _apiResponse: ApiResponse<T> = {
+          data: _responseData as T,
+          status: _response.status,
+          statusText: _response.statusText,
+          headers: Object.fromEntries(_response.headers.entries()),
+        };
+
+        // Apply response interceptors
+        let _finalResponse: ApiResponse<T> = _apiResponse;
+        for (const _interceptor of this.responseInterceptors) {
+          _finalResponse = _interceptor(_finalResponse as ApiResponse<unknown>) as ApiResponse<T>;
+        }
+
+        // Cache successful GET requests
+        if (method === 'GET' && config.cache !== false) {
+          const _cacheTime = config.cacheTime || 300000; // 5 minutes default
+          this.cache.set(_cacheKey, {
+            data: _finalResponse as ApiResponse<unknown>,
+            expires: Date.now() + _cacheTime,
+          });
+        }
+
+        return _finalResponse;
+      } catch (error) {
+        _lastError = error as Error;
+
+        if (_attempt < _maxRetries) {
+          const _delay = this.config.retryDelay * Math.pow(2, _attempt);
+          await new Promise(resolve => setTimeout(resolve, _delay));
+        }
+      }
+    }
+
+    throw _lastError!;
+  }
+
+  async get<T>(url: string, config?: RequestConfig): Promise<ApiResponse<T>> {
+    return this.executeRequest<T>('GET', url, undefined as T, config);
+  }
+
+  async post<T>(url: string, data: T, config?: RequestConfig): Promise<ApiResponse<T>> {
+    return this.executeRequest<T>('POST', url, data, config);
+  }
+
+  async put<T>(url: string, data: T, config?: RequestConfig): Promise<ApiResponse<T>> {
+    return this.executeRequest<T>('PUT', url, data, config);
+  }
+
+  async delete<T>(url: string, config?: RequestConfig): Promise<ApiResponse<T>> {
+    return this.executeRequest<T>('DELETE', url, undefined as T, config);
+  }
+
+  async patch<T>(url: string, data: T, config?: RequestConfig): Promise<ApiResponse<T>> {
+    return this.executeRequest<T>('PATCH', url, data, config);
+  }
+
+  clearCache(pattern?: string): void {
+    if (pattern) {
+      for (const _key of this.cache.keys()) {
+        if (_key.includes(pattern)) {
+          this.cache.delete(_key);
+        }
+      }
+    } else {
+      this.cache.clear();
+    }
+  }
+
+  async healthCheck(): Promise<boolean> {
+    try {
+      // Use shorter timeout and no retries for health checks to fail fast
+      const _response = await this.get('/health', {
+        timeout: 2000, // 2 second timeout
+        retries: 0, // No retries for health checks
+        cache: false, // Don't cache health check results
+      });
+      return _response.status === 200;
+    } catch (error) {
+      // Silently fail health checks - they're non-critical
+      return false;
+    }
+  }
+
+  getStats(): {
+    cacheSize: number;
+    interceptors: { request: number; response: number };
+  } {
+    return {
+      cacheSize: this.cache.size,
+      interceptors: {
+        request: this.requestInterceptors.length,
+        response: this.responseInterceptors.length,
+      },
+    };
+  }
+}
+
+export default ApiService.getInstance();

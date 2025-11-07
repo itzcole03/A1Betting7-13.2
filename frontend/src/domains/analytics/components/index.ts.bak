@@ -1,0 +1,1 @@
+export const ANALYTICS_COMPONENTS_PLACEHOLDER = true;
