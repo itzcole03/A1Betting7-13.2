@@ -9,9 +9,10 @@ feature-complete implementation lives elsewhere and was intentionally
 consolidated during the refactor; this shim keeps tests and legacy imports
 working.
 """
+
 import asyncio
 import os
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set
@@ -167,7 +168,9 @@ class PropFinderDataService:
 
         # Schedule background refresh but return quickly with fallback
         if not self._refresh_task:
-            self._refresh_task = asyncio.create_task(self._background_refresh_and_cache())
+            self._refresh_task = asyncio.create_task(
+                self._background_refresh_and_cache()
+            )
 
         fallback = await self._get_fallback_opportunities(sport_filter=sport_filter)
         # Normalize in-place
@@ -197,7 +200,9 @@ class PropFinderDataService:
             if cache is not None:
                 try:
                     serial = [asdict(o) for o in opportunities]
-                    await cache.set("prop_opportunities:default", serial, ttl=self.cache_ttl)
+                    await cache.set(
+                        "prop_opportunities:default", serial, ttl=self.cache_ttl
+                    )
                 except Exception:
                     pass
         finally:
@@ -205,7 +210,9 @@ class PropFinderDataService:
             self._refresh_task = None
 
     async def _get_fallback_opportunities(
-        self, allowed_sports: Optional[Set[Sport]] = None, sport_filter: Optional[List[str]] = None
+        self,
+        allowed_sports: Optional[Set[Sport]] = None,
+        sport_filter: Optional[List[str]] = None,
     ) -> List[PropOpportunity]:
         now = datetime.now(timezone.utc)
         samples = [
@@ -257,7 +264,9 @@ class PropFinderDataService:
                     injuries=[],
                     recentForm=s["recent_form"],
                     matchupHistory=s["matchup"],
-                    lineMovement=LineMovement(open=1.5, current=1.5, direction=Trend.STABLE),
+                    lineMovement=LineMovement(
+                        open=1.5, current=1.5, direction=Trend.STABLE
+                    ),
                     bookmakers=s["bookmakers"],
                     isBookmarked=False,
                     tags=["Demo"],
@@ -269,12 +278,18 @@ class PropFinderDataService:
 
         return opportunities
 
-    def _normalize_opportunities_list(self, opportunities: List[PropOpportunity]) -> None:
+    def _normalize_opportunities_list(
+        self, opportunities: List[PropOpportunity]
+    ) -> None:
         if not opportunities:
             return
         # Use the same environment flag naming as the original implementation
         try:
-            enabled = os.getenv("MLB_CONFIDENCE_NORMALIZATION", "false").lower() in {"1", "true", "yes"}
+            enabled = os.getenv("MLB_CONFIDENCE_NORMALIZATION", "false").lower() in {
+                "1",
+                "true",
+                "yes",
+            }
         except Exception:
             enabled = False
 

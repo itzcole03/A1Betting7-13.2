@@ -4,6 +4,7 @@ This provides a tiny DatabaseService class so imports succeed. The real
 database service lives elsewhere; tests only need the symbol to be importable
 and constructible.
 """
+
 from typing import Any, Dict, List, Optional
 
 
@@ -29,7 +30,9 @@ class DatabaseService:
         # Minimal async-compatible stub; real tests mock DB client methods as needed
         return None
 
-    async def search_players(self, query: str, sport: str, limit: int = 10) -> List[Dict[str, Any]]:
+    async def search_players(
+        self, query: str, sport: str, limit: int = 10
+    ) -> List[Dict[str, Any]]:
         # Return an empty list by default; tests that need concrete data should
         # monkeypatch this method.
         return []
