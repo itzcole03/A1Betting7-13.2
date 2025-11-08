@@ -17,7 +17,7 @@ from backend.services.core.unified_data_service import (
     UnifiedDataService,
     get_data_service,
 )
-from backend.services.ml.ml_service import enhanced_ml_service
+from backend.services.ml.ml_service import backend.services.ml.ml_service
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("realtime_websocket")

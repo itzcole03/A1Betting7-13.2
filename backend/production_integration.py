@@ -884,7 +884,7 @@ class ProductionApp:
         async def test_enhanced():
             """Test enhanced services accessibility"""
             try:
-                from backend.routes.enhanced_api import enhanced_ml_service
+                from backend.routes.enhanced_api import backend.services.ml.ml_service
 
                 status = (
                     "Enhanced ML service available"

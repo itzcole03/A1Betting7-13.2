@@ -27,7 +27,7 @@ from .baseball_savant_client import BaseballSavantClient
 from .enhanced_data_pipeline import enhanced_data_pipeline
 
 # Import enhanced ML service for real confidence calculations
-from .enhanced_ml_service import enhanced_ml_service
+from .enhanced_ml_service import backend.services.ml.ml_service
 
 # Import our new MLB Stats API client for free, official MLB data
 from .mlb_stats_api_client import MLBStatsAPIClient
