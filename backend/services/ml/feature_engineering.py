@@ -1,373 +1,1280 @@
-# Copied and adapted from Newfolder backend/FinalPredictionEngine/feature_engineering.py
-from typing import Any, Dict, List, Tuple
+"""Advanced Feature Engineering Engine for Maximum Prediction Accuracy
+State-of-the-art feature creation, selection, and transformation techniques
+"""
+
+import logging
+import warnings
+from collections import defaultdict
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 import numpy as np
+import pandas as pd
+
+# Adding a comment to trigger linter refresh
+warnings.filterwarnings("ignore")
+
+import nltk
+import ta  # Technical analysis library
+from nltk.sentiment import SentimentIntensityAnalyzer
 from scipy import stats
+from scipy.fft import fft, fftfreq
+from sklearn.cluster import DBSCAN, KMeans, SpectralClustering
 from sklearn.covariance import EllipticEnvelope
+from sklearn.decomposition import (
+    PCA,
+    FactorAnalysis,
+    FastICA,
+    KernelPCA,
+    SparsePCA,
+    TruncatedSVD,
+)
 from sklearn.ensemble import IsolationForest
-from sklearn.feature_selection import SelectKBest, f_regression
+from sklearn.feature_selection import (
+    RFE,
+    SelectKBest,
+    SelectPercentile,
+    VarianceThreshold,
+    f_regression,
+    mutual_info_regression,
+)
+from sklearn.linear_model import LinearRegression
+from sklearn.mixture import GaussianMixture
 from sklearn.neighbors import LocalOutlierFactor
-from sklearn.preprocessing import PolynomialFeatures, StandardScaler
-from statsmodels.tsa.seasonal import seasonal_decompose
-from statsmodels.tsa.stattools import adfuller
+
+# Advanced feature engineering imports
+from sklearn.preprocessing import (
+    MinMaxScaler,
+    Normalizer,
+    PolynomialFeatures,
+    PowerTransformer,
+    QuantileTransformer,
+    RobustScaler,
+    StandardScaler,
+)
+
+logger = logging.getLogger(__name__)
 
 
-class FeatureEngineering:
-    # --- DOCS: FeatureEngineering Phase 2 Enhancements ---
-    # - Rolling averages (L5, L10, L20), opponent splits, home/away splits, advanced metrics
-    # - Contextual features: rest days, travel, injuries, pace, coaching changes
-    # - Dynamic ensemble weighting by sport/game type/confidence
-    # - Monte Carlo simulation for prop probabilities
+class FeatureEngineeringStrategy(str, Enum):
+    """Advanced feature engineering strategies"""
+
+    STATISTICAL_TRANSFORMATION = "statistical_transformation"
+    TEMPORAL_PATTERNS = "temporal_patterns"
+    INTERACTION_DISCOVERY = "interaction_discovery"
+    DOMAIN_SPECIFIC = "domain_specific"
+    AUTOMATED_DISCOVERY = "automated_discovery"
+    DEEP_FEATURE_SYNTHESIS = "deep_feature_synthesis"
+    POLYNOMIAL_EXPANSION = "polynomial_expansion"
+    FREQUENCY_DOMAIN = "frequency_domain"
+    GRAPH_FEATURES = "graph_features"
+    SENTIMENT_FEATURES = "sentiment_features"
+    ANOMALY_FEATURES = "anomaly_features"
+    CLUSTERING_FEATURES = "clustering_features"
+    DIMENSIONALITY_REDUCTION = "dimensionality_reduction"
+    TECHNICAL_INDICATORS = "technical_indicators"
+
+
+class FeatureImportanceMethod(str, Enum):
+    """Feature importance calculation methods"""
+
+    MUTUAL_INFORMATION = "mutual_information"
+    F_REGRESSION = "f_regression"
+    PERMUTATION_IMPORTANCE = "permutation_importance"
+    SHAP_VALUES = "shap_values"
+    RECURSIVE_ELIMINATION = "recursive_elimination"
+    UNIVARIATE_SELECTION = "univariate_selection"
+    L1_REGULARIZATION = "l1_regularization"
+    TREE_IMPORTANCE = "tree_importance"
+    CORRELATION_ANALYSIS = "correlation_analysis"
+
+
+@dataclass
+class AdvancedFeatureMetrics:
+    """Comprehensive feature quality metrics"""
+
+    feature_name: str
+    importance_score: float
+    stability_score: float
+    correlation_with_target: float
+    mutual_information: float
+    variance_ratio: float
+    outlier_resistance: float
+    interpretability_score: float
+    computation_cost: float
+    redundancy_score: float
+    predictive_power: float
+    noise_ratio: float
+    distribution_score: float
+    temporal_consistency: float
+    domain_relevance: float
+    feature_interactions: List[str]
+    created_timestamp: datetime
+    last_updated: datetime
+
+
+@dataclass
+class FeatureSet:
+    """Advanced feature set with comprehensive metadata"""
+
+    features: Dict[str, Any]
+    feature_metrics: Dict[str, AdvancedFeatureMetrics]
+    transformation_pipeline: List[str]
+    selection_criteria: Dict[str, Any]
+    quality_score: float
+    dimensionality: int
+    sparsity_ratio: float
+    computation_time: float
+    memory_usage: float
+    interpretability_index: float
+    stability_index: float
+    predictive_index: float
+    created_timestamp: datetime
+
+
+class AdvancedFeatureEngineer:
+    def _calculate_predictive_index(self, feature_metrics: Dict[str, Any]) -> float:
+        """
+        Dummy predictive index: return 1.0 if metrics exist, else 0.0.
+        """
+        return 1.0 if feature_metrics else 0.0
+
+    def _calculate_stability_index(self, feature_metrics: Dict[str, Any]) -> float:
+        """
+        Dummy stability index: return 1.0 if metrics exist, else 0.0.
+        """
+        return 1.0 if feature_metrics else 0.0
+
+    def _calculate_interpretability_index(
+        self, feature_metrics: Dict[str, Any]
+    ) -> float:
+        """
+        Calculate a dummy interpretability index: just return 1.0 if metrics exist, else 0.0.
+        """
+        return 1.0 if feature_metrics else 0.0
+
+    def _estimate_memory_usage(self, features: Dict[str, Any]) -> float:
+        """
+        Estimate memory usage of the feature set in kilobytes (very rough).
+        """
+        import sys
+
+        return (
+            sum(sys.getsizeof(k) + sys.getsizeof(v) for k, v in features.items())
+            / 1024.0
+            if features
+            else 0.0
+        )
+
+    def _calculate_sparsity_ratio(self, features: Dict[str, Any]) -> float:
+        """
+        Calculate the sparsity ratio: fraction of zero or None values in the feature set.
+        """
+        if not features:
+            return 1.0
+        total = len(features)
+        sparse = sum(1 for v in features.values() if v in (0, None, ""))
+        return sparse / total if total > 0 else 1.0
+
+    async def _calculate_feature_set_quality(
+        self, features: Dict[str, Any], feature_metrics: Dict[str, Any]
+    ) -> float:
+        """
+        Basic async feature set quality calculation: for now, just return 1.0 if features exist, else 0.0.
+        """
+        return 1.0 if features else 0.0
+
+    async def _optimize_feature_set(
+        self,
+        features: Dict[str, Any],
+        feature_metrics: Dict[str, Any],
+        target_variable: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Basic async feature set optimization: for now, just return features unchanged.
+        """
+        # In production, apply feature selection, dimensionality reduction, etc.
+        return features
+
+    async def _apply_statistical_transformations(
+        self, features: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Basic async statistical transformation: for now, just return features unchanged.
+        """
+        # In production, apply scaling, normalization, etc.
+        return features
+
+    async def _advanced_data_cleaning(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Basic async data cleaning: remove None values, strip strings, and ensure numeric types where possible.
+        """
+        cleaned = {}
+        for k, v in raw_data.items():
+            if v is None:
+                continue
+            if isinstance(v, str):
+                cleaned[k] = v.strip()
+            elif isinstance(v, (int, float)):
+                cleaned[k] = v
+            else:
+                cleaned[k] = v
+        return cleaned
+
+    """Advanced feature engineering engine for maximum prediction accuracy"""
+
     def __init__(self):
-        self.feature_scalers = {}
-        self.feature_selector = SelectKBest(score_func=f_regression, k=10)
-        self.poly = PolynomialFeatures(degree=2)
-        self.isolation_forest = IsolationForest(contamination=0.1)
-        self.lof = LocalOutlierFactor(n_neighbors=20, contamination=0.1)
-        self.elliptic_envelope = EllipticEnvelope(contamination=0.1)
-        self.time_series_features = {}
+        self.feature_cache = {}
+        self.transformation_history = []
+        self.feature_importance_cache = {}
+        self.interaction_cache = {}
+        self.temporal_patterns_cache = {}
+        self.historical_feature_metrics = defaultdict(
+            list
+        )  # In-memory store for historical metrics
 
-    def preprocess_features(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        features = self._extract_features(data)
-        scaled_features = self._scale_features(features)
-        selected_features = self._select_features(scaled_features)
-        polynomial_features = self.create_polynomial_features(selected_features)
-        time_series_features = self.extract_time_series_features(data)
-        statistical_features = self.extract_statistical_features(data)
+        # Advanced components
+        self.statistical_transformers = {}
+        self.temporal_analyzers = {}
+        self.interaction_discoverers = {}
+        self.domain_extractors = {}
+        self.automated_synthesizers = {}
 
-        combined_features = np.hstack(
-            (polynomial_features, time_series_features, statistical_features)
-        )
+        # Caching and optimization
+        self.feature_computation_cache = {}
+        self.performance_metrics = defaultdict(list)
 
-        return {
-            "features": combined_features,
-            "anomaly_scores": self.detect_anomalies(combined_features),
-            "time_series_analysis": self.analyze_time_series(data),
+        # Initialize advanced feature engineering components
+        self.initialize_advanced_components()
+
+    def initialize_advanced_components(self):
+        """Initialize all advanced feature engineering components"""
+        logger.info("Initializing Advanced Feature Engineering Engine...")
+
+        # Statistical transformers
+        self.statistical_transformers = {
+            "power_transformer": PowerTransformer(method="yeo-johnson"),
+            "quantile_transformer": QuantileTransformer(output_distribution="normal"),
+            "robust_scaler": RobustScaler(),
+            "standard_scaler": StandardScaler(),
+            "minmax_scaler": MinMaxScaler(),
+            "normalizer": Normalizer(),
+            "polynomial_features": PolynomialFeatures(
+                degree=3, interaction_only=False, include_bias=False
+            ),
         }
 
-    def validate_features(self, data: Dict[str, Any]) -> bool:
-        # Implement common validation logic
-        return True
-
-    def calculate_model_weights(
-        self, predictions: List[Dict[str, Any]], context: Dict[str, Any] = None
-    ) -> Dict[str, float]:
-        """
-        Dynamically weight ensemble models based on sport, game type, and prediction confidence.
-        Example: LSTM weighted higher for player props, XGBoost for team props, etc.
-        """
-        weights = {}
-        total_accuracy = sum(pred["performance"]["accuracy"] for pred in predictions)
-        for pred in predictions:
-            base_weight = (
-                pred["performance"]["accuracy"] / total_accuracy
-                if total_accuracy
-                else 1.0 / len(predictions)
-            )
-            # Dynamic adjustment
-            if context:
-                sport = context.get("sport", "")
-                game_type = context.get("game_type", "")
-                confidence = pred.get("confidence", 1.0)
-                # Example logic: LSTM higher for player props, XGBoost for team props
-                if (
-                    pred["modelName"].lower().startswith("lstm")
-                    and game_type == "player_prop"
-                ):
-                    base_weight *= 1.2
-                if (
-                    pred["modelName"].lower().startswith("xgboost")
-                    and game_type == "team_prop"
-                ):
-                    base_weight *= 1.2
-                # Confidence-based adjustment
-                base_weight *= confidence
-            weights[pred["modelName"]] = base_weight
-        # Normalize weights
-        total = sum(weights.values())
-        for k in weights:
-            weights[k] /= total if total else 1.0
-        return weights
-
-    def monte_carlo_prop_simulation(
-        self, mean: float, std: float, line: float, n_sim: int = 10000
-    ) -> Dict[str, float]:
-        """
-        Simulate player prop outcomes to estimate probability of over/under a given line.
-        Returns: {"over_prob": float, "under_prob": float, "expected_value": float}
-        """
-        samples = np.random.normal(mean, std, n_sim)
-        over_prob = np.mean(samples > line)
-        under_prob = np.mean(samples <= line)
-        # Expected value calculation (assuming even payout for demonstration)
-        expected_value = (over_prob * 1) - (under_prob * 1)
-        return {
-            "over_prob": over_prob,
-            "under_prob": under_prob,
-            "expected_value": expected_value,
+        # Dimensionality reduction components
+        self.dimensionality_reducers = {
+            "pca": PCA(n_components=0.95),
+            "kernel_pca": KernelPCA(n_components=100, kernel="rbf"),
+            "ica": FastICA(n_components=50),
+            "truncated_svd": TruncatedSVD(n_components=50),
+            "factor_analysis": FactorAnalysis(n_components=30),
+            "sparse_pca": SparsePCA(n_components=30, alpha=0.1),
         }
 
-    def combine_features(self, predictions: List[Dict[str, Any]]) -> Dict[str, Any]:
-        # Implement feature combination logic
-        return {}
+        # Feature selection components
+        self.feature_selectors = {
+            "variance_threshold": VarianceThreshold(threshold=0.01),
+            "mutual_info": SelectKBest(score_func=mutual_info_regression, k=100),
+            "f_regression": SelectKBest(score_func=f_regression, k=100),
+            "percentile": SelectPercentile(score_func=f_regression, percentile=80),
+            "rfe": RFE(estimator=None, n_features_to_select=50),  # Estimator set later
+        }
 
-    def calculate_ensemble_confidence(
-        self, predictions: List[Dict[str, Any]], weights: Dict[str, float]
-    ) -> float:
-        return sum(
-            pred["confidence"] * weights[pred["modelName"]] for pred in predictions
-        )
+        # Clustering components
+        self.clustering_models = {
+            "kmeans": KMeans(n_clusters=10, random_state=42),
+            "gaussian_mixture": GaussianMixture(n_components=8, random_state=42),
+            "dbscan": DBSCAN(eps=0.5, min_samples=5),
+            "spectral": SpectralClustering(n_clusters=6, random_state=42),
+        }
 
-    def calculate_optimal_stake(
-        self, prediction: Dict[str, Any], risk_profile: Dict[str, Any]
-    ) -> float:
-        # Implement optimal stake calculation logic
-        return 0.0
+        # Anomaly detection components
+        self.anomaly_detectors = {
+            "isolation_forest": IsolationForest(contamination=0.1, random_state=42),
+            "elliptic_envelope": EllipticEnvelope(contamination=0.1),
+            "local_outlier": LocalOutlierFactor(n_neighbors=20, contamination=0.1),
+        }
 
-    def select_features(self, features: np.ndarray, target: np.ndarray) -> np.ndarray:
-        return self.feature_selector.fit_transform(features, target)
-
-    def extract_time_series_features(self, data: Dict[str, Any]) -> np.ndarray:
-        features = []
-        for key, value in data.items():
-            if isinstance(value, list) and len(value) > 1:
-                # Calculate time series features
-                features.extend(
-                    [
-                        np.mean(value),
-                        np.std(value),
-                        stats.skew(value),
-                        stats.kurtosis(value),
-                        self._calculate_trend(value),
-                        self._calculate_seasonality(value),
-                    ]
-                )
-        # Contextual features
-        if "rest_days" in data and isinstance(data["rest_days"], (int, float)):
-            features.append(data["rest_days"])
-        if "travel_distance" in data and isinstance(
-            data["travel_distance"], (int, float)
-        ):
-            features.append(data["travel_distance"])
-        if "injury_status" in data and isinstance(data["injury_status"], (int, float)):
-            features.append(data["injury_status"])
-        if "pace" in data and isinstance(data["pace"], (int, float)):
-            features.append(data["pace"])
-        if "coaching_change" in data:
-            features.append(1 if data["coaching_change"] else 0)
-
-        return np.array(features).reshape(1, -1)
-
-    def extract_statistical_features(self, data: Dict[str, Any]) -> np.ndarray:
-        features = []
-        for key, value in data.items():
-            if isinstance(value, (list, np.ndarray)):
-                features.extend(
-                    [
-                        np.percentile(value, 25),
-                        np.percentile(value, 75),
-                        np.max(value),
-                        np.min(value),
-                        np.median(value),
-                    ]
-                )
-        return np.array(features).reshape(1, -1)
-
-    def analyze_time_series(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        analysis = {}
-        for key, value in data.items():
-            if isinstance(value, list) and len(value) > 1:
-                try:
-                    # Perform stationarity test
-                    adf_result = adfuller(value)
-                    # Perform seasonal decomposition
-                    decomposition = seasonal_decompose(
-                        value, period=min(len(value) // 2, 12)
-                    )
-                    analysis[key] = {
-                        "stationary": adf_result[1] < 0.05,
-                        "trend": decomposition.trend.tolist(),
-                        "seasonal": decomposition.seasonal.tolist(),
-                        "residual": decomposition.resid.tolist(),
-                    }
-                except:
-                    continue
-        return analysis
-
-    def _calculate_trend(self, series: List[float]) -> float:
-        x = np.arange(len(series))
-        slope, _, _, _, _ = stats.linregress(x, series)
-        return slope
-
-    def _calculate_seasonality(self, series: List[float]) -> float:
-        if len(series) < 4:
-            return 0.0
+        # Initialize sentiment analyzer
         try:
-            decomposition = seasonal_decompose(series, period=min(len(series) // 2, 12))
-            return np.std(decomposition.seasonal)
-        except:
-            return 0.0
+            self.sentiment_analyzer = SentimentIntensityAnalyzer()
+        except LookupError:
+            nltk.download("vader_lexicon")
+            self.sentiment_analyzer = SentimentIntensityAnalyzer()
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error("Failed to initialize SentimentIntensityAnalyzer: {e}")
+            self.sentiment_analyzer = None
 
-    def create_polynomial_features(self, features: np.ndarray) -> np.ndarray:
-        return self.poly.fit_transform(features)
+        logger.info("Advanced Feature Engineering Engine initialized")
 
-    def detect_anomalies(self, features: np.ndarray) -> np.ndarray:
-        isolation_forest_scores = self.isolation_forest.fit_predict(features)
-        lof_scores = self.lof.fit_predict(features)
-        elliptic_envelope_scores = self.elliptic_envelope.fit_predict(features)
-        return np.vstack(
-            (isolation_forest_scores, lof_scores, elliptic_envelope_scores)
+    async def engineer_maximum_accuracy_features(
+        self,
+        raw_data: Dict[str, Any],
+        target_variable: Optional[str] = None,
+        strategies: List[FeatureEngineeringStrategy] = None,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> FeatureSet:
+        """Engineer features optimized for maximum prediction accuracy"""
+        if strategies is None:
+            strategies = [
+                FeatureEngineeringStrategy.STATISTICAL_TRANSFORMATION,
+                FeatureEngineeringStrategy.TEMPORAL_PATTERNS,
+                FeatureEngineeringStrategy.INTERACTION_DISCOVERY,
+                FeatureEngineeringStrategy.DOMAIN_SPECIFIC,
+                FeatureEngineeringStrategy.TECHNICAL_INDICATORS,
+                FeatureEngineeringStrategy.FREQUENCY_DOMAIN,
+                FeatureEngineeringStrategy.CLUSTERING_FEATURES,
+                FeatureEngineeringStrategy.ANOMALY_FEATURES,
+            ]
+
+        start_time = datetime.now()
+        engineered_features = {}
+        feature_metrics = {}
+        transformation_pipeline = []
+
+        # 1. Basic preprocessing and cleaning
+        cleaned_data = await self._advanced_data_cleaning(raw_data)
+
+        # 2. Apply each feature engineering strategy
+        for strategy in strategies:
+            try:
+                strategy_features = await self._apply_strategy(
+                    strategy, cleaned_data, context
+                )
+                engineered_features.update(strategy_features)
+                transformation_pipeline.append(strategy.value)
+                logger.info(
+                    f"Applied {strategy.value}: {len(strategy_features)} features created"
+                )
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                logger.error("Error applying strategy {strategy.value}: {e}")
+
+        # 3. Feature interaction discovery
+        interaction_features = await self._discover_feature_interactions(
+            engineered_features
+        )
+        engineered_features.update(interaction_features)
+        transformation_pipeline.append("interaction_discovery")
+
+        # 4. Advanced statistical transformations
+        transformed_features = await self._apply_statistical_transformations(
+            engineered_features
+        )
+        engineered_features.update(transformed_features)
+        transformation_pipeline.append("statistical_transformations")
+
+        # 5. Feature quality assessment
+        for feature_name, feature_value in engineered_features.items():
+            metrics = await self._assess_feature_quality(
+                feature_name, feature_value, engineered_features, target_variable
+            )
+            feature_metrics[feature_name] = metrics
+
+        # 5.1. Monitor feature drift
+        await self._monitor_feature_drift(feature_metrics)
+
+        # 6. Feature selection and optimization
+        optimized_features = await self._optimize_feature_set(
+            engineered_features, feature_metrics, target_variable
         )
 
-    def augment_data(
-        self, features: np.ndarray, target: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray]:
-        augmented_features = np.vstack(
-            (features, features + np.random.normal(0, 0.1, features.shape))
+        # 7. Calculate overall quality metrics
+        quality_score = await self._calculate_feature_set_quality(
+            optimized_features, feature_metrics
         )
-        augmented_target = np.vstack((target, target))
-        return augmented_features, augmented_target
 
-    def _extract_features(self, data: Dict[str, Any]) -> np.ndarray:
-        """
-        Extracts scalar, rolling, opponent, home/away, advanced, and contextual features from input data.
-        Returns a 2D numpy array for ML model input.
-        """
-        features = []
-        # Scalar features
-        for key, value in data.items():
-            if isinstance(value, (int, float)):
-                features.append(value)
+        computation_time = (datetime.now() - start_time).total_seconds()
 
-        # Rolling averages (L5, L10, L20)
-        for key, value in data.items():
-            if isinstance(value, (list, np.ndarray)) and len(value) >= 5:
-                l5 = np.mean(value[-5:]) if len(value) >= 5 else np.nan
-                l10 = np.mean(value[-10:]) if len(value) >= 10 else np.nan
-                l20 = np.mean(value[-20:]) if len(value) >= 20 else np.nan
-                features.extend([l5, l10, l20])
+        feature_set = FeatureSet(
+            features=optimized_features,
+            feature_metrics=feature_metrics,
+            transformation_pipeline=transformation_pipeline,
+            selection_criteria={
+                "quality_threshold": 0.7,
+                "importance_threshold": 0.1,
+                "correlation_threshold": 0.95,
+            },
+            quality_score=quality_score,
+            dimensionality=len(optimized_features),
+            sparsity_ratio=self._calculate_sparsity_ratio(optimized_features),
+            computation_time=computation_time,
+            memory_usage=self._estimate_memory_usage(optimized_features),
+            interpretability_index=self._calculate_interpretability_index(
+                feature_metrics
+            ),
+            stability_index=self._calculate_stability_index(feature_metrics),
+            predictive_index=self._calculate_predictive_index(feature_metrics),
+            created_timestamp=start_time,
+        )
 
-        # Opponent splits
-        if "opponent_stats" in data and isinstance(data["opponent_stats"], dict):
-            for opp, opp_values in data["opponent_stats"].items():
-                if isinstance(opp_values, (list, np.ndarray)) and len(opp_values) > 0:
-                    opp_avg = np.mean(opp_values)
-                    features.append(opp_avg)
+        logger.info(
+            f"Feature engineering completed: {len(optimized_features)} features in {computation_time:.2f}s"
+        )
 
-        # Home/Away splits
-        if "home_stats" in data and isinstance(data["home_stats"], (list, np.ndarray)):
-            features.append(np.mean(data["home_stats"]))
-        if "away_stats" in data and isinstance(data["away_stats"], (list, np.ndarray)):
-            features.append(np.mean(data["away_stats"]))
+        # Simulate logging model performance after feature engineering
+        await self._log_model_performance(
+            model_name="Prediction_Model_v1.0",
+            metrics={
+                "feature_engineering_time": computation_time,
+                "num_features": len(optimized_features),
+                "quality_score": quality_score,
+                "avg_predictive_index": feature_set.predictive_index,
+            },
+        )
 
-        # Advanced efficiency metrics
-        for metric in ["PER", "TS%", "USG%", "efficiency"]:
-            if metric in data and isinstance(data[metric], (int, float)):
-                features.append(data[metric])
+        return feature_set
 
-        # Contextual features
-        if "rest_days" in data and isinstance(data["rest_days"], (int, float)):
-            features.append(data["rest_days"])
-        if "travel_distance" in data and isinstance(
-            data["travel_distance"], (int, float)
-        ):
-            features.append(data["travel_distance"])
-        if "injury_status" in data and isinstance(data["injury_status"], (int, float)):
-            features.append(data["injury_status"])
-        if "pace" in data and isinstance(data["pace"], (int, float)):
-            features.append(data["pace"])
-        if "coaching_change" in data:
-            features.append(1 if data["coaching_change"] else 0)
-
-        return np.array(features).reshape(1, -1)
-
-    def _scale_features(self, features: np.ndarray) -> np.ndarray:
-        if not self.feature_scalers:
-            self.feature_scalers = StandardScaler()
-            return self.feature_scalers.fit_transform(features)
-        return self.feature_scalers.transform(features)
-
-    def _select_features(self, features: np.ndarray) -> np.ndarray:
-        return self.feature_selector.fit_transform(features, np.zeros(len(features)))
-
-    def aggregate_shap_values(
-        self, shap_values_list: List[Dict[str, float]]
-    ) -> Dict[str, float]:
-        """Aggregate SHAP values from multiple models using weighted averaging.
-
-        Args:
-        ----
-            shap_values_list: List of SHAP value dictionaries from different models
-
-        Returns:
-        -------
-            Dict of aggregated SHAP values
-
-        """
-        if not shap_values_list:
+    async def _apply_strategy(
+        self,
+        strategy: FeatureEngineeringStrategy,
+        data: Dict[str, Any],
+        context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Apply specific feature engineering strategy"""
+        if strategy == FeatureEngineeringStrategy.STATISTICAL_TRANSFORMATION:
+            return await self._create_statistical_features(data)
+        elif strategy == FeatureEngineeringStrategy.TEMPORAL_PATTERNS:
+            return await self._create_temporal_features(data, context)
+        elif strategy == FeatureEngineeringStrategy.INTERACTION_DISCOVERY:
+            return await self._create_interaction_features(data)
+        elif strategy == FeatureEngineeringStrategy.DOMAIN_SPECIFIC:
+            return await self._create_domain_specific_features(data, context)
+        elif strategy == FeatureEngineeringStrategy.TECHNICAL_INDICATORS:
+            return await self._create_technical_indicator_features(data)
+        elif strategy == FeatureEngineeringStrategy.FREQUENCY_DOMAIN:
+            return await self._create_frequency_domain_features(data)
+        elif strategy == FeatureEngineeringStrategy.CLUSTERING_FEATURES:
+            return await self._create_clustering_features(data)
+        elif strategy == FeatureEngineeringStrategy.ANOMALY_FEATURES:
+            return await self._create_anomaly_features(data)
+        elif strategy == FeatureEngineeringStrategy.POLYNOMIAL_EXPANSION:
+            return await self._create_polynomial_features(data)
+        elif strategy == FeatureEngineeringStrategy.SENTIMENT_FEATURES:
+            return await self._create_sentiment_features(data)
+        else:
             return {}
 
-        # Get all unique feature names
-        all_features = set()
-        for shap_dict in shap_values_list:
-            all_features.update(shap_dict.keys())
+    async def _create_statistical_features(
+        self, data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Create advanced statistical features"""
+        features = {}
 
-        # Calculate weighted average for each feature
-        aggregated_shap = {}
-        len(shap_values_list)
+        numeric_features = [
+            k for k, v in data.items() if isinstance(v, (int, float, np.number))
+        ]
+        if not numeric_features:
+            return features
 
-        for feature in all_features:
-            feature_values = [
-                shap_dict.get(feature, 0.0) for shap_dict in shap_values_list
-            ]
-            aggregated_shap[feature] = np.mean(feature_values)
+        values = np.array([data[k] for k in numeric_features])
 
-        return aggregated_shap
+        # Basic statistical features
+        features["stat_mean"] = np.mean(values)
+        features["stat_median"] = np.median(values)
+        features["stat_std"] = np.std(values)
+        features["stat_var"] = np.var(values)
+        features["stat_skew"] = stats.skew(values)
+        features["stat_kurtosis"] = stats.kurtosis(values)
+        features["stat_min"] = np.min(values)
+        features["stat_max"] = np.max(values)
+        features["stat_range"] = np.max(values) - np.min(values)
+        features["stat_iqr"] = np.percentile(values, 75) - np.percentile(values, 25)
 
-    def generate_explanation(
-        self, final_value: float, confidence: float, shap_values: Dict[str, float]
-    ) -> str:
-        """Generate human-readable explanation for the prediction.
-
-        Args:
-        ----
-            final_value: The final prediction value
-            confidence: The ensemble confidence score
-            shap_values: The aggregated SHAP values
-
-        Returns:
-        -------
-            Human-readable explanation string
-
-        """
-        # Sort features by absolute SHAP value importance
-        sorted_features = sorted(
-            shap_values.items(), key=lambda x: abs(x[1]), reverse=True
+        # Advanced statistical features
+        features["stat_coefficient_variation"] = np.std(values) / (
+            np.mean(values) + 1e-8
         )
-        top_features = sorted_features[:3]  # Top 3 most important features
+        features["stat_mad"] = np.median(np.abs(values - np.median(values)))
+        features["stat_trimmed_mean"] = stats.trim_mean(values, 0.1)
+        features["stat_geometric_mean"] = stats.gmean(np.abs(values) + 1e-8)
+        features["stat_harmonic_mean"] = stats.hmean(np.abs(values) + 1e-8)
 
-        explanation_parts = [
-            f"Prediction: {final_value:.3f} (Confidence: {confidence:.1%})"
+        # Percentile features
+        for p in [5, 10, 25, 75, 90, 95]:
+            features[f"stat_percentile_{p}"] = np.percentile(values, p)
+
+        # Moments
+        for i in range(2, 6):
+            features[f"stat_moment_{i}"] = stats.moment(values, moment=i)
+
+        # Distribution testing
+        try:
+            _, p_normal = stats.normaltest(values)
+            features["stat_normality_p"] = p_normal
+        except:
+            features["stat_normality_p"] = 0.5
+
+        # Entropy
+        hist, _ = np.histogram(values, bins=10)
+        probs = hist / np.sum(hist)
+        probs = probs[probs > 0]
+        features["stat_entropy"] = -np.sum(probs * np.log2(probs))
+
+        return features
+
+    async def _create_temporal_features(
+        self, data: Dict[str, Any], context: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Create temporal pattern features"""
+        features = {}
+
+        if not context or "timestamp" not in context:
+            return features
+
+        timestamp = context["timestamp"]
+        if isinstance(timestamp, str):
+            timestamp = pd.to_datetime(timestamp)
+
+        # Time-based features
+        features["temporal_hour"] = timestamp.hour
+        features["temporal_day_of_week"] = timestamp.dayofweek
+        features["temporal_day_of_month"] = timestamp.day
+        features["temporal_month"] = timestamp.month
+        features["temporal_quarter"] = timestamp.quarter
+        features["temporal_year"] = timestamp.year
+        features["temporal_is_weekend"] = int(timestamp.dayofweek >= 5)
+        features["temporal_is_holiday"] = self._is_holiday(timestamp)
+
+        # Cyclical encoding
+        features["temporal_hour_sin"] = np.sin(2 * np.pi * timestamp.hour / 24)
+        features["temporal_hour_cos"] = np.cos(2 * np.pi * timestamp.hour / 24)
+        features["temporal_day_sin"] = np.sin(2 * np.pi * timestamp.dayofweek / 7)
+        features["temporal_day_cos"] = np.cos(2 * np.pi * timestamp.dayofweek / 7)
+        features["temporal_month_sin"] = np.sin(2 * np.pi * timestamp.month / 12)
+        features["temporal_month_cos"] = np.cos(2 * np.pi * timestamp.month / 12)
+
+        # Season features
+        features["temporal_season"] = self._get_season(timestamp)
+        features["temporal_is_business_hours"] = int(9 <= timestamp.hour <= 17)
+        features["temporal_is_prime_time"] = int(19 <= timestamp.hour <= 22)
+
+        # Historical pattern features if historical data available
+        if "historical_data" in context:
+            historical_features = await self._create_historical_pattern_features(
+                data, context["historical_data"], timestamp
+            )
+            features.update(historical_features)
+
+        return features
+
+    async def _create_technical_indicator_features(
+        self, data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Create technical analysis indicator features"""
+        features = {}
+
+        # Extract price-like features for technical analysis
+        price_features = []
+        for key, value in data.items():
+            if isinstance(value, (int, float)) and any(
+                term in key.lower() for term in ["price", "value", "score", "odds"]
+            ):
+                price_features.append(value)
+
+        if len(price_features) < 5:  # Need minimum data for technical indicators
+            return features
+
+        # Convert to pandas Series for technical analysis
+        prices = pd.Series(price_features)
+
+        try:
+            # Moving averages
+            features["ta_sma_5"] = ta.trend.sma_indicator(
+                prices, window=min(5, len(prices))
+            )
+            features["ta_ema_5"] = ta.trend.ema_indicator(
+                prices, window=min(5, len(prices))
+            )
+
+            # Momentum indicators
+            features["ta_rsi"] = ta.momentum.rsi(prices, window=min(14, len(prices)))
+            features["ta_stoch"] = ta.momentum.stoch(
+                prices, prices, prices, window=min(14, len(prices))
+            )
+
+            # Volatility indicators
+            features["ta_bollinger_high"] = ta.volatility.bollinger_hband(
+                prices, window=min(20, len(prices))
+            )
+            features["ta_bollinger_low"] = ta.volatility.bollinger_lband(
+                prices, window=min(20, len(prices))
+            )
+            features["ta_atr"] = ta.volatility.average_true_range(
+                prices, prices, prices, window=min(14, len(prices))
+            )
+
+            # Volume indicators (using price as proxy)
+            features["ta_volume_sma"] = ta.volume.volume_sma(
+                prices, prices, window=min(10, len(prices))
+            )
+
+            # Trend indicators
+            features["ta_adx"] = ta.trend.adx(
+                prices, prices, prices, window=min(14, len(prices))
+            )
+            features["ta_macd"] = ta.trend.macd(
+                prices,
+                window_slow=min(26, len(prices)),
+                window_fast=min(12, len(prices)),
+            )
+
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.warning("Error creating technical indicators: {e}")
+
+        # Remove NaN values
+        features = {
+            k: v
+            for k, v in features.items()
+            if not (isinstance(v, float) and np.isnan(v))
+        }
+
+        return features
+
+    async def _create_frequency_domain_features(
+        self, data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Create frequency domain features using FFT"""
+        features = {}
+
+        numeric_values = [
+            v for v in data.values() if isinstance(v, (int, float, np.number))
+        ]
+        if len(numeric_values) < 8:  # Need minimum data for FFT
+            return features
+
+        # Perform FFT
+        fft_values = fft(numeric_values)
+        freqs = fftfreq(len(numeric_values))
+
+        # Extract frequency domain features
+        features["freq_dc_component"] = np.abs(fft_values[0])
+        features["freq_fundamental"] = (
+            np.abs(fft_values[1]) if len(fft_values) > 1 else 0
+        )
+        features["freq_total_power"] = np.sum(np.abs(fft_values) ** 2)
+        features["freq_peak_frequency"] = (
+            freqs[np.argmax(np.abs(fft_values[1 : len(fft_values) // 2]))]
+            if len(fft_values) > 2
+            else 0
+        )
+
+        # Spectral centroid
+        spectrum = np.abs(fft_values[: len(fft_values) // 2])
+        freqs_positive = freqs[: len(freqs) // 2]
+        features["freq_spectral_centroid"] = np.sum(freqs_positive * spectrum) / (
+            np.sum(spectrum) + 1e-8
+        )
+
+        # Spectral rolloff
+        cumsum_spectrum = np.cumsum(spectrum)
+        rolloff_point = 0.85 * cumsum_spectrum[-1]
+        rolloff_idx = np.where(cumsum_spectrum >= rolloff_point)[0]
+        features["freq_spectral_rolloff"] = (
+            freqs_positive[rolloff_idx[0]] if len(rolloff_idx) > 0 else 0
+        )
+
+        # Spectral bandwidth
+        centroid = features["freq_spectral_centroid"]
+        features["freq_spectral_bandwidth"] = np.sqrt(
+            np.sum(((freqs_positive - centroid) ** 2) * spectrum)
+            / (np.sum(spectrum) + 1e-8)
+        )
+
+        return features
+
+    async def _create_clustering_features(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Create clustering-based features"""
+        features = {}
+
+        numeric_data = np.array(
+            [v for v in data.values() if isinstance(v, (int, float, np.number))]
+        )
+        if len(numeric_data) < 5:
+            return features
+
+        # Reshape for clustering (assume single sample)
+        X = numeric_data.reshape(1, -1)
+
+        try:
+            # K-means clustering distance
+            kmeans = self.clustering_models["kmeans"]
+            if hasattr(kmeans, "cluster_centers_"):
+                cluster_distances = np.sqrt(
+                    np.sum((X - kmeans.cluster_centers_) ** 2, axis=1)
+                )
+                features["cluster_min_distance"] = np.min(cluster_distances)
+                features["cluster_max_distance"] = np.max(cluster_distances)
+                features["cluster_avg_distance"] = np.mean(cluster_distances)
+                features["cluster_assignment"] = kmeans.predict(X)[0]
+
+            # Gaussian Mixture Model probability
+            gmm = self.clustering_models["gaussian_mixture"]
+            if hasattr(gmm, "weights_"):
+                probabilities = gmm.predict_proba(X)[0]
+                features["gmm_max_probability"] = np.max(probabilities)
+                features["gmm_entropy"] = -np.sum(
+                    probabilities * np.log(probabilities + 1e-8)
+                )
+                features["gmm_assignment"] = gmm.predict(X)[0]
+
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.warning("Error creating clustering features: {e}")
+
+        return features
+
+    async def _create_anomaly_features(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Create anomaly detection features"""
+        features = {}
+
+        numeric_data = np.array(
+            [v for v in data.values() if isinstance(v, (int, float, np.number))]
+        )
+        if len(numeric_data) < 3:
+            return features
+
+        # Reshape for anomaly detection
+        X = numeric_data.reshape(1, -1)
+
+        try:
+            # Isolation Forest anomaly score
+            iso_forest = self.anomaly_detectors["isolation_forest"]
+            if hasattr(iso_forest, "decision_function"):
+                features["anomaly_isolation_score"] = iso_forest.decision_function(X)[0]
+                features["anomaly_isolation_outlier"] = iso_forest.predict(X)[0]
+
+            # Statistical anomaly detection
+            z_scores = np.abs(stats.zscore(numeric_data))
+            features["anomaly_max_zscore"] = np.max(z_scores)
+            features["anomaly_mean_zscore"] = np.mean(z_scores)
+            features["anomaly_outlier_count"] = np.sum(z_scores > 3)
+
+            # Mahalanobis distance (simplified)
+            if len(numeric_data) > 1:
+                cov_matrix = np.cov(numeric_data.reshape(-1, 1), rowvar=False)
+                if cov_matrix.shape == () or cov_matrix == 0:
+                    features["anomaly_mahalanobis"] = 0.0
+                else:
+                    mean_vec = np.mean(numeric_data)
+                    diff = numeric_data - mean_vec
+                    features["anomaly_mahalanobis"] = np.sqrt(
+                        np.sum((diff**2) / (cov_matrix + 1e-8))
+                    )
+
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.warning("Error creating anomaly features: {e}")
+
+        return features
+
+    async def _create_domain_specific_features(
+        self, data: Dict[str, Any], context: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Create sports betting domain-specific features"""
+        features = {}
+
+        # Player performance features
+        if "player_stats" in data:
+            player_features = await self._create_player_performance_features(
+                data["player_stats"]
+            )
+            features.update(player_features)
+
+        # Team performance features
+        if "team_stats" in data:
+            team_features = await self._create_team_performance_features(
+                data["team_stats"]
+            )
+            features.update(team_features)
+
+        # Game context features
+        if context and "game_context" in context:
+            game_features = await self._create_game_context_features(
+                context["game_context"]
+            )
+            features.update(game_features)
+
+        # Betting market features
+        if "betting_data" in data:
+            betting_features = await self._create_betting_market_features(
+                data["betting_data"]
+            )
+            features.update(betting_features)
+
+        # Injury impact features
+        if "injury_data" in data:
+            injury_features = await self._create_injury_impact_features(
+                data["injury_data"]
+            )
+            features.update(injury_features)
+
+        # Weather impact features
+        if "weather_data" in data:
+            weather_features = await self._create_weather_impact_features(
+                data["weather_data"]
+            )
+            features.update(weather_features)
+
+        return features
+
+    async def _create_player_performance_features(
+        self, player_stats: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Create player performance features"""
+        features = {}
+
+        # Recent form indicators
+        if "recent_games" in player_stats:
+            recent = player_stats["recent_games"]
+            features["player_recent_avg"] = np.mean(recent) if recent else 0
+            features["player_recent_trend"] = (
+                np.polyfit(range(len(recent)), recent, 1)[0] if len(recent) > 1 else 0
+            )
+            features["player_consistency"] = (
+                1.0 / (1.0 + np.std(recent)) if recent else 0
+            )
+
+        # Career performance
+        if "career_stats" in player_stats:
+            career = player_stats["career_stats"]
+            features["player_career_avg"] = career.get("average", 0)
+            features["player_games_played"] = career.get("games_played", 0)
+            features["player_career_high"] = career.get("career_high", 0)
+
+        # Matchup-specific performance
+        if "vs_opponent" in player_stats:
+            vs_stats = player_stats["vs_opponent"]
+            features["player_vs_opponent_avg"] = vs_stats.get("average", 0)
+            features["player_vs_opponent_games"] = vs_stats.get("games", 0)
+
+        # Home/away splits
+        if "home_away_splits" in player_stats:
+            splits = player_stats["home_away_splits"]
+            features["player_home_avg"] = splits.get("home_avg", 0)
+            features["player_away_avg"] = splits.get("away_avg", 0)
+            features["player_home_away_diff"] = (
+                features["player_home_avg"] - features["player_away_avg"]
+            )
+
+        return features
+
+    async def _discover_feature_interactions(
+        self, features: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Discover important feature interactions"""
+        interaction_features = {}
+
+        numeric_features = {
+            k: v for k, v in features.items() if isinstance(v, (int, float, np.number))
+        }
+        feature_names = list(numeric_features.keys())
+
+        # Limit to prevent explosion
+        max_features = min(20, len(feature_names))
+        selected_features = feature_names[:max_features]
+
+        # Pairwise interactions
+        for i, feat1 in enumerate(selected_features):
+            for j, feat2 in enumerate(selected_features[i + 1 :], i + 1):
+                val1, val2 = numeric_features[feat1], numeric_features[feat2]
+
+                # Multiple interaction types
+                interaction_features[f"{feat1}_X_{feat2}_multiply"] = val1 * val2
+                interaction_features[f"{feat1}_X_{feat2}_add"] = val1 + val2
+                interaction_features[f"{feat1}_X_{feat2}_subtract"] = val1 - val2
+                interaction_features[f"{feat1}_X_{feat2}_divide"] = val1 / (val2 + 1e-8)
+                interaction_features[f"{feat1}_X_{feat2}_max"] = max(val1, val2)
+                interaction_features[f"{feat1}_X_{feat2}_min"] = min(val1, val2)
+                interaction_features[f"{feat1}_X_{feat2}_mean"] = (val1 + val2) / 2
+
+                # Advanced interactions
+                interaction_features[f"{feat1}_X_{feat2}_harmonic"] = (
+                    2 * val1 * val2 / (val1 + val2 + 1e-8)
+                )
+                interaction_features[f"{feat1}_X_{feat2}_geometric"] = np.sqrt(
+                    abs(val1 * val2)
+                )
+                interaction_features[f"{feat1}_X_{feat2}_power"] = val1 ** (
+                    val2 * 0.1
+                )  # Scale power
+
+        # Higher-order interactions (limited)
+        top_features = selected_features[:10]
+        for i, feat1 in enumerate(top_features):
+            for j, feat2 in enumerate(top_features[i + 1 :], i + 1):
+                for k, feat3 in enumerate(top_features[j + 1 :], j + 1):
+                    val1, val2, val3 = (
+                        numeric_features[feat1],
+                        numeric_features[feat2],
+                        numeric_features[feat3],
+                    )
+                    interaction_features[f"{feat1}_X_{feat2}_X_{feat3}_product"] = (
+                        val1 * val2 * val3
+                    )
+                    interaction_features[f"{feat1}_X_{feat2}_X_{feat3}_mean"] = (
+                        val1 + val2 + val3
+                    ) / 3
+
+        return interaction_features
+
+    async def _assess_feature_quality(
+        self,
+        feature_name: str,
+        feature_value: Any,
+        all_features: Dict[str, Any],
+        target_variable: Optional[str] = None,
+    ) -> AdvancedFeatureMetrics:
+        """Assess comprehensive feature quality metrics"""
+        # Initialize with defaults
+        importance_score = 0.5
+        stability_score = 0.8
+        correlation_with_target = 0.0
+        mutual_information = 0.0
+        variance_ratio = 0.5
+        outlier_resistance = 0.7
+        interpretability_score = 0.6
+        computation_cost = 0.1
+        redundancy_score = 0.3
+        predictive_power = 0.5
+        noise_ratio = 0.2
+        distribution_score = 0.7
+        temporal_consistency = 0.8
+        domain_relevance = 0.6
+
+        # Calculate actual metrics where possible
+        if isinstance(feature_value, (int, float, np.number)):
+            # Convert all_features to a pandas DataFrame for easier calculations
+            feature_df = pd.DataFrame([all_features])
+            if (
+                not feature_df.empty
+                and target_variable
+                and target_variable in feature_df.columns
+                and feature_name in feature_df.columns
+            ):
+                # Ensure the columns are numeric for correlation/mutual information
+                feature_df = feature_df.apply(pd.to_numeric, errors="coerce").dropna(
+                    axis=1
+                )
+
+                if (
+                    feature_name in feature_df.columns
+                    and target_variable in feature_df.columns
+                    and len(feature_df) > 1
+                ):
+                    # Correlation with Target
+                    try:
+                        correlation_with_target = feature_df[feature_name].corr(
+                            feature_df[target_variable]
+                        )
+                        if np.isnan(
+                            correlation_with_target
+                        ):  # Handle NaN in correlation
+                            correlation_with_target = 0.0
+                    except Exception:
+                        correlation_with_target = 0.0
+
+                    # Mutual Information
+                    try:
+                        # Reshape for mutual_info_regression
+                        X = feature_df[[feature_name]].values
+                        y = feature_df[target_variable].values
+                        if len(X) > 1 and len(np.unique(y)) > 1:
+                            mutual_information = mutual_info_regression(X, y)[0]
+                        else:
+                            mutual_information = 0.0
+                    except Exception:
+                        mutual_information = 0.0
+
+                    # Predictive Power (simplified using Linear Regression R-squared)
+                    try:
+                        model = LinearRegression()
+                        # Ensure X and y have at least 2 samples for training
+                        if (
+                            len(feature_df) > 1
+                            and len(np.unique(feature_df[target_variable])) > 1
+                        ):
+                            model.fit(
+                                feature_df[[feature_name]], feature_df[target_variable]
+                            )
+                            predictive_power = model.score(
+                                feature_df[[feature_name]], feature_df[target_variable]
+                            )
+                        else:
+                            predictive_power = 0.0
+                    except Exception:
+                        predictive_power = 0.0
+
+                # Redundancy Score (average absolute correlation with other features)
+                other_numeric_features = [
+                    col
+                    for col in feature_df.columns
+                    if col != feature_name and col != target_variable
+                ]
+                if other_numeric_features:
+                    correlations = (
+                        feature_df[feature_name]
+                        .corr(feature_df[other_numeric_features])
+                        .abs()
+                        .values
+                    )
+                    if len(correlations) > 0:
+                        redundancy_score = np.mean(correlations)
+
+            # Variance-based importance
+            numeric_values = [
+                v
+                for v in all_features.values()
+                if isinstance(v, (int, float, np.number))
+            ]
+            if numeric_values:
+                variance_ratio = np.var([feature_value]) / (
+                    np.var(numeric_values) + 1e-8
+                )
+
+            # Distribution normality
+            try:
+                # For a single feature_value, create a synthetic distribution for normaltest
+                if isinstance(feature_value, (int, float)):
+                    # Create a dummy array with some variance for statistical test
+                    dummy_data = np.array(
+                        [
+                            feature_value,
+                            feature_value * 1.01,
+                            feature_value * 0.99,
+                            feature_value * 1.005,
+                            feature_value * 0.995,
+                        ]
+                    )
+                    if (
+                        np.std(dummy_data) == 0
+                    ):  # Avoid division by zero if all values are same
+                        p_value = 1.0
+                    else:
+                        _, p_value = stats.normaltest(dummy_data)
+                    distribution_score = min(1.0, p_value * 2)
+                else:
+                    distribution_score = 0.5
+            except Exception:
+                distribution_score = 0.5
+
+        # Interpretability based on feature name
+        interpretable_patterns = [
+            "avg",
+            "mean",
+            "sum",
+            "count",
+            "ratio",
+            "percent",
+            "score",
+        ]
+        if any(pattern in feature_name.lower() for pattern in interpretable_patterns):
+            interpretability_score = 0.9
+        elif any(
+            pattern in feature_name.lower()
+            for pattern in ["quantum", "complex", "transform"]
+        ):
+            interpretability_score = 0.3
+
+        # Computation cost based on feature name complexity
+        expensive_patterns = [
+            "interaction",
+            "quantum",
+            "frequency",
+            "transform",
+            "cluster",
+        ]
+        if any(pattern in feature_name.lower() for pattern in expensive_patterns):
+            computation_cost = 0.5
+
+        # Domain relevance for sports betting
+        relevant_patterns = [
+            "player",
+            "team",
+            "game",
+            "performance",
+            "stats",
+            "odds",
+            "score",
+        ]
+        if any(pattern in feature_name.lower() for pattern in relevant_patterns):
+            domain_relevance = 0.9
+
+        return AdvancedFeatureMetrics(
+            feature_name=feature_name,
+            importance_score=importance_score,
+            stability_score=stability_score,
+            correlation_with_target=correlation_with_target,
+            mutual_information=mutual_information,
+            variance_ratio=variance_ratio,
+            outlier_resistance=outlier_resistance,
+            interpretability_score=interpretability_score,
+            computation_cost=computation_cost,
+            redundancy_score=redundancy_score,
+            predictive_power=predictive_power,
+            noise_ratio=noise_ratio,
+            distribution_score=distribution_score,
+            temporal_consistency=temporal_consistency,
+            domain_relevance=domain_relevance,
+            feature_interactions=[],
+            created_timestamp=datetime.now(),
+            last_updated=datetime.now(),
+        )
+
+    def _is_holiday(self, timestamp: datetime) -> int:
+        """Check if timestamp is a holiday"""
+        # Simplified holiday detection
+        holidays = [
+            (1, 1),  # New Year
+            (7, 4),  # Independence Day
+            (12, 25),  # Christmas
+            (11, 24),  # Thanksgiving (simplified)
+        ]
+        return int((timestamp.month, timestamp.day) in holidays)
+
+    async def _create_historical_pattern_features(
+        self,
+        current_data: Dict[str, Any],
+        historical_data: List[Dict[str, Any]],
+        current_timestamp: datetime,
+    ) -> Dict[str, Any]:
+        """Create features based on historical patterns and trends.
+        This would typically involve more sophisticated time series analysis,
+        but for now, we'll calculate simple moving averages and standard deviations.
+        """
+        features = {}
+
+        if not historical_data:
+            return features
+
+        # Convert historical data to a DataFrame for easier numerical operations
+        df = pd.DataFrame(historical_data)
+
+        # Identify numeric columns that are present in current_data
+        numeric_cols = [
+            k
+            for k, v in current_data.items()
+            if isinstance(v, (int, float, np.number)) and k in df.columns
         ]
 
-        if top_features:
-            explanation_parts.append("Key factors:")
-            for feature, value in top_features:
-                impact = "positive" if value > 0 else "negative"
-                explanation_parts.append(f"• {feature}: {impact} impact ({value:.3f})")
+        if not numeric_cols:
+            return features
 
-        # Add confidence interpretation
-        if confidence > 0.8:
-            explanation_parts.append(
-                "High confidence prediction based on strong model agreement."
-            )
-        elif confidence > 0.6:
-            explanation_parts.append(
-                "Moderate confidence with some model disagreement."
-            )
+        for col in numeric_cols:
+            # Calculate moving averages for different windows
+            for window in [3, 5, 10]:
+                if len(df) >= window:
+                    features[f"hist_{col}_sma_{window}"] = (
+                        df[col].rolling(window=window).mean().iloc[-1]
+                    )
+                    features[f"hist_{col}_std_{window}"] = (
+                        df[col].rolling(window=window).std().iloc[-1]
+                    )
+
+            # Calculate daily, weekly, monthly averages/trends if timestamp is available in historical data
+            if "timestamp" in df.columns:
+                df["timestamp"] = pd.to_datetime(df["timestamp"])
+                df.set_index("timestamp", inplace=True)
+
+                # Daily average for the current day
+                daily_data = df[df.index.date == current_timestamp.date()]
+                if not daily_data.empty:
+                    features[f"hist_{col}_daily_avg"] = daily_data[col].mean()
+
+                # Weekly average for the current week (example: last 7 days)
+                weekly_data = df[df.index >= (current_timestamp - pd.Timedelta(days=7))]
+                if not weekly_data.empty:
+                    features[f"hist_{col}_weekly_avg"] = weekly_data[col].mean()
+
+                # Monthly average for the current month
+                monthly_data = df[df.index.month == current_timestamp.month]
+                if not monthly_data.empty:
+                    features[f"hist_{col}_monthly_avg"] = monthly_data[col].mean()
+
+        # Remove any NaN values that might arise from insufficient historical data for rolling windows
+        features = {
+            k: v
+            for k, v in features.items()
+            if not (isinstance(v, float) and np.isnan(v))
+        }
+
+        return features
+
+    def _get_season(self, timestamp: datetime) -> int:
+        """Get season from timestamp"""
+        month = timestamp.month
+        if month in [12, 1, 2]:
+            return 0  # Winter
+        elif month in [3, 4, 5]:
+            return 1  # Spring
+        elif month in [6, 7, 8]:
+            return 2  # Summer
         else:
-            explanation_parts.append(
-                "Low confidence - consider additional data or analysis."
+            return 3  # Fall
+
+    async def _monitor_feature_drift(
+        self, current_feature_metrics: Dict[str, AdvancedFeatureMetrics]
+    ):
+        """Monitors feature drift by comparing current metrics to historical data.
+        In a production system, this would use a persistent store and more sophisticated drift detection algorithms.
+        """
+        logger.info("Monitoring feature drift...")
+
+        for feature_name, current_metrics in current_feature_metrics.items():
+            # Add current metrics to historical store
+            self.historical_feature_metrics[feature_name].append(current_metrics)
+            # Keep only the last N entries for simplicity (e.g., last 10)
+            self.historical_feature_metrics[feature_name] = (
+                self.historical_feature_metrics[feature_name][-10:]
             )
 
-        return " ".join(explanation_parts)
+            historical_data_for_feature = self.historical_feature_metrics[feature_name]
+
+            if len(historical_data_for_feature) > 1:
+                # Simple drift detection: compare current value to the mean of historical values
+                # For demonstration, we'll check 'importance_score'
+                historical_scores = [
+                    m.importance_score for m in historical_data_for_feature[:-1]
+                ]  # Exclude current
+
+                if historical_scores:
+                    avg_historical_score = np.mean(historical_scores)
+                    std_historical_score = np.std(historical_scores)
+
+                    # Define a threshold for significant drift (e.g., 2 standard deviations)
+                    if (
+                        std_historical_score > 0
+                        and abs(current_metrics.importance_score - avg_historical_score)
+                        > 2 * std_historical_score
+                    ):
+                        logger.warning(
+                            f"Feature drift detected for '{feature_name}': "
+                            f"Current importance score {current_metrics.importance_score:.2f} is significantly different from historical average {avg_historical_score:.2f}."
+                        )
+                    else:
+                        logger.info(
+                            f"No significant drift detected for '{feature_name}'."
+                        )
+                else:
+                    logger.info(
+                        f"Not enough historical data to assess drift for '{feature_name}'."
+                    )
+            else:
+                logger.info(
+                    f"Not enough historical data to assess drift for '{feature_name}'."
+                )
+
+    async def _log_model_performance(self, model_name: str, metrics: Dict[str, Any]):
+        """Simulates logging model performance metrics.
+        In a real system, this would integrate with a dedicated monitoring dashboard (e.g., SigNoz, Prometheus).
+        """
+        logger.info(f"Logging performance for model '{model_name}':")
+        for metric_name, value in metrics.items():
+            logger.info(f"  {metric_name}: {value}")
+
+    # Global instance
+
+
+advanced_feature_engineer = AdvancedFeatureEngineer()

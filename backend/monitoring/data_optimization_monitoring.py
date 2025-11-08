@@ -98,7 +98,7 @@ class MonitoringService:
     async def get_enhanced_pipeline_metrics(self) -> ServiceMetrics:
         """Get metrics from enhanced data pipeline"""
         try:
-            from backend.services.enhanced_data_pipeline import enhanced_data_pipeline
+            from backend.services.data_pipeline import enhanced_data_pipeline
 
             stats = await enhanced_data_pipeline.get_stats()
 

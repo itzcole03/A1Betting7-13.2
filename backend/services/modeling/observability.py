@@ -468,7 +468,7 @@ async def database_health_check() -> tuple[bool, Dict[str, Any]]:
     """Health check for database connectivity"""
     try:
         # Try to import database dependencies
-        from backend.enhanced_database import get_db_session
+        from backend.services.database.database import get_db_session
         
         # TODO: Add actual database connectivity test
         return True, {"status": "available", "note": "TODO: Add connectivity test"}

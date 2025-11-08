@@ -1,0 +1,26 @@
+{
+  "total_updates": 27,
+  "files_updated": [
+    "backend/autonomous_system.py",
+    "backend/production_integration.py",
+    "backend/cleanup_phase1/archived_files/main_enhanced_prod.py",
+    "backend/health/health_checks.py",
+    "backend/monitoring/data_optimization_monitoring.py",
+    "backend/services/bankroll_service.py",
+    "backend/services/clv_persistence_service.py",
+    "backend/services/comprehensive_sportradar_integration.py",
+    "backend/services/data_quality_monitor.py",
+    "backend/services/enhanced_integration_manager.py",
+    "backend/services/enhanced_prop_analysis_service.py",
+    "backend/services/enhanced_prop_analysis_service_fixed.py",
+    "backend/services/ev_calculation_service.py",
+    "backend/services/lazy_sport_manager.py",
+    "backend/services/modern_async_architecture.py",
+    "backend/services/realtime_websocket_service.py",
+    "backend/services/sportradar_service.py",
+    "backend/services/edges/edge_service.py",
+    "backend/services/modeling/model_registry.py",
+    "backend/services/modeling/observability.py",
+    "backend/services/valuation/valuation_engine.py"
+  ]
+}

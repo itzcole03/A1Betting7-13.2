@@ -18,7 +18,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 import numpy as np
 from pydantic import BaseModel
 
-from backend.services.enhanced_data_pipeline import enhanced_data_pipeline
+from backend.services.data_pipeline import enhanced_data_pipeline
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("data_quality_monitor")

@@ -22,7 +22,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # Import existing database manager
-from backend.enhanced_database import db_manager
+from backend.services.database.database import db_manager
 
 logger = logging.getLogger(__name__)
 

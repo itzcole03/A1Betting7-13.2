@@ -1,0 +1,93 @@
+{
+  "summary": {
+    "total_variants_consolidated": 14,
+    "canonical_modules_created": 5
+  },
+  "actions": [
+    {
+      "action": "consolidate",
+      "module": "feature_engineering",
+      "canonical": "backend/services/ml/feature_engineering.py",
+      "source": "backend/services/ml/advanced_feature_engineering.py"
+    },
+    {
+      "action": "deprecate",
+      "source": "backend/services/enhanced_feature_engineering.py",
+      "target": "backend/deprecated/enhanced_feature_engineering.py"
+    },
+    {
+      "action": "deprecate",
+      "source": "backend/services/ml/enhanced_feature_engineering.py",
+      "target": "backend/deprecated/enhanced_feature_engineering.py"
+    },
+    {
+      "action": "deprecate",
+      "source": "backend/services/ml/advanced_feature_engineering.py",
+      "target": "backend/deprecated/advanced_feature_engineering.py"
+    },
+    {
+      "action": "consolidate",
+      "module": "ml_service",
+      "canonical": "backend/services/ml/ml_service.py",
+      "source": "backend/services/enhanced_ml_service.py"
+    },
+    {
+      "action": "deprecate",
+      "source": "backend/cleanup_phase1/services/advanced_ml_service.py",
+      "target": "backend/deprecated/advanced_ml_service.py"
+    },
+    {
+      "action": "deprecate",
+      "source": "backend/services/advanced_ml_service.py",
+      "target": "backend/deprecated/advanced_ml_service.py"
+    },
+    {
+      "action": "deprecate",
+      "source": "backend/services/enhanced_ml_service.py",
+      "target": "backend/deprecated/enhanced_ml_service.py"
+    },
+    {
+      "action": "consolidate",
+      "module": "data_pipeline",
+      "canonical": "backend/services/data_pipeline.py",
+      "source": "backend/enhanced_data_pipeline.py"
+    },
+    {
+      "action": "deprecate",
+      "source": "backend/enhanced_data_pipeline.py",
+      "target": "backend/deprecated/enhanced_data_pipeline.py"
+    },
+    {
+      "action": "deprecate",
+      "source": "backend/services/enhanced_data_pipeline.py",
+      "target": "backend/deprecated/enhanced_data_pipeline.py"
+    },
+    {
+      "action": "consolidate",
+      "module": "database",
+      "canonical": "backend/services/database/database.py",
+      "source": "backend/enhanced_database.py"
+    },
+    {
+      "action": "deprecate",
+      "source": "backend/enhanced_database.py",
+      "target": "backend/deprecated/enhanced_database.py"
+    },
+    {
+      "action": "consolidate",
+      "module": "openapi",
+      "canonical": "backend/config/openapi.py",
+      "source": "backend/config/enhanced_openapi.py"
+    },
+    {
+      "action": "deprecate",
+      "source": "backend/config/enhanced_openapi.py",
+      "target": "backend/deprecated/enhanced_openapi.py"
+    },
+    {
+      "action": "deprecate",
+      "source": "backend/docs/enhanced_openapi.py",
+      "target": "backend/deprecated/enhanced_openapi.py"
+    }
+  ]
+}

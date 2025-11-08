@@ -17,7 +17,7 @@ import websockets
 from pydantic import BaseModel
 
 from backend.config_manager import A1BettingConfig
-from backend.services.enhanced_data_pipeline import enhanced_data_pipeline
+from backend.services.data_pipeline import enhanced_data_pipeline
 
 try:
     from backend.services.unified_cache_service import UnifiedCacheService, get_cache

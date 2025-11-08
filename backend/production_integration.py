@@ -38,7 +38,7 @@ from slowapi.errors import RateLimitExceeded
 
 # Import our enhanced components
 from backend.config_manager import A1BettingConfig, Environment
-from backend.enhanced_database import db_manager
+from backend.services.database.database import db_manager
 from backend.middleware.security_middleware import SecurityMiddleware
 from backend.domains.auth.security_config import require_api_key
 from backend.services.rate_limiting_service import (
@@ -116,7 +116,7 @@ class ProductionApp:
 
             # Initialize enhanced data pipeline
             try:
-                from backend.services.enhanced_data_pipeline import (
+                from backend.services.data_pipeline import (
                     enhanced_data_pipeline,
                 )
 
@@ -177,7 +177,7 @@ class ProductionApp:
 
                 # Shutdown enhanced data pipeline
                 try:
-                    from backend.services.enhanced_data_pipeline import (
+                    from backend.services.data_pipeline import (
                         enhanced_data_pipeline,
                     )
 

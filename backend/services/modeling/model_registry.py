@@ -13,7 +13,7 @@ from pydantic import BaseModel
 # Try to import database dependencies gracefully
 try:
     from sqlalchemy.ext.asyncio import AsyncSession
-    from backend.enhanced_database import get_db_session
+    from backend.services.database.database import get_db_session
     from backend.models.modeling import ModelVersion, ModelPropTypeDefault, ModelType
     DB_AVAILABLE = True
 except ImportError:

@@ -16,7 +16,7 @@ from ..modeling.model_registry import model_registry
 
 # Try to import database dependencies gracefully
 try:
-    from backend.enhanced_database import get_db_session
+    from backend.services.database.database import get_db_session
     from backend.models.modeling import ModelPrediction, Valuation, DistributionFamily
     DB_AVAILABLE = True
 except ImportError:

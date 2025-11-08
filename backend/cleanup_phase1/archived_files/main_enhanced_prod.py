@@ -87,7 +87,7 @@ logger.setLevel(logging.INFO)
 
 # Dependency injection example: database/session/service
 try:
-    from backend.enhanced_database import DatabaseConnectionManager
+    from backend.services.database.database import DatabaseConnectionManager
 
     db_manager = DatabaseConnectionManager(config=app_config)
 except ImportError:

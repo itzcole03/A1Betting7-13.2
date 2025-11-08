@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from backend.models.api_models import StatisticPoint, Insight, EnrichedProp, PlayerInfo
-from backend.services.enhanced_ml_service import EnhancedRealMLService
+from backend.services.ml.ml_service import EnhancedRealMLService
 from backend.services.real_shap_service import RealSHAPService
 from backend.services.mlb_provider_client import MLBProviderClient
 

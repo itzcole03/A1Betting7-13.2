@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional
 import aiohttp
 
 from backend.config_manager import A1BettingConfig
-from backend.services.enhanced_data_pipeline import enhanced_data_pipeline
+from backend.services.data_pipeline import enhanced_data_pipeline
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("comprehensive_sportradar")

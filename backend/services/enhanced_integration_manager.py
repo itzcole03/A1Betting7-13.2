@@ -13,7 +13,7 @@ from backend.services.data_quality_monitor import (
     QualityViolation,
     data_quality_monitor,
 )
-from backend.services.enhanced_data_pipeline import enhanced_data_pipeline
+from backend.services.data_pipeline import enhanced_data_pipeline
 from backend.services.event_driven_cache import (
     EventType,
     InvalidationScope,

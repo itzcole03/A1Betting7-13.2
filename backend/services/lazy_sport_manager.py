@@ -343,7 +343,7 @@ class LazySportManager:
                     await self.mlb_client._ensure_ml_service_initialized()
 
                     # Initialize MLB-specific models only
-                    from backend.services.enhanced_ml_service import enhanced_ml_service
+                    from backend.services.ml.ml_service import enhanced_ml_service
 
                     if not enhanced_ml_service.has_sport_models("MLB"):
                         logger.info("Training MLB models on-demand...")
@@ -398,7 +398,7 @@ class LazySportManager:
         """Initialize NBA service and models"""
         try:
             from backend.services.nba_service_client import nba_service
-            from backend.services.enhanced_ml_service import enhanced_ml_service
+            from backend.services.ml.ml_service import enhanced_ml_service
 
             # Initialize NBA-specific models only
             if not enhanced_ml_service.has_sport_models("NBA"):
@@ -417,7 +417,7 @@ class LazySportManager:
         """Initialize NFL service and models"""
         try:
             from backend.services.nfl_service_client import nfl_service
-            from backend.services.enhanced_ml_service import enhanced_ml_service
+            from backend.services.ml.ml_service import enhanced_ml_service
 
             # Initialize NFL-specific models only
             if not enhanced_ml_service.has_sport_models("NFL"):
@@ -436,7 +436,7 @@ class LazySportManager:
         """Initialize NHL service and models"""
         try:
             from backend.services.nhl_service_client import nhl_service
-            from backend.services.enhanced_ml_service import enhanced_ml_service
+            from backend.services.ml.ml_service import enhanced_ml_service
 
             # Initialize NHL-specific models only
             if not enhanced_ml_service.has_sport_models("NHL"):

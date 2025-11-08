@@ -62,7 +62,7 @@ class HealthChecker:
 
         try:
             # Import database manager
-            from backend.enhanced_database import db_manager
+            from backend.services.database.database import db_manager
 
             # Test database connection
             if not db_manager.is_initialized():

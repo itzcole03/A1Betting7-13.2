@@ -14,7 +14,7 @@ from ..valuation.valuation_engine import ValuationResult, valuation_engine
 
 # Try to import database and websocket dependencies gracefully
 try:
-    from backend.enhanced_database import get_db_session
+    from backend.services.database.database import get_db_session
     from backend.models.modeling import Edge, EdgeStatus
     DB_AVAILABLE = True
 except ImportError:

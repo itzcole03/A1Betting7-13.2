@@ -1,0 +1,880 @@
+{
+  "summary": {
+    "total_variant_groups": 27,
+    "total_files_to_consolidate": 58
+  },
+  "priority_groups": [
+    {
+      "base_name": "feature_engineering.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/enhanced_feature_engineering.py",
+          "full_name": "enhanced_feature_engineering.py",
+          "lines": 1370,
+          "size_kb": 48
+        },
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/ml/enhanced_feature_engineering.py",
+          "full_name": "enhanced_feature_engineering.py",
+          "lines": 977,
+          "size_kb": 34
+        },
+        {
+          "prefix": "advanced",
+          "path": "backend/services/ml/advanced_feature_engineering.py",
+          "full_name": "advanced_feature_engineering.py",
+          "lines": 1280,
+          "size_kb": 49
+        },
+        {
+          "prefix": "base",
+          "path": "backend/services/ml/feature_engineering.py",
+          "full_name": "feature_engineering.py",
+          "lines": 373,
+          "size_kb": 14
+        }
+      ],
+      "count": 4,
+      "total_lines": 4000,
+      "priority_score": 120
+    },
+    {
+      "base_name": "data_pipeline.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/enhanced_data_pipeline.py",
+          "full_name": "enhanced_data_pipeline.py",
+          "lines": 1466,
+          "size_kb": 50
+        },
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/enhanced_data_pipeline.py",
+          "full_name": "enhanced_data_pipeline.py",
+          "lines": 734,
+          "size_kb": 26
+        },
+        {
+          "prefix": "base",
+          "path": "backend/data_pipeline.py",
+          "full_name": "data_pipeline.py",
+          "lines": 534,
+          "size_kb": 17
+        }
+      ],
+      "count": 3,
+      "total_lines": 2734,
+      "priority_score": 80
+    },
+    {
+      "base_name": "ml_service.py",
+      "variants": [
+        {
+          "prefix": "advanced",
+          "path": "backend/cleanup_phase1/services/advanced_ml_service.py",
+          "full_name": "advanced_ml_service.py",
+          "lines": 8,
+          "size_kb": 0
+        },
+        {
+          "prefix": "advanced",
+          "path": "backend/services/advanced_ml_service.py",
+          "full_name": "advanced_ml_service.py",
+          "lines": 606,
+          "size_kb": 21
+        },
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/enhanced_ml_service.py",
+          "full_name": "enhanced_ml_service.py",
+          "lines": 756,
+          "size_kb": 28
+        }
+      ],
+      "count": 3,
+      "total_lines": 1370,
+      "priority_score": 80
+    },
+    {
+      "base_name": "database.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/enhanced_database.py",
+          "full_name": "enhanced_database.py",
+          "lines": 437,
+          "size_kb": 15
+        },
+        {
+          "prefix": "base",
+          "path": "backend/database.py",
+          "full_name": "database.py",
+          "lines": 120,
+          "size_kb": 3
+        }
+      ],
+      "count": 2,
+      "total_lines": 557,
+      "priority_score": 20
+    },
+    {
+      "base_name": "ensemble_engine.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/enhanced_ensemble_engine.py",
+          "full_name": "enhanced_ensemble_engine.py",
+          "lines": 732,
+          "size_kb": 28
+        },
+        {
+          "prefix": "base",
+          "path": "backend/ensemble_engine.py",
+          "full_name": "ensemble_engine.py",
+          "lines": 1427,
+          "size_kb": 55
+        }
+      ],
+      "count": 2,
+      "total_lines": 2159,
+      "priority_score": 20
+    },
+    {
+      "base_name": "production_integration.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/enhanced_production_integration.py",
+          "full_name": "enhanced_production_integration.py",
+          "lines": 1047,
+          "size_kb": 38
+        },
+        {
+          "prefix": "base",
+          "path": "backend/production_integration.py",
+          "full_name": "production_integration.py",
+          "lines": 1087,
+          "size_kb": 42
+        }
+      ],
+      "count": 2,
+      "total_lines": 2134,
+      "priority_score": 20
+    },
+    {
+      "base_name": "revolutionary_api.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/enhanced_revolutionary_api.py",
+          "full_name": "enhanced_revolutionary_api.py",
+          "lines": 1032,
+          "size_kb": 41
+        },
+        {
+          "prefix": "base",
+          "path": "backend/revolutionary_api.py",
+          "full_name": "revolutionary_api.py",
+          "lines": 831,
+          "size_kb": 31
+        }
+      ],
+      "count": 2,
+      "total_lines": 1863,
+      "priority_score": 20
+    },
+    {
+      "base_name": "risk_management.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/enhanced_risk_management.py",
+          "full_name": "enhanced_risk_management.py",
+          "lines": 1185,
+          "size_kb": 40
+        },
+        {
+          "prefix": "base",
+          "path": "backend/risk_management.py",
+          "full_name": "risk_management.py",
+          "lines": 1798,
+          "size_kb": 67
+        }
+      ],
+      "count": 2,
+      "total_lines": 2983,
+      "priority_score": 20
+    },
+    {
+      "base_name": "main.py",
+      "variants": [
+        {
+          "prefix": "simple",
+          "path": "backend/simple_main.py",
+          "full_name": "simple_main.py",
+          "lines": 24,
+          "size_kb": 0
+        },
+        {
+          "prefix": "base",
+          "path": "backend/main.py",
+          "full_name": "main.py",
+          "lines": 149,
+          "size_kb": 5
+        }
+      ],
+      "count": 2,
+      "total_lines": 173,
+      "priority_score": 20
+    },
+    {
+      "base_name": "openapi.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/config/enhanced_openapi.py",
+          "full_name": "enhanced_openapi.py",
+          "lines": 527,
+          "size_kb": 19
+        },
+        {
+          "prefix": "enhanced",
+          "path": "backend/docs/enhanced_openapi.py",
+          "full_name": "enhanced_openapi.py",
+          "lines": 601,
+          "size_kb": 22
+        }
+      ],
+      "count": 2,
+      "total_lines": 1128,
+      "priority_score": 20
+    }
+  ],
+  "all_groups": [
+    {
+      "base_name": "feature_engineering.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/enhanced_feature_engineering.py",
+          "full_name": "enhanced_feature_engineering.py",
+          "lines": 1370,
+          "size_kb": 48
+        },
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/ml/enhanced_feature_engineering.py",
+          "full_name": "enhanced_feature_engineering.py",
+          "lines": 977,
+          "size_kb": 34
+        },
+        {
+          "prefix": "advanced",
+          "path": "backend/services/ml/advanced_feature_engineering.py",
+          "full_name": "advanced_feature_engineering.py",
+          "lines": 1280,
+          "size_kb": 49
+        },
+        {
+          "prefix": "base",
+          "path": "backend/services/ml/feature_engineering.py",
+          "full_name": "feature_engineering.py",
+          "lines": 373,
+          "size_kb": 14
+        }
+      ],
+      "count": 4,
+      "total_lines": 4000,
+      "priority_score": 120
+    },
+    {
+      "base_name": "data_pipeline.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/enhanced_data_pipeline.py",
+          "full_name": "enhanced_data_pipeline.py",
+          "lines": 1466,
+          "size_kb": 50
+        },
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/enhanced_data_pipeline.py",
+          "full_name": "enhanced_data_pipeline.py",
+          "lines": 734,
+          "size_kb": 26
+        },
+        {
+          "prefix": "base",
+          "path": "backend/data_pipeline.py",
+          "full_name": "data_pipeline.py",
+          "lines": 534,
+          "size_kb": 17
+        }
+      ],
+      "count": 3,
+      "total_lines": 2734,
+      "priority_score": 80
+    },
+    {
+      "base_name": "ml_service.py",
+      "variants": [
+        {
+          "prefix": "advanced",
+          "path": "backend/cleanup_phase1/services/advanced_ml_service.py",
+          "full_name": "advanced_ml_service.py",
+          "lines": 8,
+          "size_kb": 0
+        },
+        {
+          "prefix": "advanced",
+          "path": "backend/services/advanced_ml_service.py",
+          "full_name": "advanced_ml_service.py",
+          "lines": 606,
+          "size_kb": 21
+        },
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/enhanced_ml_service.py",
+          "full_name": "enhanced_ml_service.py",
+          "lines": 756,
+          "size_kb": 28
+        }
+      ],
+      "count": 3,
+      "total_lines": 1370,
+      "priority_score": 80
+    },
+    {
+      "base_name": "database.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/enhanced_database.py",
+          "full_name": "enhanced_database.py",
+          "lines": 437,
+          "size_kb": 15
+        },
+        {
+          "prefix": "base",
+          "path": "backend/database.py",
+          "full_name": "database.py",
+          "lines": 120,
+          "size_kb": 3
+        }
+      ],
+      "count": 2,
+      "total_lines": 557,
+      "priority_score": 20
+    },
+    {
+      "base_name": "ensemble_engine.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/enhanced_ensemble_engine.py",
+          "full_name": "enhanced_ensemble_engine.py",
+          "lines": 732,
+          "size_kb": 28
+        },
+        {
+          "prefix": "base",
+          "path": "backend/ensemble_engine.py",
+          "full_name": "ensemble_engine.py",
+          "lines": 1427,
+          "size_kb": 55
+        }
+      ],
+      "count": 2,
+      "total_lines": 2159,
+      "priority_score": 20
+    },
+    {
+      "base_name": "production_integration.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/enhanced_production_integration.py",
+          "full_name": "enhanced_production_integration.py",
+          "lines": 1047,
+          "size_kb": 38
+        },
+        {
+          "prefix": "base",
+          "path": "backend/production_integration.py",
+          "full_name": "production_integration.py",
+          "lines": 1087,
+          "size_kb": 42
+        }
+      ],
+      "count": 2,
+      "total_lines": 2134,
+      "priority_score": 20
+    },
+    {
+      "base_name": "revolutionary_api.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/enhanced_revolutionary_api.py",
+          "full_name": "enhanced_revolutionary_api.py",
+          "lines": 1032,
+          "size_kb": 41
+        },
+        {
+          "prefix": "base",
+          "path": "backend/revolutionary_api.py",
+          "full_name": "revolutionary_api.py",
+          "lines": 831,
+          "size_kb": 31
+        }
+      ],
+      "count": 2,
+      "total_lines": 1863,
+      "priority_score": 20
+    },
+    {
+      "base_name": "risk_management.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/enhanced_risk_management.py",
+          "full_name": "enhanced_risk_management.py",
+          "lines": 1185,
+          "size_kb": 40
+        },
+        {
+          "prefix": "base",
+          "path": "backend/risk_management.py",
+          "full_name": "risk_management.py",
+          "lines": 1798,
+          "size_kb": 67
+        }
+      ],
+      "count": 2,
+      "total_lines": 2983,
+      "priority_score": 20
+    },
+    {
+      "base_name": "main.py",
+      "variants": [
+        {
+          "prefix": "simple",
+          "path": "backend/simple_main.py",
+          "full_name": "simple_main.py",
+          "lines": 24,
+          "size_kb": 0
+        },
+        {
+          "prefix": "base",
+          "path": "backend/main.py",
+          "full_name": "main.py",
+          "lines": 149,
+          "size_kb": 5
+        }
+      ],
+      "count": 2,
+      "total_lines": 173,
+      "priority_score": 20
+    },
+    {
+      "base_name": "openapi.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/config/enhanced_openapi.py",
+          "full_name": "enhanced_openapi.py",
+          "lines": 527,
+          "size_kb": 19
+        },
+        {
+          "prefix": "enhanced",
+          "path": "backend/docs/enhanced_openapi.py",
+          "full_name": "enhanced_openapi.py",
+          "lines": 601,
+          "size_kb": 22
+        }
+      ],
+      "count": 2,
+      "total_lines": 1128,
+      "priority_score": 20
+    },
+    {
+      "base_name": "prediction_engine.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/domains/predictions/enhanced_prediction_engine.py",
+          "full_name": "enhanced_prediction_engine.py",
+          "lines": 1036,
+          "size_kb": 36
+        },
+        {
+          "prefix": "base",
+          "path": "backend/domains/predictions/prediction_engine.py",
+          "full_name": "prediction_engine.py",
+          "lines": 997,
+          "size_kb": 36
+        }
+      ],
+      "count": 2,
+      "total_lines": 2033,
+      "priority_score": 20
+    },
+    {
+      "base_name": "model_service.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/domains/predictions/enhanced_model_service.py",
+          "full_name": "enhanced_model_service.py",
+          "lines": 981,
+          "size_kb": 36
+        },
+        {
+          "prefix": "base",
+          "path": "backend/domains/predictions/model_service.py",
+          "full_name": "model_service.py",
+          "lines": 1012,
+          "size_kb": 37
+        }
+      ],
+      "count": 2,
+      "total_lines": 1993,
+      "priority_score": 20
+    },
+    {
+      "base_name": "rate_limiting.py",
+      "variants": [
+        {
+          "prefix": "advanced",
+          "path": "backend/middleware/advanced_rate_limiting.py",
+          "full_name": "advanced_rate_limiting.py",
+          "lines": 454,
+          "size_kb": 17
+        },
+        {
+          "prefix": "base",
+          "path": "backend/middleware/rate_limiting.py",
+          "full_name": "rate_limiting.py",
+          "lines": 394,
+          "size_kb": 13
+        }
+      ],
+      "count": 2,
+      "total_lines": 848,
+      "priority_score": 20
+    },
+    {
+      "base_name": "search_routes.py",
+      "variants": [
+        {
+          "prefix": "advanced",
+          "path": "backend/routes/advanced_search_routes.py",
+          "full_name": "advanced_search_routes.py",
+          "lines": 42,
+          "size_kb": 1
+        },
+        {
+          "prefix": "enhanced",
+          "path": "backend/routes/enhanced_search_routes.py",
+          "full_name": "enhanced_search_routes.py",
+          "lines": 8,
+          "size_kb": 0
+        }
+      ],
+      "count": 2,
+      "total_lines": 50,
+      "priority_score": 20
+    },
+    {
+      "base_name": "data_validation_routes.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/routes/enhanced_data_validation_routes.py",
+          "full_name": "enhanced_data_validation_routes.py",
+          "lines": 29,
+          "size_kb": 0
+        },
+        {
+          "prefix": "base",
+          "path": "backend/routes/data_validation_routes.py",
+          "full_name": "data_validation_routes.py",
+          "lines": 39,
+          "size_kb": 1
+        }
+      ],
+      "count": 2,
+      "total_lines": 68,
+      "priority_score": 20
+    },
+    {
+      "base_name": "ev_routes.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/routes/enhanced_ev_routes.py",
+          "full_name": "enhanced_ev_routes.py",
+          "lines": 517,
+          "size_kb": 17
+        },
+        {
+          "prefix": "base",
+          "path": "backend/routes/ev_routes.py",
+          "full_name": "ev_routes.py",
+          "lines": 211,
+          "size_kb": 6
+        }
+      ],
+      "count": 2,
+      "total_lines": 728,
+      "priority_score": 20
+    },
+    {
+      "base_name": "rate_limiter.py",
+      "variants": [
+        {
+          "prefix": "advanced",
+          "path": "backend/security/advanced_rate_limiter.py",
+          "full_name": "advanced_rate_limiter.py",
+          "lines": 573,
+          "size_kb": 21
+        },
+        {
+          "prefix": "base",
+          "path": "backend/services/security/rate_limiter.py",
+          "full_name": "rate_limiter.py",
+          "lines": 704,
+          "size_kb": 27
+        }
+      ],
+      "count": 2,
+      "total_lines": 1277,
+      "priority_score": 20
+    },
+    {
+      "base_name": "auth_service.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/security/enhanced_auth_service.py",
+          "full_name": "enhanced_auth_service.py",
+          "lines": 579,
+          "size_kb": 19
+        },
+        {
+          "prefix": "base",
+          "path": "backend/services/auth_service.py",
+          "full_name": "auth_service.py",
+          "lines": 506,
+          "size_kb": 18
+        }
+      ],
+      "count": 2,
+      "total_lines": 1085,
+      "priority_score": 20
+    },
+    {
+      "base_name": "arbitrage_engine.py",
+      "variants": [
+        {
+          "prefix": "advanced",
+          "path": "backend/services/advanced_arbitrage_engine.py",
+          "full_name": "advanced_arbitrage_engine.py",
+          "lines": 642,
+          "size_kb": 28
+        },
+        {
+          "prefix": "base",
+          "path": "backend/domains/arbitrage/arbitrage_engine.py",
+          "full_name": "arbitrage_engine.py",
+          "lines": 1483,
+          "size_kb": 60
+        }
+      ],
+      "count": 2,
+      "total_lines": 2125,
+      "priority_score": 20
+    },
+    {
+      "base_name": "baseball_savant_client.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/enhanced_baseball_savant_client.py",
+          "full_name": "enhanced_baseball_savant_client.py",
+          "lines": 545,
+          "size_kb": 22
+        },
+        {
+          "prefix": "base",
+          "path": "backend/services/baseball_savant_client.py",
+          "full_name": "baseball_savant_client.py",
+          "lines": 363,
+          "size_kb": 13
+        }
+      ],
+      "count": 2,
+      "total_lines": 908,
+      "priority_score": 20
+    },
+    {
+      "base_name": "data_validation_integration.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/enhanced_data_validation_integration.py",
+          "full_name": "enhanced_data_validation_integration.py",
+          "lines": 943,
+          "size_kb": 32
+        },
+        {
+          "prefix": "base",
+          "path": "backend/services/data_validation_integration.py",
+          "full_name": "data_validation_integration.py",
+          "lines": 502,
+          "size_kb": 18
+        }
+      ],
+      "count": 2,
+      "total_lines": 1445,
+      "priority_score": 20
+    },
+    {
+      "base_name": "database_migration_service.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/enhanced_database_migration_service.py",
+          "full_name": "enhanced_database_migration_service.py",
+          "lines": 575,
+          "size_kb": 20
+        },
+        {
+          "prefix": "base",
+          "path": "backend/services/database_migration_service.py",
+          "full_name": "database_migration_service.py",
+          "lines": 535,
+          "size_kb": 20
+        }
+      ],
+      "count": 2,
+      "total_lines": 1110,
+      "priority_score": 20
+    },
+    {
+      "base_name": "ev_engine.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/enhanced_ev_engine.py",
+          "full_name": "enhanced_ev_engine.py",
+          "lines": 654,
+          "size_kb": 26
+        },
+        {
+          "prefix": "base",
+          "path": "backend/services/ev_engine.py",
+          "full_name": "ev_engine.py",
+          "lines": 447,
+          "size_kb": 15
+        }
+      ],
+      "count": 2,
+      "total_lines": 1101,
+      "priority_score": 20
+    },
+    {
+      "base_name": "shap_explainer.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/services/enhanced_shap_explainer.py",
+          "full_name": "enhanced_shap_explainer.py",
+          "lines": 484,
+          "size_kb": 20
+        },
+        {
+          "prefix": "base",
+          "path": "backend/shap_explainer.py",
+          "full_name": "shap_explainer.py",
+          "lines": 29,
+          "size_kb": 0
+        }
+      ],
+      "count": 2,
+      "total_lines": 513,
+      "priority_score": 20
+    },
+    {
+      "base_name": "player_dashboard_service.py",
+      "variants": [
+        {
+          "prefix": "simple",
+          "path": "backend/services/simple_player_dashboard_service.py",
+          "full_name": "simple_player_dashboard_service.py",
+          "lines": 440,
+          "size_kb": 13
+        },
+        {
+          "prefix": "base",
+          "path": "backend/services/player_dashboard_service.py",
+          "full_name": "player_dashboard_service.py",
+          "lines": 778,
+          "size_kb": 26
+        }
+      ],
+      "count": 2,
+      "total_lines": 1218,
+      "priority_score": 20
+    },
+    {
+      "base_name": "correlation_engine.py",
+      "variants": [
+        {
+          "prefix": "advanced",
+          "path": "backend/services/correlation/advanced_correlation_engine.py",
+          "full_name": "advanced_correlation_engine.py",
+          "lines": 718,
+          "size_kb": 26
+        },
+        {
+          "prefix": "base",
+          "path": "backend/services/correlation/correlation_engine.py",
+          "full_name": "correlation_engine.py",
+          "lines": 539,
+          "size_kb": 17
+        }
+      ],
+      "count": 2,
+      "total_lines": 1257,
+      "priority_score": 20
+    },
+    {
+      "base_name": "logging.py",
+      "variants": [
+        {
+          "prefix": "enhanced",
+          "path": "backend/utils/enhanced_logging.py",
+          "full_name": "enhanced_logging.py",
+          "lines": 450,
+          "size_kb": 16
+        },
+        {
+          "prefix": "base",
+          "path": "backend/frontend/src/utils/logging.py",
+          "full_name": "logging.py",
+          "lines": 122,
+          "size_kb": 3
+        }
+      ],
+      "count": 2,
+      "total_lines": 572,
+      "priority_score": 20
+    }
+  ]
+}

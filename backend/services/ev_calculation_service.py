@@ -24,7 +24,7 @@ from backend.services.valuation.payout import (
     implied_probability_from_odds
 )
 from backend.services.calculations import calculate_prop_edge, calculate_prop_confidence
-from backend.services.enhanced_ml_service import enhanced_ml_service
+from backend.services.ml.ml_service import enhanced_ml_service
 from backend.utils.enhanced_logging import get_logger
 
 logger = get_logger("ev_calculation_service")

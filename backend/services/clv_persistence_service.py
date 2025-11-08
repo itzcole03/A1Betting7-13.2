@@ -17,7 +17,7 @@ from sqlmodel import SQLModel, delete, desc, func, select
 from backend.services.unified_session_utils import unified_session_execute
 
 try:
-    from backend.enhanced_database import db_manager
+    from backend.services.database.database import db_manager
     from backend.models.clv_history import CLVHistory
 except ImportError as e:
     # Graceful fallback if database dependencies unavailable

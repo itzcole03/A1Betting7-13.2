@@ -558,7 +558,7 @@ class AutonomousSystem:
         """Test enhanced database manager"""
         try:
             # Try to import and test enhanced database manager
-            from backend.enhanced_database import db_manager
+            from backend.services.database.database import db_manager
 
             start_time = time.time()
 
@@ -1214,7 +1214,7 @@ class AutonomousSystem:
 
             # Try to reset the enhanced database manager
             try:
-                from backend.enhanced_database import db_manager
+                from backend.services.database.database import db_manager
 
                 # If the manager has a reset method, call it
                 if hasattr(db_manager, "reset_connections"):

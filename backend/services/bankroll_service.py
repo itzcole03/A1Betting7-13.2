@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel
 
-from backend.services.enhanced_ml_service import enhanced_ml_service
+from backend.services.ml.ml_service import enhanced_ml_service
 from backend.services.user_auth_service import user_auth_service
 from backend.utils.enhanced_logging import get_logger
 
