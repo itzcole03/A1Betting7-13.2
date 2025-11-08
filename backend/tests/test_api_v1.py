@@ -92,7 +92,7 @@ def test_get_prizepicks_props():
 # --- Tests for /api/v1/sr/games endpoint ---
 import httpx
 
-from backend.api_integration import get_config
+from backend.services.external.api_integration import get_config
 from backend.main import app
 
 

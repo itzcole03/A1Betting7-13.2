@@ -10,7 +10,7 @@ import sys
 # Add backend to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from backend.enhanced_propollama_engine import EnhancedPropOllamaEngine
+from backend.domains.propfinder.enhanced_propollama_engine import EnhancedPropOllamaEngine
 from backend.utils.llm_engine import llm_engine
 
 

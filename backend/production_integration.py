@@ -40,7 +40,7 @@ from slowapi.errors import RateLimitExceeded
 from backend.config_manager import A1BettingConfig, Environment
 from backend.enhanced_database import db_manager
 from backend.middleware.security_middleware import SecurityMiddleware
-from backend.security_config import require_api_key
+from backend.domains.auth.security_config import require_api_key
 from backend.services.rate_limiting_service import (
     custom_rate_limit_handler,
     enhanced_rate_limiter,

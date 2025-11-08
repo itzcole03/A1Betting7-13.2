@@ -29,7 +29,7 @@ from backend.utils.prediction_utils import (
 )
 
 from backend.config_manager import config_manager
-from backend.feature_engineering import FeatureEngineering
+from backend.services.ml.feature_engineering import FeatureEngineering
 
 logger = logging.getLogger(__name__)
 

@@ -539,7 +539,7 @@ async def root_predict_stub(request: Request):
     from fastapi import Depends, Request
     from fastapi.responses import JSONResponse
 
-    from backend.security_config import require_api_key
+    from backend.domains.auth.security_config import require_api_key
 
     # API key logic for test compatibility
     api_key = request.headers.get("x-api-key") or request.headers.get("X-API-Key")
@@ -1539,7 +1539,7 @@ async def add_security_headers(request, call_next):
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from backend.security_config import require_api_key
+from backend.domains.auth.security_config import require_api_key
 
 
 @app.post("/predict")

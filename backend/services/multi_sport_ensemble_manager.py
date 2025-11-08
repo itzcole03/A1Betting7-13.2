@@ -27,7 +27,7 @@ from backend.services.model_performance_tracker import (
 )
 
 # Note: Enhanced model service imports commented out due to missing dependencies
-# from backend.enhanced_model_service import EnhancedMathematicalModelService, UnifiedPredictionRequest, UnifiedPredictionResult
+# from backend.domains.predictions.enhanced_model_service import EnhancedMathematicalModelService, UnifiedPredictionRequest, UnifiedPredictionResult
 
 logger = logging.getLogger("propollama.ensemble_manager")
 

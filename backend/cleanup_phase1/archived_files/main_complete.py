@@ -132,7 +132,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel
 
 # Import enhanced PropOllama
-from backend.enhanced_propollama_engine import EnhancedPropOllamaEngine
+from backend.domains.propfinder.enhanced_propollama_engine import EnhancedPropOllamaEngine
 from backend.utils.llm_engine import llm_engine
 
 
@@ -939,7 +939,7 @@ enhanced_engine_available = False
 EnhancedPropOllamaEngine = None
 
 try:
-    from backend.enhanced_propollama_engine import EnhancedPropOllamaEngine
+    from backend.domains.propfinder.enhanced_propollama_engine import EnhancedPropOllamaEngine
 
     enhanced_engine_available = True
     logger.info("Enhanced PropOllama engine imported successfully")

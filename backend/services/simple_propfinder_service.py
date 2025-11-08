@@ -76,7 +76,7 @@ except ImportError as e:
 
 # Import odds aggregation service for real-time odds
 try:
-    from backend.api_integration import AggregatedOdds, odds_aggregation_service
+    from backend.services.external.api_integration import AggregatedOdds, odds_aggregation_service
 
     ODDS_AGGREGATION_AVAILABLE = True
 except ImportError as e:
@@ -87,7 +87,7 @@ except ImportError as e:
 
 # Import arbitrage engine for low juice detection
 try:
-    from backend.arbitrage_engine import ultra_arbitrage_engine
+    from backend.domains.arbitrage.arbitrage_engine import ultra_arbitrage_engine
 
     ARBITRAGE_ENGINE_AVAILABLE = True
 except ImportError as e:

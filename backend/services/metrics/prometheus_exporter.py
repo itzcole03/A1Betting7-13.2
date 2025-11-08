@@ -206,7 +206,7 @@ def generate_prometheus_metrics() -> str:
     
     # Arbitrage metrics
     try:
-        from backend.arbitrage_engine import ultra_arbitrage_engine
+        from backend.domains.arbitrage.arbitrage_engine import ultra_arbitrage_engine
         arbitrage_metrics = ultra_arbitrage_engine.get_prometheus_metrics()
         
         for metric_name, value in arbitrage_metrics.items():

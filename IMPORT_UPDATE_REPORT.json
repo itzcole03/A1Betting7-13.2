@@ -1,0 +1,97 @@
+{
+  "total_files_updated": 23,
+  "updates": [
+    {
+      "file": "backend/data_sources.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/direct_ollama_test.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/enhanced_production_integration.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/ensemble_engine.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/production_integration.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/test_feature_engineering.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/unified_feature_service.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/cleanup_phase1/archived_files/main_complete.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/domains/betting/betting_opportunity_service.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/domains/predictions/prediction_engine.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/domains/predictions/model_service.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/services/enhanced_schema_validation.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/services/mlb_feature_engineering.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/services/modern_ml_service.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/services/multi_sport_ensemble_manager.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/services/simple_propfinder_service.py",
+      "updates": 2
+    },
+    {
+      "file": "backend/services/metrics/prometheus_exporter.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/services/external/api_integration.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/tests/test_api_v1.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/tests/test_endpoints.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/tests/test_odds_aggregation.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/tests/test_quantum_ensemble.py",
+      "updates": 1
+    },
+    {
+      "file": "backend/tests/test_websocket_contract.py",
+      "updates": 1
+    }
+  ]
+}

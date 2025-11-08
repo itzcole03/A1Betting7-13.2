@@ -6,7 +6,7 @@ import pytest_asyncio
 from fastapi import FastAPI, WebSocket
 from fastapi.testclient import TestClient
 
-from backend.api_integration import api_router
+from backend.services.external.api_integration import api_router
 
 app = FastAPI()
 app.include_router(api_router)

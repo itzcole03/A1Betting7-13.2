@@ -24,7 +24,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 
 # Import enhanced services
-from backend.feature_engineering import FeatureEngineering
+from backend.services.ml.feature_engineering import FeatureEngineering
 from backend.shap_explainer import ShapExplainer
 from backend.utils.llm_engine import llm_engine
 from backend.utils.time_helpers import now_utc

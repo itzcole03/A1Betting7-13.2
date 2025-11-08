@@ -1,0 +1,461 @@
+{
+  "backend_analysis": {
+    "root_py_files": [
+      "__init__.py",
+      "add_security_response_models.py",
+      "admin_api.py",
+      "advanced_best_practices_manager.py",
+      "agent_planner.py",
+      "aggressive_converter.py",
+      "aioredis.py",
+      "api_sports_personalization.py",
+      "autonomous_project_development_handler.py",
+      "autonomous_recursive_orchestrator.py",
+      "autonomous_system.py",
+      "background_agents.py",
+      "chat_history_api.py",
+      "ci_contract_scanner.py",
+      "command_registry.py",
+      "complete_phase3_conversion.py",
+      "complete_stub_endpoints.py",
+      "comprehensive_contract_scanner.py",
+      "conftest.py",
+      "contract_converter.py",
+      "contract_integration_test.py",
+      "create_bookmarks_table.py",
+      "create_clv_table.py",
+      "create_issues.py",
+      "create_schema_tables.py",
+      "data_pipeline.py",
+      "data_sources.py",
+      "database.py",
+      "dev_app.py",
+      "direct_ollama_test.py",
+      "enhanced_api_routes.py",
+      "enhanced_data_pipeline.py",
+      "enhanced_database.py",
+      "enhanced_ensemble_engine.py",
+      "enhanced_ml_demo.py",
+      "enhanced_production_integration.py",
+      "enhanced_realtime_system.py",
+      "enhanced_revolutionary_api.py",
+      "enhanced_revolutionary_engine.py",
+      "enhanced_risk_management.py",
+      "enhanced_router_manager.py",
+      "ensemble_engine.py",
+      "ensemble_optimizer.py",
+      "ensure_all_tables.py",
+      "etl_mlb.py",
+      "etl_providerx_sample.py",
+      "etl_test_db_setup.py",
+      "exit_criteria_validator.py",
+      "feature_flags.py",
+      "feature_logger.py",
+      "feature_monitor.py",
+      "feature_registry.py",
+      "filtered_prediction_api.py",
+      "final_compliance_check.py",
+      "focused_compliance_check.py",
+      "frontend_backend_integration_test.py",
+      "generate_openapi.py",
+      "health_api.py",
+      "health_monitor.py",
+      "improved_contract_scanner.py",
+      "integration_test_meta_learning.py",
+      "integration_test_nas.py",
+      "integration_test_quantum.py",
+      "integration_test_real_metrics.py",
+      "integration_test_runner.py",
+      "large_dataset_generator.py",
+      "llm_routes.py",
+      "llm_toggle_api.py",
+      "main.py",
+      "main_unified.py",
+      "memory_bank.py",
+      "monitor_backend.py",
+      "monitoring_service.py",
+      "observability_smoke_test.py",
+      "operational_risk_validation.py",
+      "optimized_production_integration.py",
+      "otel_instrumentation.py",
+      "performance_optimization_summary.py",
+      "performance_profiler.py",
+      "performance_test_meta_learning.py",
+      "performance_test_nas.py",
+      "performance_test_quantum.py",
+      "performance_test_real_metrics.py",
+      "performance_validation_system.py",
+      "phase1_validation.py",
+      "phase2_performance_benchmark.py",
+      "phase2_verification.py",
+      "phase2_verification_comprehensive.py",
+      "phase3_performance_benchmark.py",
+      "phase3_verification.py",
+      "phase4_2_validation.py",
+      "phase_6_integration_test.py",
+      "phase_7_production_launch.py",
+      "portfolio_rationale_service.py",
+      "prediction_api.py",
+      "production_api.py",
+      "production_fix.py",
+      "production_integration.py",
+      "production_operation_manager.py",
+      "production_validation.py",
+      "provider_resilience_demo.py",
+      "psutil_shim.py",
+      "quantum_enhanced_coordinator.py",
+      "quick_resilience_demo.py",
+      "realtime_accuracy_monitor.py",
+      "realtime_engine.py",
+      "recursive_intelligence_coordinator.py",
+      "response_model_fixer.py",
+      "restore_data_flow_COMPLETE.py",
+      "revolutionary_api.py",
+      "riai_coordinator.py",
+      "risk_management.py",
+      "run_backend_tests.py",
+      "self_modifying_engine.py",
+      "setup_postgres_dev.py",
+      "shap_explainer.py",
+      "simple_clv_test.py",
+      "simple_enhanced_setup.py",
+      "simple_main.py",
+      "simple_server.py",
+      "simple_sport_migration.py",
+      "simulate_frontend_fallback.py",
+      "slo_monitoring_system.py",
+      "smoke_test_core.py",
+      "smoke_test_runner.py",
+      "smoke_test_suite.py",
+      "specialist_apis.py",
+      "sports_prediction_personalization.py",
+      "stabilization_verification.py",
+      "staged_rollout_system.py",
+      "start_cloud_integration.py",
+      "statcast_api.py",
+      "system_monitor.py",
+      "task_processor.py",
+      "test_analytics_integration.py",
+      "test_bookmark_persistence.py",
+      "test_closing_snapshots.py",
+      "test_clv_endpoints.py",
+      "test_clv_hardening.py",
+      "test_clv_persistence.py",
+      "test_clv_trends_api.py",
+      "test_comprehensive_improvements.py",
+      "test_computational_control.py",
+      "test_data_flow.py",
+      "test_data_validation_system.py",
+      "test_direct_clv.py",
+      "test_ev_final_validation.py",
+      "test_ev_integration.py",
+      "test_feature_engineering.py",
+      "test_final_validation.py",
+      "test_implementation.py",
+      "test_import.py",
+      "test_import_simple.py",
+      "test_integration_comprehensive.py",
+      "test_line_movement_api.py",
+      "test_movement_alerts.py",
+      "test_movement_alerts_simple.py",
+      "test_odds_history.py",
+      "test_odds_normalizer.py",
+      "test_odds_storage.py",
+      "test_ollama_integration.py",
+      "test_optimized_realtime_integration.py",
+      "test_parlay.py",
+      "test_parlay_end_to_end.py",
+      "test_partial_refresh_strategy.py",
+      "test_phase1_validation.py",
+      "test_risk_personalization_suite.py",
+      "test_security_simple.py",
+      "test_sport_dimensions.py",
+      "test_sports_endpoints.py",
+      "test_stabilization.py",
+      "test_step5_clv.py",
+      "test_streaming_stability.py",
+      "test_unified_prediction.py",
+      "test_websocket_implementation.py",
+      "test_websocket_pr11.py",
+      "test_websocket_server.py",
+      "ultra_accuracy_engine_simple.py",
+      "ultra_accuracy_routes.py",
+      "unified_feature_service.py",
+      "user_models.py",
+      "validate_analytics_system.py",
+      "validate_clv_trends_api.py",
+      "validate_complete_integration.py",
+      "validate_dependency_index.py",
+      "validate_enhanced_engine.py",
+      "validate_performance_implementation.py",
+      "validate_pr11_implementation.py",
+      "validate_security.py",
+      "validate_security_implementation.py",
+      "validate_testing_setup.py",
+      "verify_cache_entries.py",
+      "verify_propollama_conversion.py",
+      "verify_provider_states.py",
+      "verify_stabilization_fixes.py",
+      "version_coherence.py",
+      "websocket_contract_scanner.py",
+      "websocket_envelope_converter.py",
+      "ws.py"
+    ],
+    "enhanced_files": [
+      "enhanced_api_routes.py",
+      "enhanced_data_pipeline.py",
+      "enhanced_database.py",
+      "enhanced_ensemble_engine.py",
+      "enhanced_ml_demo.py",
+      "enhanced_production_integration.py",
+      "enhanced_realtime_system.py",
+      "enhanced_revolutionary_api.py",
+      "enhanced_revolutionary_engine.py",
+      "enhanced_risk_management.py",
+      "enhanced_router_manager.py"
+    ],
+    "advanced_files": [
+      "advanced_best_practices_manager.py"
+    ],
+    "simple_files": [
+      "simple_clv_test.py",
+      "simple_enhanced_setup.py",
+      "simple_main.py",
+      "simple_server.py",
+      "simple_sport_migration.py"
+    ],
+    "large_files": [
+      {
+        "name": "autonomous_system.py",
+        "lines": 1442,
+        "size_kb": 52
+      },
+      {
+        "name": "data_sources.py",
+        "lines": 1057,
+        "size_kb": 39
+      },
+      {
+        "name": "enhanced_data_pipeline.py",
+        "lines": 1466,
+        "size_kb": 50
+      },
+      {
+        "name": "enhanced_production_integration.py",
+        "lines": 1047,
+        "size_kb": 38
+      },
+      {
+        "name": "enhanced_revolutionary_api.py",
+        "lines": 1032,
+        "size_kb": 41
+      },
+      {
+        "name": "enhanced_revolutionary_engine.py",
+        "lines": 1331,
+        "size_kb": 50
+      },
+      {
+        "name": "enhanced_risk_management.py",
+        "lines": 1185,
+        "size_kb": 40
+      },
+      {
+        "name": "ensemble_engine.py",
+        "lines": 1427,
+        "size_kb": 55
+      },
+      {
+        "name": "phase_7_production_launch.py",
+        "lines": 1219,
+        "size_kb": 43
+      },
+      {
+        "name": "production_fix.py",
+        "lines": 3215,
+        "size_kb": 121
+      },
+      {
+        "name": "production_integration.py",
+        "lines": 1087,
+        "size_kb": 42
+      },
+      {
+        "name": "risk_management.py",
+        "lines": 1798,
+        "size_kb": 67
+      },
+      {
+        "name": "system_monitor.py",
+        "lines": 1098,
+        "size_kb": 41
+      },
+      {
+        "name": "task_processor.py",
+        "lines": 1024,
+        "size_kb": 36
+      }
+    ],
+    "directories": [
+      "alembic",
+      "app",
+      "architecture",
+      "auth",
+      "betting",
+      "cleanup_phase1",
+      "cli",
+      "config",
+      "constants",
+      "core",
+      "docs",
+      "domains",
+      "logs",
+      "errors",
+      "exceptions",
+      "frontend",
+      "health",
+      "ingestion",
+      "maps",
+      "metrics",
+      "middleware",
+      "migrations",
+      "models",
+      "monitoring",
+      "odds",
+      "openapi",
+      "routes",
+      "scripts",
+      "security",
+      "services",
+      "src",
+      "tasks",
+      "test",
+      "testing",
+      "tests",
+      "users",
+      "utils",
+      "validators"
+    ],
+    "total_root_files": 199
+  },
+  "domains_analysis": {
+    "exists": true,
+    "domains": [
+      {
+        "name": "analytics",
+        "file_count": 5,
+        "files": [
+          "__init__.py",
+          "models.py",
+          "router.py",
+          "service.py",
+          "apply_analytics_migration.py"
+        ]
+      },
+      {
+        "name": "data",
+        "file_count": 4,
+        "files": [
+          "__init__.py",
+          "models.py",
+          "router.py",
+          "service.py"
+        ]
+      },
+      {
+        "name": "database",
+        "file_count": 5,
+        "files": [
+          "__init__.py",
+          "cache_service.py",
+          "migration_script.py",
+          "optimized_models.py",
+          "schema_manager.py"
+        ]
+      },
+      {
+        "name": "integration",
+        "file_count": 4,
+        "files": [
+          "__init__.py",
+          "models.py",
+          "router.py",
+          "service.py"
+        ]
+      },
+      {
+        "name": "optimization",
+        "file_count": 4,
+        "files": [
+          "__init__.py",
+          "models.py",
+          "router.py",
+          "service.py"
+        ]
+      },
+      {
+        "name": "prediction",
+        "file_count": 4,
+        "files": [
+          "__init__.py",
+          "models.py",
+          "router.py",
+          "service.py"
+        ]
+      },
+      {
+        "name": "auth",
+        "file_count": 5,
+        "files": [
+          "__init__.py",
+          "security_config.py",
+          "security_hardening.py",
+          "security_scanner.py",
+          "seed_admin.py"
+        ]
+      },
+      {
+        "name": "betting",
+        "file_count": 5,
+        "files": [
+          "__init__.py",
+          "betting_opportunity_service.py",
+          "check_bet_details.py",
+          "check_bets_table.py",
+          "check_recorded_bets.py"
+        ]
+      },
+      {
+        "name": "propfinder",
+        "file_count": 3,
+        "files": [
+          "__init__.py",
+          "enhanced_propollama_engine.py",
+          "load_test_props.py"
+        ]
+      },
+      {
+        "name": "arbitrage",
+        "file_count": 3,
+        "files": [
+          "__init__.py",
+          "arbitrage_engine.py",
+          "real_arbitrage_engine.py"
+        ]
+      },
+      {
+        "name": "predictions",
+        "file_count": 7,
+        "files": [
+          "__init__.py",
+          "prediction_engine.py",
+          "enhanced_prediction_engine.py",
+          "model_service.py",
+          "enhanced_model_service.py",
+          "ultra_accuracy_engine.py",
+          "revolutionary_accuracy_engine.py"
+        ]
+      }
+    ]
+  }
+}

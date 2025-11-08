@@ -26,7 +26,7 @@ import torch.nn as nn
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-from backend.feature_engineering import FeatureEngineering
+from backend.services.ml.feature_engineering import FeatureEngineering
 
 # Modern ML imports
 try:

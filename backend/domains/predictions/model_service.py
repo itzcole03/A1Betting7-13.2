@@ -70,7 +70,7 @@ except ImportError:
     db_manager = None
 
 try:
-    from backend.feature_engineering import FeatureEngineering
+    from backend.services.ml.feature_engineering import FeatureEngineering
 except ImportError:
     logger.warning("feature_engineering not available, using mock implementation")
 

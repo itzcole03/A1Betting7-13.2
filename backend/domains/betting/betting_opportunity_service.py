@@ -13,7 +13,7 @@ import requests
 from feature_flags import FeatureFlags
 from backend.utils.circuit_breaker import CircuitBreaker  # <-- Add this import
 
-from backend.feature_engineering import FeatureEngineering
+from backend.services.ml.feature_engineering import FeatureEngineering
 
 # Global circuit breaker for Ollama API
 ollama_circuit_breaker = CircuitBreaker(failure_threshold=3, recovery_timeout=60)

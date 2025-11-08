@@ -268,7 +268,7 @@ class EnhancedProductionApp:
             from fastapi import Request
             from fastapi.responses import JSONResponse
 
-            from backend.security_config import api_key_header, security_manager
+            from backend.domains.auth.security_config import api_key_header, security_manager
         except ImportError:
             self.logger.warning(
                 "Could not import dependencies for legacy /predict endpoint"

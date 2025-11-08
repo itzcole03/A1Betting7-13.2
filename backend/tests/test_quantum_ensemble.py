@@ -1,5 +1,5 @@
 import pytest
-from backend.ultra_accuracy_engine import UltraAccuracyEngine
+from backend.domains.predictions.ultra_accuracy_engine import UltraAccuracyEngine
 import numpy as np
 
 class DummyBettingData:

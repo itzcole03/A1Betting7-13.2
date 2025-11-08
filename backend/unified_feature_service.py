@@ -8,7 +8,7 @@ from feature_selector import FeatureSelector
 from feature_transformation import FeatureTransformer
 from feature_validator import FeatureValidator
 
-from backend.feature_cache import FeatureCache
+from backend.services.cache.feature_cache import FeatureCache
 
 
 class UnifiedFeatureService:

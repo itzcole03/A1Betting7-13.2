@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 import numpy as np
 
-from backend.feature_engineering import FeatureEngineering
+from backend.services.ml.feature_engineering import FeatureEngineering
 
 
 class MLBFeatureEngineering(FeatureEngineering):

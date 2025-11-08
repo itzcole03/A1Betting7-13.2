@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from backend.feature_engineering import FeatureEngineering
+from backend.services.ml.feature_engineering import FeatureEngineering
 
 
 class TestFeatureEngineering(unittest.TestCase):

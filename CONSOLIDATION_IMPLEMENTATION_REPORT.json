@@ -1,0 +1,598 @@
+{
+  "summary": {
+    "total_migrations": 62,
+    "domains_created": 6,
+    "services_created": 4,
+    "files_deprecated": 3,
+    "imports_updated": 0
+  },
+  "migration_log": [
+    {
+      "action": "create_domain",
+      "domain": "auth",
+      "path": "backend/domains/auth"
+    },
+    {
+      "action": "create_domain",
+      "domain": "betting",
+      "path": "backend/domains/betting"
+    },
+    {
+      "action": "create_domain",
+      "domain": "propfinder",
+      "path": "backend/domains/propfinder"
+    },
+    {
+      "action": "create_domain",
+      "domain": "analytics",
+      "path": "backend/domains/analytics"
+    },
+    {
+      "action": "create_domain",
+      "domain": "arbitrage",
+      "path": "backend/domains/arbitrage"
+    },
+    {
+      "action": "create_domain",
+      "domain": "predictions",
+      "path": "backend/domains/predictions"
+    },
+    {
+      "action": "create_service",
+      "service": "cache",
+      "path": "backend/services/cache"
+    },
+    {
+      "action": "create_service",
+      "service": "database",
+      "path": "backend/services/database"
+    },
+    {
+      "action": "create_service",
+      "service": "ml",
+      "path": "backend/services/ml"
+    },
+    {
+      "action": "create_service",
+      "service": "external",
+      "path": "backend/services/external"
+    },
+    {
+      "action": "create_script_dir",
+      "directory": "analysis",
+      "path": "backend/scripts/analysis"
+    },
+    {
+      "action": "create_script_dir",
+      "directory": "migration",
+      "path": "backend/scripts/migration"
+    },
+    {
+      "action": "create_script_dir",
+      "directory": "maintenance",
+      "path": "backend/scripts/maintenance"
+    },
+    {
+      "action": "create_script_dir",
+      "directory": "debug",
+      "path": "backend/scripts/debug"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/security_config.py",
+      "target": "backend/domains/auth/security_config.py",
+      "domain": "auth"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/security_hardening.py",
+      "target": "backend/domains/auth/security_hardening.py",
+      "domain": "auth"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/security_scanner.py",
+      "target": "backend/domains/auth/security_scanner.py",
+      "domain": "auth"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/seed_admin.py",
+      "target": "backend/domains/auth/seed_admin.py",
+      "domain": "auth"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/betting_opportunity_service.py",
+      "target": "backend/domains/betting/betting_opportunity_service.py",
+      "domain": "betting"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/check_bet_details.py",
+      "target": "backend/domains/betting/check_bet_details.py",
+      "domain": "betting"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/check_bets_table.py",
+      "target": "backend/domains/betting/check_bets_table.py",
+      "domain": "betting"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/check_recorded_bets.py",
+      "target": "backend/domains/betting/check_recorded_bets.py",
+      "domain": "betting"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/enhanced_propollama_engine.py",
+      "target": "backend/domains/propfinder/enhanced_propollama_engine.py",
+      "domain": "propfinder"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/load_test_props.py",
+      "target": "backend/domains/propfinder/load_test_props.py",
+      "domain": "propfinder"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/apply_analytics_migration.py",
+      "target": "backend/domains/analytics/apply_analytics_migration.py",
+      "domain": "analytics"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/analytics_migration.sql",
+      "target": "backend/domains/analytics/analytics_migration.sql",
+      "domain": "analytics"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/arbitrage_engine.py",
+      "target": "backend/domains/arbitrage/arbitrage_engine.py",
+      "domain": "arbitrage"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/real_arbitrage_engine.py",
+      "target": "backend/domains/arbitrage/real_arbitrage_engine.py",
+      "domain": "arbitrage"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/prediction_engine.py",
+      "target": "backend/domains/predictions/prediction_engine.py",
+      "domain": "predictions"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/enhanced_prediction_engine.py",
+      "target": "backend/domains/predictions/enhanced_prediction_engine.py",
+      "domain": "predictions"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/model_service.py",
+      "target": "backend/domains/predictions/model_service.py",
+      "domain": "predictions"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/enhanced_model_service.py",
+      "target": "backend/domains/predictions/enhanced_model_service.py",
+      "domain": "predictions"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/ultra_accuracy_engine.py",
+      "target": "backend/domains/predictions/ultra_accuracy_engine.py",
+      "domain": "predictions"
+    },
+    {
+      "action": "migrate",
+      "type": "domain",
+      "source": "backend/revolutionary_accuracy_engine.py",
+      "target": "backend/domains/predictions/revolutionary_accuracy_engine.py",
+      "domain": "predictions"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/cache_optimizer.py",
+      "target": "backend/services/cache/cache_optimizer.py",
+      "service": "cache"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/cache_warming_service.py",
+      "target": "backend/services/cache/cache_warming_service.py",
+      "service": "cache"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/simple_cache_warmer.py",
+      "target": "backend/services/cache/simple_cache_warmer.py",
+      "service": "cache"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/redis_rate_limiter.py",
+      "target": "backend/services/cache/redis_rate_limiter.py",
+      "service": "cache"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/feature_cache.py",
+      "target": "backend/services/cache/feature_cache.py",
+      "service": "cache"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/database_health_checker.py",
+      "target": "backend/services/database/database_health_checker.py",
+      "service": "database"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/analyze_database.py",
+      "target": "backend/services/database/analyze_database.py",
+      "service": "database"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/feature_engineering.py",
+      "target": "backend/services/ml/feature_engineering.py",
+      "service": "ml"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/enhanced_feature_engineering.py",
+      "target": "backend/services/ml/enhanced_feature_engineering.py",
+      "service": "ml"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/advanced_feature_engineering.py",
+      "target": "backend/services/ml/advanced_feature_engineering.py",
+      "service": "ml"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/feature_selector.py",
+      "target": "backend/services/ml/feature_selector.py",
+      "service": "ml"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/feature_validator.py",
+      "target": "backend/services/ml/feature_validator.py",
+      "service": "ml"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/feature_transformation.py",
+      "target": "backend/services/ml/feature_transformation.py",
+      "service": "ml"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/api_integration.py",
+      "target": "backend/services/external/api_integration.py",
+      "service": "external"
+    },
+    {
+      "action": "migrate",
+      "type": "service",
+      "source": "backend/sports_expert_api.py",
+      "target": "backend/services/external/sports_expert_api.py",
+      "service": "external"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/backfill_provider_states.py",
+      "target": "backend/scripts/migration/backfill_provider_states.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/check_correlation_data.py",
+      "target": "backend/scripts/analysis/check_correlation_data.py",
+      "category": "analysis"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/check_database_tables.py",
+      "target": "backend/scripts/analysis/check_database_tables.py",
+      "category": "analysis"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/check_db.py",
+      "target": "backend/scripts/analysis/check_db.py",
+      "category": "analysis"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/check_db_schema.py",
+      "target": "backend/scripts/analysis/check_db_schema.py",
+      "category": "analysis"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/check_db_tables.py",
+      "target": "backend/scripts/analysis/check_db_tables.py",
+      "category": "analysis"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/check_phase3_violations.py",
+      "target": "backend/scripts/analysis/check_phase3_violations.py",
+      "category": "analysis"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/check_schema.py",
+      "target": "backend/scripts/analysis/check_schema.py",
+      "category": "analysis"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/cleanup_console_statements.py",
+      "target": "backend/scripts/maintenance/cleanup_console_statements.py",
+      "category": "maintenance"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/convert_dataresponse_returns.py",
+      "target": "backend/scripts/migration/convert_dataresponse_returns.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/convert_http_exceptions.py",
+      "target": "backend/scripts/migration/convert_http_exceptions.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/convert_multiline_httpexceptions.py",
+      "target": "backend/scripts/migration/convert_multiline_httpexceptions.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/convert_propollama_returns.py",
+      "target": "backend/scripts/migration/convert_propollama_returns.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/convert_propollama_violations.py",
+      "target": "backend/scripts/migration/convert_propollama_violations.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/convert_remaining_apiresponse.py",
+      "target": "backend/scripts/migration/convert_remaining_apiresponse.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/convert_remaining_httpexceptions.py",
+      "target": "backend/scripts/migration/convert_remaining_httpexceptions.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/convert_remaining_jsonresponse.py",
+      "target": "backend/scripts/migration/convert_remaining_jsonresponse.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/convert_response_models.py",
+      "target": "backend/scripts/migration/convert_response_models.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/convert_security_httpexceptions.py",
+      "target": "backend/scripts/migration/convert_security_httpexceptions.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/convert_security_returns.py",
+      "target": "backend/scripts/migration/convert_security_returns.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/debug_phase12_data.py",
+      "target": "backend/scripts/debug/debug_phase12_data.py",
+      "category": "debug"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/debug_strict_mode.py",
+      "target": "backend/scripts/debug/debug_strict_mode.py",
+      "category": "debug"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/find_brewers_braves.py",
+      "target": "backend/scripts/analysis/find_brewers_braves.py",
+      "category": "analysis"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/find_unused_imports.py",
+      "target": "backend/scripts/analysis/find_unused_imports.py",
+      "category": "analysis"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/fix_metrics.py",
+      "target": "backend/scripts/maintenance/fix_metrics.py",
+      "category": "maintenance"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/migrate_bets_table.py",
+      "target": "backend/scripts/migration/migrate_bets_table.py",
+      "category": "migration"
+    },
+    {
+      "action": "migrate",
+      "type": "script",
+      "source": "backend/migrate_sport_defaults.py",
+      "target": "backend/scripts/migration/migrate_sport_defaults.py",
+      "category": "migration"
+    },
+    {
+      "action": "deprecate",
+      "type": "config",
+      "source": "backend/config.py",
+      "target": "backend/config/deprecated/config.py"
+    },
+    {
+      "action": "deprecate",
+      "type": "config",
+      "source": "backend/config_manager.py",
+      "target": "backend/config/deprecated/config_manager.py"
+    },
+    {
+      "action": "deprecate",
+      "type": "config",
+      "source": "backend/config_shim.py",
+      "target": "backend/config/deprecated/config_shim.py"
+    }
+  ],
+  "import_updates": [],
+  "import_mapping": {
+    "backend.security_config": "backend.domains.auth.security_config",
+    "backend.security_hardening": "backend.domains.auth.security_hardening",
+    "backend.security_scanner": "backend.domains.auth.security_scanner",
+    "backend.seed_admin": "backend.domains.auth.seed_admin",
+    "backend.betting_opportunity_service": "backend.domains.betting.betting_opportunity_service",
+    "backend.check_bet_details": "backend.domains.betting.check_bet_details",
+    "backend.check_bets_table": "backend.domains.betting.check_bets_table",
+    "backend.check_recorded_bets": "backend.domains.betting.check_recorded_bets",
+    "backend.enhanced_propollama_engine": "backend.domains.propfinder.enhanced_propollama_engine",
+    "backend.load_test_props": "backend.domains.propfinder.load_test_props",
+    "backend.apply_analytics_migration": "backend.domains.analytics.apply_analytics_migration",
+    "backend.analytics_migration": "backend.domains.analytics.analytics_migration",
+    "backend.arbitrage_engine": "backend.domains.arbitrage.arbitrage_engine",
+    "backend.real_arbitrage_engine": "backend.domains.arbitrage.real_arbitrage_engine",
+    "backend.prediction_engine": "backend.domains.predictions.prediction_engine",
+    "backend.enhanced_prediction_engine": "backend.domains.predictions.enhanced_prediction_engine",
+    "backend.model_service": "backend.domains.predictions.model_service",
+    "backend.enhanced_model_service": "backend.domains.predictions.enhanced_model_service",
+    "backend.ultra_accuracy_engine": "backend.domains.predictions.ultra_accuracy_engine",
+    "backend.revolutionary_accuracy_engine": "backend.domains.predictions.revolutionary_accuracy_engine",
+    "backend.cache_optimizer": "backend.services.cache.cache_optimizer",
+    "backend.cache_warming_service": "backend.services.cache.cache_warming_service",
+    "backend.simple_cache_warmer": "backend.services.cache.simple_cache_warmer",
+    "backend.redis_rate_limiter": "backend.services.cache.redis_rate_limiter",
+    "backend.feature_cache": "backend.services.cache.feature_cache",
+    "backend.database_health_checker": "backend.services.database.database_health_checker",
+    "backend.analyze_database": "backend.services.database.analyze_database",
+    "backend.feature_engineering": "backend.services.ml.feature_engineering",
+    "backend.enhanced_feature_engineering": "backend.services.ml.enhanced_feature_engineering",
+    "backend.advanced_feature_engineering": "backend.services.ml.advanced_feature_engineering",
+    "backend.feature_selector": "backend.services.ml.feature_selector",
+    "backend.feature_validator": "backend.services.ml.feature_validator",
+    "backend.feature_transformation": "backend.services.ml.feature_transformation",
+    "backend.api_integration": "backend.services.external.api_integration",
+    "backend.sports_expert_api": "backend.services.external.sports_expert_api",
+    "backend.backfill_provider_states": "backend.scripts.migration.backfill_provider_states",
+    "backend.check_correlation_data": "backend.scripts.analysis.check_correlation_data",
+    "backend.check_database_tables": "backend.scripts.analysis.check_database_tables",
+    "backend.check_db": "backend.scripts.analysis.check_db",
+    "backend.check_db_schema": "backend.scripts.analysis.check_db_schema",
+    "backend.check_db_tables": "backend.scripts.analysis.check_db_tables",
+    "backend.check_phase3_violations": "backend.scripts.analysis.check_phase3_violations",
+    "backend.check_schema": "backend.scripts.analysis.check_schema",
+    "backend.cleanup_console_statements": "backend.scripts.maintenance.cleanup_console_statements",
+    "backend.convert_dataresponse_returns": "backend.scripts.migration.convert_dataresponse_returns",
+    "backend.convert_http_exceptions": "backend.scripts.migration.convert_http_exceptions",
+    "backend.convert_multiline_httpexceptions": "backend.scripts.migration.convert_multiline_httpexceptions",
+    "backend.convert_propollama_returns": "backend.scripts.migration.convert_propollama_returns",
+    "backend.convert_propollama_violations": "backend.scripts.migration.convert_propollama_violations",
+    "backend.convert_remaining_apiresponse": "backend.scripts.migration.convert_remaining_apiresponse",
+    "backend.convert_remaining_httpexceptions": "backend.scripts.migration.convert_remaining_httpexceptions",
+    "backend.convert_remaining_jsonresponse": "backend.scripts.migration.convert_remaining_jsonresponse",
+    "backend.convert_response_models": "backend.scripts.migration.convert_response_models",
+    "backend.convert_security_httpexceptions": "backend.scripts.migration.convert_security_httpexceptions",
+    "backend.convert_security_returns": "backend.scripts.migration.convert_security_returns",
+    "backend.debug_phase12_data": "backend.scripts.debug.debug_phase12_data",
+    "backend.debug_strict_mode": "backend.scripts.debug.debug_strict_mode",
+    "backend.find_brewers_braves": "backend.scripts.analysis.find_brewers_braves",
+    "backend.find_unused_imports": "backend.scripts.analysis.find_unused_imports",
+    "backend.fix_metrics": "backend.scripts.maintenance.fix_metrics",
+    "backend.migrate_bets_table": "backend.scripts.migration.migrate_bets_table",
+    "backend.migrate_sport_defaults": "backend.scripts.migration.migrate_sport_defaults"
+  }
+}

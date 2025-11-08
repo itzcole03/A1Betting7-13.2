@@ -18,7 +18,7 @@ import json
 import redis
 
 # Import the modules to test
-from backend.api_integration import (
+from backend.services.external.api_integration import (
     OddsFormat, 
     SportsBook, 
     AggregatedOdds, 

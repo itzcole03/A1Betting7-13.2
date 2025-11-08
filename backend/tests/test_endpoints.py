@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 
 from backend.main import app
-from backend.security_config import require_api_key
+from backend.domains.auth.security_config import require_api_key
 
 
 # Mock the API key verification for tests
