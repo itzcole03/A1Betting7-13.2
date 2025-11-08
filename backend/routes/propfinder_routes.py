@@ -416,29 +416,45 @@ def _resolve_propfinder_service(force_simple: bool | None = None) -> Any:
     mode = os.getenv("PROPFINDER_SERVICE_MODE", "").strip().lower()
     testing = os.getenv("TESTING", "").lower() in {"1", "true", "yes", "on"}
     lean_mode = os.getenv("APP_DEV_LEAN_MODE", "").lower() in {"1", "true", "yes", "on"}
-
-    if force_simple or mode in {"simple", "mock", "compat"} or testing or lean_mode:
-        return get_simple_propfinder_service()
-
+    # Preference: if PROPFINDER_SERVICE_MODE explicitly requests the data service
+    # ("data"/"real"), attempt to use that regardless of TESTING or lean mode.
+    # This allows developers to explicitly opt-in to the real provider even when
+    # other environment flags are present (tests or lean dev modes).
     if mode in {"data", "real"} and get_propfinder_data_service is not None:
         try:
             return get_propfinder_data_service()
         except Exception:
             logger.warning(
-                "PropFinderDataService unavailable, falling back to simple service",
+                "PropFinderDataService requested via PROPFINDER_SERVICE_MODE but unavailable; falling back to simple service",
                 exc_info=True,
             )
-            return get_simple_propfinder_service()
 
+    # If caller explicitly requests the simple compatibility service, or the
+    # mode indicates a compatibility/mock option, or we're running under a
+    # TESTING / lean dev flag, prefer the simple service.
+    if force_simple or mode in {"simple", "mock", "compat"} or testing or lean_mode:
+        if testing and mode in {"data", "real"}:
+            # Make this decision visible in logs: TESTING/LEAN take precedence
+            # only when PROPFINDER_SERVICE_MODE does not explicitly provide
+            # a working data service (handled above).
+            logger.debug(
+                "Environment TESTING=%r or APP_DEV_LEAN_MODE=%r active; using simple PropFinder service",
+                testing,
+                lean_mode,
+            )
+        return get_simple_propfinder_service()
+
+    # If a data service factory exists, try to resolve it as a last attempt.
     if get_propfinder_data_service is not None:
         try:
             return get_propfinder_data_service()
         except Exception:
             logger.debug(
-                "PropFinderDataService resolution failed, using simple service",
+                "PropFinderDataService resolution failed on final attempt; using simple service",
                 exc_info=True,
             )
 
+    # Default fallback: simple service
     return get_simple_propfinder_service()
 
 
@@ -724,6 +740,26 @@ async def _handle_prop_opportunities(
     fields: Optional[str],
     legacy_mode: bool,
 ) -> Response:
+    # Diagnostic trace: log the resolved service, process id and working dir
+    try:
+        svc_name = (
+            data_service.__class__.__name__ if data_service is not None else "unknown"
+        )
+    except Exception:
+        svc_name = "unknown"
+    try:
+        logger.info(
+            "PropFinder request - PID=%s CWD=%s resolved_service=%s",
+            os.getpid(),
+            os.getcwd(),
+            svc_name,
+        )
+    except Exception:
+        # best-effort logging only
+        logger.debug(
+            "PropFinder request - failed to log PID/CWD/service", exc_info=True
+        )
+
     sport_filter = _split_csv(sports)
     markets_filter = _split_csv(markets)
     venues_filter = _split_csv(venues)
@@ -795,6 +831,16 @@ async def _handle_prop_opportunities(
                 )
             resp = Response(status_code=status.HTTP_304_NOT_MODIFIED)
             resp.headers["ETag"] = str(cached_etag)
+            # Add resolved service hint for diagnostics
+            try:
+                svc_name = (
+                    data_service.__class__.__name__
+                    if data_service is not None
+                    else "unknown"
+                )
+                resp.headers["X-PropFinder-Service"] = svc_name
+            except Exception:
+                pass
             return resp
 
     if cached:
@@ -818,6 +864,16 @@ async def _handle_prop_opportunities(
             cached_etag = cached.get("etag")
             if cached_etag:
                 resp.headers["ETag"] = str(cached_etag)
+            # Add resolved service hint for diagnostics
+            try:
+                svc_name = (
+                    data_service.__class__.__name__
+                    if data_service is not None
+                    else "unknown"
+                )
+                resp.headers["X-PropFinder-Service"] = svc_name
+            except Exception:
+                pass
             resp.headers["Cache-Control"] = "private, max-age=30"
             return resp
 
@@ -948,6 +1004,14 @@ async def _handle_prop_opportunities(
     if etag:
         response_obj.headers["ETag"] = str(etag)
     response_obj.headers["Cache-Control"] = "private, max-age=30"
+    # Add resolved service hint for diagnostics (final response)
+    try:
+        svc_name = (
+            data_service.__class__.__name__ if data_service is not None else "unknown"
+        )
+        response_obj.headers["X-PropFinder-Service"] = svc_name
+    except Exception:
+        pass
     return response_obj
 
 
@@ -1375,6 +1439,52 @@ async def debug_provider_opportunities(
                 "PROVIDER_ERROR", "Provider invocation failed", {"detail": "see logs"}
             ),
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+@router.get("/debug/service-info")
+async def debug_propfinder_service_info():
+    """Dev-only diagnostic: report which PropFinder service resolves and env flags."""
+    try:
+        mode = os.getenv("PROPFINDER_SERVICE_MODE", "").strip().lower()
+        testing = os.getenv("TESTING", "").lower() in {"1", "true", "yes", "on"}
+        lean_mode = os.getenv("APP_DEV_LEAN_MODE", "").lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+
+        resolved = None
+        reason = None
+        svc = None
+        try:
+            svc = _resolve_propfinder_service()
+            resolved = svc.__class__.__name__ if svc is not None else None
+        except Exception as exc:  # pragma: no cover - defensive
+            resolved = None
+            reason = str(exc)
+
+        info = {
+            "env": {
+                "PROPFINDER_SERVICE_MODE": mode,
+                "TESTING": testing,
+                "APP_DEV_LEAN_MODE": lean_mode,
+                "PROPFINDER_DEBUG_DUMP_ENABLED": os.getenv(
+                    "PROPFINDER_DEBUG_DUMP_ENABLED"
+                ),
+            },
+            "resolved_service": resolved,
+            "resolution_error": reason,
+            "get_propfinder_data_service_available": get_propfinder_data_service
+            is not None,
+            "nba_provider_client_available": nba_provider_client is not None,
+        }
+        return JSONResponse(ok(info))
+    except Exception:
+        logger.exception("Failed to assemble PropFinder service info")
+        return JSONResponse(
+            fail("INTERNAL_ERROR", "Unable to collect service info"), status_code=500
         )
 
 

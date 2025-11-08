@@ -271,12 +271,54 @@ def create_app() -> FastAPI:
     # Prefer the minimal, guaranteed-clean shim to avoid parse errors from any
     # corrupted full shim file present in the repo.
     try:
-        from backend.routes.testing_compat_shims_minimal import (
-            router as testing_shim_router_min,
-        )
+        # Only include the testing compat shim in explicit test runs or when
+        # the environment requests it. This prevents the shim from silently
+        # shadowing production/dev routes (notably /api/propfinder/opportunities)
+        # during normal development runs.
+        include_testing_shim = os.getenv("INCLUDE_TESTING_COMPAT_SHIM", "").lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
 
-        _app.include_router(testing_shim_router_min)
-        logger.info("Minimal testing compat shim included")
+        # Detect a pytest-driven process via environment indicator. When
+        # pytest executes, it sets PYTEST_CURRENT_TEST; prefer that over a
+        # blind import of pytest which may be present in the environment.
+        running_pytest = bool(os.getenv("PYTEST_CURRENT_TEST"))
+
+        # If the app is explicitly running in 'data' or 'real' mode for PropFinder,
+        # prefer real/data providers and never mount the minimal testing shim
+        # unless the developer explicitly forces it via INCLUDE_TESTING_COMPAT_SHIM.
+        propfinder_mode = os.getenv("PROPFINDER_SERVICE_MODE", "").lower()
+        if propfinder_mode in {"data", "real"} and include_testing_shim:
+            # Defensive: log and skip the minimal shim when a real data mode is requested
+            logger.info(
+                "PROPFINDER_SERVICE_MODE=%s: skipping minimal testing compat shim to prefer real/data providers",
+                propfinder_mode,
+            )
+            include_testing_shim = False
+
+        if include_testing_shim or running_pytest:
+            from backend.routes.testing_compat_shims_minimal import (
+                router as testing_shim_router_min,
+            )
+
+            _app.include_router(testing_shim_router_min)
+            logger.info("Minimal testing compat shim included")
+            # Emit diagnostic values so runtime logs show why the shim was mounted
+            try:
+                logger.info(
+                    "Shim inclusion diagnostics: INCLUDE_TESTING_COMPAT_SHIM=%s, PYTEST_CURRENT_TEST=%s",
+                    os.getenv("INCLUDE_TESTING_COMPAT_SHIM"),
+                    os.getenv("PYTEST_CURRENT_TEST"),
+                )
+            except Exception:
+                pass
+        else:
+            logger.debug(
+                "Skipping minimal testing compat shim (not running pytest and INCLUDE_TESTING_COMPAT_SHIM not set)"
+            )
     except Exception as e:
         logger.warning(f"Minimal testing compat shim not available: {e}")
 
@@ -6318,6 +6360,50 @@ def create_app() -> FastAPI:
         logger.debug(
             "Failed to create lifespan shim; falling back to default startup behavior"
         )
+
+    # Add a lightweight debug endpoint to expose PropFinder route registration and env flags
+    try:
+
+        @_app.get("/__debug/propfinder-route-info")
+        async def _debug_propfinder_route_info():
+            import os
+
+            routes_info = []
+            try:
+                for r in _app.routes:
+                    path = (
+                        getattr(r, "path", None)
+                        or getattr(r, "path_format", None)
+                        or None
+                    )
+                    if path and "/api/propfinder" in path:
+                        routes_info.append(
+                            {
+                                "path": path,
+                                "name": getattr(
+                                    r.endpoint, "__name__", str(r.endpoint)
+                                ),
+                                "module": getattr(r.endpoint, "__module__", None),
+                            }
+                        )
+            except Exception:
+                routes_info = []
+
+            return {
+                "env": {
+                    "INCLUDE_TESTING_COMPAT_SHIM": os.getenv(
+                        "INCLUDE_TESTING_COMPAT_SHIM"
+                    ),
+                    "PYTEST_CURRENT_TEST": os.getenv("PYTEST_CURRENT_TEST"),
+                    "PROPFINDER_SERVICE_MODE": os.getenv("PROPFINDER_SERVICE_MODE"),
+                    "APP_DEV_LEAN_MODE": os.getenv("APP_DEV_LEAN_MODE"),
+                },
+                "routes": routes_info,
+            }
+
+    except Exception:
+        # Non-fatal: if debug endpoint cannot be attached, continue
+        logger.debug("Could not attach __debug/propfinder-route-info to app instance")
 
     return _app
 
