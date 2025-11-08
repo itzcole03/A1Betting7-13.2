@@ -239,6 +239,61 @@ Additional env files:
 
 ---
 
+## NBA provider (PropFinder) — recent changes
+
+This repo recently migrated the PropFinder NBA data provider to use the `nba_api` (stats.nba.com) instead of `balldontlie`. The change was made to avoid needing a third‑party API key and to leverage richer NBA endpoints.
+
+Key points:
+
+- Provider implementation: `backend/services/nba_provider_client.py` — an nba_api-first client that exposes async-friendly helpers such as `generate_player_props(target_date, lookahead_days)`, `fetch_teams()`, `fetch_players(team_id)`, and `fetch_games_for_date(date_str)`. Blocking `nba_api` calls run under `asyncio.to_thread`.
+- Removed reliance on `balldontlie` — no API key required for the new flows.
+- Environment variables (new/used):
+  - `PROPFINDER_SERVICE_MODE` — set to `data` to enable real provider paths (defaults may fall back to a minimal shim in dev/testing).
+  - `PROPFINDER_NBA_LOOKAHEAD_DAYS` — number of days to scan for games (default: 30; set to `1` for quick local demos).
+  - `PROPFINDER_NBA_MAX_RETRIES`, `PROPFINDER_NBA_RETRY_DELAY` — tuning for NBA API retries/backoff.
+
+Developer helpers:
+
+- One-shot probe (fast verification): `tools/propfinder_provider_probe.py` — runs the provider directly and prints generated props as JSON.
+  - Example: `PYTHONPATH=. python tools/propfinder_provider_probe.py --target-date 2025-11-08 --lookahead 1`
+- Dev route (inside the canonical app): `GET /api/propfinder/debug/provider` — added as a gated, dev-only endpoint that calls the provider and returns its raw output. It is only enabled when `PROPFINDER_SERVICE_MODE=data` and `APP_DEV_LEAN_MODE` is not set.
+
+How to test locally (recommended)
+
+1. Quick probe (no app required):
+
+```bash
+PYTHONPATH=. python tools/propfinder_provider_probe.py --lookahead 1
+```
+
+2. Full app dev check (dev route):
+
+Start the backend in a new terminal (do not run the test in the same terminal or use `--reload` — reloader subprocesses and Windows log rotation can cause file locks and shutdowns):
+
+```bash
+cd <repo-root>
+PROPFINDER_SERVICE_MODE=data PROPFINDER_NBA_LOOKAHEAD_DAYS=1 PYTHONPATH=. python -m uvicorn backend.core.app:create_app --factory --host 127.0.0.1 --port 8012
+```
+
+Then, in a separate terminal, call the dev route (with retries while the app starts):
+
+```bash
+curl -sS "http://127.0.0.1:8012/api/propfinder/debug/provider?lookahead_days=1" -H "Accept: application/json"
+```
+
+Troubleshooting notes
+
+- If the main app falls back to deterministic/mock shims (e.g., `s1..s5` payloads) or the server exits during startup, check the server logs for bootstrap errors. Common quick fixes:
+  - Missing `Field` imports in pydantic models — add `from pydantic import Field` where `Field(...)` is used.
+  - Modules referencing `logger` without defining it — add `import logging` and `logger = logging.getLogger(__name__)`.
+  - Syntax errors in `lazy_sport_manager.py` (line references are in logs) — fix the offending code.
+  - `odds_store` TypeError from attempting to instantiate `typing.Any` when SQLAlchemy is absent — fallback to `None` for `OddsNormalizer` when DB libs are not available.
+  - Windows file lock / log rotation PermissionError — ensure you only run a single backend process or temporarily disable file rotation for local testing.
+
+If you'd like, I can apply the minimal mechanical fixes (logger imports, pydantic Field fixes, and the `odds_store` fallback) to stabilize startup so the dev route returns NBA props end-to-end.
+
+---
+
 ## Testing & QA
 
 ### Backend

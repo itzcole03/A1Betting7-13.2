@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { 
-  Wifi, WifiOff, RefreshCw, AlertTriangle, Clock, CheckCircle, 
-  XCircle, Trash2, Play, Pause, Settings 
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import {
+  Wifi, WifiOff, RefreshCw, AlertTriangle, Clock, CheckCircle,
+  XCircle, Trash2, Play, Pause, Settings
 } from 'lucide-react';
 
 interface QueuedMessage {

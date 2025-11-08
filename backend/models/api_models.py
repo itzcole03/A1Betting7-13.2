@@ -1,8 +1,10 @@
 """General API models."""
 
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field
+
 
 class AnalysisResponse(BaseModel):
     recommendation: str
@@ -1118,4 +1120,3 @@ async def get_engine_metrics():
 
 
 # Existing user endpoints continue below...
-

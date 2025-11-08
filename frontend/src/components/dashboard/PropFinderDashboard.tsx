@@ -35,8 +35,8 @@ import LiveArbitragePanel from '../arbitrage/LiveArbitragePanel';
 import ArbitrageBadge from '../propfinder/ArbitrageBadge';
 import EvPill from '../propfinder/EvPill';
 import MiniLineSparkline from '../propfinder/MiniLineSparkline';
-import PerformanceMetrics from './PerformanceMetrics';
 import DashboardSettingsPanel, { DashboardLayout } from './DashboardSettingsPanel';
+import PerformanceMetrics from './PerformanceMetrics';
 
 // Dev debug window shape
 type DevWindow = Window & {
@@ -201,21 +201,28 @@ const PropFinderDashboard: React.FC = () => {
         setAutoRefresh(prefs.autoRefresh || false);
       }
     } catch (error) {
-      enhancedLogger.warn('PropFinderDashboard', 'preferences', 'Failed to load preferences', { error });
+      enhancedLogger.warn('PropFinderDashboard', 'preferences', 'Failed to load preferences', {
+        error,
+      });
     }
   }, []);
 
   // Save dashboard preferences to localStorage
   React.useEffect(() => {
     try {
-      localStorage.setItem('dashboardPreferences', JSON.stringify({
-        layout: dashboardLayout,
-        showMetrics: showPerformanceMetrics,
-        enableRealTime: enableRealTimeUpdates,
-        autoRefresh: autoRefresh,
-      }));
+      localStorage.setItem(
+        'dashboardPreferences',
+        JSON.stringify({
+          layout: dashboardLayout,
+          showMetrics: showPerformanceMetrics,
+          enableRealTime: enableRealTimeUpdates,
+          autoRefresh: autoRefresh,
+        })
+      );
     } catch (error) {
-      enhancedLogger.warn('PropFinderDashboard', 'preferences', 'Failed to save preferences', { error });
+      enhancedLogger.warn('PropFinderDashboard', 'preferences', 'Failed to save preferences', {
+        error,
+      });
     }
   }, [dashboardLayout, showPerformanceMetrics, enableRealTimeUpdates, autoRefresh]);
 
@@ -224,7 +231,7 @@ const PropFinderDashboard: React.FC = () => {
     return {
       compact: 'p-2',
       comfortable: 'p-6',
-      spacious: 'p-8'
+      spacious: 'p-8',
     }[dashboardLayout];
   }, [dashboardLayout]);
 
@@ -278,12 +285,12 @@ const PropFinderDashboard: React.FC = () => {
   // Auto-refresh functionality for dashboard customization
   React.useEffect(() => {
     if (!autoRefresh) return;
-    
+
     const interval = setInterval(() => {
       refreshData();
       enhancedLogger.debug('PropFinderDashboard', 'autoRefresh', 'Auto-refreshing data');
     }, 30000); // 30 seconds
-    
+
     return () => clearInterval(interval);
   }, [autoRefresh, refreshData]);
 
@@ -1136,9 +1143,7 @@ const PropFinderDashboard: React.FC = () => {
           </div>
 
           {/* Performance Metrics */}
-          {showPerformanceMetrics && (
-            <PerformanceMetrics opportunities={filteredOpportunities} />
-          )}
+          {showPerformanceMetrics && <PerformanceMetrics opportunities={filteredOpportunities} />}
 
           {/* Results Summary */}
           <div className='mb-4 flex justify-between items-center'>
@@ -1755,6 +1760,15 @@ const DebugOverlay: React.FC<{
   }, [opportunitiesCount, stats, activeFilters]);
 
   if (process.env.NODE_ENV !== 'development') return null;
+  // Local settings state for the debug overlay so we don't reference
+  // parent component variables (avoids ReferenceError when overlay is
+  // rendered separately from the main dashboard). These defaults mirror
+  // the dashboard's own initial state so the panel behaves predictably.
+  const [showSettings, setShowSettings] = React.useState<boolean>(false);
+  const [dashboardLayout, setDashboardLayout] = React.useState<DashboardLayout>('comfortable');
+  const [showPerformanceMetrics, setShowPerformanceMetrics] = React.useState<boolean>(true);
+  const [enableRealTime, setEnableRealTime] = React.useState<boolean>(true);
+  const [autoRefresh, setAutoRefresh] = React.useState<boolean>(false);
 
   return (
     <div style={{ position: 'fixed', right: 12, bottom: 12, zIndex: 9999 }}>
@@ -1855,8 +1869,8 @@ const DebugOverlay: React.FC<{
         onLayoutChange={setDashboardLayout}
         showMetrics={showPerformanceMetrics}
         onShowMetricsChange={setShowPerformanceMetrics}
-        enableRealTime={enableRealTimeUpdates}
-        onEnableRealTimeChange={setEnableRealTimeUpdates}
+        enableRealTime={enableRealTime}
+        onEnableRealTimeChange={setEnableRealTime}
         autoRefresh={autoRefresh}
         onAutoRefreshChange={setAutoRefresh}
       />

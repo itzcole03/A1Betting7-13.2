@@ -33,6 +33,11 @@ except Exception:  # pragma: no cover - defensive import
 from backend.services.bookmark_service import BookmarkService, get_bookmark_service
 from backend.services.simple_propfinder_service import get_simple_propfinder_service
 
+try:
+    from backend.services.nba_provider_client import nba_provider_client
+except Exception:  # pragma: no cover - optional provider import
+    nba_provider_client = None  # type: ignore
+
 try:  # Optional rich data service
     from backend.services.propfinder_data_service import (
         PropFinderDataService,
@@ -1320,6 +1325,57 @@ async def read_propfinder_debug_dump():
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
     return JSONResponse(ok(data))
+
+
+@router.get("/debug/provider")
+async def debug_provider_opportunities(
+    target_date: Optional[str] = Query(None, description="YYYY-MM-DD target date"),
+    lookahead_days: int = Query(1, ge=1, le=30),
+):
+    """Dev-only route: directly call the NBA provider and return generated props.
+
+    This route is intentionally gated:
+    - Only enabled when PROPFINDER_SERVICE_MODE=data
+    - Disabled when APP_DEV_LEAN_MODE is enabled
+    """
+    mode = os.getenv("PROPFINDER_SERVICE_MODE", "").strip().lower()
+    lean_mode = os.getenv("APP_DEV_LEAN_MODE", "").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+    if mode != "data" or lean_mode:
+        return JSONResponse(
+            fail("NOT_ALLOWED", "Dev provider route disabled in this environment"),
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+    if nba_provider_client is None:
+        return JSONResponse(
+            fail("PROVIDER_UNAVAILABLE", "NBA provider not available in this process"),
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    # default target date -> today
+    if target_date is None:
+        target_date = datetime.utcnow().strftime("%Y-%m-%d")
+
+    try:
+        props = await nba_provider_client.generate_player_props(
+            target_date=target_date, lookahead_days=lookahead_days
+        )
+        payload = {"count": len(props) if props else 0, "props": props}
+        return JSONResponse(ok(payload))
+    except Exception:
+        logger.exception("Dev provider invocation failed")
+        return JSONResponse(
+            fail(
+                "PROVIDER_ERROR", "Provider invocation failed", {"detail": "see logs"}
+            ),
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 # ---------------------------------------------------------------------------

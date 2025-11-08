@@ -49,7 +49,7 @@ except ImportError as e:
     AsyncSession = Any  # type: ignore[assignment]
     Bookmaker = Any  # type: ignore[assignment]
     OddsSnapshot = Any  # type: ignore[assignment]
-    OddsNormalizer = Any  # type: ignore[assignment]
+    OddsNormalizer = None
     UnifiedCacheService = None  # type: ignore[assignment]
     get_cache = None
     SQLALCHEMY_AVAILABLE = False
