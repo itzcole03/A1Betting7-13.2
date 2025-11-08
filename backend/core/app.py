@@ -5,6 +5,7 @@ This is the ONLY entry point for creating the A1Betting application.
 """
 
 import asyncio
+import builtins
 import contextlib
 import inspect
 import logging
@@ -48,6 +49,16 @@ except ImportError:
         level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s"
     )
     logger = logging.getLogger(__name__)
+
+# Make a fallback logger available in builtins to support legacy modules that
+# reference an unqualified `logger` at import time. This is a defensive, dev
+# convenience shim to avoid NameError during app bootstrap when some files
+# were missing their local logger definitions.
+try:
+    builtins.logger = logger
+except Exception:
+    # If builtins cannot be modified for some reason, ignore and proceed.
+    pass
 
 
 # Load environment variables from .env file
