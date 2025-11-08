@@ -1,0 +1,520 @@
+{
+  "production_fix": {
+    "file": "/home/ubuntu/A1Betting7-13.2/backend/production_fix.py",
+    "total_lines": 3216,
+    "functions": [
+      "_sports_health_check",
+      "lifespan",
+      "root",
+      "health_status",
+      "health",
+      "get_prizepicks_props",
+      "get_ml_status",
+      "get_api_status",
+      "start_ml_loading",
+      "get_model_status",
+      "get_player_stats",
+      "get_players_by_sport",
+      "generate_custom_prediction",
+      "get_batch_predictions",
+      "get_betting_recommendations",
+      "get_quick_betting_picks",
+      "get_detailed_player_analysis",
+      "get_betting_portfolio",
+      "get_betting_opportunities",
+      "get_betting_metrics",
+      "get_betting_history",
+      "place_bet",
+      "get_all_players",
+      "get_projections",
+      "get_prizepicks_props_enhanced",
+      "propollama_chat",
+      "propollama_status",
+      "get_ultimate_betting_analysis",
+      "get_real_time_prizepicks_props",
+      "get_best_bets_now"
+    ],
+    "function_count": 30,
+    "classes": [
+      "LazyMLLoader",
+      "PrizePicksDataService",
+      "MLPredictionEngine",
+      "CoreMLEngine",
+      "BettingAnalyzer",
+      "RiskManager",
+      "UltimateBettingAnalyzer"
+    ],
+    "class_count": 7,
+    "import_count": 12,
+    "sections": [
+      {
+        "name": "import-time doesn't block on optional dependencies.",
+        "start": 24,
+        "end": 164,
+        "lines": 140
+      },
+      {
+        "name": "Start ML loading in background (non-blocking)",
+        "start": 164,
+        "end": 174,
+        "lines": 10
+      },
+      {
+        "name": "Create production-ready app with Phase 3 enhancements",
+        "start": 174,
+        "end": 307,
+        "lines": 133
+      },
+      {
+        "name": "Phase 2: Enhanced ML Status endpoint with real-time loading progress",
+        "start": 307,
+        "end": 432,
+        "lines": 125
+      },
+      {
+        "name": "MLB Players - Top stars + Generated players (300+ total)",
+        "start": 432,
+        "end": 578,
+        "lines": 146
+      },
+      {
+        "name": "NBA Players - Stars + Generated (200+ total)",
+        "start": 578,
+        "end": 675,
+        "lines": 97
+      },
+      {
+        "name": "WNBA Players - Stars + Generated (100+ total)",
+        "start": 675,
+        "end": 766,
+        "lines": 91
+      },
+      {
+        "name": "MLS Players - Stars + Generated (200+ total)",
+        "start": 766,
+        "end": 1319,
+        "lines": 553
+      },
+      {
+        "name": "Complex non-linear feature interactions",
+        "start": 1319,
+        "end": 1346,
+        "lines": 27
+      },
+      {
+        "name": "Trend-based prediction",
+        "start": 1346,
+        "end": 1513,
+        "lines": 167
+      },
+      {
+        "name": "EV = (probability of win * payout) - (probability of loss * stake)",
+        "start": 1513,
+        "end": 1524,
+        "lines": 11
+      },
+      {
+        "name": "Kelly Formula: f = (bp - q) / b",
+        "start": 1524,
+        "end": 1525,
+        "lines": 1
+      },
+      {
+        "name": "where b = decimal odds - 1, p = our probability, q = 1 - p",
+        "start": 1525,
+        "end": 2471,
+        "lines": 946
+      },
+      {
+        "name": "Filter to only include props with reasonable confidence (>= 60%)",
+        "start": 2471,
+        "end": 2580,
+        "lines": 109
+      },
+      {
+        "name": "Real-time PrizePicks Integration with ALL Categories",
+        "start": 2582,
+        "end": 2583,
+        "lines": 1
+      },
+      {
+        "name": "Add real-time PrizePicks integration status",
+        "start": 2965,
+        "end": 3009,
+        "lines": 44
+      },
+      {
+        "name": "Simulate real-time PrizePicks data",
+        "start": 3009,
+        "end": 3058,
+        "lines": 49
+      },
+      {
+        "name": "Only include high-confidence props",
+        "start": 3058,
+        "end": 3105,
+        "lines": 47
+      },
+      {
+        "name": "Get real-time props",
+        "start": 3105,
+        "end": 3187,
+        "lines": 82
+      }
+    ]
+  },
+  "api_integration": {
+    "file": "/home/ubuntu/A1Betting7-13.2/backend/services/external/api_integration.py",
+    "total_lines": 2787,
+    "functions": [
+      "_safe_dump",
+      "prizepicks_props_fallback",
+      "get_config",
+      "root_features_stub",
+      "root_predict_stub",
+      "unified_analysis_stub",
+      "dev_set_password",
+      "internal_force_change_password",
+      "predictions_prizepicks",
+      "healthz",
+      "api_health_status",
+      "api_health_comprehensive",
+      "api_health_data_sources",
+      "api_health_database",
+      "root",
+      "features_stub",
+      "autonomous_status",
+      "autonomous_health",
+      "autonomous_metrics",
+      "autonomous_capabilities",
+      "autonomous_heal",
+      "add_security_headers",
+      "autonomous_status",
+      "autonomous_health",
+      "autonomous_capabilities",
+      "autonomous_heal",
+      "get_enhanced_bets",
+      "login",
+      "register",
+      "refresh_token",
+      "get_prizepicks_props",
+      "get_comprehensive_projections",
+      "get_recommendations",
+      "get_prizepicks_health",
+      "get_featured_props",
+      "get_player_props",
+      "get_predictions",
+      "get_betting_opportunities",
+      "get_engine_metrics",
+      "analyze_prediction",
+      "get_market_trends",
+      "get_ml_performance",
+      "websocket_odds",
+      "websocket_predictions",
+      "websocket_notifications",
+      "get_predictions",
+      "get_betting_opportunities",
+      "get_engine_metrics"
+    ],
+    "function_count": 48,
+    "classes": [
+      "OddsFormat",
+      "SportsBook",
+      "AggregatedOdds",
+      "OddsNormalizer",
+      "OddsAggregationService",
+      "LoginRequest",
+      "RegisterRequest",
+      "RefreshTokenRequest",
+      "AnalysisResponse",
+      "ProfileUpdateRequest",
+      "BankrollInfo",
+      "AuthResponse",
+      "PlayerProp",
+      "ExpandedPlayerProp",
+      "PlayerDetails",
+      "SelectedPick",
+      "LineupRequest",
+      "LineupResponse",
+      "PredictionFactor",
+      "PredictionModel",
+      "LivePrediction",
+      "AnalysisRequest",
+      "TransactionRequest",
+      "Transaction",
+      "PerformanceMetrics",
+      "MarketTrend",
+      "ChatRequest",
+      "ChatResponse",
+      "WSMessage",
+      "ConnectionManager",
+      "EnhancedBet",
+      "EnhancedBetsResponse",
+      "AnalysisStatusResponse",
+      "AnalysisStartResponse",
+      "OddsComparisonResponse"
+    ],
+    "class_count": 35,
+    "import_count": 48,
+    "sections": [
+      {
+        "name": "Place fallback endpoint after app = FastAPI(...)",
+        "start": 443,
+        "end": 454,
+        "lines": 11
+      },
+      {
+        "name": "API /api/prizepicks/props fallback for legacy test compatibility",
+        "start": 454,
+        "end": 466,
+        "lines": 12
+      },
+      {
+        "name": "Config Dependency for Testability",
+        "start": 466,
+        "end": 474,
+        "lines": 8
+      },
+      {
+        "name": "Root-level Features and Predict Stubs for Test Compatibility",
+        "start": 474,
+        "end": 597,
+        "lines": 123
+      },
+      {
+        "name": "Do NOT import the feedback module at top-level during triage. Some backup",
+        "start": 597,
+        "end": 654,
+        "lines": 57
+      },
+      {
+        "name": "Force override: API v1 Unified Analysis Endpoint (stub for test compatibility)",
+        "start": 654,
+        "end": 658,
+        "lines": 4
+      },
+      {
+        "name": "API v1 Unified Analysis Endpoint (stub for test compatibility)",
+        "start": 658,
+        "end": 661,
+        "lines": 3
+      },
+      {
+        "name": "Always return a non-empty enriched_props list for test compatibility",
+        "start": 661,
+        "end": 729,
+        "lines": 68
+      },
+      {
+        "name": "Dev-only helper: set in-memory user password (only available in development)",
+        "start": 729,
+        "end": 747,
+        "lines": 18
+      },
+      {
+        "name": "Access internal store (dev-only)",
+        "start": 747,
+        "end": 789,
+        "lines": 42
+      },
+      {
+        "name": "API v1 SR Games Endpoint (stub for test compatibility)",
+        "start": 789,
+        "end": 794,
+        "lines": 5
+      },
+      {
+        "name": "API v1 SR Games Endpoint (stub for test compatibility)",
+        "start": 794,
+        "end": 851,
+        "lines": 57
+      },
+      {
+        "name": "Re-raise HTTP exceptions (like 502 above)",
+        "start": 851,
+        "end": 863,
+        "lines": 12
+      },
+      {
+        "name": "API v1 Odds Endpoint (stub for test compatibility)",
+        "start": 863,
+        "end": 891,
+        "lines": 28
+      },
+      {
+        "name": "Check if response is malformed - should be a list with bookmakers",
+        "start": 891,
+        "end": 913,
+        "lines": 22
+      },
+      {
+        "name": "Re-raise HTTP exceptions (like 502 above)",
+        "start": 913,
+        "end": 925,
+        "lines": 12
+      },
+      {
+        "name": "API predictions/prizepicks Endpoint (stub for test compatibility)",
+        "start": 925,
+        "end": 937,
+        "lines": 12
+      },
+      {
+        "name": "Health endpoints",
+        "start": 937,
+        "end": 1012,
+        "lines": 75
+      },
+      {
+        "name": "Register all routers from backend/routes/",
+        "start": 1012,
+        "end": 1056,
+        "lines": 44
+      },
+      {
+        "name": "API Models",
+        "start": 1056,
+        "end": 1078,
+        "lines": 22
+      },
+      {
+        "name": "Additional missing models for test compatibility",
+        "start": 1078,
+        "end": 1260,
+        "lines": 182
+      },
+      {
+        "name": "Authentication Utilities",
+        "start": 1260,
+        "end": 1342,
+        "lines": 82
+      },
+      {
+        "name": "Health Endpoint",
+        "start": 1342,
+        "end": 1349,
+        "lines": 7
+      },
+      {
+        "name": "Features and Predict Stubs",
+        "start": 1349,
+        "end": 1415,
+        "lines": 66
+      },
+      {
+        "name": "Autonomous System Stubs",
+        "start": 1415,
+        "end": 1611,
+        "lines": 196
+      },
+      {
+        "name": "PrizePicks Utilities",
+        "start": 1611,
+        "end": 1658,
+        "lines": 47
+      },
+      {
+        "name": "WebSocket Connection Manager",
+        "start": 1658,
+        "end": 1699,
+        "lines": 41
+      },
+      {
+        "name": "Features and Predict Stubs",
+        "start": 1699,
+        "end": 1702,
+        "lines": 3
+      },
+      {
+        "name": "Autonomous System Stubs",
+        "start": 1702,
+        "end": 1780,
+        "lines": 78
+      },
+      {
+        "name": "In-memory analysis state (thread-safe)",
+        "start": 1780,
+        "end": 1831,
+        "lines": 51
+      },
+      {
+        "name": "API v1 Odds and SR Games Endpoints (single, correct, top-level)",
+        "start": 1831,
+        "end": 1834,
+        "lines": 3
+      },
+      {
+        "name": "Authentication Routes",
+        "start": 1834,
+        "end": 1879,
+        "lines": 45
+      },
+      {
+        "name": "PrizePicks Routes",
+        "start": 1879,
+        "end": 2101,
+        "lines": 222
+      },
+      {
+        "name": "Prediction Routes",
+        "start": 2101,
+        "end": 2127,
+        "lines": 26
+      },
+      {
+        "name": "User Management Routes",
+        "start": 2169,
+        "end": 2282,
+        "lines": 113
+      },
+      {
+        "name": "Analytics Routes",
+        "start": 2282,
+        "end": 2367,
+        "lines": 85
+      },
+      {
+        "name": "AI Chat Routes",
+        "start": 2367,
+        "end": 2409,
+        "lines": 42
+      },
+      {
+        "name": "ML Performance Routes",
+        "start": 2409,
+        "end": 2439,
+        "lines": 30
+      },
+      {
+        "name": "WebSocket Routes",
+        "start": 2439,
+        "end": 2541,
+        "lines": 102
+      },
+      {
+        "name": "FastAPI App Creation",
+        "start": 2541,
+        "end": 2544,
+        "lines": 3
+      },
+      {
+        "name": "Test-compatibility endpoints registration",
+        "start": 2544,
+        "end": 2550,
+        "lines": 6
+      },
+      {
+        "name": "Export the app for use in main application",
+        "start": 2550,
+        "end": 2558,
+        "lines": 8
+      },
+      {
+        "name": "Mock endpoint removed - use real authentication endpoints in main.py",
+        "start": 2782,
+        "end": 2787,
+        "lines": 5
+      }
+    ]
+  }
+}
