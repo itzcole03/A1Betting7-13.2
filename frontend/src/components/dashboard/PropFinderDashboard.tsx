@@ -8,6 +8,7 @@ import {
   Filter,
   Heart,
   Search,
+  Settings,
   Star,
   Target,
   TrendingUp,
@@ -34,6 +35,8 @@ import LiveArbitragePanel from '../arbitrage/LiveArbitragePanel';
 import ArbitrageBadge from '../propfinder/ArbitrageBadge';
 import EvPill from '../propfinder/EvPill';
 import MiniLineSparkline from '../propfinder/MiniLineSparkline';
+import PerformanceMetrics from './PerformanceMetrics';
+import DashboardSettingsPanel, { DashboardLayout } from './DashboardSettingsPanel';
 
 // Dev debug window shape
 type DevWindow = Window & {
@@ -143,6 +146,13 @@ const PropFinderDashboard: React.FC = () => {
   const [selectedOpportunity, setSelectedOpportunity] = useState<PropOpportunity | null>(null);
   const [showArbitrage, setShowArbitrage] = useState(false);
 
+  // Dashboard customization state (consolidated features)
+  const [showSettings, setShowSettings] = useState(false);
+  const [showPerformanceMetrics, setShowPerformanceMetrics] = useState(true);
+  const [dashboardLayout, setDashboardLayout] = useState<DashboardLayout>('comfortable');
+  const [enableRealTimeUpdates, setEnableRealTimeUpdates] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+
   // Store EV threshold in localStorage
   React.useEffect(() => {
     const stored = localStorage.getItem('propfinder.evThreshold');
@@ -178,6 +188,45 @@ const PropFinderDashboard: React.FC = () => {
   React.useEffect(() => {
     localStorage.setItem('propfinder.showCLV', showCLV.toString());
   }, [showCLV]);
+
+  // Load dashboard preferences from localStorage
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('dashboardPreferences');
+      if (saved) {
+        const prefs = JSON.parse(saved);
+        setDashboardLayout(prefs.layout || 'comfortable');
+        setShowPerformanceMetrics(prefs.showMetrics !== false);
+        setEnableRealTimeUpdates(prefs.enableRealTime !== false);
+        setAutoRefresh(prefs.autoRefresh || false);
+      }
+    } catch (error) {
+      enhancedLogger.warn('PropFinderDashboard', 'preferences', 'Failed to load preferences', { error });
+    }
+  }, []);
+
+  // Save dashboard preferences to localStorage
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('dashboardPreferences', JSON.stringify({
+        layout: dashboardLayout,
+        showMetrics: showPerformanceMetrics,
+        enableRealTime: enableRealTimeUpdates,
+        autoRefresh: autoRefresh,
+      }));
+    } catch (error) {
+      enhancedLogger.warn('PropFinderDashboard', 'preferences', 'Failed to save preferences', { error });
+    }
+  }, [dashboardLayout, showPerformanceMetrics, enableRealTimeUpdates, autoRefresh]);
+
+  // Apply layout spacing based on user preference
+  const spacingClass = useMemo(() => {
+    return {
+      compact: 'p-2',
+      comfortable: 'p-6',
+      spacious: 'p-8'
+    }[dashboardLayout];
+  }, [dashboardLayout]);
 
   // Memoize options to avoid recreating the object each render which would
   // cause usePropFinderData's internal `initialFilters` memo to change and
@@ -225,6 +274,18 @@ const PropFinderDashboard: React.FC = () => {
     selectedOpportunity ? { prop_id: selectedOpportunity.id, hours_back: 24 } : null,
     showLineMovementModal
   );
+
+  // Auto-refresh functionality for dashboard customization
+  React.useEffect(() => {
+    if (!autoRefresh) return;
+    
+    const interval = setInterval(() => {
+      refreshData();
+      enhancedLogger.debug('PropFinderDashboard', 'autoRefresh', 'Auto-refreshing data');
+    }, 30000); // 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [autoRefresh, refreshData]);
 
   if (process.env.NODE_ENV === 'development') {
     // eslint-disable-next-line no-console
@@ -562,7 +623,7 @@ const PropFinderDashboard: React.FC = () => {
 
   return (
     <>
-      <div className='min-h-screen bg-gray-900 text-white p-6'>
+      <div className={`min-h-screen bg-gray-900 text-white ${spacingClass}`}>
         <div className='max-w-7xl mx-auto'>
           {/* Enhanced Header with Stats */}
           <div className='mb-8'>
@@ -639,6 +700,16 @@ const PropFinderDashboard: React.FC = () => {
                 }`}
               >
                 🔄 Auto Refresh
+              </button>
+
+              <button
+                onClick={() => setShowSettings(true)}
+                className='px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2'
+                title='Dashboard Settings'
+                aria-label='Open dashboard settings'
+              >
+                <Settings className='w-4 h-4' />
+                Settings
               </button>
             </div>
 
@@ -1063,6 +1134,11 @@ const PropFinderDashboard: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Performance Metrics */}
+          {showPerformanceMetrics && (
+            <PerformanceMetrics opportunities={filteredOpportunities} />
+          )}
 
           {/* Results Summary */}
           <div className='mb-4 flex justify-between items-center'>
@@ -1770,6 +1846,20 @@ const DebugOverlay: React.FC<{
           </div>
         )}
       </div>
+
+      {/* Dashboard Settings Panel */}
+      <DashboardSettingsPanel
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        layout={dashboardLayout}
+        onLayoutChange={setDashboardLayout}
+        showMetrics={showPerformanceMetrics}
+        onShowMetricsChange={setShowPerformanceMetrics}
+        enableRealTime={enableRealTimeUpdates}
+        onEnableRealTimeChange={setEnableRealTimeUpdates}
+        autoRefresh={autoRefresh}
+        onAutoRefreshChange={setAutoRefresh}
+      />
     </div>
   );
 };
