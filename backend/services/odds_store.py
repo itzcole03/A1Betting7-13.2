@@ -137,6 +137,9 @@ class OddsStoreService:
 
     async def initialize_bookmakers(self, session: AsyncSession) -> List[Bookmaker]:
         """Initialize bookmaker registry with default sportsbooks"""
+        if not SQLALCHEMY_AVAILABLE:
+            self.logger.warning("SQLAlchemy not available, skipping bookmaker initialization")
+            return []
         try:
             # Idempotent insert: fetch existing by name and insert missing ones.
             names = [b["name"] for b in INITIAL_BOOKMAKERS]
@@ -209,6 +212,9 @@ class OddsStoreService:
         Returns:
             List of created OddsSnapshot objects
         """
+        if not SQLALCHEMY_AVAILABLE:
+            self.logger.warning("SQLAlchemy not available, skipping odds snapshot storage")
+            return []
         if not bookmaker_odds:
             return []
 
@@ -301,6 +307,9 @@ class OddsStoreService:
         Returns:
             BestLineResult with best odds or None if no data found
         """
+        if not SQLALCHEMY_AVAILABLE:
+            self.logger.warning("SQLAlchemy not available, skipping best line lookup")
+            return None
         try:
             cache_key = f"best_line:{prop_id}:{max_age_minutes}"
             cache = await _get_cache()
@@ -424,6 +433,9 @@ class OddsStoreService:
         Returns:
             List of movement data points
         """
+        if not SQLALCHEMY_AVAILABLE:
+            self.logger.warning("SQLAlchemy not available, skipping line movement lookup")
+            return []
         try:
             cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours_back)
 
@@ -502,6 +514,9 @@ class OddsStoreService:
         Returns:
             List of detected steam moves
         """
+        if not SQLALCHEMY_AVAILABLE:
+            self.logger.warning("SQLAlchemy not available, skipping steam move detection")
+            return []
         try:
             cutoff_time = datetime.now(timezone.utc) - timedelta(
                 minutes=lookback_minutes
@@ -836,7 +851,7 @@ def create_enhanced_bookmaker_response(
                     best_book = book_name.title()
 
         # Use OddsNormalizer for probability calculations
-        odds_normalizer = OddsNormalizer() if OddsNormalizer else None
+        odds_normalizer = OddsNormalizer() if OddsNormalizer is not None else None
         implied_prob = 0.5  # Default
         edge = 0.0
 
